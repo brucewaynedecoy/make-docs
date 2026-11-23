@@ -55,12 +55,12 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: Create `packages/skills/factory-setup/` and its registry entry. Keep it explicit-invocation-only and off by default (R-FACTORY-48).
-- [ ] t2: Stop when the CLI or a usable Store is missing. Name which one and the setup step that fixes it (R-FACTORY-3).
-- [ ] t3: Find agent tools on the machine and in the project, by capability: tools that run agents, launch agents, wake on a schedule or event, message the person, or expose MCP servers. Reuse the machine's saved tool list when it is current (R-FACTORY-15).
-- [ ] t4: Read each tool's help, docs, MCP tool list, and Skills. Record what each tool says it can do.
-- [ ] t5: Interview the person for preferences and permissions only: workflow type, human channel, wake method, limits, grants, and optional steps such as preflight. Ask one decision at a time, with a recommendation (R-FACTORY-21, R-FACTORY-35, R-FACTORY-36).
-- [ ] t6: Save the worktree method of each workflow, and obey a repository or user rule that forbids worktrees (R-FACTORY-43).
+- [ ] T1: Create `packages/skills/factory-setup/` and its registry entry. Keep it explicit-invocation-only and off by default (R-FACTORY-48).
+- [ ] T2: Stop when the CLI or a usable Store is missing. Name which one and the setup step that fixes it (R-FACTORY-3).
+- [ ] T3: Find agent tools on the machine and in the project, by capability: tools that run agents, launch agents, wake on a schedule or event, message the person, or expose MCP servers. Reuse the machine's saved tool list when it is current (R-FACTORY-15).
+- [ ] T4: Read each tool's help, docs, MCP tool list, and Skills. Record what each tool says it can do.
+- [ ] T5: Interview the person for preferences and permissions only: workflow type, human channel, wake method, limits, grants, and optional steps such as preflight. Ask one decision at a time, with a recommendation (R-FACTORY-21, R-FACTORY-35, R-FACTORY-36).
+- [ ] T6: Save the worktree method of each workflow, and obey a repository or user rule that forbids worktrees (R-FACTORY-43).
 
 ### Acceptance criteria
 
@@ -76,13 +76,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t7: Give each role a tool by capability. Mark each capability as proved or unproved (R-FACTORY-9, R-FACTORY-10).
-- [ ] t8: Support the smallest setup: one tool that is the front desk and the foreman, with its own subagents as builders and reviewers, and "wait in session" as the channel (R-FACTORY-8, R-FACTORY-36).
-- [ ] t9: Run one small test task from intake to return through the real workflow (R-FACTORY-11).
-- [ ] t10: List each one-time manual step with what the person must do, why, and what it unblocks (R-FACTORY-13).
-- [ ] t11: Save through the P3 operations, then show the closing summary (R-FACTORY-14).
-- [ ] t12: On a rerun, update the same workflow, show what changed, and prove again each boundary that changed (R-FACTORY-16).
-- [ ] t13: Make no install, sign-in, billing, or authentication change on the person's behalf.
+- [ ] T7: Give each role a tool by capability. Mark each capability as proved or unproved (R-FACTORY-9, R-FACTORY-10).
+- [ ] T8: Support the smallest setup: one tool that is the front desk and the foreman, with its own subagents as builders and reviewers, and "wait in session" as the channel (R-FACTORY-8, R-FACTORY-36).
+- [ ] T9: Run one small test task from intake to return through the real workflow (R-FACTORY-11).
+- [ ] T10: List each one-time manual step with what the person must do, why, and what it unblocks (R-FACTORY-13).
+- [ ] T11: Save through the P3 operations, then show the closing summary (R-FACTORY-14).
+- [ ] T12: On a rerun, update the same workflow, show what changed, and prove again each boundary that changed (R-FACTORY-16).
+- [ ] T13: Make no install, sign-in, billing, or authentication change on the person's behalf.
 
 ### Acceptance criteria
 

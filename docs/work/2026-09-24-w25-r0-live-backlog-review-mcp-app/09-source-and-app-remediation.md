@@ -42,11 +42,11 @@ Bear steps 4–5 and 15; R-BACKLOG-APP-1–16; R-BACKLOG-CACHE-1–8; P7 A51–A
 
 ### Tasks
 
-- [x] t1: Remove the uncommitted request-resolve tool, wave-task prompt, `prompts/get` override, resolver-only storage, and task-creation behavior. Keep strict action identity, stale-source, and duplicate guards. (Step 4; evidence: registry and action tests.)
-- [x] t2: Read current facts, use only valid hits returned by the Store cache, judge misses freshly, validate the whole report, write eligible fresh fragments through the existing operation, and recompute portfolio conclusions. Reject wrong checkout/source/rule/schema fragments and private-report reuse. (Step 5; evidence: cache lifecycle tests.)
-- [x] t3: Trace and repair real report delivery with only necessary bounded transport handling. Prove malformed or oversized payload rejection and complete model parity. (Steps 4–5; evidence: source and package checks.)
-- [x] t4: Preserve approved Explain/Work names, icons, and layout. Correct shipped Skill/process/resource text; keep needed P7 scripts under evidence and out of shipped assets; retain removal of the `git show HEAD:` comparison test. (Step 4; evidence: package and instruction checks.)
-- [x] t5: Show the exact replacement text and display behavior for unknown task counts, then apply only the owner-approved UI change. Distinguish known zero, unknown, unsupported, and unavailable. (Step 4; gate: separate UI review; evidence: source and visual checks.)
+- [x] T1: Remove the uncommitted request-resolve tool, wave-task prompt, `prompts/get` override, resolver-only storage, and task-creation behavior. Keep strict action identity, stale-source, and duplicate guards. (Step 4; evidence: registry and action tests.)
+- [x] T2: Read current facts, use only valid hits returned by the Store cache, judge misses freshly, validate the whole report, write eligible fresh fragments through the existing operation, and recompute portfolio conclusions. Reject wrong checkout/source/rule/schema fragments and private-report reuse. (Step 5; evidence: cache lifecycle tests.)
+- [x] T3: Trace and repair real report delivery with only necessary bounded transport handling. Prove malformed or oversized payload rejection and complete model parity. (Steps 4–5; evidence: source and package checks.)
+- [x] T4: Preserve approved Explain/Work names, icons, and layout. Correct shipped Skill/process/resource text; keep needed P7 scripts under evidence and out of shipped assets; retain removal of the `git show HEAD:` comparison test. (Step 4; evidence: package and instruction checks.)
+- [x] T5: Show the exact replacement text and display behavior for unknown task counts, then apply only the owner-approved UI change. Distinguish known zero, unknown, unsupported, and unavailable. (Step 4; gate: separate UI review; evidence: source and visual checks.)
 
 ### Acceptance criteria
 

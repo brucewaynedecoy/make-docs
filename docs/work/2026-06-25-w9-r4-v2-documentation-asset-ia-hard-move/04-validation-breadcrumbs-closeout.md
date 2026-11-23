@@ -19,11 +19,11 @@ This phase verifies the full pivot across docs, templates, package copies, CLI p
 
 ### Tasks
 
-- [x] t1: Run changed-file Markdown link checks.
-- [x] t2: Run `git diff --check`.
-- [x] t3: Run relevant CLI/package tests after template or CLI path changes.
-- [x] t4: Run package smoke validation after package-copy changes.
-- [x] t5: Run targeted path-reference checks for shipped top-level `docs/artifacts/**`, shipped top-level `docs/archive/**`, current `docs/assets/history/**`, and future `docs/assets/breadcrumbs/**`.
+- [x] T1: Run changed-file Markdown link checks.
+- [x] T2: Run `git diff --check`.
+- [x] T3: Run relevant CLI/package tests after template or CLI path changes.
+- [x] T4: Run package smoke validation after package-copy changes.
+- [x] T5: Run targeted path-reference checks for shipped top-level `docs/artifacts/**`, shipped top-level `docs/archive/**`, current `docs/assets/history/**`, and future `docs/assets/breadcrumbs/**`.
 
 ### Acceptance criteria
 
@@ -56,11 +56,11 @@ This phase verifies the full pivot across docs, templates, package copies, CLI p
 
 ### Tasks
 
-- [x] t6: Update the risk register entry for R-013 with implementation evidence and remaining follow-up, if any.
-- [x] t7: Reconcile PRD 21 and PRD 22 source anchors or acceptance evidence if implementation differs from the planned path.
-- [x] t8: Create or update the W9 R4 closeout breadcrumb record under the then-current breadcrumb path; W9 R5 later migrated it to `docs/assets/archive/history/**`.
-- [x] t9: Record that existing history records were preserved migration evidence; W9 R5 later migrated preserved history and breadcrumbs to `docs/assets/archive/history/**`.
-- [x] t10: Decide whether manual/UAT is worthwhile for the completed W9 R4 implementation and document the decision.
+- [x] T6: Update the risk register entry for R-013 with implementation evidence and remaining follow-up, if any.
+- [x] T7: Reconcile PRD 21 and PRD 22 source anchors or acceptance evidence if implementation differs from the planned path.
+- [x] T8: Create or update the W9 R4 closeout breadcrumb record under the then-current breadcrumb path; W9 R5 later migrated it to `docs/assets/archive/history/**`.
+- [x] T9: Record that existing history records were preserved migration evidence; W9 R5 later migrated preserved history and breadcrumbs to `docs/assets/archive/history/**`.
+- [x] T10: Decide whether manual/UAT is worthwhile for the completed W9 R4 implementation and document the decision.
 
 ### Acceptance criteria
 

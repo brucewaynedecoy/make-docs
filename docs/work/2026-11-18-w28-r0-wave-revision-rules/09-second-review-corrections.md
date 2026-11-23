@@ -59,12 +59,12 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Make the applied setup result name both a blocked platform action and the `make-docs setup skills` route when both remain. Add a test.
-- [x] t2: Treat fenced code and inline code spans as literal text when the snapshot finds live Closeout Notes and Change History sections. A heading inside a fenced block starts no section. Add tests.
-- [x] t3: Match whole completion values in the backlog review phase display state, so `incomplete` falls through to the task checks. Regenerate the Skill bundles and the MCP App widget. Add a test.
-- [x] t4: State in the `backlog-review` report model why refusing a report that embeds a version 1 snapshot is not a breaking report change.
-- [x] t5: Refresh the installed Skills with `make-docs setup skills`, using the owner-installed build.
-- [x] t6: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
+- [x] T1: Make the applied setup result name both a blocked platform action and the `make-docs setup skills` route when both remain. Add a test.
+- [x] T2: Treat fenced code and inline code spans as literal text when the snapshot finds live Closeout Notes and Change History sections. A heading inside a fenced block starts no section. Add tests.
+- [x] T3: Match whole completion values in the backlog review phase display state, so `incomplete` falls through to the task checks. Regenerate the Skill bundles and the MCP App widget. Add a test.
+- [x] T4: State in the `backlog-review` report model why refusing a report that embeds a version 1 snapshot is not a breaking report change.
+- [x] T5: Refresh the installed Skills with `make-docs setup skills`, using the owner-installed build.
+- [x] T6: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
 
 ### Acceptance criteria
 

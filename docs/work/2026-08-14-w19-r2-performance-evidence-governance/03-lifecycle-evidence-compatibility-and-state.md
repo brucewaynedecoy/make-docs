@@ -41,13 +41,13 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 
 ### Tasks
 
-- [x] t1: Verify the exact branch, HEAD, worktree, free disk, phase write allowlist, current dirty state, and completed P2 evidence; stop on unexpected user work or unsafe resource pressure.
-- [x] t2: Reread the current normative bodies of PRDs 14, 18, 28, 38, 45, 46, 48, 49, and 50 plus PRD 03, and record each current revision or content digest before implementation.
-- [x] t3: Reevaluate at minimum R-009, R-017, closed R-023 as a regression guard, R-029 through R-032, and R-034; reevaluate Q-018 only if this phase changes configuration ownership and Q-019 only if it changes Persona setup or configuration; use PRDs 46, 48, 49, and 50, not Q-019, as the authority for cross-type and Human Experience boundaries, and add newly relevant items from the live reread.
-- [x] t4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: If no blocking item or authority gap remains, record an explicit no-blocker result and the finite phase correction/review budget before unlocking t8.
-- [x] t6: If a blocking item or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
-- [x] t7: After an owner decision, require canonical PRD/register/history updates, focused validation, a separate decision-only commit, and the recorded decision commit SHA before marking this gate unlocked.
+- [x] T1: Verify the exact branch, HEAD, worktree, free disk, phase write allowlist, current dirty state, and completed P2 evidence; stop on unexpected user work or unsafe resource pressure.
+- [x] T2: Reread the current normative bodies of PRDs 14, 18, 28, 38, 45, 46, 48, 49, and 50 plus PRD 03, and record each current revision or content digest before implementation.
+- [x] T3: Reevaluate at minimum R-009, R-017, closed R-023 as a regression guard, R-029 through R-032, and R-034; reevaluate Q-018 only if this phase changes configuration ownership and Q-019 only if it changes Persona setup or configuration; use PRDs 46, 48, 49, and 50, not Q-019, as the authority for cross-type and Human Experience boundaries, and add newly relevant items from the live reread.
+- [x] T4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: If no blocking item or authority gap remains, record an explicit no-blocker result and the finite phase correction/review budget before unlocking T8.
+- [x] T6: If a blocking item or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
+- [x] T7: After an owner decision, require canonical PRD/register/history updates, focused validation, a separate decision-only commit, and the recorded decision commit SHA before marking this gate unlocked.
 
 ### Acceptance criteria
 
@@ -70,19 +70,19 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 - Write allowlist: the eight upstream lifecycle resource/template files under `packages/docs/template/.make-docs/system/`; their eight dogfood projections under `.make-docs/system/`; `packages/cli/tests/performance-evidence-resources.test.ts`; `packages/cli/tests/fixtures/performance-evidence/lifecycle-cases.md`; and this phase record. No other repository file is accepted for P3.
 - Authority digests: PRD 03 `575823ba6ef617e5b1b3fc20417c82f30d83ae8630fbf270a7a9abdd83da10e8`; PRD 14 `114f5b85da76b09951df23dbe279fd8e4c4fb0c765c45e8cad7b96f07dfe3522`; PRD 18 `9239f4ff3074c7ac4a92f9f1fdea442177d108a5fd4ade2354c1f14701d58f66`; PRD 28 `f709ba89a8c4b2c71b9cf9b74117a082c9721d6781f5373650ffff8993d421c6`; PRD 38 `17d8de3a9c7f114978afe5f3effe2d9057cb68c504bbacdee9c9f98967cc60fd`; PRD 45 `718b0c4584d049395433af6f3220f21b21f4d815ca615334f62a8a070119b7f1`; PRD 46 `64876d508c15c080d3b48bca68ce03ca53aabbd45c6b80cf7330ead5c2ff2c95`; PRD 48 `8ff466996e1da56714dbdc910e3a4e95933ca1fced29a8af8bad5c52aab32125`; PRD 49 `db65bcd107fc26958a97e6af9777a9d1da89622e5194817c90df66766c4d8020`; PRD 50 `461262c7b2e04eed560ac85b96ffa1e7ca90f0c0c660b0b3a7d835dd4f1d0bc4`.
 - Risk gate: R-009 and R-017 are `impacted-nonblocking`; P3 keeps the lifecycle advisory and keeps detailed policy in the canonical system resource. R-023 is a `closed-regression-check`; P3 keeps repository records authoritative. R-029, R-030, R-031, R-032, and R-034 are `impacted-nonblocking`; the P3 fields, fixtures, proof separation, and proportional test set implement their accepted controls. R-021 is unrelated because P3 does not change support claims. Closed R-022 is a regression check only; P3 does not replace direct installed-product proof. Q-018 and Q-019 are unrelated because P3 changes neither configuration ownership nor Persona setup.
-- Gate result: no blocking item, new authority gap, or decision-only commit is required. Tasks t6 and t7 are complete as not applicable. The phase budget is two material correction attempts and two independent review cycles.
+- Gate result: no blocking item, new authority gap, or decision-only commit is required. Tasks T6 and T7 are complete as not applicable. The phase budget is two material correction attempts and two independent review cycles.
 - Phase / capability status: Stage 1 unlocked P3 implementation. Gate completion alone does not complete P3.
 
 ## Stage 2 - Wire Qualification, Profiles, And Finite Execution Packets
 
 ### Tasks
 
-- [x] t8: Add the bounded performance-candidate inventory and dual disposition to design, plan, PRD, work, implementation, coverage, and closeout touchpoints without making evidence mandatory for every change.
-- [x] t9: Require every `required-now` or `characterize-now` execution candidate to link exactly one repository-canonical, append-only `PERF-###` ID, version, source digest, target class, owner, and lineage.
-- [x] t10: Keep hard product targets solely in their owning PRDs; keep engineering guardrail, characterization, and experiment profiles in their approved finite plan/work authority and prevent execution packets from copying or redefining product targets.
-- [x] t11: Render finite execution packets that bind build, dependency/configuration identity, environment, workload, fixture, instrument, measurement/comparability protocol, non-sacrificable constraints, run/correction/review/time/compute/external-resource budgets, stops, fingerprint, reuse rule, and evidence destinations.
-- [x] t12: Require correctness and the measurement seam to be validated before optimization or blocking performance execution, and route inadequate resolution or variance to `revise` or `blocked`.
-- [x] t13: Prove with fixtures that characterization is an uncertain observed distribution and cannot become a threshold until source, comparability, variance, resolution, protected-outcome rationale, trade-offs, owner approval, and superseding lineage are established.
+- [x] T8: Add the bounded performance-candidate inventory and dual disposition to design, plan, PRD, work, implementation, coverage, and closeout touchpoints without making evidence mandatory for every change.
+- [x] T9: Require every `required-now` or `characterize-now` execution candidate to link exactly one repository-canonical, append-only `PERF-###` ID, version, source digest, target class, owner, and lineage.
+- [x] T10: Keep hard product targets solely in their owning PRDs; keep engineering guardrail, characterization, and experiment profiles in their approved finite plan/work authority and prevent execution packets from copying or redefining product targets.
+- [x] T11: Render finite execution packets that bind build, dependency/configuration identity, environment, workload, fixture, instrument, measurement/comparability protocol, non-sacrificable constraints, run/correction/review/time/compute/external-resource budgets, stops, fingerprint, reuse rule, and evidence destinations.
+- [x] T12: Require correctness and the measurement seam to be validated before optimization or blocking performance execution, and route inadequate resolution or variance to `revise` or `blocked`.
+- [x] T13: Prove with fixtures that characterization is an uncertain observed distribution and cannot become a threshold until source, comparability, variance, resolution, protected-outcome rationale, trade-offs, owner approval, and superseding lineage are established.
 
 ### Acceptance criteria
 
@@ -108,13 +108,13 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 
 ### Tasks
 
-- [x] t14: Define unique result records bound to the exact profile ID/version/digest, build, fingerprint, raw and analyzed evidence, uncertainty, exclusions, budget ledger, supported scope, owner/reviewer disposition, and one normalized `pass`, `fail`, `revise`, `blocked`, or `waived` outcome.
-- [x] t15: Preserve finding and waiver records as independent authority: task completion cannot close a finding, and `waived` is bounded risk acceptance with explicit scope and expiry rather than success.
-- [x] t16: Implement bidirectional traceability from qualification through profile, plan budget, work packet, result, finding, PRD or `O-###` disposition, phase gate, and history.
-- [x] t17: Enforce unchanged-fingerprint result reuse outside requalification, affected-only reruns after material change, remaining-budget accounting, and stop/escalation at exhaustion or diminishing return.
-- [x] t18: Encode expiry or release requalification as a separately owner- or phase-authorized event with a new finite budget and exactly one bounded qualification execution when unchanged; prohibit further unchanged repeats until another valid trigger and explicit authorization.
-- [x] t19: Make phase gates consume evidence validity, outcome, critical/major findings, reproducibility, waiver scope/expiry, deferred obligations, budget state, unchanged-check compliance, and supported scope; treat `fail`, `revise`, `blocked`, expired, or unrun required proof as non-passing.
-- [x] t20: Add fixtures for hard profile, engineering guardrail, characterization, deferred, unsupported, expired, non-comparable, blocked, waived, unchanged reuse, affected rerun, and valid versus repeated requalification cases.
+- [x] T14: Define unique result records bound to the exact profile ID/version/digest, build, fingerprint, raw and analyzed evidence, uncertainty, exclusions, budget ledger, supported scope, owner/reviewer disposition, and one normalized `pass`, `fail`, `revise`, `blocked`, or `waived` outcome.
+- [x] T15: Preserve finding and waiver records as independent authority: task completion cannot close a finding, and `waived` is bounded risk acceptance with explicit scope and expiry rather than success.
+- [x] T16: Implement bidirectional traceability from qualification through profile, plan budget, work packet, result, finding, PRD or `O-###` disposition, phase gate, and history.
+- [x] T17: Enforce unchanged-fingerprint result reuse outside requalification, affected-only reruns after material change, remaining-budget accounting, and stop/escalation at exhaustion or diminishing return.
+- [x] T18: Encode expiry or release requalification as a separately owner- or phase-authorized event with a new finite budget and exactly one bounded qualification execution when unchanged; prohibit further unchanged repeats until another valid trigger and explicit authorization.
+- [x] T19: Make phase gates consume evidence validity, outcome, critical/major findings, reproducibility, waiver scope/expiry, deferred obligations, budget state, unchanged-check compliance, and supported scope; treat `fail`, `revise`, `blocked`, expired, or unrun required proof as non-passing.
+- [x] T20: Add fixtures for hard profile, engineering guardrail, characterization, deferred, unsupported, expired, non-comparable, blocked, waived, unchanged reuse, affected rerun, and valid versus repeated requalification cases.
 
 ### Acceptance criteria
 
@@ -140,13 +140,13 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 
 ### Tasks
 
-- [x] t21: Preserve independent applicability, evidence, outcomes, conclusions, and gate effects for Performance Testing, Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, agent Human Experience Review, architecture review, accessibility, static-adapter and direct installed-product proof, release, and support promotion.
-- [x] t22: Allow one physical execution to contribute to multiple testing types, review lenses, or evidence gates only when each authority, field set, evidence use, conclusion, outcome, and gate effect remains explicit. Prevent perceived slowness, performance pass, waiver, or Store receipt from certifying another type, lens, or gate.
-- [x] t23: At the first qualifying lifecycle event after adoption, inventory active current numeric thresholds, relative claims, resource budgets, absolute performance language, benchmark assets, and evidence without retroactively failing completed phases or rerunning, certifying, moving, deleting, or rewriting existing assets.
-- [x] t24: Route ambiguous or modified managed resources through PRD 18 conflict-stop and explicit disposition, and require owner authority for keeping, reclassifying, deferring, narrowing, or removing current candidates.
-- [x] t25: Keep repository knowledge canonical and any Project State or Global Store projection rebuildable and non-authoritative; add no new table, daemon, retry loop, hidden mutation, or self-authorizing budget ledger in documentation-first delivery.
-- [x] t26: Prove closed R-023 regressions: operational projection or receipt cannot override profile, target, outcome, expiry, waiver, finding, obligation, ownership, or history authority.
-- [x] t27: Prove performance outcomes cannot promote static-adapter availability, direct installed-product correctness, release readiness, public support, or a broader harness method, and apply R-021 or the closed R-022 regression guard only when this phase touches those claims.
+- [x] T21: Preserve independent applicability, evidence, outcomes, conclusions, and gate effects for Performance Testing, Automated Implementation Testing, Guided Progress Review, Unassisted Goal Testing, agent Human Experience Review, architecture review, accessibility, static-adapter and direct installed-product proof, release, and support promotion.
+- [x] T22: Allow one physical execution to contribute to multiple testing types, review lenses, or evidence gates only when each authority, field set, evidence use, conclusion, outcome, and gate effect remains explicit. Prevent perceived slowness, performance pass, waiver, or Store receipt from certifying another type, lens, or gate.
+- [x] T23: At the first qualifying lifecycle event after adoption, inventory active current numeric thresholds, relative claims, resource budgets, absolute performance language, benchmark assets, and evidence without retroactively failing completed phases or rerunning, certifying, moving, deleting, or rewriting existing assets.
+- [x] T24: Route ambiguous or modified managed resources through PRD 18 conflict-stop and explicit disposition, and require owner authority for keeping, reclassifying, deferring, narrowing, or removing current candidates.
+- [x] T25: Keep repository knowledge canonical and any Project State or Global Store projection rebuildable and non-authoritative; add no new table, daemon, retry loop, hidden mutation, or self-authorizing budget ledger in documentation-first delivery.
+- [x] T26: Prove closed R-023 regressions: operational projection or receipt cannot override profile, target, outcome, expiry, waiver, finding, obligation, ownership, or history authority.
+- [x] T27: Prove performance outcomes cannot promote static-adapter availability, direct installed-product correctness, release readiness, public support, or a broader harness method, and apply R-021 or the closed R-022 regression guard only when this phase touches those claims.
 
 ### Acceptance criteria
 
@@ -173,11 +173,11 @@ P3 consumes the canonical resources from P2, uses documentation fixtures rather 
 
 ### Tasks
 
-- [x] t28: Run focused documentation-contract, template, fixture, link, anchor, path-hygiene, PRD-authority regression, and affected tests without a platform/environment benchmark matrix.
-- [x] t29: Retry only affected failed checks after a material correction, reuse unchanged valid evidence, and stop at the declared correction/review budget or diminishing return.
-- [x] t30: Independently review the P3 diff for target copies, implicit budgets, outcome shopping, expiry loopholes, correctness trade-offs, cross-mode substitution, retroactive failure, and Store authority drift.
-- [x] t31: Record exact changed files, validations, fixture coverage, remaining questions, risks, findings, waivers, obligations, budget consumption, phase-versus-capability status, and agent Human Experience Review of the real lifecycle resources.
-- [x] t32: Hand off P4 as `blocked / not-authorized` and P5 as the next documentation-first phase unless the owner separately admits the validator.
+- [x] T28: Run focused documentation-contract, template, fixture, link, anchor, path-hygiene, PRD-authority regression, and affected tests without a platform/environment benchmark matrix.
+- [x] T29: Retry only affected failed checks after a material correction, reuse unchanged valid evidence, and stop at the declared correction/review budget or diminishing return.
+- [x] T30: Independently review the P3 diff for target copies, implicit budgets, outcome shopping, expiry loopholes, correctness trade-offs, cross-mode substitution, retroactive failure, and Store authority drift.
+- [x] T31: Record exact changed files, validations, fixture coverage, remaining questions, risks, findings, waivers, obligations, budget consumption, phase-versus-capability status, and agent Human Experience Review of the real lifecycle resources.
+- [x] T32: Hand off P4 as `blocked / not-authorized` and P5 as the next documentation-first phase unless the owner separately admits the validator.
 
 ### Acceptance criteria
 

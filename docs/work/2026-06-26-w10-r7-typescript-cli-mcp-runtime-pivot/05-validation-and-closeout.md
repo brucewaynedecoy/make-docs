@@ -6,11 +6,11 @@ Validate the W10 R7 documentation pivot and record closeout history.
 
 ## Tasks
 
-- [x] t1: Run `git diff --check`.
-- [x] t2: Run changed-file Markdown link checks.
-- [x] t3: Run `bash scripts/check-wave-numbering.sh`.
-- [x] t4: Run future-facing runtime assumption scans.
-- [x] t5: Create a closeout history record.
+- [x] T1: Run `git diff --check`.
+- [x] T2: Run changed-file Markdown link checks.
+- [x] T3: Run `bash scripts/check-wave-numbering.sh`.
+- [x] T4: Run future-facing runtime assumption scans.
+- [x] T5: Create a closeout history record.
 
 ## Implementation Notes
 

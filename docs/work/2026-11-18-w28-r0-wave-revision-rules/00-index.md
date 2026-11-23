@@ -84,9 +84,9 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-18 — W28 R0
 
 - Kind: `edit`
-- Affected scope: P2 t11, t12, and A31; P3 t2.
-- Previous scope: P2 changed the snapshot schema, snapshot code, catalog, and tests only. P3 t2 added the `rule-map.md` rows for `BACKLOG-RULE-017` and `BACKLOG-RULE-018`.
-- Replacement scope: P2 t11 regenerates the two generated backlog-review Skill bundles and the MCP App widget asset from the changed schema. P2 t12 adds the `rule-map.md` rows, moved from P3 t2. P3 t2 points to P2 t12. New acceptance A31 covers the regenerated files.
+- Affected scope: P2 T11, T12, and A31; P3 T2.
+- Previous scope: P2 changed the snapshot schema, snapshot code, catalog, and tests only. P3 T2 added the `rule-map.md` rows for `BACKLOG-RULE-017` and `BACKLOG-RULE-018`.
+- Replacement scope: P2 T11 regenerates the two generated backlog-review Skill bundles and the MCP App widget asset from the changed schema. P2 T12 adds the `rule-map.md` rows, moved from P3 T2. P3 T2 points to P2 T12. New acceptance A31 covers the regenerated files.
 - Rationale: The generated bundles embed the strict snapshot schema, and the Skill test checks that `rule-map.md` lists every catalog rule. P2's tests cannot pass without these files. The change stays inside the plan's stated scope.
 - PRD decision: `none` — No product requirement changes; PRD 51 already requires the facts and the rule.
 - Owner approval: Not required. This is an edit to unfinished work that fits the plan.
@@ -95,7 +95,7 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-18 — W28 R0 P5
 
 - Kind: `revision-phase`
-- Affected scope: New P5 t1–t4 and A32–A35, revising completed P2; P4 dependencies.
+- Affected scope: New P5 T1–T4 and A32–A35, revising completed P2; P4 dependencies.
 - Previous scope: P2 coordinate facts counted work directories only, reported archived state per record only, and its catalog parity text did not name `wave-model.md`.
 - Replacement scope: P5 counts the union of work and plan W/R directories, adds a per-Wave `archived` fact, and names `wave-model.md` in both catalog parity mappings. P4 now also depends on P5.
 - Rationale: Owner review of committed P2 found that plan-only revisions such as W18 R15 were missing from the revision facts, which is the collision these facts exist to prevent. No revision Wave test passes.
@@ -106,9 +106,9 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-18 — W28 R0 P4
 
 - Kind: `edit`
-- Affected scope: P4 A21; new P4 t9–t11 and A36–A38.
+- Affected scope: P4 A21; new P4 T9–T11 and A36–A38.
 - Previous scope: A21 required a walkthrough mismatch to be fixed in P1. P4 had no task for the design table, the Skill sync, or the Skill delivery runner.
-- Replacement scope: A21 allows the fix in the design's expected-outcomes table by owner decision. t9 corrects that table. t10 runs the owner-approved Skill sync, or records why it failed. t11 fixes the Skill delivery runner and closes D-052. A36–A38 cover these tasks.
+- Replacement scope: A21 allows the fix in the design's expected-outcomes table by owner decision. T9 corrects that table. T10 runs the owner-approved Skill sync, or records why it failed. T11 fixes the Skill delivery runner and closes D-052. A36–A38 cover these tasks.
 - Rationale: The P4 walkthrough found that the design table, not the rules, was wrong for three cases. The owner approved one Store write for the Skill sync and asked for the D-052 fix in this change set.
 - PRD decision: `update-existing` — PRD 03 closes D-052 and adds D-053. PRDs 14 and 51 need no change.
 - Owner approval: Tyler, 2026-11-18 8:00 PM CST, relayed by the coordinator.
@@ -117,8 +117,8 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-18 — W28 R0 P4
 
 - Kind: `edit`
-- Affected scope: P4 Stage 4 (t8, A27–A29, and its dependency) and the A38 closeout caveat.
-- Previous scope: The owner follow-up edit had cut the P4 file inside task t8, which dropped the rest of t8, acceptance criteria A27–A29, and the Stage 4 dependency. A38 recorded the installed Skill copies as blocked by D-053.
+- Affected scope: P4 Stage 4 (T8, A27–A29, and its dependency) and the A38 closeout caveat.
+- Previous scope: The owner follow-up edit had cut the P4 file inside task T8, which dropped the rest of T8, acceptance criteria A27–A29, and the Stage 4 dependency. A38 recorded the installed Skill copies as blocked by D-053.
 - Replacement scope: Stage 4 is restored unchanged from commit `e8518f69`. A38 is resolved: the reviewed Skill sync, run with the D-053 fix, refreshed the installed `.agents/skills/` copies, which this change set commits.
 - Rationale: CodeRabbit found the truncated Stage 4. The owner approved committing the synced Skill copies to close open item 1.
 - PRD decision: `none` — No product requirement changes.
@@ -128,9 +128,9 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-18 — W28 R0 P6
 
 - Kind: `revision-phase`
-- Affected scope: New P6 t1–t4 and A39–A41. It revises completed P2 code, and it corrects P1 resource text and P4 guide text.
+- Affected scope: New P6 T1–T4 and A39–A41. It revises completed P2 code, and it corrects P1 resource text and P4 guide text.
 - Previous scope: The snapshot stripped HTML comments with one regular-expression pass (CodeQL alert 44). It ignored missing linked phases in `nextPhase` and record `committed`, assumed the target was the repository root, and skipped Change History headings at other levels. The decision procedure let a stated coordinate or a revision-Phase choice skip owner gates and archived restoration. Some guides still described change documents.
-- Replacement scope: See P6 t1–t4.
+- Replacement scope: See P6 T1–T4.
 - Rationale: CI and review findings on PR #64. Each fix corrects a defect inside an existing result, and no revision Wave test passes.
 - PRD decision: `update-existing` — PRD 14 R-COORD-4 and R-COORD-5 now state the order, the gate rule, and the empty-scan fallback.
 - Owner approval: Not required for a clear revision Phase. The owner approved the CI-fix work on 2026-11-18.
@@ -150,7 +150,7 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-19 — W28 R0 P7
 
 - Kind: `revision-phase`
-- Affected scope: New P7 t1–t5 and A42–A44, revising completed P2.
+- Affected scope: New P7 T1–T5 and A42–A44, revising completed P2.
 - Previous scope: Snapshot facts were additive keys of schema version 1. Phase complete allowed "committed or deployed", and the glossary had two Phase complete rows. The package version was 2.0.8, which is already published.
 - Replacement scope: Snapshot schema version 2 refuses version 1 with an upgrade message. A commit is required for completion, and deployment is extra evidence. One glossary row requires both conditions. The agent judges prior completion from history. The package is 2.0.9 with a reviewed candidate digest.
 - Rationale: Owner decisions on the PR #64 review questions. The schema change applies P2's own rule for consumers that cannot accept new keys, and no revision Wave test passes.
@@ -161,7 +161,7 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-19 — W28 R0 P8
 
 - Kind: `revision-phase`
-- Affected scope: New P8 t1–t6 and A45–A50, revising completed P2 and adding the D-054 and D-055 CLI fixes to W28.
+- Affected scope: New P8 T1–T6 and A45–A50, revising completed P2 and adding the D-054 and D-055 CLI fixes to W28.
 - Previous scope: The snapshot found the Closeout Notes and Change History sections before it removed HTML comments. The installed `backlog-review` Skill trailed the source and refused version 2 snapshots. W28 did not cover setup or Skill adoption code.
 - Replacement scope: Comments are blanked in the whole body first. Full setup keeps an unset resource choice unset and routes the Skill changes it leaves to `make-docs setup skills`. The Skill adoption review blocks an older install record with the `make-docs setup` route. This repository's Store record is repaired, the installed Skills are refreshed, and the 2.0.9 candidate is packed again.
 - Rationale: CodeRabbit findings on PR #64 after P7, and the P7 Skill refresh limit. The refresh exposed D-054 and D-055, which blocked it. No revision Wave test passes.
@@ -183,7 +183,7 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-19 — W28 R0 P9
 
 - Kind: `revision-phase`
-- Affected scope: New P9 t1–t6 and A51–A55, revising completed P8 and adding the W25 R0 P3 review display fix to W28.
+- Affected scope: New P9 T1–T6 and A51–A55, revising completed P8 and adding the W25 R0 P3 review display fix to W28.
 - Previous scope: The applied setup result named only a blocked platform when Skill changes also remained. A `<!--` in code could hide a live section. The review display treated `incomplete` as complete. The report model did not explain why the report version stays 1.
 - Replacement scope: Setup names every remaining follow-up. Snapshot section lookup treats code as literal text. The display matches whole completion values. The report model explains the version. The installed Skills are refreshed, and the 2.0.9 candidate is packed again.
 - Rationale: CodeRabbit findings on PR #64 at `e12583cb`. No revision Wave test passes.
@@ -194,7 +194,7 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-20 — W28 R0 P10
 
 - Kind: `revision-phase`
-- Affected scope: New P10 t1–t4 and A56–A59, revising completed P9.
+- Affected scope: New P10 T1–T4 and A56–A59, revising completed P9.
 - Previous scope: The `make-docs setup skills` route had no target folder, and setup did not count Skill changes again after a new plan. The snapshot code scan opened a fenced block from a marker inside an HTML comment, and closed a block on a line that mixed fence markers.
 - Replacement scope: The route names `--target <folder>` when setup ran with a target, and the count matches the final plan. The scan tracks comment and fence state together and needs a matching closing fence. The backlog review display and widget findings are recorded as D-056 and D-057.
 - Rationale: CodeRabbit findings on PR #64 at `73f0ae00`. No revision Wave test passes. The display and widget findings are W25 behavior outside W28's plan, and one needs a product decision.
@@ -205,7 +205,7 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 ### 2026-11-20 — W28 R0 P11
 
 - Kind: `revision-phase`
-- Affected scope: New P11 t1–t4 and A60–A63, revising completed P10.
+- Affected scope: New P11 T1–T4 and A60–A63, revising completed P10.
 - Previous scope: The `make-docs setup skills` route quoted the target with POSIX single quotes, which Command Prompt does not accept. The snapshot code scan did not close a CRLF fenced block, and it opened a fence for a line of inline code that starts with three backticks. The P10 closeout said all selected testing passed.
 - Replacement scope: The route uses the double-quoted form of other make-docs next actions. The scan accepts a CRLF closing fence and opens no backtick fence when the rest of the line has a backtick. The P10 closeout names the 2 known `npm test` failures.
 - Rationale: CodeRabbit findings on PR #64 at `9a017abf`. No revision Wave test passes.

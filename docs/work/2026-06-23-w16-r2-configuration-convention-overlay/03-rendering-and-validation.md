@@ -12,12 +12,12 @@ Apply configuration only at user-visible rendering points and validate generated
 
 ## Tasks
 
-- [x] t1: Thread config into CLI summary rendering without altering action planning.
-- [x] t2: Thread config into wizard and skills UI labels after canonical selections resolve.
-- [x] t3: Add generator fixtures proving configured labels appear in prose while frontmatter fields remain canonical.
-- [x] t4: Add validator coverage for YAML/body drift caused by configured labels.
-- [x] t5: Add persona validation for default personas, custom personas, unknown frontmatter slugs, duplicate slugs, invalid primitives, and path/frontmatter drift.
-- [x] t6: Add tests proving route identifiers, prompt paths, skill names, contract names, and harness names stay canonical.
+- [x] T1: Thread config into CLI summary rendering without altering action planning.
+- [x] T2: Thread config into wizard and skills UI labels after canonical selections resolve.
+- [x] T3: Add generator fixtures proving configured labels appear in prose while frontmatter fields remain canonical.
+- [x] T4: Add validator coverage for YAML/body drift caused by configured labels.
+- [x] T5: Add persona validation for default personas, custom personas, unknown frontmatter slugs, duplicate slugs, invalid primitives, and path/frontmatter drift.
+- [x] T6: Add tests proving route identifiers, prompt paths, skill names, contract names, and harness names stay canonical.
 
 ## Acceptance Criteria
 

@@ -143,7 +143,7 @@ The earlier clean full-suite run reported 1,050 of 1,054 tests passing. Four sta
 
 The final-build PRD authority check covered 39 PRDs, 528 Markdown documents, 166 structured files and 867 links with zero diagnostics. Final path hygiene checked 84 Store-owned files with zero findings, I/O errors or changes. Router and wave-number checks passed again. A final documentation-only check may update counts after this report and D-032 are reconciled.
 
-The prior helper audit, A1–A12 checks and EP1–EP5 review missed the current Persona-name gap. Tasks t1, t3, t12, t13, t14 and t16 were reopened for that gap. The correction and current evidence below resolve them. The earlier green result alone did not resolve them. At that checkpoint, owner acceptance, phase closeout and the implementation commit remained separate pending steps. The accepted closeout below records the later owner decision. W20 R0 and W21 R0 remain paused.
+The prior helper audit, A1–A12 checks and EP1–EP5 review missed the current Persona-name gap. Tasks T1, T3, T12, T13, T14 and T16 were reopened for that gap. The correction and current evidence below resolve them. The earlier green result alone did not resolve them. At that checkpoint, owner acceptance, phase closeout and the implementation commit remained separate pending steps. The accepted closeout below records the later owner decision. W20 R0 and W21 R0 remain paused.
 
 ## Owner-Found Persona Name Correction
 

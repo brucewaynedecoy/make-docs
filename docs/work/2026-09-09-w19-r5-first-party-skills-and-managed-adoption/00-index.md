@@ -63,7 +63,7 @@ Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19
 ### 2026-11-18 — W19 R5 P2
 
 - Kind: `revision-phase`
-- Affected scope: New P2 t1–t3 and A15–A17, revising completed P1.
+- Affected scope: New P2 T1–T3 and A15–A17, revising completed P1.
 - Previous scope: P1 delivered reviewed adoption of existing first-party Skill copies. Its apply step rejected projects whose native Skill links already existed, with "Invalid predeclared native copy fallback."
 - Replacement scope: P2 declares a copy fallback only for a native link that the plan creates. Existing links stay links, and replaced bytes are backed up.
 - Rationale: The defect blocked the W28 R0 Skill sync of this repository and also affects released 2.0.8. It changes one P1 result and passes no revision Wave test.
@@ -74,7 +74,7 @@ Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19
 ### 2026-11-19 — W19 R5 P2
 
 - Kind: `edit`
-- Affected scope: P2 t4 and A18.
+- Affected scope: P2 T4 and A18.
 - Previous scope: P2 declared a copy fallback only when the native link path was missing before the plan. An outdated native folder that adoption removes and then replaces with a link lost its fallback, so a refused link could not fall back to a copy.
 - Replacement scope: P2 keeps a fallback for every planned missing-to-link step and drops it only for links that already match. Tests cover a refused link, which uses the copy mirror, and an allowed link.
 - Rationale: CodeRabbit review of PR #65 (Major). This completes P2's own A17 promise inside its unmerged PR, so it is recorded as an edit of P2 rather than a new revision Phase.
@@ -85,7 +85,7 @@ Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19
 ### 2026-11-20 — W19 R5 P2
 
 - Kind: `edit`
-- Affected scope: P2 t5 and A19.
+- Affected scope: P2 T5 and A19.
 - Previous scope: P2 ended with the copy-fallback fix and its checks on a base without W28 R0. D-053 lived only on the W28 R0 branch, and P2 recorded no package candidate digest.
 - Replacement scope: P2 merges `main` with W28 R0, repeats the checks and the throwaway adoption, closes D-053 in PRD 03, and records the 2.0.9 candidate digest as its last change.
 - Rationale: PR #64 merged W28 R0 into `main` on 2026-11-20, which brought D-053 and the 2.0.9 candidate digest into `main`. P2 changes the package, so the reviewed digest must match its content.
@@ -96,7 +96,7 @@ Closeout: [W19 R5 P1 history](../../../.make-docs/archive/history/2026-09-09-w19
 ### 2026-11-20 — W19 R5 P3
 
 - Kind: `revision-phase`
-- Affected scope: New P3 t1–t5 and A20–A22, revising completed P1.
+- Affected scope: New P3 T1–T5 and A20–A22, revising completed P1.
 - Previous scope: P1 delivered the adoption command with one summary for every mode. A real apply printed the dry-run summary, which says that nothing was applied and asks for a repeat with `--review`. It printed no readable result, and its JSON kept the review's stale next action.
 - Replacement scope: P3 selects the summary text and next action by mode, prints a result line after an apply, and gives the apply JSON a top-level `nextAction` for the result.
 - Rationale: Found in the W19 R5 P2 throwaway adoption on 2026-11-20 and recorded as D-058. It changes one P1 result and passes no revision Wave test. The released 2.0.8 has the same output.

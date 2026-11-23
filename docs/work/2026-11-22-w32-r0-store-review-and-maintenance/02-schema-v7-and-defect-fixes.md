@@ -51,11 +51,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Add the v7 migration: `project_register`, the `failed` status and R-LIFE-6 failure fields on `installation_operations`, and a widened `store_migration_receipts` check. Use the reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
-- [ ] t2: Install `BEFORE INSERT`, `BEFORE UPDATE`, and `BEFORE DELETE` triggers that call `make_docs_write_guard()` on every table.
-- [ ] t3: Register `make_docs_write_guard()` in one shared connection path, and route every Make Docs Store open in the CLI and the MCP server through it.
-- [ ] t4: Check every table's triggers at open. A missing or changed trigger makes the Store `store-unsafe` with the reason "changed outside Make Docs" and a next action that names `make-docs setup store check` and the newest backup.
-- [ ] t5: Set file mode `0600` on `store.db` and its backups where the platform supports it.
+- [ ] T1: Add the v7 migration: `project_register`, the `failed` status and R-LIFE-6 failure fields on `installation_operations`, and a widened `store_migration_receipts` check. Use the reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
+- [ ] T2: Install `BEFORE INSERT`, `BEFORE UPDATE`, and `BEFORE DELETE` triggers that call `make_docs_write_guard()` on every table.
+- [ ] T3: Register `make_docs_write_guard()` in one shared connection path, and route every Make Docs Store open in the CLI and the MCP server through it.
+- [ ] T4: Check every table's triggers at open. A missing or changed trigger makes the Store `store-unsafe` with the reason "changed outside Make Docs" and a next action that names `make-docs setup store check` and the newest backup.
+- [ ] T5: Set file mode `0600` on `store.db` and its backups where the platform supports it.
 
 ### Acceptance criteria
 
@@ -68,11 +68,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t6: Fix the checkpoint-9 receipt insert so it passes the widened check.
-- [ ] t7: Stop rewriting `root_path` and verification on every committed operation. Only the path-update rule changes them.
-- [ ] t8: Record a failed installation operation as `failed` with its failure fields.
-- [ ] t9: Add the `work_evidence` payload size limit with a typed refusal.
-- [ ] t10: Make Store status read `store_schema_journal` and report a missing version.
+- [ ] T6: Fix the checkpoint-9 receipt insert so it passes the widened check.
+- [ ] T7: Stop rewriting `root_path` and verification on every committed operation. Only the path-update rule changes them.
+- [ ] T8: Record a failed installation operation as `failed` with its failure fields.
+- [ ] T9: Add the `work_evidence` payload size limit with a typed refusal.
+- [ ] T10: Make Store status read `store_schema_journal` and report a missing version.
 
 ### Acceptance criteria
 

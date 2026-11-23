@@ -53,11 +53,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Run `make-docs project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption/`. Record the totals and the digest.
-- [ ] t2: Review the findings with the owner, then run `make-docs project doctor fix --review <digest>` with the same exclusion.
-- [ ] t3: Run the check again and confirm it finds nothing outside the excluded path. Confirm that no file under `.make-docs/archive/` and no history record changed.
-- [ ] t4: Confirm that the backlog snapshot facts are the same before and after, apart from the task ID case.
-- [ ] t5: Record in register D-063 that the W22 R2 backlog still needs a doctor run after W22 R2 closes.
+- [x] T1: Run `make-docs project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption/`. Record the totals and the digest.
+- [x] T2: Review the findings with the owner, then run `make-docs project doctor fix --review <digest>` with the same exclusion.
+- [x] T3: Run the check again and confirm it finds nothing outside the excluded path. Confirm that no file under `.make-docs/archive/` and no history record changed.
+- [x] T4: Confirm that the backlog snapshot facts are the same before and after, apart from the task ID case.
+- [x] T5: Record in register D-063 that the W22 R2 backlog still needs a doctor run after W22 R2 closes.
 
 ### Acceptance criteria
 
@@ -69,8 +69,8 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t6: Run the full test suite and record known failures.
-- [ ] t7: Complete a Human Experience Review for each promise in the index, and record evidence in `evidence.md`.
+- [x] T6: Run the full test suite and record known failures.
+- [x] T7: Complete a Human Experience Review for each promise in the index, and record evidence in `evidence.md`.
 
 ### Acceptance criteria
 
@@ -82,10 +82,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing selected and passed: a second doctor check found nothing, a byte check proved that every change is a `t` to `T` in a reviewed place, and the full suite has only known failures ([evidence](evidence.md#p4-one-time-rewrite-and-acceptance)). Guided Progress Review selected and done: the owner reviewed the check findings and the prose review list, and approved the fix on 2026-11-22. Performance Testing and Unassisted Goal Testing are `not-needed-now`.
+- Performance evidence: none. One run on a few hundred files.
+- Human Experience Review: all four promises hold on this repository. Every task ID that Make Docs writes, and every task ID in the active backlogs, now uses `T`. Older files and typed input with `t` still work. The check named each finding in plain words and changed nothing. The fix changed only the reviewed places, reported each file, and named the undo path. Owner feedback on the wording is welcome; none was raised.
+- Optional experience handoff: run `make-docs project doctor check` in another Make Docs project. Notice the totals first, then each line. Feedback is optional.
+- Explicit human acceptance gate: the owner reviewed the findings and approved the fix on 2026-11-22.
+- Evidence report: [P4 One-Time Rewrite and Acceptance](evidence.md#p4-one-time-rewrite-and-acceptance).
+- Phase / capability status: Phase complete on commit. W31 R0 is complete. The W22 R2 backlog keeps `t` until its own doctor run after W22 R2 closes (register D-063).

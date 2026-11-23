@@ -68,11 +68,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: In `packages/cli/src/skills-command.ts`, select the adoption summary text and next action by mode: dry run, apply with the matching digest, apply with another digest, `--yes` without a digest, and interactive confirmation.
-- [x] t2: After an apply, print a result line on stderr. In the JSON result, add a top-level `nextAction` for the result and leave out the applied review's own `nextAction`.
-- [x] t3: Add output assertions for each mode to `packages/cli/tests/w19-r5-skills-command.test.ts`, and confirm that they fail without the change.
-- [x] t4: Describe the apply output in `docs/assets/user/skills-installing-and-managing-skills.md`.
-- [x] t5: Run the focused tests, `npm test`, `validate:defaults`, the build, `smoke:pack:local`, and a real built-CLI adoption in a throwaway project.
+- [x] T1: In `packages/cli/src/skills-command.ts`, select the adoption summary text and next action by mode: dry run, apply with the matching digest, apply with another digest, `--yes` without a digest, and interactive confirmation.
+- [x] T2: After an apply, print a result line on stderr. In the JSON result, add a top-level `nextAction` for the result and leave out the applied review's own `nextAction`.
+- [x] T3: Add output assertions for each mode to `packages/cli/tests/w19-r5-skills-command.test.ts`, and confirm that they fail without the change.
+- [x] T4: Describe the apply output in `docs/assets/user/skills-installing-and-managing-skills.md`.
+- [x] T5: Run the focused tests, `npm test`, `validate:defaults`, the build, `smoke:pack:local`, and a real built-CLI adoption in a throwaway project.
 
 ### Acceptance criteria
 

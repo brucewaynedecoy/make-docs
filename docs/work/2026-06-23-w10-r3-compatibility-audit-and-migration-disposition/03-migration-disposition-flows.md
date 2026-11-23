@@ -20,9 +20,9 @@ This phase wires classification into safe behavior. Ordinary install and reconfi
 
 ### Tasks
 
-- [x] t1: Allow `sync` only after the audit report shows no unreviewed ownership ambiguity.
-- [x] t2: Allow `migrate` only for clean and fully trusted prior states.
-- [x] t3: Ensure clean migration may rewrite manifest shape and add v2 provenance only for files that still match known ownership.
+- [x] T1: Allow `sync` only after the audit report shows no unreviewed ownership ambiguity.
+- [x] T2: Allow `migrate` only for clean and fully trusted prior states.
+- [x] T3: Ensure clean migration may rewrite manifest shape and add v2 provenance only for files that still match known ownership.
 
 ### Acceptance criteria
 
@@ -38,9 +38,9 @@ This phase wires classification into safe behavior. Ordinary install and reconfi
 
 ### Tasks
 
-- [x] t4: Show classification and audit summary before reviewable migration.
-- [x] t5: Route changed managed files through overwrite/skip review.
-- [x] t6: Preserve managed-block semantics for instruction files and avoid append-merge ownership.
+- [x] T4: Show classification and audit summary before reviewable migration.
+- [x] T5: Route changed managed files through overwrite/skip review.
+- [x] T6: Preserve managed-block semantics for instruction files and avoid append-merge ownership.
 
 ### Acceptance criteria
 
@@ -50,17 +50,17 @@ This phase wires classification into safe behavior. Ordinary install and reconfi
 
 ### Dependencies
 
-- t1
-- t2
+- T1
+- T2
 
 ## Stage 3 - Implement backup-and-reinstall and manual-review-required
 
 ### Tasks
 
-- [x] t7: Keep `backup-and-reinstall` behind a dedicated migration flow or equivalent explicit confirmation path.
-- [x] t8: Use one reviewed audit/classification result for approval, backup, removal, and reinstall.
-- [x] t9: Stop before mutation for `manual-review-required`.
-- [x] t10: Preserve rollback as restore-from-backup unless automation consumes backup metadata.
+- [x] T7: Keep `backup-and-reinstall` behind a dedicated migration flow or equivalent explicit confirmation path.
+- [x] T8: Use one reviewed audit/classification result for approval, backup, removal, and reinstall.
+- [x] T9: Stop before mutation for `manual-review-required`.
+- [x] T10: Preserve rollback as restore-from-backup unless automation consumes backup metadata.
 
 ### Acceptance criteria
 
@@ -70,9 +70,9 @@ This phase wires classification into safe behavior. Ordinary install and reconfi
 
 ### Dependencies
 
-- t4
-- t5
-- t6
+- T4
+- T5
+- T6
 
 ## Implementation Notes
 

@@ -113,10 +113,10 @@ This is a link-only operational binding to [PERF-003 v1](../../plans/2026-09-24-
 
 ### Tasks
 
-- [x] t1: Prove tool and resource assignment completeness and exact `all` union with the current inventory.
-- [x] t2: Prove shared names, schemas, descriptions, access facts, handlers, resource bytes, and provenance agree across profiles.
-- [x] t3: Run representative Store-free and write-class operations through each relevant profile and compare allowed and denied outcomes.
-- [x] t4: Reconstruct the fixed pre-W24 no-profile stdio launch in an isolated temporary export and compare it with the P3 no-profile default under the declared compatibility fixture. Separately prove current no-profile equals explicit `all`. Retain old-launch, local-build, and host limits.
+- [x] T1: Prove tool and resource assignment completeness and exact `all` union with the current inventory.
+- [x] T2: Prove shared names, schemas, descriptions, access facts, handlers, resource bytes, and provenance agree across profiles.
+- [x] T3: Run representative Store-free and write-class operations through each relevant profile and compare allowed and denied outcomes.
+- [x] T4: Reconstruct the fixed pre-W24 no-profile stdio launch in an isolated temporary export and compare it with the P3 no-profile default under the declared compatibility fixture. Separately prove current no-profile equals explicit `all`. Retain old-launch, local-build, and host limits.
 
 ### Acceptance criteria
 
@@ -141,10 +141,10 @@ The supplementary [wire script failure](evidence/p4/contracts/wire-script-attemp
 
 ### Tasks
 
-- [x] t5: Activate and freeze the prepared PERF-003 v1 packet after separate P4 implementation authority. Validate its digest, actual fingerprint, correctness/seam, comparability, and remaining finite budget before measurements.
-- [x] t6: Execute the authorized same-build stdio packet for `all` and each narrow profile. Retain counts, definition bytes, cold startup, warm list times, raw observations, analysis, and budget. Record actual model-visible tokens only from valid available host evidence; otherwise record unavailable evidence and its excluded claim.
-- [x] t7: Review the real help, configuration examples, profile lists, and errors against each Human Experience promise.
-- [x] t8: Run PRD authority and documentation checks and record supported conclusions and limits.
+- [x] T5: Activate and freeze the prepared PERF-003 v1 packet after separate P4 implementation authority. Validate its digest, actual fingerprint, correctness/seam, comparability, and remaining finite budget before measurements.
+- [x] T6: Execute the authorized same-build stdio packet for `all` and each narrow profile. Retain counts, definition bytes, cold startup, warm list times, raw observations, analysis, and budget. Record actual model-visible tokens only from valid available host evidence; otherwise record unavailable evidence and its excluded claim.
+- [x] T7: Review the real help, configuration examples, profile lists, and errors against each Human Experience promise.
+- [x] T8: Run PRD authority and documentation checks and record supported conclusions and limits.
 
 ### Acceptance criteria
 

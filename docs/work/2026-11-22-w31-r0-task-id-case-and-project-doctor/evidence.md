@@ -53,7 +53,7 @@ The three full-suite failures exist without this change: `tests/mcp-app-contract
 
 ### Limits
 
-- The work phase parser still reports IDs as written, so a `t` file and a `T` file show different letters in `run` output. P2 t3 changes the task `id` in `run` results to `T`.
+- The work phase parser still reports IDs as written, so a `t` file and a `T` file show different letters in `run` output. P2 T3 changes the task `id` in `run` results to `T`.
 - Warning and error text still names `t` (for example `expected task id t3`). P2 owns that text.
 - Dependency bullets are named as a reader in the design, but no code parses them yet. The W29 R0 rule catalog (`packages/cli/src/operations/work/work-store/catalog.ts`, "task in this phase") already treats `t` and `T` as the same task. W29 R0 P3 builds that parser.
 - The new test covers `resolveWaveTarget`. `resolveWorkItemIdentity` (`run work item resolve`) uses the same `parseCoordinateTarget`, so it behaves the same, but it has no separate test.
@@ -238,3 +238,48 @@ The full suite ran in this checkout with P2 and P3 together, after `node scripts
 - The git undo test runs its shell command only where `sh` exists, which is every platform but Windows.
 - Columns count UTF-16 code units, after a byte order mark.
 - Performance Testing and Unassisted Goal Testing are `not-needed-now`. The Guided Progress Review of the check and fix wording happens with the owner in P4.
+
+## P4 One-Time Rewrite and Acceptance
+
+Covers A13 to A16 in [P4](04-one-time-rewrite-and-acceptance.md). Evidence date: 2026-11-22. Base commit: `669c12b2` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`, built from this branch.
+
+### Check and Review (T1, T2)
+
+- `make-docs project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption --json`: 3,288 lower-case task IDs on 2,915 lines in 268 files, across 54 backlogs. 2,558 were task lines and 730 were prose references. It read 378 files, skipped 2 managed router files, and excluded the 6 files of the W22 R2 backlog. Review digest `cc6da0b3fb7302d9c3b2428cde7ffcafea46f848627e9958d1823ac66f847865`.
+- The agent sorted the 730 prose references. 583 sit next to another task ID, a phase, or the word task. The other 147 were read one by one: closeout table rows such as `| t1 |`, sentences such as "before unlocking t8", and plain `- t1` lists. No false hit was found.
+- The owner reviewed the findings and approved the fix on 2026-11-22.
+- `make-docs project doctor fix --review cc6da0b3… --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption --check-json <saved check>`: status `fixed`, 3,288 task IDs on 2,915 lines in 268 files, operation `4d970a9c-dbf9-4798-9676-30218d464e40`. Backups are under the gitignored `.make-docs/backup/operations/`.
+
+### Second Check and Byte Proof (T3, A13, A14)
+
+- A second check found no problem in 378 files.
+- A byte comparison of each of the 268 changed files against `669c12b2` found exactly 3,288 changed bytes, each a `t` that became `T`, and no other change. File lengths are unchanged.
+- No changed file is outside `docs/work/`. No file under `.make-docs/archive/`, no history record, and no file of the W22 R2 backlog changed.
+
+### Backlog Snapshot Facts (T4, A15)
+
+- `make-docs run work backlog snapshot` before and after the fix give the same records, phases, tasks, statuses, links, and diagnostics once task IDs are compared without case.
+- Before the commit, the only other differences were Git facts that follow from uncommitted edits: `committed` flags, `lastUpdatedAt` sources, and `gitEvidence` entries for the 54 changed backlogs. These are expected and return to committed facts after the commit.
+
+### Register (T5)
+
+- Register D-063 now records that W31 R0 is complete and that the W22 R2 backlog still needs one doctor run after W22 R2 closes.
+
+### Full Test Suite (T6)
+
+- `npx vitest run` after the fix: 2,231 passed, 3 failed, 6 skipped, of 2,240. The failures are the known ones: `tests/mcp-app-contract.test.ts` (2, Node v26 stderr warning), `tests/w19-r5-skills-command.test.ts` (1, sometimes passes), and `tests/p5-migration-safety.test.ts` fixture 11 (sandbox only).
+
+### Human Experience Review (T7, A16)
+
+| Promise | Result | Evidence |
+| --- | --- | --- |
+| Every coordinate that Make Docs writes uses upper-case letters. | Holds. Shipped files write `T` (P2), and the active backlogs now use `T`. | P2 evidence; byte proof above |
+| A person can still type `t3`, and an old file with `t3` still works. | Holds. The W22 R2 backlog keeps `t` and still parses. | P1 evidence; snapshot comparison |
+| `check` names each problem in plain words and changes nothing. | Holds. Totals came first; nothing changed. | Check output above |
+| `fix` changes only what the person reviewed and says how to undo it. | Holds. Only reviewed bytes changed; each file and the undo path were reported. | Fix output; byte proof |
+
+### Limits
+
+- The W22 R2 backlog still uses `t` by design until W22 R2 closes.
+- No Windows run of the doctor, and no MCP `fix` with a real harness Store grant.
+

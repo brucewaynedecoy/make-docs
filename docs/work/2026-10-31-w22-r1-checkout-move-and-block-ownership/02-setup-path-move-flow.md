@@ -66,9 +66,9 @@ Performance fields: base action is correctness repair; applicability is not-need
 
 ### Tasks
 
-- [x] t1: Write red flow cases for config-ID discovery before path-bound manifest lookup, fresh classification, or editable selections. Include the root and a distinct nested kit.
-- [x] t2: Specify Move this existing install here, Register a separate checkout, and Cancel outcomes. Add grouped tests for live/recreated source paths, multiple candidates, target claims, missing/invalid IDs, pending work, and active/dead locks.
-- [x] t3: Add red no-change cases for status, preview, dry-run, cancel, no approval, and bare non-interactive --yes. Assert logical durable state rather than raw SQLite file checksums.
+- [x] T1: Write red flow cases for config-ID discovery before path-bound manifest lookup, fresh classification, or editable selections. Include the root and a distinct nested kit.
+- [x] T2: Specify Move this existing install here, Register a separate checkout, and Cancel outcomes. Add grouped tests for live/recreated source paths, multiple candidates, target claims, missing/invalid IDs, pending work, and active/dead locks.
+- [x] T3: Add red no-change cases for status, preview, dry-run, cancel, no approval, and bare non-interactive --yes. Assert logical durable state rather than raw SQLite file checksums.
 
 ### Acceptance criteria
 
@@ -88,10 +88,10 @@ The focused cases cover config-ID discovery, root and kit independence, blocked 
 
 ### Tasks
 
-- [x] t4: Add proposed project.checkout-move.preview and project.checkout-move.apply to the shared operation contract and registry projections. Keep the three-part ID grammar. CLI checkout-move preview/apply and MCP checkout_move_preview/apply must use the same core.
-- [x] t5: Build stateless reviewed facts from selected project/checkout, canonical source/target paths and comparison keys, saved ledger/evidence digests, evidence version, and proved target ownership. Preview writes no durable review row.
-- [x] t6: Implement move apply with existing Store access/locking and one SQLite transaction for bounded move journal/receipt, path binding, and proved evidence. Do not use generic withInstallationOperation unchanged. Preserve ledger bytes and history.
-- [x] t7: Enforce Store-write/project-read/host-config-none admission. Require allowWrite=true for MCP apply, the exact reviewed source/target, and caller root scope. Recheck under lock; reject source switching, stale proof, competing claims, unsupported schema, or pending work.
+- [x] T4: Add proposed project.checkout-move.preview and project.checkout-move.apply to the shared operation contract and registry projections. Keep the three-part ID grammar. CLI checkout-move preview/apply and MCP checkout_move_preview/apply must use the same core.
+- [x] T5: Build stateless reviewed facts from selected project/checkout, canonical source/target paths and comparison keys, saved ledger/evidence digests, evidence version, and proved target ownership. Preview writes no durable review row.
+- [x] T6: Implement move apply with existing Store access/locking and one SQLite transaction for bounded move journal/receipt, path binding, and proved evidence. Do not use generic withInstallationOperation unchanged. Preserve ledger bytes and history.
+- [x] T7: Enforce Store-write/project-read/host-config-none admission. Require allowWrite=true for MCP apply, the exact reviewed source/target, and caller root scope. Recheck under lock; reject source switching, stale proof, competing claims, unsupported schema, or pending work.
 
 ### Acceptance criteria
 
@@ -111,9 +111,9 @@ The focused tests prove rollback when the receipt insert fails. An exact retry r
 
 ### Tasks
 
-- [x] t8: Wire discovery before compatibility/fresh setup classification. Show source and target facts, available choices, disabled unsafe choices, and useful next actions. Keep JSON and human results consistent.
-- [x] t9: Route Register a separate checkout to a distinct reviewed managed-install action with its own project-write admission and adoption review. Force a new checkout ID; do not let absent-source automatic binding steal the old record or copy pending work.
-- [x] t10: After move, reread the bound manifest and saved selections before planning later setup changes. Keep move completion distinct from cancelled/failed later edits. Run focused cases, record root/kit independence, and hand off to P3.
+- [x] T8: Wire discovery before compatibility/fresh setup classification. Show source and target facts, available choices, disabled unsafe choices, and useful next actions. Keep JSON and human results consistent.
+- [x] T9: Route Register a separate checkout to a distinct reviewed managed-install action with its own project-write admission and adoption review. Force a new checkout ID; do not let absent-source automatic binding steal the old record or copy pending work.
+- [x] T10: After move, reread the bound manifest and saved selections before planning later setup changes. Keep move completion distinct from cancelled/failed later edits. Run focused cases, record root/kit independence, and hand off to P3.
 
 ### Acceptance criteria
 

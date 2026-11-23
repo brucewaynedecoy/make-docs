@@ -75,9 +75,9 @@ Human Experience Review remains required agent work, separate from the four test
 
 ### Tasks
 
-- [x] t1: Keep `BacklogReportV1` unchanged and use the separate P1 `BacklogLiveEnvelopeV1` around the validated report.
-- [x] t2: Add bounded session and action data without mixing local UI state into authority.
-- [x] t3: Define concise model-visible and full client payload shapes.
+- [x] T1: Keep `BacklogReportV1` unchanged and use the separate P1 `BacklogLiveEnvelopeV1` around the validated report.
+- [x] T2: Add bounded session and action data without mixing local UI state into authority.
+- [x] T3: Define concise model-visible and full client payload shapes.
 
 ### Acceptance criteria
 
@@ -90,9 +90,9 @@ Human Experience Review remains required agent work, separate from the four test
 
 ### Tasks
 
-- [x] t4: Refactor the accepted static renderer behind the shared model boundary.
-- [x] t5: Add the live payload builder.
-- [x] t6: Add golden meaning-parity fixtures and visual review inputs.
+- [x] T4: Refactor the accepted static renderer behind the shared model boundary.
+- [x] T5: Add the live payload builder.
+- [x] T6: Add golden meaning-parity fixtures and visual review inputs.
 
 ### Acceptance criteria
 
@@ -111,7 +111,7 @@ Human Experience Review remains required agent work, separate from the four test
 
 ## Current Implementation State
 
-- P3 is closed for shared source integration. Tasks t1-t6 and A17-A24 pass within the recorded review limits. The user authorized closeout and a local commit on 2026-09-30.
+- P3 is closed for shared source integration. Tasks T1-T6 and A17-A24 pass within the recorded review limits. The user authorized closeout and a local commit on 2026-09-30.
 - The [central report](evidence.md#p3-tested-state) records the final 147 affected tests, 53 default checks, type check, built-output comparison, and required agent review. It retains P1 and P2 evidence.
 - The local-file browser limit prevents a fresh browser or screenshot claim. Final CSS is byte-identical to the accepted baseline. Markup and full report meaning remain equal within the recorded comparison.
 - The user prefers computer use or the built-in browser for future local-file reviews. This preference changes no past evidence or current review gate.

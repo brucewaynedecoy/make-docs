@@ -38,9 +38,9 @@ A person can find a tool under a task-named profile. The metadata does not ask t
 
 ### Tasks
 
-- [x] t1: Add the typed MCP profile metadata to canonical operation definitions and hand-defined tool descriptors.
-- [x] t2: Derive ready MCP descriptors from the same registry fields and reject absent, empty, or unknown profile sets.
-- [x] t3: Assign all current ready tools from the W24 inventory and require a same-change assignment for later admissions.
+- [x] T1: Add the typed MCP profile metadata to canonical operation definitions and hand-defined tool descriptors.
+- [x] T2: Derive ready MCP descriptors from the same registry fields and reject absent, empty, or unknown profile sets.
+- [x] T3: Assign all current ready tools from the W24 inventory and require a same-change assignment for later admissions.
 
 ### Acceptance criteria
 

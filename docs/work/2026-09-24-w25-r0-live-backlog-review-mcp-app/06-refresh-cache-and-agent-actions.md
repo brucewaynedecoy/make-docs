@@ -20,7 +20,7 @@ Connect the live view to current facts and controlled active-agent requests.
 
 P6 adds unchanged and changed refresh flows, exact cache reuse, best-effort cache refresh after validation, wave review requests, and a separate-task request.
 
-The user authorized P6 implementation on 2026-10-06 at clean base `04edf4f61ee5af21c319dbc4698cc578fb5362c7` on `w25-r0-p1-live-delivery-contract`. The user then authorized P6 closeout and a local commit on the same client date. P6 is closed within source and bounded mock-host/static scope. t1-t6/A41-A50 retain their evidence. Tyler approved the exact `v1.2-feedback-removed` preview and directly requested the later wave-layout and Data-modal supplements. Required agent Human Experience Review is satisfied within recorded limits. These records belong to the P6 phase closeout commit. P7 needs its own implementation authority.
+The user authorized P6 implementation on 2026-10-06 at clean base `04edf4f61ee5af21c319dbc4698cc578fb5362c7` on `w25-r0-p1-live-delivery-contract`. The user then authorized P6 closeout and a local commit on the same client date. P6 is closed within source and bounded mock-host/static scope. T1-T6/A41-A50 retain their evidence. Tyler approved the exact `v1.2-feedback-removed` preview and directly requested the later wave-layout and Data-modal supplements. Required agent Human Experience Review is satisfied within recorded limits. These records belong to the P6 phase closeout commit. P7 needs its own implementation authority.
 
 ## Human Experience Outcome
 
@@ -132,9 +132,9 @@ On 2026-10-06, the owner rejected the temporary preview's inline request feedbac
 
 ### Tasks
 
-- [x] t1: Connect refresh to `backlog.review.refresh` through `tools/call`.
-- [x] t2: Handle unchanged, changed, Store-limited, and failed-write results.
-- [x] t3: Reuse `work.backlog-cache.write` only after the rebuilt model validates.
+- [x] T1: Connect refresh to `backlog.review.refresh` through `tools/call`.
+- [x] T2: Handle unchanged, changed, Store-limited, and failed-write results.
+- [x] T3: Reuse `work.backlog-cache.write` only after the rebuilt model validates.
 
 ### Acceptance criteria
 
@@ -154,9 +154,9 @@ On 2026-10-06, the owner rejected the temporary preview's inline request feedbac
 
 ### Tasks
 
-- [x] t4: Add controlled wave review and refresh-review messages.
-- [x] t5: Add the explicit `Start a new Codex task` request to the active agent.
-- [x] t6: Refresh the live view only after the active agent validates the new model.
+- [x] T4: Add controlled wave review and refresh-review messages.
+- [x] T5: Add the explicit `Start a new Codex task` request to the active agent.
+- [x] T6: Refresh the live view only after the active agent validates the new model.
 
 ### Acceptance criteria
 
@@ -182,7 +182,7 @@ On 2026-10-06, the owner rejected the temporary preview's inline request feedbac
 
 ## Current Implementation State
 
-- P6 is closed under the user's 2026-10-06 closeout and local commit authority. t1-t6 and A41-A50 retain [acceptance evidence](evidence.md#p6-implementation-and-acceptance-evidence--2026-10-06). The [history record](../../../.make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md) is the commit-body source.
+- P6 is closed under the user's 2026-10-06 closeout and local commit authority. T1-T6 and A41-A50 retain [acceptance evidence](evidence.md#p6-implementation-and-acceptance-evidence--2026-10-06). The [history record](../../../.make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md) is the commit-body source.
 - The exact `v1.2-feedback-removed` preview is approved. Actual-source controls, refresh/request paths, and required agent Human Experience Review pass within observed limits. No new footer wording or inline request feedback is added. Any further UI change needs its own approved preview.
 - The original P6 checkpoint has 304 unique passing cases across finite runs and UI hash `e4c41748a6418243fcc137013dca7daa77d24f4522832518435348d1c5efc438`. The later [wave-layout](evidence.md#supplemental-wave-card-layout--2026-10-06) and [Data-modal](evidence.md#supplemental-data-modal--2026-10-06) requests have separate affected proof. Final live HTML is 444,492 bytes, SHA-256 `3bde35c0e2670c211097f6990cf711de2d03d6540cc0fd109d8c42ac4b822117`. Its 137 focused cases include eight new widget cases; repeated cases are not added to old totals. Type, build, asset drift, exact stdio resource, document, and bounded agent reviews pass.
 - The active agent prepares a validated report and fresh UUID using the portable helper. Its candidate envelope is provisional. Retain authoritative context only after `confirmBacklogAgentOpen` confirms the actual own successful open result. Missing context rejects the action; incoming `action.sessionId` or received message cannot create expected context. The optional open-input UUID preserves report-only default behavior and V1 outputs.

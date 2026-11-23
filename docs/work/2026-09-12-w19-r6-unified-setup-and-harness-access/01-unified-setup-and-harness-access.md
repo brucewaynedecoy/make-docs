@@ -76,14 +76,14 @@ Human Experience Review remains required for every listed promise.
 
 ### Tasks
 
-- [x] t1: Add `store`, `project`, and `hostConfig` access metadata to the operation definition and every admitted operation. Reject missing or inconsistent declarations.
-- [x] t2: Make Store session admission depend on operation access. Prove `store: none` opens no Store root, database, lock, or session file.
-- [x] t3: Derive registry descriptors, MCP tool details, command-rule candidates, and conformance facts from the same access metadata.
-- [x] t4: Add the bounded first-party harness adapter contract for detection, methods, scope, native files, plan, apply, verify, removal, and support state.
-- [x] t5: Extend global config with per-harness user intent and maximum approved method. Preserve unknown fields under the current global-config safety policy.
-- [x] t6: Add project integration settings that can inherit, narrow, or disable the machine choice. Do not reuse `harnessCapabilities`.
-- [x] t7: Add Store-owned applied receipts for exact native entries, verified executable identity, content or rule fingerprints, result, and drift state.
-- [x] t8: Add validation for precedence, unsupported combinations, unsafe paths, symlinks, malformed native files, and user-owned entries.
+- [x] T1: Add `store`, `project`, and `hostConfig` access metadata to the operation definition and every admitted operation. Reject missing or inconsistent declarations.
+- [x] T2: Make Store session admission depend on operation access. Prove `store: none` opens no Store root, database, lock, or session file.
+- [x] T3: Derive registry descriptors, MCP tool details, command-rule candidates, and conformance facts from the same access metadata.
+- [x] T4: Add the bounded first-party harness adapter contract for detection, methods, scope, native files, plan, apply, verify, removal, and support state.
+- [x] T5: Extend global config with per-harness user intent and maximum approved method. Preserve unknown fields under the current global-config safety policy.
+- [x] T6: Add project integration settings that can inherit, narrow, or disable the machine choice. Do not reuse `harnessCapabilities`.
+- [x] T7: Add Store-owned applied receipts for exact native entries, verified executable identity, content or rule fingerprints, result, and drift state.
+- [x] T8: Add validation for precedence, unsupported combinations, unsafe paths, symlinks, malformed native files, and user-owned entries.
 
 ### Acceptance criteria
 
@@ -103,17 +103,17 @@ Human Experience Review remains required for every listed promise.
 
 ### Tasks
 
-- [x] t9: Replace the fresh wizard sequence with project state, harness selection, per-harness support, inline system setup, resource placement, and grouped review.
-- [x] t10: Remove document-type selection from fresh setup. Resolve the complete project shape internally. Preserve existing partial shapes unless a separate reviewed expansion is requested.
-- [x] t11: Add `make-docs setup system`. Route `setup`, `setup system`, `setup reconfigure`, and `setup skills` through one state model while keeping their stated scope.
-- [x] t12: Show detected, not detected, configured, drifted, and unsupported harness state without treating detection as support proof or limiting choices.
-- [x] t13: Implement Codex MCP and bounded command-rule planning and apply through the adapter contract.
-- [x] t14: Implement Claude Code MCP and bounded native permission-rule planning and apply through the adapter contract.
-- [x] t15: Use a verified Make Docs executable for rules. Never approve shell wrappers, package runners, system setup, update, uninstall, backup, or removal commands.
-- [x] t16: Place optional Skills within each harness's support screen and keep `setup skills` as the focused shortcut to the same selection and lifecycle behavior.
-- [x] t17: Place system-resource projection under project initialization. State that resource reads need no Store access and that local copies reduce CLI dependence only.
-- [x] t18: Group the final plan as This computer and This project. Require separate explicit approval for each system-wide write set.
-- [x] t19: Apply and verify the system operation before the project operation. Return exact next steps for skip, block, failure, partial completion, and recovery.
+- [x] T9: Replace the fresh wizard sequence with project state, harness selection, per-harness support, inline system setup, resource placement, and grouped review.
+- [x] T10: Remove document-type selection from fresh setup. Resolve the complete project shape internally. Preserve existing partial shapes unless a separate reviewed expansion is requested.
+- [x] T11: Add `make-docs setup system`. Route `setup`, `setup system`, `setup reconfigure`, and `setup skills` through one state model while keeping their stated scope.
+- [x] T12: Show detected, not detected, configured, drifted, and unsupported harness state without treating detection as support proof or limiting choices.
+- [x] T13: Implement Codex MCP and bounded command-rule planning and apply through the adapter contract.
+- [x] T14: Implement Claude Code MCP and bounded native permission-rule planning and apply through the adapter contract.
+- [x] T15: Use a verified Make Docs executable for rules. Never approve shell wrappers, package runners, system setup, update, uninstall, backup, or removal commands.
+- [x] T16: Place optional Skills within each harness's support screen and keep `setup skills` as the focused shortcut to the same selection and lifecycle behavior.
+- [x] T17: Place system-resource projection under project initialization. State that resource reads need no Store access and that local copies reduce CLI dependence only.
+- [x] T18: Group the final plan as This computer and This project. Require separate explicit approval for each system-wide write set.
+- [x] T19: Apply and verify the system operation before the project operation. Return exact next steps for skip, block, failure, partial completion, and recovery.
 
 ### Acceptance criteria
 
@@ -133,13 +133,13 @@ Human Experience Review remains required for every listed promise.
 
 ### Tasks
 
-- [x] t20: Classify existing global intent, project settings, harness-native entries, Skills, resource projections, and partial document surfaces without granting ownership from location alone.
-- [x] t21: Preserve current `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove` behavior outside the changed wizard scope.
-- [x] t22: Add idempotent repeat setup and drift reporting for system and project scopes. Repair only reviewed Make Docs-owned entries.
-- [x] t23: Preserve unknown, malformed, user-owned, remote, newer, or changed native configuration and give one safe next action.
-- [x] t24: Prove that old config and manifests do not gain machine trust during migration. Require current explicit approval for a new connection.
-- [x] t25: Reuse the current shared Store session, checkout writer, pending operation, and recovery services. Add no local Store, local receipt, or new project undo path.
-- [x] t26: Prove retry and resume never invoke a project mutation callback twice.
+- [x] T20: Classify existing global intent, project settings, harness-native entries, Skills, resource projections, and partial document surfaces without granting ownership from location alone.
+- [x] T21: Preserve current `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove` behavior outside the changed wizard scope.
+- [x] T22: Add idempotent repeat setup and drift reporting for system and project scopes. Repair only reviewed Make Docs-owned entries.
+- [x] T23: Preserve unknown, malformed, user-owned, remote, newer, or changed native configuration and give one safe next action.
+- [x] T24: Prove that old config and manifests do not gain machine trust during migration. Require current explicit approval for a new connection.
+- [x] T25: Reuse the current shared Store session, checkout writer, pending operation, and recovery services. Add no local Store, local receipt, or new project undo path.
+- [x] T26: Prove retry and resume never invoke a project mutation callback twice.
 
 ### Acceptance criteria
 
@@ -158,15 +158,15 @@ Human Experience Review remains required for every listed promise.
 
 ### Tasks
 
-- [x] t27: Add focused unit and integration tests for every access declaration, setup state, adapter plan, config precedence, receipt, drift state, failure boundary, and retry rule.
-- [x] t28: Add isolated-home exact-file tests for Codex MCP, Codex rules, Claude Code MCP, and Claude Code permission rules. Preserve unrelated native configuration in every case.
-- [ ] t29: Run real Codex and Claude Code tasks for every method shown as supported. Record exact support tuples, evidence, and caveats.
-- [ ] t30: Prove Store-free resource reads from restricted tasks and prove Store-backed reads and writes only through the selected connection.
-- [x] t31: Run full CLI, Store verification, packed CLI smoke, MCP conformance, config, migration, Skill, and dogfood suites.
-- [ ] t32: Review the installed terminal screens for fresh, existing, partial, skipped, waiting, drifted, failed, recovered, and repeated setup.
-- [ ] t33: Apply Human Experience Review to every promise. Record the evidence, observation, conclusion, reviewer, and limit.
-- [x] t34: Update user and maintainer guidance with the same access distinctions and current support claims. See [the user guide](../../assets/user/cli-setting-up-projects-and-harness-access.md) and [the maintainer guide](../../assets/maintainer/cli-maintaining-setup-and-harness-access.md).
-- [ ] t35: Run PRD authority validation and link checks. Prepare a phase closeout. Do not publish, install, stage, or commit without separate authority.
+- [x] T27: Add focused unit and integration tests for every access declaration, setup state, adapter plan, config precedence, receipt, drift state, failure boundary, and retry rule.
+- [x] T28: Add isolated-home exact-file tests for Codex MCP, Codex rules, Claude Code MCP, and Claude Code permission rules. Preserve unrelated native configuration in every case.
+- [ ] T29: Run real Codex and Claude Code tasks for every method shown as supported. Record exact support tuples, evidence, and caveats.
+- [ ] T30: Prove Store-free resource reads from restricted tasks and prove Store-backed reads and writes only through the selected connection.
+- [x] T31: Run full CLI, Store verification, packed CLI smoke, MCP conformance, config, migration, Skill, and dogfood suites.
+- [ ] T32: Review the installed terminal screens for fresh, existing, partial, skipped, waiting, drifted, failed, recovered, and repeated setup.
+- [ ] T33: Apply Human Experience Review to every promise. Record the evidence, observation, conclusion, reviewer, and limit.
+- [x] T34: Update user and maintainer guidance with the same access distinctions and current support claims. See [the user guide](../../assets/user/cli-setting-up-projects-and-harness-access.md) and [the maintainer guide](../../assets/maintainer/cli-maintaining-setup-and-harness-access.md).
+- [ ] T35: Run PRD authority validation and link checks. Prepare a phase closeout. Do not publish, install, stage, or commit without separate authority.
 
 ### Acceptance criteria
 

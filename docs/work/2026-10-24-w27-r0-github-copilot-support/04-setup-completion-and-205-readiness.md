@@ -42,9 +42,9 @@ The P1-P3 Copilot adapter and macOS proof remain separate committed work. P4 cha
 
 ### Tasks
 
-- [x] t1: Record the accepted partial-finish rule and one-time manual MCP path in the P4 plan.
-- [x] t2: Update PRD 39's current requirements and dated requirement history before source changes.
-- [x] t3: Link this phase from the W27 plan and work indexes.
+- [x] T1: Record the accepted partial-finish rule and one-time manual MCP path in the P4 plan.
+- [x] T2: Update PRD 39's current requirements and dated requirement history before source changes.
+- [x] T3: Link this phase from the W27 plan and work indexes.
 
 ### Acceptance criteria
 
@@ -59,11 +59,11 @@ The P1-P3 Copilot adapter and macOS proof remain separate committed work. P4 cha
 
 ### Tasks
 
-- [x] t4: Remove the repeated `Project state` text inside the initial card.
-- [x] t5: Make selected harnesses and their MCP methods produce only their own reviewed native entries.
-- [x] t6: Permit project apply after a safely blocked MCP method while keeping pending or unsafe native operations on the stop path.
-- [x] t7: Render separate project and harness results in text and JSON. Add a safe one-time manual MCP entry path and later verification.
-- [x] t8: Set the publishable package and lock metadata to 2.0.5.
+- [x] T4: Remove the repeated `Project state` text inside the initial card.
+- [x] T5: Make selected harnesses and their MCP methods produce only their own reviewed native entries.
+- [x] T6: Permit project apply after a safely blocked MCP method while keeping pending or unsafe native operations on the stop path.
+- [x] T7: Render separate project and harness results in text and JSON. Add a safe one-time manual MCP entry path and later verification.
+- [x] T8: Set the publishable package and lock metadata to 2.0.5.
 
 ### Acceptance criteria
 
@@ -80,9 +80,9 @@ The P1-P3 Copilot adapter and macOS proof remain separate committed work. P4 cha
 
 ### Tasks
 
-- [x] t9: Run focused setup tests, build, TypeScript check, package check, and PRD authority validation.
-- [x] t10: Inspect the rendered wizard card and final terminal result in a disposable setup run.
-- [x] t11: Record Human Experience Review, exact test results, remaining host limits, and the W27 PR packet.
+- [x] T9: Run focused setup tests, build, TypeScript check, package check, and PRD authority validation.
+- [x] T10: Inspect the rendered wizard card and final terminal result in a disposable setup run.
+- [x] T11: Record Human Experience Review, exact test results, remaining host limits, and the W27 PR packet.
 
 ### Acceptance criteria
 

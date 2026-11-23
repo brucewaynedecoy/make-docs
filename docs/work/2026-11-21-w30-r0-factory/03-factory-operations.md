@@ -56,13 +56,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: Admit `factory tools save`, `workflow save | show | list`, `proof save`, `assignment start | update | list`, and `restore` in the registry, with MCP names such as `factory_tools_save` (R-FACTORY-49).
-- [ ] t2: `tools save` checks the shape of a tool list and its capability proofs. It does not run or contact any tool (R-FACTORY-5, R-FACTORY-10).
-- [ ] t3: `workflow save` checks a workflow against its type and the capability catalog, sets its readiness state, and refuses `ready` without a passed proof (R-FACTORY-12, R-FACTORY-50).
-- [ ] t4: `proof save` records a test task result and moves the workflow to `ready` only when the proof passed (R-FACTORY-12).
-- [ ] t5: `assignment start | update` checks the work queue claim before it writes, and refuses a caller that no longer holds the claim (R-FACTORY-50).
-- [ ] t6: `restore` writes the `.make-docs/factory/` copies from the Store (R-FACTORY-25).
-- [ ] t7: Use the existing write permission, `expectedVersion`, and Store-unavailable outcomes for every write (R-FACTORY-50).
+- [ ] T1: Admit `factory tools save`, `workflow save | show | list`, `proof save`, `assignment start | update | list`, and `restore` in the registry, with MCP names such as `factory_tools_save` (R-FACTORY-49).
+- [ ] T2: `tools save` checks the shape of a tool list and its capability proofs. It does not run or contact any tool (R-FACTORY-5, R-FACTORY-10).
+- [ ] T3: `workflow save` checks a workflow against its type and the capability catalog, sets its readiness state, and refuses `ready` without a passed proof (R-FACTORY-12, R-FACTORY-50).
+- [ ] T4: `proof save` records a test task result and moves the workflow to `ready` only when the proof passed (R-FACTORY-12).
+- [ ] T5: `assignment start | update` checks the work queue claim before it writes, and refuses a caller that no longer holds the claim (R-FACTORY-50).
+- [ ] T6: `restore` writes the `.make-docs/factory/` copies from the Store (R-FACTORY-25).
+- [ ] T7: Use the existing write permission, `expectedVersion`, and Store-unavailable outcomes for every write (R-FACTORY-50).
 
 ### Acceptance criteria
 
@@ -80,10 +80,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t8: Admit `factory status`. It shows workflows, readiness, claims, assignments, and open manual steps in human words first, with exact detail in machine output (R-FACTORY-51).
-- [ ] t9: Mark a workflow `drifted` in status when a bound tool's saved proof no longer holds, and name the smallest fix (R-FACTORY-12, R-FACTORY-33).
-- [ ] t10: Add the `factory` MCP profile. Keep the work queue tools in the `backlog` and `workflow` profiles, and include all of them in `all` (R-FACTORY-49).
-- [ ] t11: Run Guided Progress Review of status output for a ready, a drifted, and a busy workflow.
+- [ ] T8: Admit `factory status`. It shows workflows, readiness, claims, assignments, and open manual steps in human words first, with exact detail in machine output (R-FACTORY-51).
+- [ ] T9: Mark a workflow `drifted` in status when a bound tool's saved proof no longer holds, and name the smallest fix (R-FACTORY-12, R-FACTORY-33).
+- [ ] T10: Add the `factory` MCP profile. Keep the work queue tools in the `backlog` and `workflow` profiles, and include all of them in `all` (R-FACTORY-49).
+- [ ] T11: Run Guided Progress Review of status output for a ready, a drifted, and a busy workflow.
 
 ### Acceptance criteria
 

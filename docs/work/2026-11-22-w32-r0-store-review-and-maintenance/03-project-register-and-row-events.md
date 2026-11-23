@@ -53,11 +53,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Update `project_register` at each Store write for a project: setup, adoption, legacy import, checkout register, checkout move, backlog cache write, and work evidence record.
-- [ ] t2: Record `projectName` from config under PRD 38 R-ID-8, and refuse a name that another project holds, naming that project.
-- [ ] t3: Add a test for each row event in the design that names the rows it creates, updates, or removes.
-- [ ] t4: Rewrite project prune on the register under PRD 38 R-REGISTER-4. Keep `playbook_runs`. Add no new caller.
-- [ ] t5: Keep the legacy `projects` table as a read-only legacy input.
+- [ ] T1: Update `project_register` at each Store write for a project: setup, adoption, legacy import, checkout register, checkout move, backlog cache write, and work evidence record.
+- [ ] T2: Record `projectName` from config under PRD 38 R-ID-8, and refuse a name that another project holds, naming that project.
+- [ ] T3: Add a test for each row event in the design that names the rows it creates, updates, or removes.
+- [ ] T4: Rewrite project prune on the register under PRD 38 R-REGISTER-4. Keep `playbook_runs`. Add no new caller.
+- [ ] T5: Keep the legacy `projects` table as a read-only legacy input.
 
 ### Acceptance criteria
 
@@ -69,7 +69,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t6: Add `project.register.list` (`make-docs project list`, MCP `project_list`) in `core` and `all`. Show each project's name first, then its ID, checkouts, last seen time, and each missing checkout folder.
+- [ ] T6: Add `project.register.list` (`make-docs project list`, MCP `project_list`) in `core` and `all`. Show each project's name first, then its ID, checkouts, last seen time, and each missing checkout folder.
 
 ### Acceptance criteria
 

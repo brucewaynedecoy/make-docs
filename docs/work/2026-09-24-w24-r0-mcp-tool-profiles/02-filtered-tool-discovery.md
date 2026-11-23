@@ -39,10 +39,10 @@ The [P2 Human Experience Review](evidence.md#p2-human-experience-review) records
 
 ### Tasks
 
-- [x] t1: Add a checked profile option to `createMakeDocsMcpServer`, defaulting to `all`.
-- [x] t2: Register and list only the selected ready tools; reject calls outside the selected profile.
-- [x] t3: Add `--profile core|setup|workflow|quality|backlog|all` to the stdio CLI and explain the default in help.
-- [x] t4: Add a short, task-focused host configuration example that keeps the existing one-server command valid.
+- [x] T1: Add a checked profile option to `createMakeDocsMcpServer`, defaulting to `all`.
+- [x] T2: Register and list only the selected ready tools; reject calls outside the selected profile.
+- [x] T3: Add `--profile core|setup|workflow|quality|backlog|all` to the stdio CLI and explain the default in help.
+- [x] T4: Add a short, task-focused host configuration example that keeps the existing one-server command valid.
 
 ### Acceptance criteria
 

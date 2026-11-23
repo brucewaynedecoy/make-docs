@@ -55,10 +55,10 @@ Human Experience Review is required agent review work. The optional handoff rema
 
 ### Tasks
 
-- [x] t1: Update the Human Experience Contract and Reference upstream.
-- [x] t2: Update lifecycle, design, and execution references upstream.
-- [x] t3: Update coverage, output, and work-phase resources upstream.
-- [x] t4: Refresh package and dogfood copies from upstream.
+- [x] T1: Update the Human Experience Contract and Reference upstream.
+- [x] T2: Update lifecycle, design, and execution references upstream.
+- [x] T3: Update coverage, output, and work-phase resources upstream.
+- [x] T4: Refresh package and dogfood copies from upstream.
 
 ### Acceptance criteria
 
@@ -73,10 +73,10 @@ Human Experience Review is required agent review work. The optional handoff rema
 
 ### Tasks
 
-- [x] t5: Replace focused owner-approval assertions with the new boundary assertions.
-- [x] t6: Add cases for direct, explicit-gate, indirect, `none`, insufficient-evidence, and later-feedback behavior.
-- [x] t7: Run focused tests and resource parity.
-- [x] t8: Run the full CLI tests, build, package smoke tests, defaults, PRD authority, paths, links, and diff checks.
+- [x] T5: Replace focused owner-approval assertions with the new boundary assertions.
+- [x] T6: Add cases for direct, explicit-gate, indirect, `none`, insufficient-evidence, and later-feedback behavior.
+- [x] T7: Run focused tests and resource parity.
+- [x] T8: Run the full CLI tests, build, package smoke tests, defaults, PRD authority, paths, links, and diff checks.
 
 ### Acceptance criteria
 

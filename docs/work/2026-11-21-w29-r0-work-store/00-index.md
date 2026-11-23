@@ -79,7 +79,7 @@ This handoff is advisory-default-but-overridable.
 ### 2026-11-22 — W29 R0
 
 - Kind: `edit`
-- Affected scope: P2 new t9, A33, and dependency, and A8 rewritten; P3 dependency; P4 overview, t1, t6, new t9 to t11, new A31, A32, and A34; P5 new t7 and t8.
+- Affected scope: P2 new T9, A33, and dependency, and A8 rewritten; P3 dependency; P4 overview, T1, T6, new T9 to T11, new A31, A32, and A34; P5 new T7 and T8.
 - Previous scope: eight `run work` operations, no way to add a quick item or read work by URI, no project name, and an A8 that let a plain claim take a unit with an expired claim.
 - Replacement scope: `run work add` for Store-only quick items; `export --quick <path>`; `make-docs://project/<project>/tasks/` and `.../backlog/` URIs that always name the project; a `projectName` in config and the Store; P3 waits for the task ID case Wave; A8 matches the P1 takeover rule.
 - Rationale: the owner chose Store-only quick items, asked for URIs that name a project, asked for a readable project name, and chose upper-case task IDs in their own Wave, and plain numbers for quick items. A8 contradicted PRD 52 R-WORK-QUEUE-17.
@@ -90,7 +90,7 @@ This handoff is advisory-default-but-overridable.
 ### 2026-11-22 — W29 R0 P2
 
 - Kind: `edit`
-- Affected scope: P2 overview, t2, t9, A5, A33, and dependencies; the usage notes.
+- Affected scope: P2 overview, T2, T9, A5, A33, and dependencies; the usage notes.
 - Previous scope: the work tables arrived in schema v7, and P2 recorded project names in its own register.
 - Replacement scope: the work tables arrive in schema v8 with the Store write guard triggers and Store table catalog entries. Project names resolve only through `project_register` from W32 R0. P2 waits for all of W32 R0.
 - Rationale: the owner chose to finish the whole Store review (W32 R0) first. W32 R0 takes schema v7 and builds the project register and the write guard.

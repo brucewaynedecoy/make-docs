@@ -39,14 +39,14 @@ The resolver serves contracts, prompts, references, and templates through one st
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest.
-- [x] t3: Reevaluate at minimum Q-003, Q-017, Q-018, R-004, R-017, and R-021; treat Q-017's current per-project resource model as authority unless separately redesigned and add newly relevant live items.
-- [x] t4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
-- [x] t6: For any blocker or authority gap, stop before implementation and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
-- [x] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from task completion.
-- [x] t8: Record the Stage 1 outcome, authority digests, accepted P1 evidence, and implementation unlock or stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest.
+- [x] T3: Reevaluate at minimum Q-003, Q-017, Q-018, R-004, R-017, and R-021; treat Q-017's current per-project resource model as authority unless separately redesigned and add newly relevant live items.
+- [x] T4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: Record an explicit no-blocker determination and finite correction/review budget before unlocking T8 when no blocker or gap remains.
+- [x] T6: For any blocker or authority gap, stop before implementation and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
+- [x] T7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from task completion.
+- [x] T8: Record the Stage 1 outcome, authority digests, accepted P1 evidence, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -150,10 +150,10 @@ The resolver serves contracts, prompts, references, and templates through one st
 
 ### Tasks
 
-- [x] t9: Define the closed peer type set `contracts`, `prompts`, `references`, and `templates` and the stable `make-docs://system/<type>/<posix-relative-path>` identity independent of provider or projection path.
-- [x] t10: Implement canonical POSIX-relative normalization, case and separator handling, duplicate detection, and typed rejection for traversal, absolute paths, empty segments, encoded escapes, and invalid resource types.
-- [x] t11: Implement provider identity and immutable provider-resource metadata, including source, version or digest, logical URI, and availability without project-local projection.
-- [x] t12: Model selected managed projection, explicit project-owned override, missing resource, conflict, and provider-only states without allowing path location to imply ownership.
+- [x] T9: Define the closed peer type set `contracts`, `prompts`, `references`, and `templates` and the stable `make-docs://system/<type>/<posix-relative-path>` identity independent of provider or projection path.
+- [x] T10: Implement canonical POSIX-relative normalization, case and separator handling, duplicate detection, and typed rejection for traversal, absolute paths, empty segments, encoded escapes, and invalid resource types.
+- [x] T11: Implement provider identity and immutable provider-resource metadata, including source, version or digest, logical URI, and availability without project-local projection.
+- [x] T12: Model selected managed projection, explicit project-owned override, missing resource, conflict, and provider-only states without allowing path location to imply ownership.
 
 ### Acceptance criteria
 
@@ -179,11 +179,11 @@ The resolver serves contracts, prompts, references, and templates through one st
 
 ### Tasks
 
-- [x] t13: Implement the PRD-defined local-first resolution precedence while keeping project-owned overrides, clean managed projections, and provider resources distinguishable in the result.
-- [x] t14: Enforce repository-root and approved provider-root path containment, symlink non-following rules, realpath checks, and cross-platform path safety before reads or writes.
-- [x] t15: Implement deterministic typed list and read operations that return logical identity, resolved source, ownership, provenance, digest where available, and bounded not-found/conflict/error outcomes.
-- [x] t16: Implement on-demand ensure as an explicitly mutating operation that can create only selected clean managed projection content through the lifecycle conflict/review contract; keep ordinary list/read read-only.
-- [x] t17: Return provenance that identifies provider, managed projection, or explicit project override without converting an override into package authority or a projection into required runtime state.
+- [x] T13: Implement the PRD-defined local-first resolution precedence while keeping project-owned overrides, clean managed projections, and provider resources distinguishable in the result.
+- [x] T14: Enforce repository-root and approved provider-root path containment, symlink non-following rules, realpath checks, and cross-platform path safety before reads or writes.
+- [x] T15: Implement deterministic typed list and read operations that return logical identity, resolved source, ownership, provenance, digest where available, and bounded not-found/conflict/error outcomes.
+- [x] T16: Implement on-demand ensure as an explicitly mutating operation that can create only selected clean managed projection content through the lifecycle conflict/review contract; keep ordinary list/read read-only.
+- [x] T17: Return provenance that identifies provider, managed projection, or explicit project override without converting an override into package authority or a projection into required runtime state.
 
 ### Acceptance criteria
 
@@ -210,11 +210,11 @@ The resolver serves contracts, prompts, references, and templates through one st
 
 ### Tasks
 
-- [x] t18: Add focused fixtures covering all four resource types across provider-only, clean projection, explicit override, conflict, missing, invalid, and cross-platform path cases.
-- [x] t19: Prove that identical inputs and fingerprints produce identical typed results and that unchanged valid evidence is reused rather than rerun.
-- [x] t20: Run focused core tests, type checks, path-hygiene checks, and changed-file whitespace validation without inventing performance thresholds or universal sample counts.
-- [x] t21: Obtain independent review of identity, precedence, mutation boundaries, and provenance; correct only actionable defects within the finite budget.
-- [x] t22: Record the exact typed interfaces, validation evidence, remaining nonblocking items, and P3 handoff.
+- [x] T18: Add focused fixtures covering all four resource types across provider-only, clean projection, explicit override, conflict, missing, invalid, and cross-platform path cases.
+- [x] T19: Prove that identical inputs and fingerprints produce identical typed results and that unchanged valid evidence is reused rather than rerun.
+- [x] T20: Run focused core tests, type checks, path-hygiene checks, and changed-file whitespace validation without inventing performance thresholds or universal sample counts.
+- [x] T21: Obtain independent review of identity, precedence, mutation boundaries, and provenance; correct only actionable defects within the finite budget.
+- [x] T22: Record the exact typed interfaces, validation evidence, remaining nonblocking items, and P3 handoff.
 
 ### Acceptance criteria
 
@@ -236,12 +236,12 @@ The resolver serves contracts, prompts, references, and templates through one st
 - Build: `npm run build -w packages/cli` passed.
 - Repository-wide type check: `./node_modules/.bin/tsc -p packages/cli/tsconfig.json --noEmit` still reports baseline diagnostics in existing files outside P2. It reports no diagnostic in a P2 source or test file.
 - Path hygiene: `python3 .make-docs/scripts/check_path_hygiene.py` passed with 82 checked files and zero errors.
-- t19 trust behavior: Caller evidence cannot seed trust. The first valid use runs SHA-256. It records a bounded internal proof that binds resource identity, canonical path, all project evidence, provider facts, file fingerprint, and digest. Exact later reuse runs no SHA-256 when the caller evidence matches the proof and the fingerprint is stable before and after the byte read. Changed facts cause a new hash or a typed failure. A process restart safely runs a new hash because the proof is process-local.
+- T19 trust behavior: Caller evidence cannot seed trust. The first valid use runs SHA-256. It records a bounded internal proof that binds resource identity, canonical path, all project evidence, provider facts, file fingerprint, and digest. Exact later reuse runs no SHA-256 when the caller evidence matches the proof and the fingerprint is stable before and after the byte read. Changed facts cause a new hash or a typed failure. A process restart safely runs a new hash because the proof is process-local.
 - First independent review: FAIL. Forged caller digest evidence could hide changed managed bytes and could report a digest that did not match the returned bytes. Provider inventory exposed a shared mutable `Uint8Array`. Selected and ownership evidence did not have full runtime checks. A case-only disk path could satisfy a different canonical URI on a case-insensitive file system. `localeCompare` could change URI and provider-reference order by locale.
 - First correction: Provider readers now return byte copies. The resolver verifies provider snapshots. Malformed selected and ownership evidence now fails with `invalid-project-evidence`. Project paths now require exact disk case. Provider inventory and resolved lists now use fixed code-unit order. All five reproductions pass.
-- Second independent review: FAIL for t19 only. The forged-evidence defect was fixed, but the resolver still ran SHA-256 before it reported `digestSource` as `reused`. The test checked only the label and did not prove that the hash did not run again.
+- Second independent review: FAIL for T19 only. The forged-evidence defect was fixed, but the resolver still ran SHA-256 before it reported `digestSource` as `reused`. The test checked only the label and did not prove that the hash did not run again.
 - Second correction: The resolver now uses the bounded internal proof described above. A hash-call observer test proves that the first valid use hashes once, exact reuse adds zero hash calls, and changed facts rehash or fail closed.
-- Final independent review: PASS. No P0, P1, or P2 issue remains. All five first-review reproductions pass. The t19 hash-call proof passes. Focused strict TypeScript, CLI build, path hygiene, diff and whitespace, export, and P2-scope checks pass. The full CLI TypeScript check still reports only existing errors outside P2.
+- Final independent review: PASS. No P0, P1, or P2 issue remains. All five first-review reproductions pass. The T19 hash-call proof passes. Focused strict TypeScript, CLI build, path hygiene, diff and whitespace, export, and P2-scope checks pass. The full CLI TypeScript check still reports only existing errors outside P2.
 - Public identity interfaces: `isSystemResourceType(value: unknown): value is SystemResourceType`, `createSystemResourceIdentity(type: unknown, resourcePath: unknown): SystemResourceResult<SystemResourceIdentity>`, `parseSystemResourceUri(uri: unknown): SystemResourceResult<SystemResourceIdentity>`, and `canonicalSystemResourcePath(value: unknown): SystemResourceResult<string>`.
 - Public provider interfaces: `loadSystemResourceProvider(input: LoadSystemResourceProviderInput): SystemResourceResult<SystemResourceProviderInventory>` and `loadInstalledSystemResourceProvider(): SystemResourceResult<SystemResourceProviderInventory>`.
 - Public operation interfaces: `resolveSystemResource(uri: string, provider: SystemResourceProviderInventory, project: SystemResourceProjectContext): SystemResourceResult<ResolvedSystemResource>`, `listSystemResources(provider: SystemResourceProviderInventory, project: SystemResourceProjectContext): SystemResourceResult<SystemResourceList>`, `readSystemResource(uri: string, provider: SystemResourceProviderInventory, project: SystemResourceProjectContext): SystemResourceResult<SystemResourceRead>`, and `ensureSystemResource(input: EnsureSystemResourceInput): SystemResourceResult<SystemResourceEnsure>`. The bounded `packages/cli/src/operations/resource/index.ts` export provides these functions and the public types and constants in `types.ts`.

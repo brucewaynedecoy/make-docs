@@ -1300,7 +1300,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The owner decided on 2026-11-22 that task IDs use an upper-case `T`, like `T3`. Make Docs reads `t` and `T` the same, and it always writes `T`. Active backlogs under `docs/work/` are rewritten once. Archives and history records stay as written. A Make Docs doctor check finds and fixes lower-case task IDs in any Make Docs project. | W31 R0 owns the change and must close before W29 R0 P3. Its one-time rewrite excludes the W22 R2 backlog while W22 R2 is open. Run the doctor on that backlog after W22 R2 closes. |
+| Open | The owner decided on 2026-11-22 that task IDs use an upper-case `T`, like `T3`. Make Docs reads `t` and `T` the same, and it always writes `T`. Active backlogs under `docs/work/` are rewritten once. Archives and history records stay as written. A Make Docs doctor check finds and fixes lower-case task IDs in any Make Docs project. | W31 R0 completed on 2026-11-22: shipped files write `T`, every reader accepts both cases, `make-docs project doctor` exists, and the one-time fix changed 3,288 task IDs in 268 active backlog files. Remaining: run the doctor on the W22 R2 backlog after W22 R2 closes, then close this entry. |
 
 **Issue**: Task IDs were meant to match the other coordinate parts, but every template, contract, and parser uses a lower-case `t`. `packages/cli/src/operations/work/backlog/snapshot.ts` and `packages/cli/src/operations/work/index.ts` read only `t1`, so a task written as `T1` is not read as a task ID. About 275 backlog files use `t`. No Make Docs doctor command exists today.
 

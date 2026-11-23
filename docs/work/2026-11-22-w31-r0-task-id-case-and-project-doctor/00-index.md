@@ -1,7 +1,7 @@
 ---
 title: "W31 R0 Task ID Case and Project Doctor"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W31 R0"
 follow_on:
   route: "implementation-loop"
@@ -79,9 +79,9 @@ This handoff is advisory-default-but-overridable.
 ### 2026-11-22 — W31 R0 P2
 
 - Kind: `edit`
-- Affected scope: P2 t3.
-- Previous scope: P2 t3 changed CLI text that names task IDs, such as the phase check warning.
-- Replacement scope: P2 t3 also changes the task `id` in `run` results to `T`.
+- Affected scope: P2 T3.
+- Previous scope: P2 T3 changed CLI text that names task IDs, such as the phase check warning.
+- Replacement scope: P2 T3 also changes the task `id` in `run` results to `T`.
 - Rationale: the P1 review found that no phase owned the task `id` in parser results, which PRD 14 R-COORD-22 says use `T`.
 - PRD decision: `none` — PRD 14 R-COORD-22 already requires `T` in results.
 - Owner approval: not required. The edit fits the plan.

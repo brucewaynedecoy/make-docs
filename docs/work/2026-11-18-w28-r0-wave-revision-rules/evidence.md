@@ -26,7 +26,7 @@ The first `validate:defaults` run failed the template-link check. The checker tr
 
 ### Retired Text Search (A2, A3, A6, A9)
 
-A search of `packages/docs/template/`, `.make-docs/system/`, the plans and work routers, and `docs/assets/user/` for the retired trigger list, "delta backlog", "delta work directory", "not retroactively", and "keep the lineage wave and increment" now finds one unrelated hit: "Do not retroactively fail completed phases" in the performance-evidence contract. Two user guides, `workflows-choosing-the-right-route-for-your-project.md` and `workflows-how-make-docs-stages-fit-together.md`, still described delta backlogs. Both were corrected under t13.
+A search of `packages/docs/template/`, `.make-docs/system/`, the plans and work routers, and `docs/assets/user/` for the retired trigger list, "delta backlog", "delta work directory", "not retroactively", and "keep the lineage wave and increment" now finds one unrelated hit: "Do not retroactively fail completed phases" in the performance-evidence contract. Two user guides, `workflows-choosing-the-right-route-for-your-project.md` and `workflows-how-make-docs-stages-fit-together.md`, still described delta backlogs. Both were corrected under T13.
 
 ### Template And Dogfood Parity (A7)
 
@@ -92,7 +92,7 @@ The new file `packages/cli/tests/backlog-coordinate-facts.test.ts` adds 21 tests
 
 ### Generated Files (A31)
 
-The strict schema is bundled into `packages/skills/backlog-review/scripts/report-contract.mjs` and `agent-contract.mjs`, and through them into the MCP App widget. All three were regenerated with the repository scripts. The Skill rule map gained rows for 017 and 018, which moved from P3 t2. The index Change History records that move. After regeneration, all 18 baseline files passed again: 376 of 376. The CLI build also passed, including its widget `--check` step.
+The strict schema is bundled into `packages/skills/backlog-review/scripts/report-contract.mjs` and `agent-contract.mjs`, and through them into the MCP App widget. All three were regenerated with the repository scripts. The Skill rule map gained rows for 017 and 018, which moved from P3 T2. The index Change History records that move. After regeneration, all 18 baseline files passed again: 376 of 376. The CLI build also passed, including its widget `--check` step.
 
 ### Full Suite And Real Run (A17, A18)
 
@@ -141,7 +141,7 @@ Covers A19 and A20 in [P3](03-skills.md). Evidence date: 2026-11-18.
   - Each `BACKLOG-VAL-017` diagnostic is a wave-specific Attention item that names the entry and the fix.
   - The agent also checks plan-overview Change History, which the snapshot does not read.
 - `packages/skills/preflight/SKILL.md`: a requested change to earlier or completed work is classified with the decision procedure, the agent asks only at its owner gates and otherwise states the choice and reason, and committed backlogs need Change History entries.
-- The rule-map rows for 017 and 018 landed in P2 t12 (see the index Change History).
+- The rule-map rows for 017 and 018 landed in P2 T12 (see the index Change History).
 
 ### Parity And Wording (A19, A20)
 
@@ -362,7 +362,7 @@ Covers A39 to A41 in [P6](06-ci-and-review-corrections.md). Evidence date: 2026-
 | Minor | `snapshot.ts:658` | Git paths wrong for a nested target | **Fixed** (A40) |
 | Minor | `snapshot.ts:1013` | Record `committed` ignores broken links | **Fixed** (A40) |
 | Minor | P2 work `:116` | A non-`###` Change History heading is not reported | **Fixed** (A40) |
-| Minor | P4 work `:130` | Stage 5 heading embedded in t8 | **Fixed** in `bfb4aab8` (Stage 4 restored) |
+| Minor | P4 work `:130` | Stage 5 heading embedded in T8 | **Fixed** in `bfb4aab8` (Stage 4 restored) |
 | 10 | P4 work `:158` | A38 should state the installed-copy incompatibility | **Fixed** in `bfb4aab8` (A38 resolved, consequence stated) |
 | Minor | Plan `03-backlog-and-validation.md:28` | P1 acceptance summary is too broad | **Not fixed**: the plan bullet is a summary, P1's operative criteria A1–A9 already scope each rule to its owning resource, and P1 is complete |
 | 7 | Design `:231` | `committed` (clean working tree) is not the same as prior completion | **Tyler** — see question 1 |

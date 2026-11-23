@@ -6,11 +6,11 @@ Close out the TypeScript operation-domain and MCP runtime implementation with pr
 
 ## Tasks
 
-- [x] t1: Run the full CLI/package validation chain.
-- [x] t2: Record MCP support evidence and any remaining write-permission limits.
-- [x] t3: Update PRD/risk entries with implementation evidence.
-- [x] t4: Add closeout history under `docs/assets/archive/history/**`.
-- [x] t5: Decide whether manual testing is worthwhile after automated parity and package-runner validation.
+- [x] T1: Run the full CLI/package validation chain.
+- [x] T2: Record MCP support evidence and any remaining write-permission limits.
+- [x] T3: Update PRD/risk entries with implementation evidence.
+- [x] T4: Add closeout history under `docs/assets/archive/history/**`.
+- [x] T5: Decide whether manual testing is worthwhile after automated parity and package-runner validation.
 
 ## Acceptance Criteria
 

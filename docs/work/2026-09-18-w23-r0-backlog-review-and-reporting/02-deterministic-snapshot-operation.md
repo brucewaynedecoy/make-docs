@@ -64,11 +64,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t1: Run the W22 preflight. Confirm that the checkout contains W22 R0 P6 closeout commit `edd9d7e4` or later accepted authority. Reread current PRD 38 and PRD 39 authority. Confirm project-read, Store-none, and host-configuration-none access. Run the existing registry, access, CLI, and MCP contract tests. Stop P2 and report drift if any check fails. Do not create a temporary workaround. W22 publication or release is not required.
-- [x] t2: Implement safe target-root resolution and bounded discovery of every live and archived backlog record, including directory-derived creation date and the accepted scoped Git and file-time hierarchy for deterministic last-updated evidence.
-- [x] t3: Implement the private source-reader adapter, current-frontmatter reader, unsupported inventory reader, phase-map handling, unlinked-current-phase diagnostics, supported semantic collectors, discovered-file inventory, and optional Git facts. Do not implement legacy body parsing.
-- [x] t4: Implement the accepted version 1 snapshot schema, rule catalog, fixed capability map, required-key rules, partial results, and diagnostics.
-- [x] t5: Prove the operation core makes no project, Git, Store, or installation write.
+- [x] T1: Run the W22 preflight. Confirm that the checkout contains W22 R0 P6 closeout commit `edd9d7e4` or later accepted authority. Reread current PRD 38 and PRD 39 authority. Confirm project-read, Store-none, and host-configuration-none access. Run the existing registry, access, CLI, and MCP contract tests. Stop P2 and report drift if any check fails. Do not create a temporary workaround. W22 publication or release is not required.
+- [x] T2: Implement safe target-root resolution and bounded discovery of every live and archived backlog record, including directory-derived creation date and the accepted scoped Git and file-time hierarchy for deterministic last-updated evidence.
+- [x] T3: Implement the private source-reader adapter, current-frontmatter reader, unsupported inventory reader, phase-map handling, unlinked-current-phase diagnostics, supported semantic collectors, discovered-file inventory, and optional Git facts. Do not implement legacy body parsing.
+- [x] T4: Implement the accepted version 1 snapshot schema, rule catalog, fixed capability map, required-key rules, partial results, and diagnostics.
+- [x] T5: Prove the operation core makes no project, Git, Store, or installation write.
 
 ### Acceptance criteria
 
@@ -88,11 +88,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t6: Register `work.backlog.snapshot` through the shared post-W22 registry path.
-- [x] t7: Add the canonical CLI projection and human rendering without operation logic in the parser or renderer.
-- [x] t8: Derive the MCP tool from the registry and preserve matching typed errors.
-- [x] t9: Add CLI JSON, MCP, registry inventory, and bidirectional parity tests.
-- [x] t10: Add package-boundary checks for the operation and all required runtime files.
+- [x] T6: Register `work.backlog.snapshot` through the shared post-W22 registry path.
+- [x] T7: Add the canonical CLI projection and human rendering without operation logic in the parser or renderer.
+- [x] T8: Derive the MCP tool from the registry and preserve matching typed errors.
+- [x] T9: Add CLI JSON, MCP, registry inventory, and bidirectional parity tests.
+- [x] T10: Add package-boundary checks for the operation and all required runtime files.
 
 ### Acceptance criteria
 

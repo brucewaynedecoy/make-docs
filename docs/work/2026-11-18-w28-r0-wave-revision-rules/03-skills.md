@@ -63,11 +63,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: In `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md` line 16, set Classification to `new-wave` or `revision-wave`.
-- [x] t2: Moved to [P2 t12](02-cli-snapshot-facts-and-rule.md#stage-5---generated-files-and-rule-map) on 2026-11-18, because the P2 Skill test requires the rows. See the index Change History.
-- [x] t3: In `packages/skills/backlog-review/references/review-method.md`, add two rules. The status reason for a reopened Wave names its revision Phase. A `BACKLOG-VAL-017` finding is an Attention item.
-- [x] t4: In `packages/skills/preflight/SKILL.md`, add one line: classify each requested change with the `wave-model.md` decision procedure, and stop at its owner gates.
-- [x] t5: Run any existing Skill tests, and compare the rule-map rows with `catalog.ts`.
+- [x] T1: In `packages/skills/decompose-codebase/assets/templates/decomposition-plan.md` line 16, set Classification to `new-wave` or `revision-wave`.
+- [x] T2: Moved to [P2 T12](02-cli-snapshot-facts-and-rule.md#stage-5---generated-files-and-rule-map) on 2026-11-18, because the P2 Skill test requires the rows. See the index Change History.
+- [x] T3: In `packages/skills/backlog-review/references/review-method.md`, add two rules. The status reason for a reopened Wave names its revision Phase. A `BACKLOG-VAL-017` finding is an Attention item.
+- [x] T4: In `packages/skills/preflight/SKILL.md`, add one line: classify each requested change with the `wave-model.md` decision procedure, and stop at its owner gates.
+- [x] T5: Run any existing Skill tests, and compare the rule-map rows with `catalog.ts`.
 
 ### Acceptance criteria
 

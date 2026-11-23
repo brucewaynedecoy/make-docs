@@ -56,12 +56,12 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: Confirm that PRD 38 has an R-MIN row for every new field before the migration exists.
-- [ ] t2: Add one append-only migration after v8, with the Store write guard triggers and a Store table catalog entry on each new table, with tables for machine tools and capability proofs, workflow bindings, grants, human channel and wake bindings, assignments, proof results, and backup records (R-FACTORY-15, R-FACTORY-23).
-- [ ] t3: Store assignment fields: work unit, role, tool, task handle, lifecycle run ID, status, and last check time. Store no prompt, transcript, or task graph (R-FACTORY-27, R-FACTORY-28).
-- [ ] t4: Save the machine's tool list once per machine, so all projects on that machine reuse it (R-FACTORY-15).
-- [ ] t5: Add migration tests for the upgrade, a failed migration rollback, and a newer-schema refusal.
-- [ ] t6: Add a test that fails when the R-MIN register and the physical schema drift.
+- [ ] T1: Confirm that PRD 38 has an R-MIN row for every new field before the migration exists.
+- [ ] T2: Add one append-only migration after v8, with the Store write guard triggers and a Store table catalog entry on each new table, with tables for machine tools and capability proofs, workflow bindings, grants, human channel and wake bindings, assignments, proof results, and backup records (R-FACTORY-15, R-FACTORY-23).
+- [ ] T3: Store assignment fields: work unit, role, tool, task handle, lifecycle run ID, status, and last check time. Store no prompt, transcript, or task graph (R-FACTORY-27, R-FACTORY-28).
+- [ ] T4: Save the machine's tool list once per machine, so all projects on that machine reuse it (R-FACTORY-15).
+- [ ] T5: Add migration tests for the upgrade, a failed migration rollback, and a newer-schema refusal.
+- [ ] T6: Add a test that fails when the R-MIN register and the physical schema drift.
 
 ### Acceptance criteria
 
@@ -77,11 +77,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t7: Add the `factory:` block to the config schema: workflow type, roles needed, capability needs, limits, steps such as preflight, and added escalation events (R-FACTORY-22).
-- [ ] t8: Reject grants, IDs, paths, digests, receipts, and secrets in the `factory:` block (R-FACTORY-24, R-FACTORY-26).
-- [ ] t9: Write generated, read-only copies of the saved setup to `.make-docs/factory/` on each factory save. Each file starts with a note that it is generated and that edits are lost (R-FACTORY-25).
-- [ ] t10: Make sure Make Docs never reads a copy as input.
-- [ ] t11: Add `.make-docs/factory/` to the standard `.gitignore` that setup writes.
+- [ ] T7: Add the `factory:` block to the config schema: workflow type, roles needed, capability needs, limits, steps such as preflight, and added escalation events (R-FACTORY-22).
+- [ ] T8: Reject grants, IDs, paths, digests, receipts, and secrets in the `factory:` block (R-FACTORY-24, R-FACTORY-26).
+- [ ] T9: Write generated, read-only copies of the saved setup to `.make-docs/factory/` on each factory save. Each file starts with a note that it is generated and that edits are lost (R-FACTORY-25).
+- [ ] T10: Make sure Make Docs never reads a copy as input.
+- [ ] T11: Add `.make-docs/factory/` to the standard `.gitignore` that setup writes.
 
 ### Acceptance criteria
 
@@ -98,10 +98,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t12: In a folder without git, copy a file to `.make-docs/backup/factory/` before a worker changes it, and record its file, hash, and assignment (R-FACTORY-44).
-- [ ] t13: Delete an assignment's backups when its work is accepted or closed. Delete any backup older than 30 days. Run cleanup during normal factory operations (R-FACTORY-45).
-- [ ] t14: Write a `README.md` in `.make-docs/backup/factory/` that states the cleanup rule and how to get a file back (R-FACTORY-46).
-- [ ] t15: Add tests for both cleanup triggers and for the boundary with installation recovery backups.
+- [ ] T12: In a folder without git, copy a file to `.make-docs/backup/factory/` before a worker changes it, and record its file, hash, and assignment (R-FACTORY-44).
+- [ ] T13: Delete an assignment's backups when its work is accepted or closed. Delete any backup older than 30 days. Run cleanup during normal factory operations (R-FACTORY-45).
+- [ ] T14: Write a `README.md` in `.make-docs/backup/factory/` that states the cleanup rule and how to get a file back (R-FACTORY-46).
+- [ ] T15: Add tests for both cleanup triggers and for the boundary with installation recovery backups.
 
 ### Acceptance criteria
 

@@ -42,10 +42,10 @@ Bear proposal steps 2–3 and 15; W25 `store-denied` observation; current R-ACCE
 
 ### Tasks
 
-- [x] t1: Trace snapshot, cache lookup/write, and refresh through setup, CLI/MCP context, registry, policy, Store session, and result serialization. Record target, Store location, grant, caller context, write intent, and exact refusal at each boundary. (Steps 2, 5; evidence: call-path map.)
-- [x] t2: Classify caller identity, receipt, package/native-entry, machine/project grant, command-rule, Store integrity, ownership, and lock checks as keep, move, or remove. Name each purpose and affected source/configuration owner. (Step 2; evidence: check-purpose matrix.)
-- [x] t3: Define project/checkout/item selection, dirty-source version, unknown-state, fact/judgment, migration, revocation, schema, error, rollback, and CLI/MCP parity rules. List exact PRD redlines, affected files, tests, and the combined F/W25 work estimate. (Steps 2–3, 15; evidence: design packet.)
-- [x] t4: Present the exact access-policy design and PRD redline for owner review. Record the decision before P2. (Step 15; gate: named policy approval.)
+- [x] T1: Trace snapshot, cache lookup/write, and refresh through setup, CLI/MCP context, registry, policy, Store session, and result serialization. Record target, Store location, grant, caller context, write intent, and exact refusal at each boundary. (Steps 2, 5; evidence: call-path map.)
+- [x] T2: Classify caller identity, receipt, package/native-entry, machine/project grant, command-rule, Store integrity, ownership, and lock checks as keep, move, or remove. Name each purpose and affected source/configuration owner. (Step 2; evidence: check-purpose matrix.)
+- [x] T3: Define project/checkout/item selection, dirty-source version, unknown-state, fact/judgment, migration, revocation, schema, error, rollback, and CLI/MCP parity rules. List exact PRD redlines, affected files, tests, and the combined F/W25 work estimate. (Steps 2–3, 15; evidence: design packet.)
+- [x] T4: Present the exact access-policy design and PRD redline for owner review. Record the decision before P2. (Step 15; gate: named policy approval.)
 
 ### Acceptance criteria
 
@@ -55,7 +55,7 @@ Bear proposal steps 2–3 and 15; W25 `store-denied` observation; current R-ACCE
 
 ### Dependencies
 
-- W25 R0 P8 inventory and read-only repository/connection access. P2 waits for t4 approval.
+- W25 R0 P8 inventory and read-only repository/connection access. P2 waits for T4 approval.
 
 ## Closeout Notes
 

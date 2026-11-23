@@ -17,11 +17,11 @@ Implement resolver and catalog requirements that keep `persona/slug` as the iden
 
 ### Tasks
 
-- [x] t1: Keep playbook filesystem paths at `docs/assets/playbooks/<persona>/<slug>.md`.
-- [x] t2: Resolve explicit paths before catalog refs.
-- [x] t3: Resolve `persona/slug` as the canonical catalog identity.
-- [x] t4: Allow bare slug or title only when it maps to exactly one candidate.
-- [x] t5: Require requested-stack validation before execution.
+- [x] T1: Keep playbook filesystem paths at `docs/assets/playbooks/<persona>/<slug>.md`.
+- [x] T2: Resolve explicit paths before catalog refs.
+- [x] T3: Resolve `persona/slug` as the canonical catalog identity.
+- [x] T4: Allow bare slug or title only when it maps to exactly one candidate.
+- [x] T5: Require requested-stack validation before execution.
 
 ### Acceptance criteria
 

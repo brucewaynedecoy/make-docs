@@ -39,7 +39,7 @@ The named PRDs were updated under separate user authorization and passed gap rev
 
 ## PRD Reconciliation and Gap Review
 
-On 2026-10-31 the user separately authorized existing-owner PRD changes and gap review. This expands documentation scope only. Source code, product tests, versions, Store access, and release actions remain unapproved. P1 t1–t4 are now complete after the independent review and final Store-free authority pass recorded below.
+On 2026-10-31 the user separately authorized existing-owner PRD changes and gap review. This expands documentation scope only. Source code, product tests, versions, Store access, and release actions remain unapproved. P1 T1–T4 are now complete after the independent review and final Store-free authority pass recorded below.
 
 | Owning document | Changed current sections | Review state |
 | --- | --- | --- |
@@ -48,7 +48,7 @@ On 2026-10-31 the user separately authorized existing-owner PRD changes and gap 
 | PRDs 07, 25, 39 | Setup flow and shared operation/access/registry owners | Dedicated writer/reviewer handoff pending |
 | PRD index and D-049 | Owner navigation and implementation-open state | Assembly current; post-review authority validation passed |
 
-The parent ran the baseline Store-free authority validator before these edits: passed, 35 PRDs, 635 Markdown sources, 1206 links, zero diagnostics. Access was Store none, project read, host config none. This is baseline only. It cannot complete t4 or prove the final PRD set. No product acceptance case passed from that check.
+The parent ran the baseline Store-free authority validator before these edits: passed, 35 PRDs, 635 Markdown sources, 1206 links, zero diagnostics. Access was Store none, project read, host config none. This is baseline only. It cannot complete T4 or prove the final PRD set. No product acceptance case passed from that check.
 
 ### Independent Cross-Document Gap Findings
 
@@ -62,7 +62,7 @@ The independent review found five narrow conflicts after the first authoring pas
 | PRD 38 | Ambiguity language could prohibit a valid explicit source selection. | Stop automatic selection while ambiguity is unresolved; permit an explicit choice only with full independent proof. | Corrected; independent reviewer confirmed; post-review authority pass clean |
 | PRD 18 | An old aggregate or fully owned-file path could accidentally reclaim project-owned config bytes. | Exclude project-owned config from durable owned-file proof even when old ledger/aggregate bytes include it; preserve PRD 24's identity/settings scope. | Corrected; independent reviewer confirmed; post-review authority pass clean |
 
-The parent then ran a post-authoring Store-free CLI authority check: exit 0, 35 PRDs, 635 Markdown sources, 1206 links, zero diagnostics. The cross-doc corrections above were still in progress, so that result is not the final post-review pass and does not yet complete t4. No product test or Store repair ran.
+The parent then ran a post-authoring Store-free CLI authority check: exit 0, 35 PRDs, 635 Markdown sources, 1206 links, zero diagnostics. The cross-doc corrections above were still in progress, so that result is not the final post-review pass and does not yet complete T4. No product test or Store repair ran.
 
 
 ## Final PRD Documentation Stage Result
@@ -71,7 +71,7 @@ The parent confirmed that both independent reviewers completed their disjoint cr
 
 The post-review CLI command was make-docs run prd authority validate --target-root <make-docs> --json. It returned exit 0 and status passed: 35 PRDs, 635 Markdown sources, 1206 links, zero diagnostics. The check is Store-free. git diff whitespace checks were clean. The parent also checked that packages, scripts, workflows, and version files had no diff from this documentation work.
 
-P1 t1–t4 are complete. A1–A3 are satisfied as documentation acceptance only: current owning requirements are inline, their distinct safety boundaries are preserved, and independent semantic plus authority checks passed. The code gate remains closed. Four of 42 tasks are complete; 38 tasks remain unchecked. A4–A32 remain not run. No authentic Store fixture, source test, package build, installed candidate, host matrix, version bump, release, or live repair was run. D-049 stays Open. Phase 1 is partially complete; the repair capability is unimplemented.
+P1 T1–T4 are complete. A1–A3 are satisfied as documentation acceptance only: current owning requirements are inline, their distinct safety boundaries are preserved, and independent semantic plus authority checks passed. The code gate remains closed. Four of 42 tasks are complete; 38 tasks remain unchecked. A4–A32 remain not run. No authentic Store fixture, source test, package build, installed candidate, host matrix, version bump, release, or live repair was run. D-049 stays Open. Phase 1 is partially complete; the repair capability is unimplemented.
 
 The parent completed the final standalone CLI authority and scope checks after status assembly. The CLI returned exit code 0 and status passed: 35 PRD files, 635 Markdown sources, 1206 links, zero diagnostics. At that prior documentation stage, the scope contained only documentation on fix/2.0.6-checkout-move-ownership. No packages, scripts, .github, or package version/lock files had a diff. git diff --check passed. These results closed the documentation check only. They did not authorize product execution or a Store operation.
 

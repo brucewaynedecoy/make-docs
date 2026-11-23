@@ -59,10 +59,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Quote the target in the `make-docs setup skills` route with the double-quoted form that other make-docs next actions use. Make the tests expect that form on every platform.
-- [x] t2: Accept a CRLF closing fence in the snapshot code scan. Open no backtick fence when the rest of the line contains a backtick. Add tests.
-- [x] t3: State the P10 `npm test` result in its testing closeout.
-- [x] t4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
+- [x] T1: Quote the target in the `make-docs setup skills` route with the double-quoted form that other make-docs next actions use. Make the tests expect that form on every platform.
+- [x] T2: Accept a CRLF closing fence in the snapshot code scan. Open no backtick fence when the rest of the line contains a backtick. Add tests.
+- [x] T3: State the P10 `npm test` result in its testing closeout.
+- [x] T4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
 
 ### Acceptance criteria
 

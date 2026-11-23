@@ -2,11 +2,11 @@
 
 ## Tasks
 
-- [x] t1: Confirm PRD 27 is linked from the PRD index, PRD 08, PRD 12, and affected baseline docs.
-- [x] t2: Confirm D-005 and Q-001 still keep the broader delivery-model decision open.
-- [x] t3: Confirm Q-007 is narrowed for alternate manifests and remote skill payload integrity without pretending the whole remote-source policy is complete.
-- [x] t4: Confirm Q-012 and Q-013 remain open for shared install and plugin exposure boundaries.
-- [x] t5: Confirm R-001, R-002, R-006, R-008, and R-014 mention the new manifest/provenance implications where relevant.
+- [x] T1: Confirm PRD 27 is linked from the PRD index, PRD 08, PRD 12, and affected baseline docs.
+- [x] T2: Confirm D-005 and Q-001 still keep the broader delivery-model decision open.
+- [x] T3: Confirm Q-007 is narrowed for alternate manifests and remote skill payload integrity without pretending the whole remote-source policy is complete.
+- [x] T4: Confirm Q-012 and Q-013 remain open for shared install and plugin exposure boundaries.
+- [x] T5: Confirm R-001, R-002, R-006, R-008, and R-014 mention the new manifest/provenance implications where relevant.
 
 ## Acceptance Criteria
 

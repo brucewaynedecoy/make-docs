@@ -17,7 +17,7 @@ source:
 
 ## Purpose
 
-Provide a reviewable queue for [the W27 design](../../designs/2026-10-24-w27-r0-github-copilot-cli-and-app-support.md) and [plan](../../plans/2026-10-24-w27-r0-github-copilot-support/00-overview.md). P1 updated [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) before P2 source edits. The owner approved one managed CLI MCP entry. App-added entries stay user-owned. The source and macOS CLI and app proof merged as PR #42. On 2026-10-26, the owner accepted a bounded W27 closeout: P1 t2 and P3 t4 are discharged by scope decisions, not passed tests.
+Provide a reviewable queue for [the W27 design](../../designs/2026-10-24-w27-r0-github-copilot-cli-and-app-support.md) and [plan](../../plans/2026-10-24-w27-r0-github-copilot-support/00-overview.md). P1 updated [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) before P2 source edits. The owner approved one managed CLI MCP entry. App-added entries stay user-owned. The source and macOS CLI and app proof merged as PR #42. On 2026-10-26, the owner accepted a bounded W27 closeout: P1 T2 and P3 T4 are discharged by scope decisions, not passed tests.
 
 ## Human Experience Trace
 
@@ -48,8 +48,8 @@ Automated Implementation Testing is required. Performance Testing is `not-needed
 - Route: 2.0.5 release review.
 - Next step: Review the [release notes](../../assets/project/2026-10-24-v2.0.5-release-notes.md) and [security review](../../assets/project/2026-10-24-v2.0.5-security-review.md) with the tested macOS Copilot scope and named limits.
 - Why: The owner accepted W27 closeout without tested app-owned collision or Windows/Linux Copilot client claims.
-- Coordinate Handoff: Keep P1 t2 and P3 t4 as scope dispositions, not test passes. Any expanded client claim, installed connection change, or publication needs separate authority.
+- Coordinate Handoff: Keep P1 T2 and P3 T4 as scope dispositions, not test passes. Any expanded client claim, installed connection change, or publication needs separate authority.
 
 ## 2.0.5 Release Scope Decision
 
-On 2026-10-26, the owner accepted macOS as the tested GitHub Copilot client scope for the 2.0.5 release review. The owner then directed bounded W27 closeout. P1 t2 is discharged because a user-created app-owned same-name entry is outside the claimed app path. P3 t4 is discharged because direct Windows and Linux Copilot client tests cannot be completed before release. Neither task records a passed test. CI contract checks do not support a tested Windows or Linux Copilot client claim. PRD 28 still blocks a `current` app claim when an app-owned same-name entry or unknown source exists. This decision does not publish 2.0.5.
+On 2026-10-26, the owner accepted macOS as the tested GitHub Copilot client scope for the 2.0.5 release review. The owner then directed bounded W27 closeout. P1 T2 is discharged because a user-created app-owned same-name entry is outside the claimed app path. P3 T4 is discharged because direct Windows and Linux Copilot client tests cannot be completed before release. Neither task records a passed test. CI contract checks do not support a tested Windows or Linux Copilot client claim. PRD 28 still blocks a `current` app claim when an app-owned same-name entry or unknown source exists. This decision does not publish 2.0.5.

@@ -6,11 +6,11 @@ Create the deterministic operation surface that first-party skills can call befo
 
 ## Tasks
 
-- [x] t1: Inventory script-shaped behavior from `packages/cli/skill-registry.json`, `packages/skills/**/scripts/`, and `.make-docs/scripts/check_path_hygiene.py`.
-- [x] t2: Define operation contracts for lifecycle-critical helpers first: closeout probing, closeout validation selection, closeout history drafting, work phase state, wave resolution, wave status, phase planning, checkpointing, scope guarding, and phase gates.
-- [x] t3: Implement TypeScript CLI/shared-core operations before changing skill references.
-- [x] t4: Add focused tests for deterministic inputs, outputs, dry-run/read-only behavior, provenance, and error semantics.
-- [x] t5: Preserve existing script behavior through wrappers only after the equivalent operation exists.
+- [x] T1: Inventory script-shaped behavior from `packages/cli/skill-registry.json`, `packages/skills/**/scripts/`, and `.make-docs/scripts/check_path_hygiene.py`.
+- [x] T2: Define operation contracts for lifecycle-critical helpers first: closeout probing, closeout validation selection, closeout history drafting, work phase state, wave resolution, wave status, phase planning, checkpointing, scope guarding, and phase gates.
+- [x] T3: Implement TypeScript CLI/shared-core operations before changing skill references.
+- [x] T4: Add focused tests for deterministic inputs, outputs, dry-run/read-only behavior, provenance, and error semantics.
+- [x] T5: Preserve existing script behavior through wrappers only after the equivalent operation exists.
 
 ## Implementation Notes
 

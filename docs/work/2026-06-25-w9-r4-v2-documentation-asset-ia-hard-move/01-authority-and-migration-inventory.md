@@ -19,10 +19,10 @@ This phase is the implementation safety gate. It verifies that active PRDs, the 
 
 ### Tasks
 
-- [x] t1: Re-read the W9 R4 design, plan, PRD 21, PRD 22, PRD index, and risk register.
-- [x] t2: Confirm the implementation scope uses `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` and `.make-docs/{contracts,references,scripts,templates,agentics}/**`.
-- [x] t3: Confirm top-level `docs/artifacts/**` is a hard move and top-level `docs/archive/**` is not a shipped v2 target.
-- [x] t4: Confirm existing `docs/assets/history/**` remains historical migration evidence and that new closeout breadcrumb records move to `docs/assets/breadcrumbs/**` when the W9 R4 migration changes the live contract.
+- [x] T1: Re-read the W9 R4 design, plan, PRD 21, PRD 22, PRD index, and risk register.
+- [x] T2: Confirm the implementation scope uses `docs/assets/{archive,artifacts,breadcrumbs,guides,playbooks}/**` and `.make-docs/{contracts,references,scripts,templates,agentics}/**`.
+- [x] T3: Confirm top-level `docs/artifacts/**` is a hard move and top-level `docs/archive/**` is not a shipped v2 target.
+- [x] T4: Confirm existing `docs/assets/history/**` remains historical migration evidence and that new closeout breadcrumb records move to `docs/assets/breadcrumbs/**` when the W9 R4 migration changes the live contract.
 
 ### Evidence
 
@@ -48,10 +48,10 @@ This phase is the implementation safety gate. It verifies that active PRDs, the 
 
 ### Tasks
 
-- [x] t5: Inventory future-facing references to top-level `docs/artifacts/**`, top-level `docs/archive/**`, current `docs/assets/history/**`, and transitional `docs/assets/{prompts,references,templates}/**`.
-- [x] t6: Classify each hit as historical evidence, active contract, shipped template, CLI/package path knowledge, dogfood state, or unmanaged local material.
-- [x] t7: Map every active-contract or shipped-template hit to its W9 R4 target path family.
-- [x] t8: Record which hits must be preserved as historical references instead of rewritten.
+- [x] T5: Inventory future-facing references to top-level `docs/artifacts/**`, top-level `docs/archive/**`, current `docs/assets/history/**`, and transitional `docs/assets/{prompts,references,templates}/**`.
+- [x] T6: Classify each hit as historical evidence, active contract, shipped template, CLI/package path knowledge, dogfood state, or unmanaged local material.
+- [x] T7: Map every active-contract or shipped-template hit to its W9 R4 target path family.
+- [x] T8: Record which hits must be preserved as historical references instead of rewritten.
 
 ### Migration Inventory
 

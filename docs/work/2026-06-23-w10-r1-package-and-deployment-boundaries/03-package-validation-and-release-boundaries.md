@@ -20,11 +20,11 @@ This phase handles D-006 and R-003 implementation work: package README/tarball a
 
 ### Tasks
 
-- [x] t1: Run dry-run package inspection against `packages/cli` and capture the actual shipped files without publishing.
-- [x] t2: Compare dry-run output with `packages/cli/package.json` `files` and the package-surface text in `README.md`, `packages/cli/README.md`, and any maintained package README source.
-- [x] t3: Update stale README/package-surface wording so it describes built CLI, bundled template, skill registry files, schema, and package README as the npm package boundary.
-- [x] t4: Preserve root workspace privacy and avoid describing `packages/docs`, `packages/skills`, or `packages/content` as standalone deployment packages.
-- [x] t5: Keep D-006 open until package docs and dry-run output agree; close it only with the evidence named in the risk item.
+- [x] T1: Run dry-run package inspection against `packages/cli` and capture the actual shipped files without publishing.
+- [x] T2: Compare dry-run output with `packages/cli/package.json` `files` and the package-surface text in `README.md`, `packages/cli/README.md`, and any maintained package README source.
+- [x] T3: Update stale README/package-surface wording so it describes built CLI, bundled template, skill registry files, schema, and package README as the npm package boundary.
+- [x] T4: Preserve root workspace privacy and avoid describing `packages/docs`, `packages/skills`, or `packages/content` as standalone deployment packages.
+- [x] T5: Keep D-006 open until package docs and dry-run output agree; close it only with the evidence named in the risk item.
 
 ### Acceptance criteria
 
@@ -46,11 +46,11 @@ This phase handles D-006 and R-003 implementation work: package README/tarball a
 
 ### Tasks
 
-- [x] t6: Run or update `scripts/smoke-pack.mjs` so package validation proves packed-template behavior, CLI install, skills flow, backup, and uninstall behavior that matter to PRD 16.
-- [x] t7: Verify bare packaged installs still write no skill files by default.
-- [x] t8: Verify explicit skills installation remains opt-in and does not reopen Q-001, Q-007, or Q-012.
-- [x] t9: Run npm publish validation only with dry-run flags and the intended `next` release-candidate tag; do not perform a real publish.
-- [x] t10: Tie R-003 evidence to both dev-template and packed-template behavior, not only one path.
+- [x] T6: Run or update `scripts/smoke-pack.mjs` so package validation proves packed-template behavior, CLI install, skills flow, backup, and uninstall behavior that matter to PRD 16.
+- [x] T7: Verify bare packaged installs still write no skill files by default.
+- [x] T8: Verify explicit skills installation remains opt-in and does not reopen Q-001, Q-007, or Q-012.
+- [x] T9: Run npm publish validation only with dry-run flags and the intended `next` release-candidate tag; do not perform a real publish.
+- [x] T10: Tie R-003 evidence to both dev-template and packed-template behavior, not only one path.
 
 ### Acceptance criteria
 

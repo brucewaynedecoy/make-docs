@@ -18,11 +18,11 @@ Reconcile the W18 R4 design into the active PRDs and risk register while preserv
 
 ### Tasks
 
-- [x] t1: Confirm the W18 R4 design is the active blocker for W18 R1, W18 R2, and W18 R3.
-- [x] t2: Update PRD 29 with resolver, capability, run-state, nested-run, and concurrency requirements.
-- [x] t3: Update PRD 30 so plugins and workflow bundles delegate to W18 R4 orchestration.
-- [x] t4: Update PRD 24 to allow reviewed `harnessCapabilities` records without weakening canonical config boundaries.
-- [x] t5: Update supporting PRDs, PRD index, and risk register.
+- [x] T1: Confirm the W18 R4 design is the active blocker for W18 R1, W18 R2, and W18 R3.
+- [x] T2: Update PRD 29 with resolver, capability, run-state, nested-run, and concurrency requirements.
+- [x] T3: Update PRD 30 so plugins and workflow bundles delegate to W18 R4 orchestration.
+- [x] T4: Update PRD 24 to allow reviewed `harnessCapabilities` records without weakening canonical config boundaries.
+- [x] T5: Update supporting PRDs, PRD index, and risk register.
 
 ### Acceptance criteria
 

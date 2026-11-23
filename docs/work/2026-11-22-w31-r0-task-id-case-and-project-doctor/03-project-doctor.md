@@ -54,11 +54,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [x] t1: Admit `project.doctor.check` and `project.doctor.fix` in the registry with their CLI paths under `make-docs project doctor` and MCP tools in the `quality`, `setup`, and `all` profiles.
-- [x] t2: Build the check list. Each check has a stable ID, a scope, plain finding text, and an optional fix.
-- [x] t3: Build `check`: totals first in plain words, then each finding with file, line, current text, and replacement, and a review digest that binds the findings, the exclusions, and the file bytes.
-- [x] t4: Build `fix`: the project write permission, the digest check, a stale-file refusal that names the file, the existing reviewed write path with its backup, and a report of each changed file and the undo path.
-- [x] t5: Add the repeated `--exclude <path>` option to both commands, and refuse traversal and paths outside the project.
+- [x] T1: Admit `project.doctor.check` and `project.doctor.fix` in the registry with their CLI paths under `make-docs project doctor` and MCP tools in the `quality`, `setup`, and `all` profiles.
+- [x] T2: Build the check list. Each check has a stable ID, a scope, plain finding text, and an optional fix.
+- [x] T3: Build `check`: totals first in plain words, then each finding with file, line, current text, and replacement, and a review digest that binds the findings, the exclusions, and the file bytes.
+- [x] T4: Build `fix`: the project write permission, the digest check, a stale-file refusal that names the file, the existing reviewed write path with its backup, and a report of each changed file and the undo path.
+- [x] T5: Add the repeated `--exclude <path>` option to both commands, and refuse traversal and paths outside the project.
 
 ### Acceptance criteria
 
@@ -71,9 +71,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [x] t6: Build `task-id-case` for Markdown under `docs/work/`. Find task checkbox lines and whole-word task references in prose. Skip `.make-docs/archive/`, history records, fenced code, inline code, and link targets.
-- [x] t7: Author `make-docs://system/reference/project-doctor.md` in `packages/docs/template/`, add it to the system resource catalog, and reseed it. State that it is the agent twin of the doctor operations, and that a change to either form needs a review of the other.
-- [x] t8: Add shared fixtures that the CLI and the agent twin must answer the same way.
+- [x] T6: Build `task-id-case` for Markdown under `docs/work/`. Find task checkbox lines and whole-word task references in prose. Skip `.make-docs/archive/`, history records, fenced code, inline code, and link targets.
+- [x] T7: Author `make-docs://system/reference/project-doctor.md` in `packages/docs/template/`, add it to the system resource catalog, and reseed it. State that it is the agent twin of the doctor operations, and that a change to either form needs a review of the other.
+- [x] T8: Add shared fixtures that the CLI and the agent twin must answer the same way.
 
 ### Acceptance criteria
 

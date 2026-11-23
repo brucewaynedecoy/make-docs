@@ -64,11 +64,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t1: Add the Skill-owned HTML template with inline CSS, JavaScript, icons, and data slot.
-- [x] t2: Implement safe serialization and rendering for all project-derived text and links.
-- [x] t3: Add user-selected output path handling without Store state or hidden saved copies.
-- [x] t4: Include every live and archived record. Add default `In Scope`, the six fixed status filters, `Archived`, trailing `All`, search, three bidirectional sort methods with the accepted coordinate and path tie order, hybrid summary disclosure, source navigation, and print controls. Hide a non-aggregate filter only when the full unfiltered report has no match.
-- [x] t5: Verify that the file makes no network request and loads no remote asset.
+- [x] T1: Add the Skill-owned HTML template with inline CSS, JavaScript, icons, and data slot.
+- [x] T2: Implement safe serialization and rendering for all project-derived text and links.
+- [x] T3: Add user-selected output path handling without Store state or hidden saved copies.
+- [x] T4: Include every live and archived record. Add default `In Scope`, the six fixed status filters, `Archived`, trailing `All`, search, three bidirectional sort methods with the accepted coordinate and path tie order, hybrid summary disclosure, source navigation, and print controls. Hide a non-aggregate filter only when the full unfiltered report has no match.
+- [x] T5: Verify that the file makes no network request and loads no remote asset.
 
 ### Acceptance criteria
 
@@ -85,11 +85,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t6: Implement the operations-ledger layout with the four fixed portfolio tallies, one phase-track visual, a clear attention queue, restrained supporting detail, and fixed wave status colors without a separate wave legend.
-- [x] t7: Add desktop, tablet, mobile, print, high-zoom, and reduced-motion styles.
-- [x] t8: Add browser checks for scope and exact-status filtering, search plus filter behavior, all three sort methods and directions, stable coordinate and path tie order, hidden empty-status buttons, hybrid disclosure, source links, print, and empty or conflict-heavy states.
-- [x] t9: Capture and inspect desktop and mobile screenshots.
-- [x] t10: Run Guided Progress Review with the owner and revise the template without changing the report contract.
+- [x] T6: Implement the operations-ledger layout with the four fixed portfolio tallies, one phase-track visual, a clear attention queue, restrained supporting detail, and fixed wave status colors without a separate wave legend.
+- [x] T7: Add desktop, tablet, mobile, print, high-zoom, and reduced-motion styles.
+- [x] T8: Add browser checks for scope and exact-status filtering, search plus filter behavior, all three sort methods and directions, stable coordinate and path tie order, hidden empty-status buttons, hybrid disclosure, source links, print, and empty or conflict-heavy states.
+- [x] T9: Capture and inspect desktop and mobile screenshots.
+- [x] T10: Run Guided Progress Review with the owner and revise the template without changing the report contract.
 
 ### Acceptance criteria
 
@@ -109,14 +109,14 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t11: Derive each wave display name from the sourced coordinate and title. Remove only the standard coordinate prefix and `Work Backlog` or `Work` suffix. Use the work-directory slug only when no supported title exists.
-- [x] t12: Restore the fixed three-column expanded detail with concise facts, inference, and recommended action. Keep claim evidence in the embedded report data without printing long evidence-link lists in the panel.
-- [x] t13: Restore visible blue, amber, and red attention icons through a deterministic status-to-severity mapping. Remove the obsolete evidence-boundary footer text.
-- [x] t14: Run the focused contract and Skill tests. Re-render the same 70-record review data through the corrected template.
-- [x] t16: Add deterministic project-lead context collection, the shared nullable lead model, constrained Skill guidance, renderer behavior, and focused regression tests.
-- [x] t17: Re-render the real report with a project-level two-to-three-sentence lead and complete owner review of the corrected introduction.
-- [x] t18: Move the owner-approved dark-mode palette, strong-rule treatment, and project-link accent from the fixed review report into the shared template. Keep light mode and layout unchanged. Re-render the corrected real report without changing its embedded data.
-- [x] t15: Complete owner review of the corrected real-report output.
+- [x] T11: Derive each wave display name from the sourced coordinate and title. Remove only the standard coordinate prefix and `Work Backlog` or `Work` suffix. Use the work-directory slug only when no supported title exists.
+- [x] T12: Restore the fixed three-column expanded detail with concise facts, inference, and recommended action. Keep claim evidence in the embedded report data without printing long evidence-link lists in the panel.
+- [x] T13: Restore visible blue, amber, and red attention icons through a deterministic status-to-severity mapping. Remove the obsolete evidence-boundary footer text.
+- [x] T14: Run the focused contract and Skill tests. Re-render the same 70-record review data through the corrected template.
+- [x] T16: Add deterministic project-lead context collection, the shared nullable lead model, constrained Skill guidance, renderer behavior, and focused regression tests.
+- [x] T17: Re-render the real report with a project-level two-to-three-sentence lead and complete owner review of the corrected introduction.
+- [x] T18: Move the owner-approved dark-mode palette, strong-rule treatment, and project-link accent from the fixed review report into the shared template. Keep light mode and layout unchanged. Re-render the corrected real report without changing its embedded data.
+- [x] T15: Complete owner review of the corrected real-report output.
 
 ### Dependencies
 

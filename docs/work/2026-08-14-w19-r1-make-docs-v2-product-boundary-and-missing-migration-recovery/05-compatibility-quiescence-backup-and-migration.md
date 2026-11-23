@@ -44,14 +44,14 @@ This phase builds the safety envelope and implements migration steps 1 through 8
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2–P4 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [x] t3: Reevaluate at minimum Q-017, Q-018, R-006, R-014, and R-017 plus the live production-importer removal question; preserve Q-017's current per-project model unless separately redesigned and add newly relevant items.
-- [x] t4: Record each relevant item's ID or bounded new-gap label, authority digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: Record an explicit no-blocker determination and finite fixture/platform/correction/review budget before unlocking t8 when no blocker or gap remains.
-- [x] t6: Stop before implementation for any blocker, unknown production consumer, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [x] t7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; no task or trace result closes governance implicitly.
-- [x] t8: Record the Stage 1 result, authority digests, dependency evidence, current production-consumer question disposition, and implementation unlock or stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2–P4 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] T3: Reevaluate at minimum Q-017, Q-018, R-006, R-014, and R-017 plus the live production-importer removal question; preserve Q-017's current per-project model unless separately redesigned and add newly relevant items.
+- [x] T4: Record each relevant item's ID or bounded new-gap label, authority digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: Record an explicit no-blocker determination and finite fixture/platform/correction/review budget before unlocking T8 when no blocker or gap remains.
+- [x] T6: Stop before implementation for any blocker, unknown production consumer, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] T7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; no task or trace result closes governance implicitly.
+- [x] T8: Record the Stage 1 result, authority digests, dependency evidence, current production-consumer question disposition, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -129,10 +129,10 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Tasks
 
-- [x] t9: Implement the PRD-defined top-level compatibility states and resource, filesystem, manifest-provenance, Store, legacy-asset, path-safety, and optional-agentics facets with fail-closed typed outcomes.
-- [x] t10: Acquire a project-scoped migration lock, record the exact repository/manifest identity, inventory affected paths and Store facets, and freeze one reviewed classification snapshot for plan, backup, apply, and rollback.
-- [x] t11: Bind the P3 frozen Playbook/Protocol baseline and every known writer or discovery path to the reviewed P5 migration snapshot. Complete all P5 snapshot and backup duties for the P5 migration. Leave only the fresh trace and backup for removal of the frozen public surfaces to P8.
-- [x] t12: Establish the public Playbook/Protocol quiescence stop barrier so legacy writers cannot start or resume. Stop if any writer or unknown consumer can bypass the barrier. Do not remove a frozen legacy registry, implementation, CLI, or MCP surface in P5.
+- [x] T9: Implement the PRD-defined top-level compatibility states and resource, filesystem, manifest-provenance, Store, legacy-asset, path-safety, and optional-agentics facets with fail-closed typed outcomes.
+- [x] T10: Acquire a project-scoped migration lock, record the exact repository/manifest identity, inventory affected paths and Store facets, and freeze one reviewed classification snapshot for plan, backup, apply, and rollback.
+- [x] T11: Bind the P3 frozen Playbook/Protocol baseline and every known writer or discovery path to the reviewed P5 migration snapshot. Complete all P5 snapshot and backup duties for the P5 migration. Leave only the fresh trace and backup for removal of the frozen public surfaces to P8.
+- [x] T12: Establish the public Playbook/Protocol quiescence stop barrier so legacy writers cannot start or resume. Stop if any writer or unknown consumer can bypass the barrier. Do not remove a frozen legacy registry, implementation, CLI, or MCP surface in P5.
 
 ### Acceptance criteria
 
@@ -157,10 +157,10 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Tasks
 
-- [x] t13: Back up every file, directory entry, manifest/config state, router block, selected resource, and Store facet that may be transformed or removed, including metadata required to restore permissions, links, and ownership safely.
-- [x] t14: Verify the backup inventory and restore plan before apply, record exported or preserved user content explicitly, and reject incomplete, unreadable, ambiguous, or root-escaping backup targets.
-- [x] t15: Produce a dry-run plan giving every affected file one disposition: preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop.
-- [x] t16: Enforce symlink unlink-without-following, unmanaged-descendant preservation, POSIX logical identity, Windows path/permission variance, sanitized external references, and secret/privacy exclusion in the plan.
+- [x] T13: Back up every file, directory entry, manifest/config state, router block, selected resource, and Store facet that may be transformed or removed, including metadata required to restore permissions, links, and ownership safely.
+- [x] T14: Verify the backup inventory and restore plan before apply, record exported or preserved user content explicitly, and reject incomplete, unreadable, ambiguous, or root-escaping backup targets.
+- [x] T15: Produce a dry-run plan giving every affected file one disposition: preserve as project-owned, export then replace, overwrite only when clean managed ownership is proven, skip, or stop.
+- [x] T16: Enforce symlink unlink-without-following, unmanaged-descendant preservation, POSIX logical identity, Windows path/permission variance, sanitized external references, and secret/privacy exclusion in the plan.
 
 ### Acceptance criteria
 
@@ -183,14 +183,14 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Tasks
 
-- [x] t17: Encode the normative thirteen-step order as explicit monotonic checkpoints; reject skips, backward transitions, silent reorder, changed snapshot fingerprints, or apply without the active lock and quiescence barrier.
-- [x] t18: Implement checkpoint 1 to classify once and freeze the reviewed evidence snapshot, and checkpoint 2 to verify backup plus preserved/exported user content before any transformation.
-- [x] t19: Implement checkpoint 3 to mint or upgrade manifest identity/provenance without claiming ambiguous ownership and checkpoint 4 to install only the minimal manifest and configured routers.
-- [x] t20: Implement checkpoint 5 to establish top-level prompt identity plus machine resource list/read operations before router fallback changes and checkpoint 6 to move or install only selected clean resources under `.make-docs/system/**`.
-- [x] t21: Implement checkpoint 7 to establish on-demand archive, artifact, and Persona-testing routing before transforming only clean managed legacy paths.
-- [x] t22: Implement checkpoint 8 to install TypeScript path-hygiene operations, update references, and remove a Python helper only when trusted hashes prove managed ownership and replacement parity.
-- [x] t23: Represent checkpoints 9 through 13 as locked downstream prerequisites: P6 general Store tables, P7 Naive-UAT/Persona/Skill/evidence, P8 traced retirement, P9 explicitly selected agentics, and P10 fresh/package/dogfood/legacy validation.
-- [x] t24: Persist typed paused, blocked, failed, rollback-required, and completed checkpoint receipts without treating a receipt as validation or permission to enter a downstream phase.
+- [x] T17: Encode the normative thirteen-step order as explicit monotonic checkpoints; reject skips, backward transitions, silent reorder, changed snapshot fingerprints, or apply without the active lock and quiescence barrier.
+- [x] T18: Implement checkpoint 1 to classify once and freeze the reviewed evidence snapshot, and checkpoint 2 to verify backup plus preserved/exported user content before any transformation.
+- [x] T19: Implement checkpoint 3 to mint or upgrade manifest identity/provenance without claiming ambiguous ownership and checkpoint 4 to install only the minimal manifest and configured routers.
+- [x] T20: Implement checkpoint 5 to establish top-level prompt identity plus machine resource list/read operations before router fallback changes and checkpoint 6 to move or install only selected clean resources under `.make-docs/system/**`.
+- [x] T21: Implement checkpoint 7 to establish on-demand archive, artifact, and Persona-testing routing before transforming only clean managed legacy paths.
+- [x] T22: Implement checkpoint 8 to install TypeScript path-hygiene operations, update references, and remove a Python helper only when trusted hashes prove managed ownership and replacement parity.
+- [x] T23: Represent checkpoints 9 through 13 as locked downstream prerequisites: P6 general Store tables, P7 Naive-UAT/Persona/Skill/evidence, P8 traced retirement, P9 explicitly selected agentics, and P10 fresh/package/dogfood/legacy validation.
+- [x] T24: Persist typed paused, blocked, failed, rollback-required, and completed checkpoint receipts without treating a receipt as validation or permission to enter a downstream phase.
 
 ### Acceptance criteria
 
@@ -213,11 +213,11 @@ No item is `unrelated`. No `new-authority-gap` remains.
 
 ### Tasks
 
-- [x] t25: Inject failures at every implemented checkpoint and prove rollback restores the pre-apply manifest, routers, managed bytes, preserved user content, links, and Store facet without following symlink targets.
-- [x] t26: Prove lock loss, active-writer detection, snapshot drift, incomplete backup, ambiguous ownership, path escape, permission failure, and cross-platform mismatch stop safely with actionable typed outcomes.
-- [x] t27: Run focused compatibility, migration, rollback, no-scripts/path-hygiene, PRD-authority regression, link, scope, and whitespace checks within the finite budget.
-- [x] t28: Obtain independent review of classification, quiescence, backup, ordering, checkpoint boundaries, rollback, and preservation; correct only actionable defects within budget.
-- [x] t29: Record exact migration interfaces, validation evidence, remaining nonblocking items, active quiescence requirements, and the locked checkpoint-9 handoff to P6.
+- [x] T25: Inject failures at every implemented checkpoint and prove rollback restores the pre-apply manifest, routers, managed bytes, preserved user content, links, and Store facet without following symlink targets.
+- [x] T26: Prove lock loss, active-writer detection, snapshot drift, incomplete backup, ambiguous ownership, path escape, permission failure, and cross-platform mismatch stop safely with actionable typed outcomes.
+- [x] T27: Run focused compatibility, migration, rollback, no-scripts/path-hygiene, PRD-authority regression, link, scope, and whitespace checks within the finite budget.
+- [x] T28: Obtain independent review of classification, quiescence, backup, ordering, checkpoint boundaries, rollback, and preservation; correct only actionable defects within budget.
+- [x] T29: Record exact migration interfaces, validation evidence, remaining nonblocking items, active quiescence requirements, and the locked checkpoint-9 handoff to P6.
 
 ### Acceptance criteria
 

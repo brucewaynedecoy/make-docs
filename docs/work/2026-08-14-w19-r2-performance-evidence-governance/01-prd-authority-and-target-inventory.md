@@ -56,12 +56,12 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 
 ### Tasks
 
-- [x] t1: Verified the approved worktree, branch `brucewaynedecoy/codex-v2-recovery-designs`, baseline HEAD `8dd9a6e209fed76a785fca4cceba8a12c8793d30`, dirty-state allowlist, and safe free-disk state before the PRD work.
-- [x] t2: Reread current PRD 03 and the W19 R2 owner PRDs, then checked the accepted [Performance Testing Guardrails design](../../designs/2026-08-12-performance-testing-guardrails.md) and [P1 plan](../../plans/2026-08-13-w19-r2-performance-evidence-governance/01-prd-authority-and-target-inventory.md).
-- [x] t3: Classified R-029, R-030, R-031, and R-032 as impacted but nonblocking for P1 PRD maintenance. Their current decisions gave P1 enough authority to write the governing requirements, while their shipment and lifecycle close conditions remain open for P2 through P5.
-- [x] t4: Found no additional open, confirming, deferred, or closed-regression item that blocked the completed P1 PRD work. Recorded the no-blocker result without treating any risk as closed.
-- [x] t5: Confirmed that no blocking owner decision package or decision-only commit was required for P1. The owner accepted the design and plan, approved the reconciled PRD authority, and later authorized work-backlog generation.
-- [x] t6: Recorded the current PRD content digests below. Future changes to these authorities must reopen this gate and repeat the live question and risk review before affected implementation starts.
+- [x] T1: Verified the approved worktree, branch `brucewaynedecoy/codex-v2-recovery-designs`, baseline HEAD `8dd9a6e209fed76a785fca4cceba8a12c8793d30`, dirty-state allowlist, and safe free-disk state before the PRD work.
+- [x] T2: Reread current PRD 03 and the W19 R2 owner PRDs, then checked the accepted [Performance Testing Guardrails design](../../designs/2026-08-12-performance-testing-guardrails.md) and [P1 plan](../../plans/2026-08-13-w19-r2-performance-evidence-governance/01-prd-authority-and-target-inventory.md).
+- [x] T3: Classified R-029, R-030, R-031, and R-032 as impacted but nonblocking for P1 PRD maintenance. Their current decisions gave P1 enough authority to write the governing requirements, while their shipment and lifecycle close conditions remain open for P2 through P5.
+- [x] T4: Found no additional open, confirming, deferred, or closed-regression item that blocked the completed P1 PRD work. Recorded the no-blocker result without treating any risk as closed.
+- [x] T5: Confirmed that no blocking owner decision package or decision-only commit was required for P1. The owner accepted the design and plan, approved the reconciled PRD authority, and later authorized work-backlog generation.
+- [x] T6: Recorded the current PRD content digests below. Future changes to these authorities must reopen this gate and repeat the live question and risk review before affected implementation starts.
 
 ### Acceptance criteria
 
@@ -107,12 +107,12 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 
 ### Tasks
 
-- [x] t7: Ran the bounded target inventory across active PRDs for numeric targets, target-shaped language, work guardrails, evidence claims, and proof rules that could be mistaken for performance authority.
-- [x] t8: Confirmed that the active PRDs contained no numeric performance target. Identified PRD 38's qualitative `quick access` wording and replaced it with neutral discovery wording.
-- [x] t9: Preserved PRD 20's one-result conformance minimum and PRD 46's one-run naive-UAT minimum as separate proof rules. Neither rule became a performance sample count.
-- [x] t10: Set one authority rule by target class. PRDs alone own hard product requirements. Approved plan or work profiles can own bounded non-product engineering, characterization, or experiment work. Such profiles cannot silently change product authority.
-- [x] t11: Preserved characterization before threshold promotion, stable `PERF-###` identity and version lineage, finite budgets, unchanged-result reuse, affected-only reruns, diminishing-return stops, normalized outcomes, singular authorized requalification, and non-sacrificable constraints.
-- [x] t12: Preserved separate applicability, fields, evidence, outcome, and gate rules for performance, conformance, lab, naive UAT, release, and support claims.
+- [x] T7: Ran the bounded target inventory across active PRDs for numeric targets, target-shaped language, work guardrails, evidence claims, and proof rules that could be mistaken for performance authority.
+- [x] T8: Confirmed that the active PRDs contained no numeric performance target. Identified PRD 38's qualitative `quick access` wording and replaced it with neutral discovery wording.
+- [x] T9: Preserved PRD 20's one-result conformance minimum and PRD 46's one-run naive-UAT minimum as separate proof rules. Neither rule became a performance sample count.
+- [x] T10: Set one authority rule by target class. PRDs alone own hard product requirements. Approved plan or work profiles can own bounded non-product engineering, characterization, or experiment work. Such profiles cannot silently change product authority.
+- [x] T11: Preserved characterization before threshold promotion, stable `PERF-###` identity and version lineage, finite budgets, unchanged-result reuse, affected-only reruns, diminishing-return stops, normalized outcomes, singular authorized requalification, and non-sacrificable constraints.
+- [x] T12: Preserved separate applicability, fields, evidence, outcome, and gate rules for performance, conformance, lab, naive UAT, release, and support claims.
 
 ### Acceptance criteria
 
@@ -136,12 +136,12 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 
 ### Tasks
 
-- [x] t13: Created [PRD 48](../../prd/48-performance-evidence-governance.md) as the coherent new authority for performance qualification, profiles, evidence, outcomes, expiry, and proof-mode boundaries.
-- [x] t14: Updated [PRD 00](../../prd/00-index.md) with the new capability and exact navigation links. Added open risks R-029 through R-032 to [PRD 03](../../prd/03-open-questions-and-risk-register.md).
-- [x] t15: Updated delivery and lifecycle owners [PRD 06](../../prd/06-template-contracts-and-generated-assets.md), [PRD 10](../../prd/10-packaging-validation-and-release-reference.md), [PRD 14](../../prd/14-lifecycle-workflow-and-coverage-passes.md), and [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md).
-- [x] t16: Updated the proof, state, and obligation owners that were current at execution: historical PRDs 20, 43, and 44, plus current [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 45](../../prd/45-deferred-obligation-governance.md), and [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md). W19 R6 later retired PRDs 20, 43, and 44.
-- [x] t17: Preserved [PRD 21](../../prd/21-project-tool-directory-and-resource-tiers.md) as the W19 R1 resource-layout owner. Preserved [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) and [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) without W19 R2 validator-operation authority.
-- [x] t18: Applied the Requirement History rule. PRD 48 is new, and the W19 R2 consumer changes are additive. No W19 R2 history entry was required. Existing W19 R1 history remained unchanged.
+- [x] T13: Created [PRD 48](../../prd/48-performance-evidence-governance.md) as the coherent new authority for performance qualification, profiles, evidence, outcomes, expiry, and proof-mode boundaries.
+- [x] T14: Updated [PRD 00](../../prd/00-index.md) with the new capability and exact navigation links. Added open risks R-029 through R-032 to [PRD 03](../../prd/03-open-questions-and-risk-register.md).
+- [x] T15: Updated delivery and lifecycle owners [PRD 06](../../prd/06-template-contracts-and-generated-assets.md), [PRD 10](../../prd/10-packaging-validation-and-release-reference.md), [PRD 14](../../prd/14-lifecycle-workflow-and-coverage-passes.md), and [PRD 18](../../prd/18-compatibility-classification-and-migration-safety.md).
+- [x] T16: Updated the proof, state, and obligation owners that were current at execution: historical PRDs 20, 43, and 44, plus current [PRD 38](../../prd/38-global-store-and-project-state.md), [PRD 45](../../prd/45-deferred-obligation-governance.md), and [PRD 46](../../prd/46-naive-end-user-acceptance-testing.md). W19 R6 later retired PRDs 20, 43, and 44.
+- [x] T17: Preserved [PRD 21](../../prd/21-project-tool-directory-and-resource-tiers.md) as the W19 R1 resource-layout owner. Preserved [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) and [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) without W19 R2 validator-operation authority.
+- [x] T18: Applied the Requirement History rule. PRD 48 is new, and the W19 R2 consumer changes are additive. No W19 R2 history entry was required. Existing W19 R1 history remained unchanged.
 
 ### Acceptance criteria
 
@@ -165,12 +165,12 @@ This stage is a faithful closeout of the gate that the coordinator and delegated
 
 ### Tasks
 
-- [x] t19: Checked PRD frontmatter, required headings, current index ownership, relative links, anchors, source paths, Requirement History decisions, and whitespace.
-- [x] t20: Ran the repository PRD-authority validator as a regression check and received zero diagnostics.
-- [x] t21: Ran repository path-hygiene validation and received zero errors.
-- [x] t22: Completed independent review and one bounded correction in PRD 14 so the phase gate names `fail` and limits `waived` continuation without treating a waiver as success.
-- [x] t23: Received owner acceptance of the reconciled W19 R2 PRD authority and later separate authorization to generate this work backlog.
-- [x] t24: Linked this closeout to [P2](./02-governance-resources-and-routing.md), [P3](./03-lifecycle-evidence-compatibility-and-state.md), [P4](./04-optional-validator-operation.md), and [P5](./05-packaging-validation-and-delta-handoff.md) without authorizing those implementation phases.
+- [x] T19: Checked PRD frontmatter, required headings, current index ownership, relative links, anchors, source paths, Requirement History decisions, and whitespace.
+- [x] T20: Ran the repository PRD-authority validator as a regression check and received zero diagnostics.
+- [x] T21: Ran repository path-hygiene validation and received zero errors.
+- [x] T22: Completed independent review and one bounded correction in PRD 14 so the phase gate names `fail` and limits `waived` continuation without treating a waiver as success.
+- [x] T23: Received owner acceptance of the reconciled W19 R2 PRD authority and later separate authorization to generate this work backlog.
+- [x] T24: Linked this closeout to [P2](./02-governance-resources-and-routing.md), [P3](./03-lifecycle-evidence-compatibility-and-state.md), [P4](./04-optional-validator-operation.md), and [P5](./05-packaging-validation-and-delta-handoff.md) without authorizing those implementation phases.
 
 ### Acceptance criteria
 

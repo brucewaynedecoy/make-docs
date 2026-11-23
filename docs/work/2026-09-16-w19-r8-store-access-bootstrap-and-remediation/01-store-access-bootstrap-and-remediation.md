@@ -73,12 +73,12 @@ Human Experience Review is separate. The validation owner must inspect the real 
 
 ### Tasks
 
-- [x] t1: Recheck the active worktree, current source, installed launcher, and package manifest. Record the launch path, resolved path, package root, bin path, and current verifier result without changing the real Store or project.
-- [x] t2: Refactor executable verification to accept only a safely resolved link to the exact declared package bin. Preserve wrapper, runner, escaping-link, file-type, executable-mode, package-root, version, and fingerprint checks.
-- [x] t3: Replace swallowed verification errors with stable codes, safe detail, checked launch and resolved paths, failed rule, and one action that can change the result.
-- [x] t4: Make support rendering classify a method only after all plan prerequisites pass. Prevent one method from appearing as both available and blocked in the same review.
-- [x] t5: Split full setup into independent machine, project, Skills, and resource subplan results. Apply and verify machine work first. Preserve that result when a later subplan blocks.
-- [x] t6: Validate existing-install Skill changes before final review. Reuse the shared W19 R7 Skills interaction and route an unsupported change without discarding independent setup.
+- [x] T1: Recheck the active worktree, current source, installed launcher, and package manifest. Record the launch path, resolved path, package root, bin path, and current verifier result without changing the real Store or project.
+- [x] T2: Refactor executable verification to accept only a safely resolved link to the exact declared package bin. Preserve wrapper, runner, escaping-link, file-type, executable-mode, package-root, version, and fingerprint checks.
+- [x] T3: Replace swallowed verification errors with stable codes, safe detail, checked launch and resolved paths, failed rule, and one action that can change the result.
+- [x] T4: Make support rendering classify a method only after all plan prerequisites pass. Prevent one method from appearing as both available and blocked in the same review.
+- [x] T5: Split full setup into independent machine, project, Skills, and resource subplan results. Apply and verify machine work first. Preserve that result when a later subplan blocks.
+- [x] T6: Validate existing-install Skill changes before final review. Reuse the shared W19 R7 Skills interaction and route an unsupported change without discarding independent setup.
 
 ### Acceptance criteria
 
@@ -107,11 +107,11 @@ Human Experience Review is separate. The validation owner must inspect the real 
 
 ### Tasks
 
-- [x] t7: Define shared typed access results for `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied`. Keep exact machine, project, method, receipt, and Store evidence in safe detail.
-- [x] t8: Prove the operation runner does not open or create the Store for `access.store: none`. Preserve Store-free resource and repository behavior without harness setup.
-- [x] t9: Limit a Store access failure to the requested Store-backed operation. Preserve independent task progress and return one exact setup or recovery action when one exists.
-- [x] t10: Update shipped agent guidance and active remediation instructions. State that no Store configuration is valid, Store failure is scoped, and W19 R8 remediation cannot depend on Store or MCP access.
-- [x] t11: Add human, JSON, MCP, and agent-output parity tests for all four Store access states and for the absence of a false task-wide blocker.
+- [x] T7: Define shared typed access results for `store-not-configured`, `store-unavailable`, `store-unsafe`, and `store-denied`. Keep exact machine, project, method, receipt, and Store evidence in safe detail.
+- [x] T8: Prove the operation runner does not open or create the Store for `access.store: none`. Preserve Store-free resource and repository behavior without harness setup.
+- [x] T9: Limit a Store access failure to the requested Store-backed operation. Preserve independent task progress and return one exact setup or recovery action when one exists.
+- [x] T10: Update shipped agent guidance and active remediation instructions. State that no Store configuration is valid, Store failure is scoped, and W19 R8 remediation cannot depend on Store or MCP access.
+- [x] T11: Add human, JSON, MCP, and agent-output parity tests for all four Store access states and for the absence of a false task-wide blocker.
 
 ### Acceptance criteria
 
@@ -139,12 +139,12 @@ Human Experience Review is separate. The validation owner must inspect the real 
 
 ### Tasks
 
-- [x] t12: Add a focused access-status refresh and one-operation retry path for an active agent task. Preserve prior task context and independent results.
-- [x] t13: Add interactive and non-interactive generic MCP profile setup with a validated stable client label, reviewed machine ceiling, separate project intent, bounded identity proof, and standard configuration output.
-- [x] t14: Add generic MCP help that an unsupported harness agent can reach after `store-not-configured` or on direct request. Do not edit unknown client configuration.
-- [x] t15: Add repeat, drift, rotation, repair, and removal behavior for generic MCP. Preserve unknown client files and keep normal status output free of secret proof.
-- [x] t16: Complete the W19 R7 shared Skills interview, pre-question pending-state admission, plan-aware action selection, safe no-effect rollback, and retained failure detail.
-- [x] t17: Preserve completed machine and project subplan results across interruption, process restart, retry, and later Store access refresh.
+- [x] T12: Add a focused access-status refresh and one-operation retry path for an active agent task. Preserve prior task context and independent results.
+- [x] T13: Add interactive and non-interactive generic MCP profile setup with a validated stable client label, reviewed machine ceiling, separate project intent, bounded identity proof, and standard configuration output.
+- [x] T14: Add generic MCP help that an unsupported harness agent can reach after `store-not-configured` or on direct request. Do not edit unknown client configuration.
+- [x] T15: Add repeat, drift, rotation, repair, and removal behavior for generic MCP. Preserve unknown client files and keep normal status output free of secret proof.
+- [x] T16: Complete the W19 R7 shared Skills interview, pre-question pending-state admission, plan-aware action selection, safe no-effect rollback, and retained failure detail.
+- [x] T17: Preserve completed machine and project subplan results across interruption, process restart, retry, and later Store access refresh.
 
 ### Acceptance criteria
 
@@ -175,12 +175,12 @@ Human Experience Review is separate. The validation owner must inspect the real 
 
 ### Tasks
 
-- [x] t18: Run focused and full CLI tests, default validation, PRD authority validation, link and path checks, and diff checks. Fix only W19 R8 defects and preserve unrelated work.
-- [x] t19: Build one tarball. Record its name, version, digest, package root, declared bin, and included guidance. Do not rebuild between installed acceptance cases.
-- [x] t20: Install the exact tarball through a normal package manager in isolated homes with the repository unavailable. Run fresh, v1, early-v2, partial, invalid-option, interrupted, no-Store, configured-Store, first-party MCP, generic MCP, repeat, repair, removal, and recovery cases.
-- [x] t21: Run the agent mid-task scenario through the installed candidate. Prove Store-free continuation before access and one-operation retry after access.
-- [x] t22: Complete the Human Experience Review for HX-1 through HX-8. Record evidence, observations, conclusions, reviewer, limits, and next actions. Offer a short optional owner handoff.
-- [x] t23: Recheck the real worktree and affected-project boundaries. Confirm no real-project or real-Store mutation occurred. Prepare the phase closeout without committing, pushing, publishing, releasing, or repairing the real project.
+- [x] T18: Run focused and full CLI tests, default validation, PRD authority validation, link and path checks, and diff checks. Fix only W19 R8 defects and preserve unrelated work.
+- [x] T19: Build one tarball. Record its name, version, digest, package root, declared bin, and included guidance. Do not rebuild between installed acceptance cases.
+- [x] T20: Install the exact tarball through a normal package manager in isolated homes with the repository unavailable. Run fresh, v1, early-v2, partial, invalid-option, interrupted, no-Store, configured-Store, first-party MCP, generic MCP, repeat, repair, removal, and recovery cases.
+- [x] T21: Run the agent mid-task scenario through the installed candidate. Prove Store-free continuation before access and one-operation retry after access.
+- [x] T22: Complete the Human Experience Review for HX-1 through HX-8. Record evidence, observations, conclusions, reviewer, limits, and next actions. Offer a short optional owner handoff.
+- [x] T23: Recheck the real worktree and affected-project boundaries. Confirm no real-project or real-Store mutation occurred. Prepare the phase closeout without committing, pushing, publishing, releasing, or repairing the real project.
 
 ### Acceptance criteria
 
@@ -213,15 +213,15 @@ Human Experience Review is separate. The validation owner must inspect the real 
 
 ### Tasks
 
-- [x] t24: Record that live W19 R2 use invalidated the first candidate's broad Codex MCP setup claim. Keep the first identity and results as replaced evidence.
-- [x] t25: Replace flat TOML table and value sets with an internal container tree for normal tables, arrays of tables, current array elements, and values.
-- [x] t26: Make each `[[path]]` header create a separate element. Resolve assignments and nested normal tables against the current element.
-- [x] t27: Preserve duplicate-key, duplicate-normal-table, table-kind conflict, malformed value, multiline TOML, null-byte, conflict-marker, and unsafe managed-marker blocks.
-- [x] t28: Add a sanitized fixture with 21 `[[skills.config]]` elements and repeated `[skills.config.metadata]` tables. Prove plan, apply, repeat, repair, removal, and exact byte preservation.
-- [x] t29: Extend the exact installed setup matrix with the failure-producing full setup option shape. Use one temporary home, Store, project, and Codex file.
-- [x] t30: Build one replacement package and use that exact package for every installed correction check.
-- [x] t31: Run the real W19 R2 command as a dry run only. Record the configuration shape and result. Do not record private values or apply setup.
-- [x] t32: Repeat HX-2 and HX-3 review for independent setup results and safe setup retry.
+- [x] T24: Record that live W19 R2 use invalidated the first candidate's broad Codex MCP setup claim. Keep the first identity and results as replaced evidence.
+- [x] T25: Replace flat TOML table and value sets with an internal container tree for normal tables, arrays of tables, current array elements, and values.
+- [x] T26: Make each `[[path]]` header create a separate element. Resolve assignments and nested normal tables against the current element.
+- [x] T27: Preserve duplicate-key, duplicate-normal-table, table-kind conflict, malformed value, multiline TOML, null-byte, conflict-marker, and unsafe managed-marker blocks.
+- [x] T28: Add a sanitized fixture with 21 `[[skills.config]]` elements and repeated `[skills.config.metadata]` tables. Prove plan, apply, repeat, repair, removal, and exact byte preservation.
+- [x] T29: Extend the exact installed setup matrix with the failure-producing full setup option shape. Use one temporary home, Store, project, and Codex file.
+- [x] T30: Build one replacement package and use that exact package for every installed correction check.
+- [x] T31: Run the real W19 R2 command as a dry run only. Record the configuration shape and result. Do not record private values or apply setup.
+- [x] T32: Repeat HX-2 and HX-3 review for independent setup results and safe setup retry.
 
 ### Acceptance criteria
 

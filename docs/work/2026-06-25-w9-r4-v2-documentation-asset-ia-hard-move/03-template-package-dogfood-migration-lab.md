@@ -20,10 +20,10 @@ This phase handles source-of-truth order. Template-owned defaults must start in 
 
 ### Tasks
 
-- [x] t1: Update `packages/docs/template/**` with the accepted `.make-docs/**` and `docs/assets/**` router/source layout.
-- [x] t2: Add or update template router files for `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**`.
-- [x] t3: Remove shipped-template assumptions that create or advertise top-level `docs/artifacts/**` or top-level `docs/archive/**`.
-- [x] t4: Classify existing prompt-starter files into contracts, references, templates, or scripts according to PRD 21.
+- [x] T1: Update `packages/docs/template/**` with the accepted `.make-docs/**` and `docs/assets/**` router/source layout.
+- [x] T2: Add or update template router files for `docs/assets/archive/**`, `docs/assets/artifacts/**`, `docs/assets/breadcrumbs/**`, `docs/assets/guides/**`, and `docs/assets/playbooks/**`.
+- [x] T3: Remove shipped-template assumptions that create or advertise top-level `docs/artifacts/**` or top-level `docs/archive/**`.
+- [x] T4: Classify existing prompt-starter files into contracts, references, templates, or scripts according to PRD 21.
 
 ### Acceptance criteria
 
@@ -46,10 +46,10 @@ This phase handles source-of-truth order. Template-owned defaults must start in 
 
 ### Tasks
 
-- [x] t5: Regenerate or update `packages/cli/template/**` from the template source using the existing package-copy flow.
-- [x] t6: Reseed the repo-root dogfood files that are selected template-owned surfaces.
-- [x] t7: Use current top-level `docs/artifacts/**`, current `docs/assets/history/**`, and other mixed local material as migration-lab inputs, not template source.
-- [x] t8: Update `.make-docs/manifest.json` only for managed template-owned assets selected by the implementation.
+- [x] T5: Regenerate or update `packages/cli/template/**` from the template source using the existing package-copy flow.
+- [x] T6: Reseed the repo-root dogfood files that are selected template-owned surfaces.
+- [x] T7: Use current top-level `docs/artifacts/**`, current `docs/assets/history/**`, and other mixed local material as migration-lab inputs, not template source.
+- [x] T8: Update `.make-docs/manifest.json` only for managed template-owned assets selected by the implementation.
 
 ### Acceptance criteria
 

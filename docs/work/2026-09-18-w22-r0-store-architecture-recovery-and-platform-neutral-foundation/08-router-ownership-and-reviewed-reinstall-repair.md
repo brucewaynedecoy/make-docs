@@ -82,13 +82,13 @@ Performance evidence lifecycle fields:
 
 ### Tasks
 
-- [x] t1: Build an isolated fixture from the exact completed-removal state. Include the same project and checkout identities, completed operation, verified backup index, preserved target routers, backup router files, and unrelated active BuildOS routers.
-- [x] t2: Exclude `.make-docs/backup/**` and declared inactive backup, export, and archive roots from active compatibility discovery without weakening backup verification or rollback.
-- [x] t3: Limit router ownership review to exact paths the plan can create, change, or remove. Preserve non-target routers. Treat target routers as project-owned containers and mutate only exact Make Docs managed blocks.
-- [x] t4: Make malformed or contradictory target markers fail before operation creation. Show missing-block insertion as an explicit action. Preserve every byte outside the managed block.
-- [x] t5: Use the completed removal operation, removed and preserved ledgers, verified backup index, digests, and checkout binding as trusted input to a new reviewed install plan. Retain the project and checkout identities.
-- [x] t6: Make plain setup expose and apply that plan without a hidden command, manual Store edit, or unrelated-router quarantine. Add human and JSON cases for preview, block, apply, interruption, recovery, repeat, and no-op results.
-- [x] t7: Run focused and full source tests, TypeScript checks, package build, default validation, PRD authority validation, links, path hygiene, and `git diff --check`. Complete a read-only corrective review.
+- [x] T1: Build an isolated fixture from the exact completed-removal state. Include the same project and checkout identities, completed operation, verified backup index, preserved target routers, backup router files, and unrelated active BuildOS routers.
+- [x] T2: Exclude `.make-docs/backup/**` and declared inactive backup, export, and archive roots from active compatibility discovery without weakening backup verification or rollback.
+- [x] T3: Limit router ownership review to exact paths the plan can create, change, or remove. Preserve non-target routers. Treat target routers as project-owned containers and mutate only exact Make Docs managed blocks.
+- [x] T4: Make malformed or contradictory target markers fail before operation creation. Show missing-block insertion as an explicit action. Preserve every byte outside the managed block.
+- [x] T5: Use the completed removal operation, removed and preserved ledgers, verified backup index, digests, and checkout binding as trusted input to a new reviewed install plan. Retain the project and checkout identities.
+- [x] T6: Make plain setup expose and apply that plan without a hidden command, manual Store edit, or unrelated-router quarantine. Add human and JSON cases for preview, block, apply, interruption, recovery, repeat, and no-op results.
+- [x] T7: Run focused and full source tests, TypeScript checks, package build, default validation, PRD authority validation, links, path hygiene, and `git diff --check`. Complete a read-only corrective review.
 
 ### Acceptance criteria
 
@@ -100,7 +100,7 @@ Performance evidence lifecycle fields:
 ### Dependencies
 
 - The owner approved P8 Stage 1 implementation on 2026-09-23.
-- The owner later approved staging, commit, push, pull-request review, and Stage 2 tasks t8 through t10.
+- The owner later approved staging, commit, push, pull-request review, and Stage 2 tasks T8 through T10.
 - P7 and D-038 remain open.
 - The North Atlantic BuildOS live project stays unchanged during source and isolated fixture work.
 - Existing Store, backup, rollback, user-content, path, symlink, and platform safety rules remain in force.
@@ -119,11 +119,11 @@ Performance evidence lifecycle fields:
 
 ### Tasks
 
-- [x] t8: Build one exact package candidate after Stage 1 passes. Record the source commit, package identity, digest, and size.
-- [x] t9: Install the same candidate on Windows, macOS, and Linux with the source checkout unavailable. Run the completed-removal, router-ownership, plain-reinstall, blocked, interrupted, recovery, repeat, and no-op contract on each host.
-- [x] t10: Compare the three runs. Reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, different ownership result, or unavailable public recovery path.
-- [x] t11: After separate owner approval, install the exact accepted candidate and run plain setup against the current North Atlantic BuildOS removed state. Preserve the backup and all BuildOS-owned router content.
-- [x] t12: Verify Store and project results. Run immediate repeat setup. Complete Human Experience Review, coverage, evidence, and corrective review. Return P7 to its remaining acceptance and closeout gates.
+- [x] T8: Build one exact package candidate after Stage 1 passes. Record the source commit, package identity, digest, and size.
+- [x] T9: Install the same candidate on Windows, macOS, and Linux with the source checkout unavailable. Run the completed-removal, router-ownership, plain-reinstall, blocked, interrupted, recovery, repeat, and no-op contract on each host.
+- [x] T10: Compare the three runs. Reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, different ownership result, or unavailable public recovery path.
+- [x] T11: After separate owner approval, install the exact accepted candidate and run plain setup against the current North Atlantic BuildOS removed state. Preserve the backup and all BuildOS-owned router content.
+- [x] T12: Verify Store and project results. Run immediate repeat setup. Complete Human Experience Review, coverage, evidence, and corrective review. Return P7 to its remaining acceptance and closeout gates.
 
 ### Acceptance criteria
 
@@ -134,7 +134,7 @@ Performance evidence lifecycle fields:
 
 - Stage 1 passes A57 through A60.
 - The exact candidate is built after the final P8 source change.
-- Stage 2 tasks t8 through t10 are approved. Local CLI installation, live North Atlantic BuildOS apply, closeout, publication, and release remain separately gated actions.
+- Stage 2 tasks T8 through T10 are approved. Local CLI installation, live North Atlantic BuildOS apply, closeout, publication, and release remain separately gated actions.
 
 ### Closeout Notes
 
@@ -150,13 +150,13 @@ Performance evidence lifecycle fields:
 
 ### Tasks
 
-- [x] t13: Record the live defect. The first repaired setup completed, but it did not retain the prior local resource selection or recreate proved `docs/assets/` routers. A later setup could therefore plan removal of current local resources.
-- [x] t14: Recover the prior resource selection only from exact canonical resource records in the verified completed-removal before-ledger. Require an explicit interactive or command-line selection when that evidence is not sufficient. Use the before-manifest as planning authority so setup preserves disabled capabilities and does not classify the reviewed handoff as fresh.
-- [x] t15: Let the completed-removal handoff recreate exact on-demand surface routers from proved manifest file records even when removal deleted the former surface directory.
-- [x] t16: Extend the authentic schema-3 completed-removal fixture. Prove first-run resource preservation, first-run asset-router creation, unknown-selection refusal, interactive state review for unknown intent, disabled-capability preservation, and an immediate all-no-op repeat.
-- [x] t17: Run the focused P8 suite, related authentic-upgrade and projection suites, the general CLI suite, TypeScript, package build, documentation validation, and diff whitespace check against the final reviewed source.
-- [x] t18: Build one new exact candidate from the final correction. Repeat the full Windows, macOS, and Linux installed-package contract. Do not merge the open pull request before this proof passes.
-- [x] t19: Install that exact accepted candidate. Repeat plain setup and immediate setup in North Atlantic BuildOS. Verify the saved resource selection, surface routers, backup, project and checkout identities, router bytes, Store state, and no pending operation.
+- [x] T13: Record the live defect. The first repaired setup completed, but it did not retain the prior local resource selection or recreate proved `docs/assets/` routers. A later setup could therefore plan removal of current local resources.
+- [x] T14: Recover the prior resource selection only from exact canonical resource records in the verified completed-removal before-ledger. Require an explicit interactive or command-line selection when that evidence is not sufficient. Use the before-manifest as planning authority so setup preserves disabled capabilities and does not classify the reviewed handoff as fresh.
+- [x] T15: Let the completed-removal handoff recreate exact on-demand surface routers from proved manifest file records even when removal deleted the former surface directory.
+- [x] T16: Extend the authentic schema-3 completed-removal fixture. Prove first-run resource preservation, first-run asset-router creation, unknown-selection refusal, interactive state review for unknown intent, disabled-capability preservation, and an immediate all-no-op repeat.
+- [x] T17: Run the focused P8 suite, related authentic-upgrade and projection suites, the general CLI suite, TypeScript, package build, documentation validation, and diff whitespace check against the final reviewed source.
+- [x] T18: Build one new exact candidate from the final correction. Repeat the full Windows, macOS, and Linux installed-package contract. Do not merge the open pull request before this proof passes.
+- [x] T19: Install that exact accepted candidate. Repeat plain setup and immediate setup in North Atlantic BuildOS. Verify the saved resource selection, surface routers, backup, project and checkout identities, router bytes, Store state, and no pending operation.
 
 ### Acceptance criteria
 
@@ -179,21 +179,21 @@ Performance evidence lifecycle fields:
 - Optional experience handoff: State that plain setup preserves the reviewed local resource set and that immediate repeat should need no project change.
 - Explicit human acceptance gate: None. The live run still requires the approved exact-candidate action.
 - Evidence report: The P8 section in `evidence.md` records the source correction, final exact candidate, three-platform installed result, live North Atlantic result, and evidence limit.
-- Phase / capability status: Stage 3 tasks t13 through t19 and A63 through A65 pass. The owner authorized closeout on 2026-09-23. P8, P7, and D-038 are closed. W22 remains open for its revision-level closeout.
+- Phase / capability status: Stage 3 tasks T13 through T19 and A63 through A65 pass. The owner authorized closeout on 2026-09-23. P8, P7, and D-038 are closed. W22 remains open for its revision-level closeout.
 
 ## Stage 4 - Authentic Schema-1 Router Upgrade Repair
 
 ### Tasks
 
-- [x] t20: Record the Videos Matter counterevidence. Reopen P8 and D-038. Update PRDs 18 and 39 with the source-schema ownership and one-command upgrade contract.
-- [x] t21: Add an authentic older-package fixture. Use the actual schema-1 manifest form, exact whole-file router hashes, and router bytes without V2 managed-block markers.
-- [x] t22: Make router ownership classification source-schema aware. Trust an exact schema-1 whole-file hash. Treat missing V2 markers as expected only for that exact legacy state.
-- [x] t23: Preserve the hard stop for whole-file hash mismatch and partial, malformed, duplicated, nested, or contradictory V2 markers. A blocked plan must create no operation and change no Store, project, backup, router, or native file.
-- [x] t24: Prove one direct plain-setup upgrade from authentic schema 1 and one immediate all-no-op repeat. Require no removal, reset, manual Store edit, hidden command, or unrelated-router movement.
-- [x] t25: Run the focused compatibility, migration, router, setup, authentic-upgrade, and packed-CLI suites. Run the full CLI suite, TypeScript checks, package build, default validation, PRD authority validation, links, path hygiene, and `git diff --check`.
-- [x] t26: Build one exact package candidate. Record its source commit, package identity, digest, and size. Run the same installed-package contract on Windows, macOS, and Linux with the source checkout unavailable.
-- [x] t27: After separate owner approval, install the exact accepted candidate and run plain setup once in Videos Matter. Verify the direct upgrade, preserved project content, project and checkout identities, Store state, backup evidence, router bytes, and no pending operation. Run immediate repeat setup and require no project change.
-- [x] t28: Complete Human Experience Review, corrective review, evidence, owner acceptance, and P8 and D-038 closeout. Keep W22 revision closeout, publication, and release separate.
+- [x] T20: Record the Videos Matter counterevidence. Reopen P8 and D-038. Update PRDs 18 and 39 with the source-schema ownership and one-command upgrade contract.
+- [x] T21: Add an authentic older-package fixture. Use the actual schema-1 manifest form, exact whole-file router hashes, and router bytes without V2 managed-block markers.
+- [x] T22: Make router ownership classification source-schema aware. Trust an exact schema-1 whole-file hash. Treat missing V2 markers as expected only for that exact legacy state.
+- [x] T23: Preserve the hard stop for whole-file hash mismatch and partial, malformed, duplicated, nested, or contradictory V2 markers. A blocked plan must create no operation and change no Store, project, backup, router, or native file.
+- [x] T24: Prove one direct plain-setup upgrade from authentic schema 1 and one immediate all-no-op repeat. Require no removal, reset, manual Store edit, hidden command, or unrelated-router movement.
+- [x] T25: Run the focused compatibility, migration, router, setup, authentic-upgrade, and packed-CLI suites. Run the full CLI suite, TypeScript checks, package build, default validation, PRD authority validation, links, path hygiene, and `git diff --check`.
+- [x] T26: Build one exact package candidate. Record its source commit, package identity, digest, and size. Run the same installed-package contract on Windows, macOS, and Linux with the source checkout unavailable.
+- [x] T27: After separate owner approval, install the exact accepted candidate and run plain setup once in Videos Matter. Verify the direct upgrade, preserved project content, project and checkout identities, Store state, backup evidence, router bytes, and no pending operation. Run immediate repeat setup and require no project change.
+- [x] T28: Complete Human Experience Review, corrective review, evidence, owner acceptance, and P8 and D-038 closeout. Keep W22 revision closeout, publication, and release separate.
 
 ### Acceptance criteria
 
@@ -217,4 +217,4 @@ Performance evidence lifecycle fields:
 - Optional experience handoff: Plain setup is the normal path. No reset, hidden command, manual Store edit, or unrelated-router movement is required.
 - Explicit human acceptance gate: The owner approved implementation, exact-candidate installation, the live Videos Matter action, and final closeout on 2026-09-24.
 - Evidence report: The Stage 4 source, rejected candidate, convergence correction, exact `2.0.2` candidate, three-platform workflow, live result, immediate repeat, and evidence limits are recorded in `evidence.md` without replacing prior P8 evidence.
-- Phase / capability status: Tasks t20 through t28 and A66 through A70 pass. P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release remain separate.
+- Phase / capability status: Tasks T20 through T28 and A66 through A70 pass. P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release remain separate.

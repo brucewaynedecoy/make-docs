@@ -14,9 +14,9 @@ Implement and document template-first ownership across source files and maintain
 
 ### Tasks
 
-- [x] t1: Document `packages/docs/template/` as the first mutation target for shipped template-owned docs assets.
-- [x] t2: Document root `docs/` exclusions for generated PRDs, designs, plans, work backlogs, history, archive, artifact, overlay, and config content.
-- [x] t3: Make mixed-directory ownership explicit for history/archive routers versus local records.
+- [x] T1: Document `packages/docs/template/` as the first mutation target for shipped template-owned docs assets.
+- [x] T2: Document root `docs/` exclusions for generated PRDs, designs, plans, work backlogs, history, archive, artifact, overlay, and config content.
+- [x] T3: Make mixed-directory ownership explicit for history/archive routers versus local records.
 
 ### Acceptance Criteria
 

@@ -4,7 +4,7 @@
 
 The user requests two narrow card changes outside the W25 R0 P6 backlog. On desktop, show the wave coordinate alone in the first row. Put the title, status badge, and phase track together in the next row. Use the status badge in place of the duplicate inferred-status summary. Add no separator. Keep the mobile layout except for placing the badge where the prior summary appeared.
 
-This direct request is the source authority for this supplement. It is an explicit departure from the default design-to-plan-to-PRD-to-backlog order under the [lifecycle Straddle Rule](../../../../../.make-docs/system/references/lifecycle.md#straddle-rule). No new phase, task, acceptance ID, or obligation is created. P6 t1-t6/A41-A50 and its phase status are unchanged. Phase closeout/history/staging/commit remains outside this request.
+This direct request is the source authority for this supplement. It is an explicit departure from the default design-to-plan-to-PRD-to-backlog order under the [lifecycle Straddle Rule](../../../../../.make-docs/system/references/lifecycle.md#straddle-rule). No new phase, task, acceptance ID, or obligation is created. P6 T1-T6/A41-A50 and its phase status are unchanged. Phase closeout/history/staging/commit remains outside this request.
 
 The affected source is the shared static/live presentation: the upstream `packages/skills/backlog-review/assets/backlog-review-report.html` and its generated widget renderer/UI assets. The report model, action authority, footer words, and request controls are outside these two layout changes. The preceding P6 304-case and `e4c41748…` source packet remains historical evidence for that checkpoint. A new narrow source identity and result will be recorded here after checks exist.
 

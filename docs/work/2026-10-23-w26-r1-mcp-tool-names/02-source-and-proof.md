@@ -33,9 +33,9 @@ The registry, CLI grammar, profiles, resources, Store access, and operation hand
 
 ### Tasks
 
-- [x] t1: Replace the name projection and six hand-defined names with the P1 map.
-- [x] t2: Update all current test and source callers that use old names. Keep historical evidence unchanged.
-- [x] t3: Update user and maintainer guides with new examples and a migration path.
+- [x] T1: Replace the name projection and six hand-defined names with the P1 map.
+- [x] T2: Update all current test and source callers that use old names. Keep historical evidence unchanged.
+- [x] T3: Update user and maintainer guides with new examples and a migration path.
 
 ### Acceptance criteria
 
@@ -51,9 +51,9 @@ The registry, CLI grammar, profiles, resources, Store access, and operation hand
 
 ### Tasks
 
-- [x] t4: Run name-map, profile, dispatch, TypeScript, build, and package tests.
-- [x] t5: Check the public docs and package output for old current-name examples.
-- [x] t6: Record the tested source state and the installed-host gate.
+- [x] T4: Run name-map, profile, dispatch, TypeScript, build, and package tests.
+- [x] T5: Check the public docs and package output for old current-name examples.
+- [x] T6: Record the tested source state and the installed-host gate.
 
 ### Acceptance criteria
 

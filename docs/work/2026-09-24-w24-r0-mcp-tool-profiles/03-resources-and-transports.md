@@ -49,10 +49,10 @@ Human Experience Review is required agent work during P3 coverage and closeout. 
 
 ### Tasks
 
-- [x] t1: Add explicit profile metadata for every native system resource in the upstream catalog and validate URI coverage.
-- [x] t2: Dogfood the validated catalog and schema into this repo's `.make-docs/` instance.
-- [x] t3: Filter native `resources/list` and reject out-of-profile `resources/read` while preserving allowed bytes and provenance.
-- [x] t4: Reserve the Backlog Review UI resource for `backlog` and `all` and keep its implementation with the separate app package.
+- [x] T1: Add explicit profile metadata for every native system resource in the upstream catalog and validate URI coverage.
+- [x] T2: Dogfood the validated catalog and schema into this repo's `.make-docs/` instance.
+- [x] T3: Filter native `resources/list` and reject out-of-profile `resources/read` while preserving allowed bytes and provenance.
+- [x] T4: Reserve the Backlog Review UI resource for `backlog` and `all` and keep its implementation with the separate app package.
 
 ### Acceptance criteria
 
@@ -74,9 +74,9 @@ The catalog, schema, and resource contract were authored upstream and copied exa
 
 ### Tasks
 
-- [x] t5: Record the stdio decision and bounded W25 context. Check the new P3 local stdio lists, allowed reads, and denied reads in its own evidence. All selected checks passed.
-- [x] t6: Dispose of conditional HTTP work as not-needed at this closeout. No supported host has a confirmed HTTP need. No HTTP adapter or fixed HTTP path was implemented or tested.
-- [x] t7: Keep stdio as the default. Default and explicit `all` passed the same wire checks. HTTP loopback, route startup, and teardown checks are not-needed because HTTP was not implemented.
+- [x] T5: Record the stdio decision and bounded W25 context. Check the new P3 local stdio lists, allowed reads, and denied reads in its own evidence. All selected checks passed.
+- [x] T6: Dispose of conditional HTTP work as not-needed at this closeout. No supported host has a confirmed HTTP need. No HTTP adapter or fixed HTTP path was implemented or tested.
+- [x] T7: Keep stdio as the default. Default and explicit `all` passed the same wire checks. HTTP loopback, route startup, and teardown checks are not-needed because HTTP was not implemented.
 
 ### Acceptance criteria
 

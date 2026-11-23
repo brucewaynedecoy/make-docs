@@ -15,11 +15,11 @@ Move toward the tool-directory model without breaking Batch 1 safety contracts.
 
 ### Tasks
 
-- [x] t1: Inventory current `docs/assets/{prompts,references,templates}/` tool resources.
-- [x] t2: Define migration fixtures for `.make-docs/{prompts,references,templates}/system/`.
-- [x] t3: Preserve local bootstrap readability in full-snapshot, provider-backed, and hybrid-pinned-cache modes.
-- [x] t4: Update router guidance so agents are not sent into hidden provider-only state.
-- [x] t5: Add validation for package copy, smoke-pack, template/dogfood parity, audit, backup, uninstall, and managed blocks.
+- [x] T1: Inventory current `docs/assets/{prompts,references,templates}/` tool resources.
+- [x] T2: Define migration fixtures for `.make-docs/{prompts,references,templates}/system/`.
+- [x] T3: Preserve local bootstrap readability in full-snapshot, provider-backed, and hybrid-pinned-cache modes.
+- [x] T4: Update router guidance so agents are not sent into hidden provider-only state.
+- [x] T5: Add validation for package copy, smoke-pack, template/dogfood parity, audit, backup, uninstall, and managed blocks.
 
 ### Acceptance Criteria
 

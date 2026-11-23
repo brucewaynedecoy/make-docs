@@ -12,10 +12,10 @@ Implement the `.make-docs/` logical directory model and ownership tiers.
 
 ### Tasks
 
-- [x] t1: Define `.make-docs/` runtime state surfaces and tool resource families.
-- [x] t2: Define `system/` and `custom/` ownership semantics for each resource family.
-- [x] t3: Protect custom resources from install, reconfigure, provider refresh, or cache rehydration overwrites.
-- [x] t4: Reserve `agentics/skills` and `agentics/plugins` without deciding shared delivery.
+- [x] T1: Define `.make-docs/` runtime state surfaces and tool resource families.
+- [x] T2: Define `system/` and `custom/` ownership semantics for each resource family.
+- [x] T3: Protect custom resources from install, reconfigure, provider refresh, or cache rehydration overwrites.
+- [x] T4: Reserve `agentics/skills` and `agentics/plugins` without deciding shared delivery.
 
 ### Acceptance Criteria
 

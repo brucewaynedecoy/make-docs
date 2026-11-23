@@ -20,9 +20,9 @@ This phase introduces the internal model for materialization modes and local boo
 
 ### Tasks
 
-- [x] t1: Add typed materialization mode values for `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache`.
-- [x] t2: Route default install, sync, and reconfigure behavior through `full-snapshot` without changing existing file output.
-- [x] t3: Reject or hide non-default modes unless the implementation has an explicit internal opt-in path guarded from public default use.
+- [x] T1: Add typed materialization mode values for `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache`.
+- [x] T2: Route default install, sync, and reconfigure behavior through `full-snapshot` without changing existing file output.
+- [x] T3: Reject or hide non-default modes unless the implementation has an explicit internal opt-in path guarded from public default use.
 
 ### Evidence
 
@@ -45,9 +45,9 @@ This phase introduces the internal model for materialization modes and local boo
 
 ### Tasks
 
-- [x] t4: Classify root and docs instruction routers, `.make-docs/manifest.json`, future local config, custom overlays, and project-owned overrides as always-local bootstrap surfaces.
-- [x] t5: Ensure local bootstrap assets cannot be provider-resolved only.
-- [x] t6: Add tests proving bootstrap surfaces remain materialized when non-default modes are internally selected.
+- [x] T4: Classify root and docs instruction routers, `.make-docs/manifest.json`, future local config, custom overlays, and project-owned overrides as always-local bootstrap surfaces.
+- [x] T5: Ensure local bootstrap assets cannot be provider-resolved only.
+- [x] T6: Add tests proving bootstrap surfaces remain materialized when non-default modes are internally selected.
 
 ### Evidence
 
@@ -64,16 +64,16 @@ This phase introduces the internal model for materialization modes and local boo
 
 ### Dependencies
 
-- t1
-- t2
+- T1
+- T2
 
 ## Stage 3 - Keep skills and plugins separate
 
 ### Tasks
 
-- [x] t7: Confirm skills-only planning continues through the existing selected-skill path rather than the system asset mode model.
-- [x] t8: Confirm plugin/shared-agentics work remains outside system asset mode selection.
-- [x] t9: Add or preserve tests that default installs still write no skill files.
+- [x] T7: Confirm skills-only planning continues through the existing selected-skill path rather than the system asset mode model.
+- [x] T8: Confirm plugin/shared-agentics work remains outside system asset mode selection.
+- [x] T9: Add or preserve tests that default installs still write no skill files.
 
 ### Evidence
 
@@ -89,5 +89,5 @@ This phase introduces the internal model for materialization modes and local boo
 
 ### Dependencies
 
-- t4
-- t5
+- T4
+- T5

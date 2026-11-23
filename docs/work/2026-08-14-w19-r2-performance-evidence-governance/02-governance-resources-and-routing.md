@@ -40,13 +40,13 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 ### Tasks
 
-- [x] t1: Verify the exact branch, HEAD, worktree, free disk, phase write allowlist, and current dirty state; stop on unexpected user work or unsafe resource pressure.
-- [x] t2: Reread the current normative bodies of PRDs 06, 10, 14, 15, 21, 48, 49, and 50 plus PRD 03, and record each current revision or content digest before implementation.
-- [x] t3: Reevaluate at minimum Q-017 only if this phase would change centralization or replication, Q-021, R-017, R-029 through R-032, and R-034; add any newly relevant current item discovered by the live reread.
-- [x] t4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: If no blocking item or authority gap remains, record an explicit no-blocker result and the finite phase correction/review budget before unlocking t8.
-- [x] t6: If a blocking item or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
-- [x] t7: After an owner decision, require the canonical PRD/register/history update, focused validation, separate decision-only commit, and recorded decision commit SHA before marking this gate unlocked.
+- [x] T1: Verify the exact branch, HEAD, worktree, free disk, phase write allowlist, and current dirty state; stop on unexpected user work or unsafe resource pressure.
+- [x] T2: Reread the current normative bodies of PRDs 06, 10, 14, 15, 21, 48, 49, and 50 plus PRD 03, and record each current revision or content digest before implementation.
+- [x] T3: Reevaluate at minimum Q-017 only if this phase would change centralization or replication, Q-021, R-017, R-029 through R-032, and R-034; add any newly relevant current item discovered by the live reread.
+- [x] T4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: If no blocking item or authority gap remains, record an explicit no-blocker result and the finite phase correction/review budget before unlocking T8.
+- [x] T6: If a blocking item or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
+- [x] T7: After an owner decision, require the canonical PRD/register/history update, focused validation, separate decision-only commit, and recorded decision commit SHA before marking this gate unlocked.
 
 ### Acceptance criteria
 
@@ -83,7 +83,7 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
   - R-017: `impacted-nonblocking`; one resource identity and one byte source remain authoritative. No Skill or agent copy was added.
   - R-029 through R-032: `impacted-nonblocking`; the contract keeps finite budgets, proof-mode separation, repository authority, and explicit expiry.
   - R-034: `impacted-nonblocking`; validation is proportional and adds no required human burden.
-- Gate result: no P2 authority blocker and no new authority gap. Tasks t6 and t7 were evaluated but were not activated.
+- Gate result: no P2 authority blocker and no new authority gap. Tasks T6 and T7 were evaluated but were not activated.
 - Budget: at most two material correction attempts and two review cycles. No material correction attempt was used at entry.
 - Testing-mode decision(s): focused Automated Implementation Testing is selected. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now` for the P2 resource-authoring decision. Agent Human Experience Review applies to the real maintainer-facing resources.
 - Phase / capability status: entry gate unlocked. Gate completion alone does not complete P2.
@@ -92,12 +92,12 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 ### Tasks
 
-- [x] t8: Confirm the exact upstream target paths under `packages/docs/template/.make-docs/system/{contracts,prompts,references,templates}/` and prove no old-path resource would remain a competing current authority.
-- [x] t9: Author the single detailed `performance-evidence-governance.md` contract covering applicability, maturity, target-class ownership, profile lineage, comparability, non-sacrificable constraints, finite budgets, unchanged reuse, affected-only reruns, diminishing-return stops, outcomes, findings, waivers, expiry, singular requalification, proof-mode boundaries, and repository/state authority.
-- [x] t10: Author `performance-coverage.prompt.md` as a bounded candidate inventory that records both the base maintenance action and PRD 48 applicability disposition, rejects unsupported or copied targets, and asks only decision-relevant questions.
-- [x] t11: Author `performance-evidence.md` as a progressive plain-language reference that explains qualification, target classes, `PERF-###` identity, fingerprints, budgets, normalized outcomes, expiry, requalification, and common authority failures without creating policy copies.
-- [x] t12: Author `performance-evidence-profile.md` so non-executable dispositions stop before profile fields and executable candidates expose the full PRD 48 shape without example numbers, universal counts, or statistical recipes.
-- [x] t13: Assign and validate the four stable peer URIs for contract, prompt, reference, and template; verify the prompt is not placed under a reference namespace.
+- [x] T8: Confirm the exact upstream target paths under `packages/docs/template/.make-docs/system/{contracts,prompts,references,templates}/` and prove no old-path resource would remain a competing current authority.
+- [x] T9: Author the single detailed `performance-evidence-governance.md` contract covering applicability, maturity, target-class ownership, profile lineage, comparability, non-sacrificable constraints, finite budgets, unchanged reuse, affected-only reruns, diminishing-return stops, outcomes, findings, waivers, expiry, singular requalification, proof-mode boundaries, and repository/state authority.
+- [x] T10: Author `performance-coverage.prompt.md` as a bounded candidate inventory that records both the base maintenance action and PRD 48 applicability disposition, rejects unsupported or copied targets, and asks only decision-relevant questions.
+- [x] T11: Author `performance-evidence.md` as a progressive plain-language reference that explains qualification, target classes, `PERF-###` identity, fingerprints, budgets, normalized outcomes, expiry, requalification, and common authority failures without creating policy copies.
+- [x] T12: Author `performance-evidence-profile.md` so non-executable dispositions stop before profile fields and executable candidates expose the full PRD 48 shape without example numbers, universal counts, or statistical recipes.
+- [x] T13: Assign and validate the four stable peer URIs for contract, prompt, reference, and template; verify the prompt is not placed under a reference namespace.
 
 ### Acceptance criteria
 
@@ -122,10 +122,10 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 ### Tasks
 
-- [x] t14: Update only the relevant paired `AGENTS.md`/`CLAUDE.md` managed blocks to point to the canonical contract and load the prompt/template only when a performance candidate exists.
-- [x] t15: Add only applicability, canonical-profile link, finite-budget/stop reference, and outcome/evidence handoff fields to lifecycle-facing templates or prompts authorized by the phase scope; do not duplicate detailed policy or live targets.
-- [x] t16: Preserve direct CLI and native MCP system-resource list/read resolution through one resource identity and byte source, including machine-installed fallback when no optional local projection exists.
-- [x] t17: Prove Skills, optional agentics, CLI/MCP help, routers, and templates contain no duplicated performance business policy and cannot become correctness prerequisites or second authorities.
+- [x] T14: Update only the relevant paired `AGENTS.md`/`CLAUDE.md` managed blocks to point to the canonical contract and load the prompt/template only when a performance candidate exists.
+- [x] T15: Add only applicability, canonical-profile link, finite-budget/stop reference, and outcome/evidence handoff fields to lifecycle-facing templates or prompts authorized by the phase scope; do not duplicate detailed policy or live targets.
+- [x] T16: Preserve direct CLI and native MCP system-resource list/read resolution through one resource identity and byte source, including machine-installed fallback when no optional local projection exists.
+- [x] T17: Prove Skills, optional agentics, CLI/MCP help, routers, and templates contain no duplicated performance business policy and cannot become correctness prerequisites or second authorities.
 
 ### Acceptance criteria
 
@@ -138,7 +138,7 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 - Stage 2 accepted.
 - R-017 remains explicitly guarded rather than implicitly closed.
-- Before t16, reuse the completed W19 R1 resource and resolver evidence plus current validation of shared CLI and native-MCP list/read resolution. Stop only if the current evidence is stale or the changed surface invalidates it.
+- Before T16, reuse the completed W19 R1 resource and resolver evidence plus current validation of shared CLI and native-MCP list/read resolution. Stop only if the current evidence is stale or the changed surface invalidates it.
 
 ### Closeout Notes
 
@@ -149,12 +149,12 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 ### Tasks
 
-- [x] t18: Validate upstream resource identifiers, frontmatter, paths, relative links, anchors, managed-block pairing, and representative documentation fixtures before projection.
-- [x] t19: Run the maintained package projection path so `packages/cli/template/` is generated from `packages/docs/template/`; do not hand-edit generated copies.
-- [x] t20: Deliberately dogfood only the authorized resource/router selection after review and prove required byte parity and optional-local versus machine-installed resolution.
-- [x] t21: Run focused resource, router, path-hygiene, link, fixture, package-projection, and affected tests; retry only failed affected checks after a material correction and reuse unchanged results.
-- [x] t22: Independently review the exact P2 diff for policy duplication, target-authority drift, hidden defaults, centralization creep, and arbitrary performance requirements.
-- [x] t23: Record exact changed files, validations, remaining questions, risks, findings, consumed correction and review budget, phase-versus-capability status, and agent Human Experience Review of the real resources; do not close PRD 03 items by task completion.
+- [x] T18: Validate upstream resource identifiers, frontmatter, paths, relative links, anchors, managed-block pairing, and representative documentation fixtures before projection.
+- [x] T19: Run the maintained package projection path so `packages/cli/template/` is generated from `packages/docs/template/`; do not hand-edit generated copies.
+- [x] T20: Deliberately dogfood only the authorized resource/router selection after review and prove required byte parity and optional-local versus machine-installed resolution.
+- [x] T21: Run focused resource, router, path-hygiene, link, fixture, package-projection, and affected tests; retry only failed affected checks after a material correction and reuse unchanged results.
+- [x] T22: Independently review the exact P2 diff for policy duplication, target-authority drift, hidden defaults, centralization creep, and arbitrary performance requirements.
+- [x] T23: Record exact changed files, validations, remaining questions, risks, findings, consumed correction and review budget, phase-versus-capability status, and agent Human Experience Review of the real resources; do not close PRD 03 items by task completion.
 
 ### Acceptance criteria
 
@@ -168,7 +168,7 @@ Author upstream first in `packages/docs/template/`, validate before projection, 
 
 - Stages 2 and 3 accepted.
 - Maintained projection and dogfood operations separately authorized at phase execution time.
-- Before t18 through t21, reuse the completed W19 R1 P10 package-projection evidence and rerun the affected current package, dogfood, resolution, and byte-parity checks. Do not require a separate historical acceptance gate.
+- Before T18 through T21, reuse the completed W19 R1 P10 package-projection evidence and rerun the affected current package, dogfood, resolution, and byte-parity checks. Do not require a separate historical acceptance gate.
 
 ### Closeout Notes
 

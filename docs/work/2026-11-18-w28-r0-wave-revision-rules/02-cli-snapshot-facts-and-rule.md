@@ -74,8 +74,8 @@ Performance candidate (Git lookup for `committed`):
 
 ### Tasks
 
-- [x] t1: Search for every persisted artifact that validates JSON against `BacklogSnapshotV1Schema` in `packages/cli/src/operations/work/backlog/schemas.ts`. Include Store cache rows, saved reports, and review fragments. Record the result in `evidence.md`. If one cannot accept additive keys, stop and ask the owner about a schema version, under R-BACKLOG-SNAPSHOT-30.
-- [x] t2: Run the existing registry, access, CLI, and MCP contract tests as a baseline, under R-BACKLOG-SNAPSHOT-26. Record the result.
+- [x] T1: Search for every persisted artifact that validates JSON against `BacklogSnapshotV1Schema` in `packages/cli/src/operations/work/backlog/schemas.ts`. Include Store cache rows, saved reports, and review fragments. Record the result in `evidence.md`. If one cannot accept additive keys, stop and ask the owner about a schema version, under R-BACKLOG-SNAPSHOT-30.
+- [x] T2: Run the existing registry, access, CLI, and MCP contract tests as a baseline, under R-BACKLOG-SNAPSHOT-26. Record the result.
 
 ### Acceptance criteria
 
@@ -90,13 +90,13 @@ Performance candidate (Git lookup for `committed`):
 
 ### Tasks
 
-- [x] t3: In `schemas.ts`, add three things and keep every schema strict:
+- [x] T3: In `schemas.ts`, add three things and keep every schema strict:
   - `closeoutNotesPresent` and `committed` (`NullableSourcedBoolean`) to `WorkPhaseFactSchema`;
   - `nextPhase` (`SourcedCount`) to `BacklogWorkRecordV1Schema`;
   - a top-level `coordinates` object: `highestWave`, plus `waves[]` with `wave`, `revisions[]`, and `nextRevision`.
-- [x] t4: In `snapshot.ts`, derive `closeoutNotesPresent`. It is true when `### Closeout Notes` has content with no unresolved `{{` placeholder. It is false when the section is absent or empty.
-- [x] t5: In `snapshot.ts`, derive per-phase `committed` from the existing Git context. It is true when the file is tracked and clean, false when it is untracked or changed, and `null` when Git is unavailable, denied, or not a repository. Fill the record-level `closeout.committed` over the index and every linked phase file.
-- [x] t6: In `snapshot.ts`, derive `nextPhase` from the linked and numbered phase files. Derive `coordinates` from every discovered live and archived record directory.
+- [x] T4: In `snapshot.ts`, derive `closeoutNotesPresent`. It is true when `### Closeout Notes` has content with no unresolved `{{` placeholder. It is false when the section is absent or empty.
+- [x] T5: In `snapshot.ts`, derive per-phase `committed` from the existing Git context. It is true when the file is tracked and clean, false when it is untracked or changed, and `null` when Git is unavailable, denied, or not a repository. Fill the record-level `closeout.committed` over the index and every linked phase file.
+- [x] T6: In `snapshot.ts`, derive `nextPhase` from the linked and numbered phase files. Derive `coordinates` from every discovered live and archived record directory.
 
 ### Acceptance criteria
 
@@ -112,8 +112,8 @@ Performance candidate (Git lookup for `committed`):
 
 ### Tasks
 
-- [x] t7: In `catalog.ts`, add `BACKLOG-RULE-017` (`fact`, `full`, default severity `warning`, diagnostic `BACKLOG-VAL-017`). Its parity mapping points to the `wave-model.md` Change History section. Add `BACKLOG-AGENT-018` (`agent-only`), with the one-sided reason from R-BACKLOG-RULES-12.
-- [x] t8: In `snapshot.ts`, parse `## Change History` in supported work indexes. Emit `BACKLOG-VAL-017` in four cases:
+- [x] T7: In `catalog.ts`, add `BACKLOG-RULE-017` (`fact`, `full`, default severity `warning`, diagnostic `BACKLOG-VAL-017`). Its parity mapping points to the `wave-model.md` Change History section. Add `BACKLOG-AGENT-018` (`agent-only`), with the one-sided reason from R-BACKLOG-RULES-12.
+- [x] T8: In `snapshot.ts`, parse `## Change History` in supported work indexes. Emit `BACKLOG-VAL-017` in four cases:
   - a heading that does not use `YYYY-MM-DD — <coordinate>`;
   - a coordinate whose W/R differs from the record;
   - a missing one of the eight fields, or an invalid `Kind` or `PRD decision` value;
@@ -134,8 +134,8 @@ Performance candidate (Git lookup for `committed`):
 
 ### Tasks
 
-- [x] t9: Add focused tests in `packages/cli/tests/`. Use isolated temporary repositories for Git states. Add the Change History fixtures to the "conflicts and links" fixture group. Cover every fact, every `null` state, A13, and A15.
-- [x] t10: Run `npm test -w packages/cli` and `make-docs run work backlog snapshot --target-root . --json` from the built CLI on this repository. Record the results in `evidence.md`.
+- [x] T9: Add focused tests in `packages/cli/tests/`. Use isolated temporary repositories for Git states. Add the Change History fixtures to the "conflicts and links" fixture group. Cover every fact, every `null` state, A13, and A15.
+- [x] T10: Run `npm test -w packages/cli` and `make-docs run work backlog snapshot --target-root . --json` from the built CLI on this repository. Record the results in `evidence.md`.
 
 ### Acceptance criteria
 
@@ -150,8 +150,8 @@ Performance candidate (Git lookup for `committed`):
 
 ### Tasks
 
-- [x] t11: Regenerate `packages/skills/backlog-review/scripts/report-contract.mjs` and `agent-contract.mjs` with `node packages/cli/scripts/build-backlog-presentation.mjs` (with and without `--agent`), and regenerate `packages/cli/src/mcp/assets/backlog-review-v1.html` and `.ts` with `node packages/cli/scripts/build-mcp-app-assets.mjs`.
-- [x] t12: Add rows for `BACKLOG-RULE-017` and `BACKLOG-RULE-018` to `packages/skills/backlog-review/references/rule-map.md`. Mark 018 as judgment-only. Moved from P3 t2.
+- [x] T11: Regenerate `packages/skills/backlog-review/scripts/report-contract.mjs` and `agent-contract.mjs` with `node packages/cli/scripts/build-backlog-presentation.mjs` (with and without `--agent`), and regenerate `packages/cli/src/mcp/assets/backlog-review-v1.html` and `.ts` with `node packages/cli/scripts/build-mcp-app-assets.mjs`.
+- [x] T12: Add rows for `BACKLOG-RULE-017` and `BACKLOG-RULE-018` to `packages/skills/backlog-review/references/rule-map.md`. Mark 018 as judgment-only. Moved from P3 T2.
 
 ### Acceptance criteria
 

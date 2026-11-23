@@ -18,10 +18,10 @@ This phase replaces W9 R4 guide/breadcrumb package surfaces with library/archive
 
 ### Tasks
 
-- [x] t1: Replace shipped `docs/assets/guides/{AGENTS,CLAUDE}.md` routers with `docs/assets/library/{AGENTS,CLAUDE}.md`.
-- [x] t2: Remove shipped `docs/assets/breadcrumbs/{AGENTS,CLAUDE}.md` routers from default install/package paths.
-- [x] t3: Update `packages/cli/src/catalog.ts` and `packages/cli/src/compatibility.ts` to use library and archive-history fallback behavior.
-- [x] t4: Refresh generated `packages/cli/template/**` from `packages/docs/template/**`.
+- [x] T1: Replace shipped `docs/assets/guides/{AGENTS,CLAUDE}.md` routers with `docs/assets/library/{AGENTS,CLAUDE}.md`.
+- [x] T2: Remove shipped `docs/assets/breadcrumbs/{AGENTS,CLAUDE}.md` routers from default install/package paths.
+- [x] T3: Update `packages/cli/src/catalog.ts` and `packages/cli/src/compatibility.ts` to use library and archive-history fallback behavior.
+- [x] T4: Refresh generated `packages/cli/template/**` from `packages/docs/template/**`.
 
 ### Acceptance criteria
 
@@ -41,9 +41,9 @@ This phase replaces W9 R4 guide/breadcrumb package surfaces with library/archive
 
 ### Tasks
 
-- [x] t5: Update install, consistency, uninstall, and tool-directory tests for W9 R5 paths.
-- [x] t6: Update smoke-pack custom preservation and assertions for library and archive-history.
-- [x] t7: Update closeout, archive, and work-scope skill helpers to write/read `docs/assets/archive/history/**` and discover guides under `docs/assets/library/**`.
+- [x] T5: Update install, consistency, uninstall, and tool-directory tests for W9 R5 paths.
+- [x] T6: Update smoke-pack custom preservation and assertions for library and archive-history.
+- [x] T7: Update closeout, archive, and work-scope skill helpers to write/read `docs/assets/archive/history/**` and discover guides under `docs/assets/library/**`.
 
 ### Acceptance criteria
 

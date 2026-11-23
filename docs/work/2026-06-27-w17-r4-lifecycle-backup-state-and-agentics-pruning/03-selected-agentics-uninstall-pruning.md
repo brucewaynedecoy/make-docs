@@ -6,13 +6,13 @@ Prune empty managed `.make-docs/agentics/**` directories after selected-agentics
 
 ## Tasks
 
-- [x] t1 Extend audit pruning classification for managed selected-agentics parent directories after audited file removals.
-- [x] t2 Cover project-scoped canonical payloads under `.make-docs/agentics/skills/**`.
-- [x] t3 Cover home-scoped canonical payloads under the user's `.make-docs/agentics/skills/**`.
-- [x] t4 Preserve non-empty, ambiguous, user-authored, modified, wrong-target, plugin, manifest, or future agentics content.
-- [x] t5 Ensure symlink exposures are unlinked without following targets and copy mirrors are removed only when managed-clean.
-- [x] t6 Add tests for single selected skill removal, multiple selected skill preservation, global selected skill pruning, and unmanaged descendant preservation.
-- [x] t7 Update dry-run, audit, backup, and uninstall output only as needed to keep role labels clear.
+- [x] T1 Extend audit pruning classification for managed selected-agentics parent directories after audited file removals.
+- [x] T2 Cover project-scoped canonical payloads under `.make-docs/agentics/skills/**`.
+- [x] T3 Cover home-scoped canonical payloads under the user's `.make-docs/agentics/skills/**`.
+- [x] T4 Preserve non-empty, ambiguous, user-authored, modified, wrong-target, plugin, manifest, or future agentics content.
+- [x] T5 Ensure symlink exposures are unlinked without following targets and copy mirrors are removed only when managed-clean.
+- [x] T6 Add tests for single selected skill removal, multiple selected skill preservation, global selected skill pruning, and unmanaged descendant preservation.
+- [x] T7 Update dry-run, audit, backup, and uninstall output only as needed to keep role labels clear.
 
 ## Acceptance Criteria
 

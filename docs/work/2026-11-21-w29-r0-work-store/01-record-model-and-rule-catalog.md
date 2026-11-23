@@ -53,14 +53,14 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [x] t1: Define unit kinds (wave, revision, phase, stage, task, quick item), their stable store ID, coordinate, parent, and status values.
-- [x] t2: Define dependency records that point to store IDs, and the unresolved-text form for a bullet that import cannot resolve.
-- [x] t3: Define link records in both directions: unit to design, plan, PRD section, and evidence file.
-- [x] t4: Write the three-way sync table and the conflict record, including the settle commands.
-- [x] t5: Write the readiness rule, the ready order, and the wording of each "waits because" reason.
-- [x] t6: Write the claim rule: claimant, default time limit, renewal interval, expiry, stale-claimant refusal, and the handle check before takeover.
-- [x] t7: Write the report and close payloads and the close outcomes.
-- [x] t8: Write the tracker connection contract and mark the local store as the only current connection.
+- [x] T1: Define unit kinds (wave, revision, phase, stage, task, quick item), their stable store ID, coordinate, parent, and status values.
+- [x] T2: Define dependency records that point to store IDs, and the unresolved-text form for a bullet that import cannot resolve.
+- [x] T3: Define link records in both directions: unit to design, plan, PRD section, and evidence file.
+- [x] T4: Write the three-way sync table and the conflict record, including the settle commands.
+- [x] T5: Write the readiness rule, the ready order, and the wording of each "waits because" reason.
+- [x] T6: Write the claim rule: claimant, default time limit, renewal interval, expiry, stale-claimant refusal, and the handle check before takeover.
+- [x] T7: Write the report and close payloads and the close outcomes.
+- [x] T8: Write the tracker connection contract and mark the local store as the only current connection.
 
 ### Acceptance criteria
 
@@ -71,8 +71,8 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [x] t9: Draft an R-MIN row for every new field: class, writer, readers, retention, privacy, and recovery use.
-- [x] t10: Build the fixture matrix: this repo's current backlogs, a mixed portfolio, unresolved dependencies, a conflict, a quick item, a folder without git, and a no-Store checkout.
+- [x] T9: Draft an R-MIN row for every new field: class, writer, readers, retention, privacy, and recovery use.
+- [x] T10: Build the fixture matrix: this repo's current backlogs, a mixed portfolio, unresolved dependencies, a conflict, a quick item, a folder without git, and a no-Store checkout.
 
 ### Acceptance criteria
 

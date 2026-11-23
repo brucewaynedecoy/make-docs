@@ -53,11 +53,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [x] t1: Make the task line pattern in `packages/cli/src/operations/work/index.ts` accept `t` and `T`.
-- [x] t2: Make the phase task check compare task IDs without regard to case, so a file with `T1`, `T2` passes.
-- [x] t3: Make the task pattern in `packages/cli/src/operations/work/backlog/snapshot.ts` accept `T`, so `- [ ] T1: ...` is a task with ID `T1`. Keep the upper-case result.
-- [x] t4: Accept both cases in task coordinate input for commands, and keep it aligned with the W29 R0 P1 project URI grammar.
-- [x] t5: Add lower-case, upper-case, and mixed fixtures, and prove the same facts for each.
+- [x] T1: Make the task line pattern in `packages/cli/src/operations/work/index.ts` accept `t` and `T`.
+- [x] T2: Make the phase task check compare task IDs without regard to case, so a file with `T1`, `T2` passes.
+- [x] T3: Make the task pattern in `packages/cli/src/operations/work/backlog/snapshot.ts` accept `T`, so `- [ ] T1: ...` is a task with ID `T1`. Keep the upper-case result.
+- [x] T4: Accept both cases in task coordinate input for commands, and keep it aligned with the W29 R0 P1 project URI grammar.
+- [x] T5: Add lower-case, upper-case, and mixed fixtures, and prove the same facts for each.
 
 ### Acceptance criteria
 

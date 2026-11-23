@@ -41,10 +41,10 @@ Bear steps 1 and 15; P7 A51–A60; owner release rejection; `store-denied`; unkn
 
 ### Tasks
 
-- [x] t1: Record branch, HEAD, staged and dirty allowlist, active connection, installed package, candidate paths, and ownership of each change. Mark exact dependencies on temporary recovery files. (Step 1; evidence: dated inventory.)
-- [x] t2: Classify every W25 claim as source test, mock/synthetic, private candidate, supported installed path, or observed host action. Link the exact package/configuration/source where known. Reopen only claims without required proof. (Step 1; A51–A60; evidence: claim ledger.)
-- [x] t3: Correct the W25 index, P7 progress, risk entries, and single summary to show the owner's release rejection, normal Store-access gap, false unknown-count display, and remaining accessibility checks. Preserve earlier failures and useful proof. (Step 1; evidence: authority diff.)
-- [x] t4: Record earlier P7 time windows as historical. Cost W26 R0 P1–P3 and W25 P9–P13 together before seeking a new work limit. (Step 15; gate: finite scope review.)
+- [x] T1: Record branch, HEAD, staged and dirty allowlist, active connection, installed package, candidate paths, and ownership of each change. Mark exact dependencies on temporary recovery files. (Step 1; evidence: dated inventory.)
+- [x] T2: Classify every W25 claim as source test, mock/synthetic, private candidate, supported installed path, or observed host action. Link the exact package/configuration/source where known. Reopen only claims without required proof. (Step 1; A51–A60; evidence: claim ledger.)
+- [x] T3: Correct the W25 index, P7 progress, risk entries, and single summary to show the owner's release rejection, normal Store-access gap, false unknown-count display, and remaining accessibility checks. Preserve earlier failures and useful proof. (Step 1; evidence: authority diff.)
+- [x] T4: Record earlier P7 time windows as historical. Cost W26 R0 P1–P3 and W25 P9–P13 together before seeking a new work limit. (Step 15; gate: finite scope review.)
 
 ### Acceptance criteria
 

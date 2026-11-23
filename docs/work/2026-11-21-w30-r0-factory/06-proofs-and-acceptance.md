@@ -56,12 +56,12 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: Proof A, smallest setup: one harness, its own subagents, and "wait in session". Run a staged backlog of at least two units through build then review, including one correction.
-- [ ] t2: Proof B, multi-tool setup: a multiplexer plus a human channel that the person can use from a phone. Run one lead and specialists unit and one escalation that the person answers away from the session.
-- [ ] t3: Record the real tools that the owner picked for each proof in the evidence. Limit support claims to the combinations tested (R-FACTORY-1, R-FACTORY-10).
-- [ ] t4: Drift test: remove a wired tool and show the blocked state and the fix step before new work (R-FACTORY-12, R-FACTORY-33).
-- [ ] t5: Outside-git test: run a unit in a folder without git and show the backup, its cleanup, and the backup folder note (R-FACTORY-44 to R-FACTORY-46).
-- [ ] t6: Create this backlog's `evidence.md` and link it from the index.
+- [ ] T1: Proof A, smallest setup: one harness, its own subagents, and "wait in session". Run a staged backlog of at least two units through build then review, including one correction.
+- [ ] T2: Proof B, multi-tool setup: a multiplexer plus a human channel that the person can use from a phone. Run one lead and specialists unit and one escalation that the person answers away from the session.
+- [ ] T3: Record the real tools that the owner picked for each proof in the evidence. Limit support claims to the combinations tested (R-FACTORY-1, R-FACTORY-10).
+- [ ] T4: Drift test: remove a wired tool and show the blocked state and the fix step before new work (R-FACTORY-12, R-FACTORY-33).
+- [ ] T5: Outside-git test: run a unit in a folder without git and show the backup, its cleanup, and the backup folder note (R-FACTORY-44 to R-FACTORY-46).
+- [ ] T6: Create this backlog's `evidence.md` and link it from the index.
 
 ### Acceptance criteria
 
@@ -79,10 +79,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t7: Prove package and installed parity for both Skills, the four resources, and the operations.
-- [ ] t8: Search the shipped Skills, resources, and fixtures for any tool named as required or default, and fix each hit.
-- [ ] t9: Complete a Human Experience Review for each promise in the index.
-- [ ] t10: Reassess Unassisted Goal Testing for first setup, and record the decision.
+- [ ] T7: Prove package and installed parity for both Skills, the four resources, and the operations.
+- [ ] T8: Search the shipped Skills, resources, and fixtures for any tool named as required or default, and fix each hit.
+- [ ] T9: Complete a Human Experience Review for each promise in the index.
+- [ ] T10: Reassess Unassisted Goal Testing for first setup, and record the decision.
 
 ### Acceptance criteria
 

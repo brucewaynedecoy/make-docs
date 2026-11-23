@@ -15,11 +15,11 @@ Confirm the W17 R3 corrective authority before implementation starts.
 
 ## Tasks
 
-- [x] t1: Confirm the W17 R3 design supersedes only the W17 R2 generated-stub default and preserves W17 R2 shared-payload/lifecycle evidence.
-- [x] t2: Confirm active PRDs name native harness exposure, symlink preference, managed copy-mirror fallback, legacy generated-stub classification, and copy-mirror preservation behavior.
-- [x] t3: Confirm W18 R2 plugin substrate docs inherit W17 R3 native exposure unless a later plugin-specific design supersedes it.
-- [x] t4: Scan active plans and backlogs so future-facing work does not treat generated stubs as selected-skill target behavior.
-- [x] t5: Record any remaining historical W17 R2 stub references as intentional historical evidence, not executable W17 R3 requirements.
+- [x] T1: Confirm the W17 R3 design supersedes only the W17 R2 generated-stub default and preserves W17 R2 shared-payload/lifecycle evidence.
+- [x] T2: Confirm active PRDs name native harness exposure, symlink preference, managed copy-mirror fallback, legacy generated-stub classification, and copy-mirror preservation behavior.
+- [x] T3: Confirm W18 R2 plugin substrate docs inherit W17 R3 native exposure unless a later plugin-specific design supersedes it.
+- [x] T4: Scan active plans and backlogs so future-facing work does not treat generated stubs as selected-skill target behavior.
+- [x] T5: Record any remaining historical W17 R2 stub references as intentional historical evidence, not executable W17 R3 requirements.
 
 ## Acceptance Criteria
 

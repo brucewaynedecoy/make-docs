@@ -20,11 +20,11 @@ This phase covers user-facing command semantics, no default aliases, runtime/ver
 
 ### Tasks
 
-- [x] t1: Verify the only primary executable in `packages/cli/package.json` is `make-docs`.
-- [x] t2: Verify `packages/cli/src/cli.ts` exposes the no-command install/sync path plus `reconfigure`, `skills`, `backup`, and `uninstall` without adding command aliases.
-- [x] t3: Add or update tests that prevent `makedocs`, `make-docs-js`, `make-docs-rs`, or other default command aliases from becoming accepted public commands.
-- [x] t4: Review root and package README command examples so they use the scoped npm package plus the installed `make-docs` binary consistently.
-- [x] t5: Preserve existing removed-command behavior for `init`, `update`, `--reconfigure`, and `--skills` unless a separate accepted design changes it.
+- [x] T1: Verify the only primary executable in `packages/cli/package.json` is `make-docs`.
+- [x] T2: Verify `packages/cli/src/cli.ts` exposes the no-command install/sync path plus `reconfigure`, `skills`, `backup`, and `uninstall` without adding command aliases.
+- [x] T3: Add or update tests that prevent `makedocs`, `make-docs-js`, `make-docs-rs`, or other default command aliases from becoming accepted public commands.
+- [x] T4: Review root and package README command examples so they use the scoped npm package plus the installed `make-docs` binary consistently.
+- [x] T5: Preserve existing removed-command behavior for `init`, `update`, `--reconfigure`, and `--skills` unless a separate accepted design changes it.
 
 ### Acceptance criteria
 
@@ -46,11 +46,11 @@ This phase covers user-facing command semantics, no default aliases, runtime/ver
 
 ### Tasks
 
-- [x] t6: Review current help/version behavior and decide whether TypeScript runtime/version disclosure needs an immediate update before Rust exists.
-- [x] t7: If runtime/version disclosure changes, update CLI output and tests so support can distinguish package version and runtime implementation.
-- [x] t8: Document that npm and future Rust distributions are alternatives selected by PATH order, not commands users should normally chain together.
-- [x] t9: Keep MCP startup work sequenced behind manifest, audit, backup, and uninstall safety; do not make TypeScript the long-term MCP runtime owner.
-- [x] t10: Verify manifest provenance and audit-related docs/tests still describe TypeScript as current authority. W10 R7 later superseded the Rust parity target with TypeScript CLI/MCP ownership.
+- [x] T6: Review current help/version behavior and decide whether TypeScript runtime/version disclosure needs an immediate update before Rust exists.
+- [x] T7: If runtime/version disclosure changes, update CLI output and tests so support can distinguish package version and runtime implementation.
+- [x] T8: Document that npm and future Rust distributions are alternatives selected by PATH order, not commands users should normally chain together.
+- [x] T9: Keep MCP startup work sequenced behind manifest, audit, backup, and uninstall safety; do not make TypeScript the long-term MCP runtime owner.
+- [x] T10: Verify manifest provenance and audit-related docs/tests still describe TypeScript as current authority. W10 R7 later superseded the Rust parity target with TypeScript CLI/MCP ownership.
 
 ### Acceptance criteria
 

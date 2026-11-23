@@ -45,16 +45,16 @@ The implementation must begin in `packages/docs/template/`. Dogfood and installe
 
 ### Tasks
 
-- [ ] t1: Author the canonical common testing contract at the Phase 1 approved upstream path.
-- [ ] t2: Define exactly four testing types and state that only types that can change the current decision are selected.
-- [ ] t3: Define the common body record fields and plain-language expectations.
-- [ ] t4: Define `focused`, `expanded`, and `release-grade` automated levels, their authority, and their default stop conditions.
-- [ ] t5: Define shared gate effects: `blocking-current-work`, `blocking-claim-only`, `advisory`, `informational`, and `not-applicable`.
-- [ ] t6: Define `not-needed-now`, evidence reuse, rerun triggers, and the rule against false obligations.
-- [ ] t7: Define Human Experience Review as required agent work that can reuse evidence and cannot create a fifth testing type, duplicate verdict, or default human-response gate.
-- [ ] t8: Author the companion testing reference with selection questions, short examples, counterexamples, result interpretation, and specialist-owner links.
-- [ ] t9: Include examples for a small focused change, a justified expanded change, a rejected release-grade request, a valid `not-needed-now` result, and a skipped advisory human activity.
-- [ ] t10: Keep detailed performance and unassisted-human procedures in their specialist resources.
+- [ ] T1: Author the canonical common testing contract at the Phase 1 approved upstream path.
+- [ ] T2: Define exactly four testing types and state that only types that can change the current decision are selected.
+- [ ] T3: Define the common body record fields and plain-language expectations.
+- [ ] T4: Define `focused`, `expanded`, and `release-grade` automated levels, their authority, and their default stop conditions.
+- [ ] T5: Define shared gate effects: `blocking-current-work`, `blocking-claim-only`, `advisory`, `informational`, and `not-applicable`.
+- [ ] T6: Define `not-needed-now`, evidence reuse, rerun triggers, and the rule against false obligations.
+- [ ] T7: Define Human Experience Review as required agent work that can reuse evidence and cannot create a fifth testing type, duplicate verdict, or default human-response gate.
+- [ ] T8: Author the companion testing reference with selection questions, short examples, counterexamples, result interpretation, and specialist-owner links.
+- [ ] T9: Include examples for a small focused change, a justified expanded change, a rejected release-grade request, a valid `not-needed-now` result, and a skipped advisory human activity.
+- [ ] T10: Keep detailed performance and unassisted-human procedures in their specialist resources.
 
 ### Acceptance criteria
 
@@ -72,16 +72,16 @@ The implementation must begin in `packages/docs/template/`. Dogfood and installe
 
 ### Tasks
 
-- [ ] t11: Add the compact body record to the applicable work index, work phase, implementation preflight, and phase-close guidance without adding frontmatter.
-- [ ] t12: Update lifecycle guidance so the agent identifies the current decision before it selects testing.
-- [ ] t13: Require the agent to record maturity, scope, executor, gate effect, effort budget, stop condition, evidence, and rerun trigger only at the point where the record is useful.
-- [ ] t14: Update design and planning guidance to preserve testing risks and specialist requirements without selecting implementation proof too early.
-- [ ] t15: Update PRD-to-work guidance so the backlog derives test work from current PRD authority and current decisions rather than from a standard checklist.
-- [ ] t16: Update implementation and phase-close guidance so affected proof can block only the claim it covers.
-- [ ] t17: Update handoff guidance to preserve selected and skipped types, reasons, gate effects, valid evidence, accepted obligations, and rerun triggers when downstream work needs them.
-- [ ] t18: Keep the common record in Markdown bodies. Reuse current metadata and links.
-- [ ] t19: Add an orphan audit for selected testing, findings, evidence, and obligations at phase and capability close.
-- [ ] t20: Ensure that a user-visible slice, phase number, or test candidate list does not activate all four types.
+- [ ] T11: Add the compact body record to the applicable work index, work phase, implementation preflight, and phase-close guidance without adding frontmatter.
+- [ ] T12: Update lifecycle guidance so the agent identifies the current decision before it selects testing.
+- [ ] T13: Require the agent to record maturity, scope, executor, gate effect, effort budget, stop condition, evidence, and rerun trigger only at the point where the record is useful.
+- [ ] T14: Update design and planning guidance to preserve testing risks and specialist requirements without selecting implementation proof too early.
+- [ ] T15: Update PRD-to-work guidance so the backlog derives test work from current PRD authority and current decisions rather than from a standard checklist.
+- [ ] T16: Update implementation and phase-close guidance so affected proof can block only the claim it covers.
+- [ ] T17: Update handoff guidance to preserve selected and skipped types, reasons, gate effects, valid evidence, accepted obligations, and rerun triggers when downstream work needs them.
+- [ ] T18: Keep the common record in Markdown bodies. Reuse current metadata and links.
+- [ ] T19: Add an orphan audit for selected testing, findings, evidence, and obligations at phase and capability close.
+- [ ] T20: Ensure that a user-visible slice, phase number, or test candidate list does not activate all four types.
 
 ### Acceptance criteria
 
@@ -99,16 +99,16 @@ The implementation must begin in `packages/docs/template/`. Dogfood and installe
 
 ### Tasks
 
-- [ ] t21: Update only the prompts that make or carry testing decisions. Route them to the common contract and reference.
-- [ ] t22: Add short prompt guidance for design, plan, implementation preflight, phase close, testing coverage, and human testing requests.
-- [ ] t23: Require human requests to state why the activity is useful now, the goal, expected time and effort, agent preparation, what to notice, gate effect, stop or cleanup, and feedback use.
-- [ ] t24: Put optional setup and troubleshooting after the normal human path.
-- [ ] t25: Remove or revise active prompt text that asks a person to repeat agent-run assertions or inspect raw internal payloads without a human reason.
-- [ ] t26: Add one short universal testing rule and common resource pointer to managed agent router sources.
-- [ ] t27: Route Performance Testing to PRD 48 resources, Unassisted Goal Testing to PRD 46 resources, Persona to PRD 47, and Human Experience to PRD 49.
-- [ ] t28: Do not copy the full common contract into `AGENTS.md`, `CLAUDE.md`, or any harness-specific router.
-- [ ] t29: Preserve user-authored router text and unmanaged content during managed-block updates.
-- [ ] t30: Distinguish the normal Guided Progress Review participant from the qualified Unassisted Goal Test executor in every affected prompt and router.
+- [ ] T21: Update only the prompts that make or carry testing decisions. Route them to the common contract and reference.
+- [ ] T22: Add short prompt guidance for design, plan, implementation preflight, phase close, testing coverage, and human testing requests.
+- [ ] T23: Require human requests to state why the activity is useful now, the goal, expected time and effort, agent preparation, what to notice, gate effect, stop or cleanup, and feedback use.
+- [ ] T24: Put optional setup and troubleshooting after the normal human path.
+- [ ] T25: Remove or revise active prompt text that asks a person to repeat agent-run assertions or inspect raw internal payloads without a human reason.
+- [ ] T26: Add one short universal testing rule and common resource pointer to managed agent router sources.
+- [ ] T27: Route Performance Testing to PRD 48 resources, Unassisted Goal Testing to PRD 46 resources, Persona to PRD 47, and Human Experience to PRD 49.
+- [ ] T28: Do not copy the full common contract into `AGENTS.md`, `CLAUDE.md`, or any harness-specific router.
+- [ ] T29: Preserve user-authored router text and unmanaged content during managed-block updates.
+- [ ] T30: Distinguish the normal Guided Progress Review participant from the qualified Unassisted Goal Test executor in every affected prompt and router.
 
 ### Acceptance criteria
 
@@ -126,16 +126,16 @@ The implementation must begin in `packages/docs/template/`. Dogfood and installe
 
 ### Tasks
 
-- [ ] t31: Add the approved contract and reference to the upstream system-resource catalog and generated-asset expectations.
-- [ ] t32: Update resource identity, stable URI, provider, resolver, and link expectations without creating a new resource type.
-- [ ] t33: Update package template inclusion and prepack expectations for the new resources.
-- [ ] t34: Materialize reviewed upstream changes into this repository's `.make-docs/` dogfood instance through the normal controlled path.
-- [ ] t35: Compare each dogfood resource with its upstream authority and document any allowed projection difference.
-- [ ] t36: Run focused resource-provider, resolver, catalog, consistency, template-link, router-preservation, and document-shape checks.
-- [ ] t37: Add failure fixtures for a missing shared resource, copied full policy in a router, an advisory activity made blocking, and a body record that omits a stop condition.
-- [ ] t38: Verify that the resource can be found from supported router paths and by stable identity.
-- [ ] t39: Have the agent review all human-facing examples with the Human Experience lens. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise. Keep any human try-it handoff optional unless an explicit gate applies.
-- [ ] t40: Record the Phase 2 capability status, evidence, findings, obligations, and current testing decisions before Phase 3 starts.
+- [ ] T31: Add the approved contract and reference to the upstream system-resource catalog and generated-asset expectations.
+- [ ] T32: Update resource identity, stable URI, provider, resolver, and link expectations without creating a new resource type.
+- [ ] T33: Update package template inclusion and prepack expectations for the new resources.
+- [ ] T34: Materialize reviewed upstream changes into this repository's `.make-docs/` dogfood instance through the normal controlled path.
+- [ ] T35: Compare each dogfood resource with its upstream authority and document any allowed projection difference.
+- [ ] T36: Run focused resource-provider, resolver, catalog, consistency, template-link, router-preservation, and document-shape checks.
+- [ ] T37: Add failure fixtures for a missing shared resource, copied full policy in a router, an advisory activity made blocking, and a body record that omits a stop condition.
+- [ ] T38: Verify that the resource can be found from supported router paths and by stable identity.
+- [ ] T39: Have the agent review all human-facing examples with the Human Experience lens. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise. Keep any human try-it handoff optional unless an explicit gate applies.
+- [ ] T40: Record the Phase 2 capability status, evidence, findings, obligations, and current testing decisions before Phase 3 starts.
 
 ### Acceptance criteria
 

@@ -13,9 +13,9 @@ Trace PRD 21 into implementation surfaces and living risk entries.
 
 ### Tasks
 
-- [x] t1: Map PRD 21 requirements to architecture, manifest, template, package, audit, and validation surfaces.
-- [x] t2: Identify existing risk-register entries affected by the tool-directory migration.
-- [x] t3: Confirm no runtime state is proposed for `docs/assets/**`.
+- [x] T1: Map PRD 21 requirements to architecture, manifest, template, package, audit, and validation surfaces.
+- [x] T2: Identify existing risk-register entries affected by the tool-directory migration.
+- [x] T3: Confirm no runtime state is proposed for `docs/assets/**`.
 
 ### Acceptance Criteria
 

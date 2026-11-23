@@ -20,10 +20,10 @@ This phase changes future-facing product contracts and deterministic path knowle
 
 ### Tasks
 
-- [x] t1: Update lifecycle, planning, execution, output, path-hygiene, archive, history/breadcrumb, and router reference docs to use `docs/assets/artifacts/**`, `docs/assets/archive/**`, and `docs/assets/breadcrumbs/**` for future-facing targets.
-- [x] t2: Update design, plan, PRD, work, guide, playbook, archive, artifact, and breadcrumb routers so generated agent instructions route to the accepted IA.
-- [x] t3: Update template references from `docs/assets/{prompts,references,templates}/**` to `.make-docs/{contracts,references,templates,scripts}/system/**` according to the phase 1 classification.
-- [x] t4: Preserve historical links in archived plans, completed work, and existing history records unless they are active router/template text.
+- [x] T1: Update lifecycle, planning, execution, output, path-hygiene, archive, history/breadcrumb, and router reference docs to use `docs/assets/artifacts/**`, `docs/assets/archive/**`, and `docs/assets/breadcrumbs/**` for future-facing targets.
+- [x] T2: Update design, plan, PRD, work, guide, playbook, archive, artifact, and breadcrumb routers so generated agent instructions route to the accepted IA.
+- [x] T3: Update template references from `docs/assets/{prompts,references,templates}/**` to `.make-docs/{contracts,references,templates,scripts}/system/**` according to the phase 1 classification.
+- [x] T4: Preserve historical links in archived plans, completed work, and existing history records unless they are active router/template text.
 
 ### Acceptance criteria
 
@@ -46,10 +46,10 @@ This phase changes future-facing product contracts and deterministic path knowle
 
 ### Tasks
 
-- [x] t5: Update catalog and static path definitions so shipped routers and managed asset directories match the W9 R4 IA.
-- [x] t6: Update compatibility classification so legacy top-level `docs/artifacts/**` is a move target, not a supported shipped alias.
-- [x] t7: Update path-hygiene or validation helpers that currently expect top-level archive or artifact targets.
-- [x] t8: Update tests that assert old path families or router fanout.
+- [x] T5: Update catalog and static path definitions so shipped routers and managed asset directories match the W9 R4 IA.
+- [x] T6: Update compatibility classification so legacy top-level `docs/artifacts/**` is a move target, not a supported shipped alias.
+- [x] T7: Update path-hygiene or validation helpers that currently expect top-level archive or artifact targets.
+- [x] T8: Update tests that assert old path families or router fanout.
 
 ### Acceptance criteria
 

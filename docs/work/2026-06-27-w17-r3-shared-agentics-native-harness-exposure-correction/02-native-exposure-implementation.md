@@ -15,13 +15,13 @@ Replace selected-skill generated stubs with native harness skill directories.
 
 ## Tasks
 
-- [x] t1: Update selected-skill planning so harness outputs are exposure records rather than generated `SKILL.md` forwarding stubs.
-- [x] t2: Add symlink exposure creation for `.claude/skills/<skill-name>/`, `.agents/skills/<skill-name>/`, and matching home-scoped harness roots.
-- [x] t3: Add managed copy-mirror fallback that copies the full canonical skill payload when symlink creation is unavailable, disabled, or rejected by platform policy.
-- [x] t4: Ensure harness-visible `SKILL.md` frontmatter and body come from the real selected skill payload.
-- [x] t5: Add manifest/audit metadata for scope, harness, canonical payload path, exposure path, exposure mode, symlink target, copy-mirror source, fallback reason, and legacy-stub status.
-- [x] t6: Update dry-run, sync, and skills UI output to display canonical payloads, symlink exposures, copy mirrors, and legacy stubs as distinct roles.
-- [x] t7: Keep default installs and no-skill profiles free of selected-skill payloads and harness exposures.
+- [x] T1: Update selected-skill planning so harness outputs are exposure records rather than generated `SKILL.md` forwarding stubs.
+- [x] T2: Add symlink exposure creation for `.claude/skills/<skill-name>/`, `.agents/skills/<skill-name>/`, and matching home-scoped harness roots.
+- [x] T3: Add managed copy-mirror fallback that copies the full canonical skill payload when symlink creation is unavailable, disabled, or rejected by platform policy.
+- [x] T4: Ensure harness-visible `SKILL.md` frontmatter and body come from the real selected skill payload.
+- [x] T5: Add manifest/audit metadata for scope, harness, canonical payload path, exposure path, exposure mode, symlink target, copy-mirror source, fallback reason, and legacy-stub status.
+- [x] T6: Update dry-run, sync, and skills UI output to display canonical payloads, symlink exposures, copy mirrors, and legacy stubs as distinct roles.
+- [x] T7: Keep default installs and no-skill profiles free of selected-skill payloads and harness exposures.
 
 ## Acceptance Criteria
 

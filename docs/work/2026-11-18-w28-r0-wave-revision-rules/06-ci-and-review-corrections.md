@@ -60,13 +60,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Replace both regular-expression HTML-comment strips in `snapshot.ts` with one comment-aware `stripHtmlComments` scan. It removes unterminated comments to the end of the text and re-scans until no `<!--` remains. Add tests for overlapping and nested cases.
-- [x] t2: Make `nextPhase` count linked phase numbers whose files are missing. Make record-level `committed` check the index and every linked phase. Normalize Git paths when the target is a repository subdirectory. Report a Change History entry whose heading is not level 3.
-- [x] t3: Reorder the Wave Model decision procedure, PRD 14 R-COORD-4, and the design procedure:
+- [x] T1: Replace both regular-expression HTML-comment strips in `snapshot.ts` with one comment-aware `stripHtmlComments` scan. It removes unterminated comments to the end of the text and re-scans until no `<!--` remains. Add tests for overlapping and nested cases.
+- [x] T2: Make `nextPhase` count linked phase numbers whose files are missing. Make record-level `committed` check the index and every linked phase. Normalize Git paths when the target is a repository subdirectory. Report a Change History entry whose heading is not level 3.
+- [x] T3: Reorder the Wave Model decision procedure, PRD 14 R-COORD-4, and the design procedure:
   - a stated coordinate still goes through the deviation test and the owner gates;
   - the archived-lineage check comes before any lineage decision;
   - the `w1-r0` fallback applies inside the outcome test.
-- [x] t4: Correct the user and maintainer guides that CodeRabbit flagged. They now name the owner gates, new and revision Wave backlogs, and in-place owning-PRD updates instead of change documents.
+- [x] T4: Correct the user and maintainer guides that CodeRabbit flagged. They now name the owner gates, new and revision Wave backlogs, and in-place owning-PRD updates instead of change documents.
 
 ### Acceptance criteria
 

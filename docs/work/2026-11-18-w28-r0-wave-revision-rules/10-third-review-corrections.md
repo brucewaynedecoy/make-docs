@@ -61,10 +61,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Name `--target <folder>` in the `make-docs setup skills` route when setup ran with a target, and quote a folder that is not shell-safe. Count the Skill changes setup leaves again after setup plans again. Update the tests.
-- [x] t2: Track HTML comment and fenced code state together when the snapshot masks code, so a fence marker inside a comment opens no block. Close a fenced block only on a line of the same marker, at least as long as the opener. Add tests.
-- [x] t3: Record the deferred backlog review display findings as D-056 and the widget refresh finding as D-057 in PRD 03.
-- [x] t4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
+- [x] T1: Name `--target <folder>` in the `make-docs setup skills` route when setup ran with a target, and quote a folder that is not shell-safe. Count the Skill changes setup leaves again after setup plans again. Update the tests.
+- [x] T2: Track HTML comment and fenced code state together when the snapshot masks code, so a fence marker inside a comment opens no block. Close a fenced block only on a line of the same marker, at least as long as the opener. Add tests.
+- [x] T3: Record the deferred backlog review display findings as D-056 and the widget refresh finding as D-057 in PRD 03.
+- [x] T4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
 
 ### Acceptance criteria
 

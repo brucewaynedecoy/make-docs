@@ -54,15 +54,15 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Admit the nine operations in the registry under `work`, with their MCP names, in the `backlog` and `workflow` profiles.
-- [ ] t2: Run sync at the start of each operation and include its outcome in the result.
-- [ ] t3: Build `next` with ready units and the reason each open, not-ready unit waits.
-- [ ] t4: Build `claim`, `release`, `report`, and `close` with the P1 claim rules, write permission, and `expectedVersion`.
-- [ ] t5: Build `status` with the authority mode and its reason in human words first, and exact detail in machine output.
-- [ ] t6: Build `export` for checkouts with copies off, and `export --quick <path>` for quick items.
-- [ ] t9: Build `add` for quick items with the next plain quick item number of the project.
-- [ ] t10: Accept `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/tasks/<n>` in the shared resource resolver, CLI `resource read`, the `resource_read` tool, and native MCP resource reads. Resolve the project by name or project ID only. Open a read-only Store session only for project URIs.
-- [ ] t11: Accept `make-docs://project/<project>/backlog/` and its coordinate paths down to a stage or task, with each unit's readiness, wait reasons, claim, links, and child list.
+- [ ] T1: Admit the nine operations in the registry under `work`, with their MCP names, in the `backlog` and `workflow` profiles.
+- [ ] T2: Run sync at the start of each operation and include its outcome in the result.
+- [ ] T3: Build `next` with ready units and the reason each open, not-ready unit waits.
+- [ ] T4: Build `claim`, `release`, `report`, and `close` with the P1 claim rules, write permission, and `expectedVersion`.
+- [ ] T5: Build `status` with the authority mode and its reason in human words first, and exact detail in machine output.
+- [ ] T6: Build `export` for checkouts with copies off, and `export --quick <path>` for quick items.
+- [ ] T9: Build `add` for quick items with the next plain quick item number of the project.
+- [ ] T10: Accept `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/tasks/<n>` in the shared resource resolver, CLI `resource read`, the `resource_read` tool, and native MCP resource reads. Resolve the project by name or project ID only. Open a read-only Store session only for project URIs.
+- [ ] T11: Accept `make-docs://project/<project>/backlog/` and its coordinate paths down to a stage or task, with each unit's readiness, wait reasons, claim, links, and child list.
 
 ### Acceptance criteria
 
@@ -78,8 +78,8 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t7: Switch `backlog_snapshot` to the store when the store is the authority. Keep schema v2 and add resolved readiness facts.
-- [ ] t8: Keep the file path, unchanged, for checkouts without a Store.
+- [ ] T7: Switch `backlog_snapshot` to the store when the store is the authority. Keep schema v2 and add resolved readiness facts.
+- [ ] T8: Keep the file path, unchanged, for checkouts without a Store.
 
 ### Acceptance criteria
 

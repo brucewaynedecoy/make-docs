@@ -6,11 +6,11 @@ Confirm the implementation scope is still aligned with PRD 26 and the existing r
 
 ## Tasks
 
-- [x] t1: Re-read PRD 26 and affected baseline annotations before implementation.
-- [x] t2: Confirm Q-001, Q-007, and Q-012 remain open unless a later accepted design resolves them.
-- [x] t3: Confirm R-008 and R-014 still describe the active implementation risk.
-- [x] t4: Update source anchors if implementation introduces new operation modules, tests, or package validation helpers.
-- [x] t5: Keep unrelated skill delivery or shared plugin install decisions out of this phase.
+- [x] T1: Re-read PRD 26 and affected baseline annotations before implementation.
+- [x] T2: Confirm Q-001, Q-007, and Q-012 remain open unless a later accepted design resolves them.
+- [x] T3: Confirm R-008 and R-014 still describe the active implementation risk.
+- [x] T4: Update source anchors if implementation introduces new operation modules, tests, or package validation helpers.
+- [x] T5: Keep unrelated skill delivery or shared plugin install decisions out of this phase.
 
 ## Implementation Notes
 

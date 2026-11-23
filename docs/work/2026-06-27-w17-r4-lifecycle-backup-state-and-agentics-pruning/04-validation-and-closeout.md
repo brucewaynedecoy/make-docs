@@ -6,15 +6,15 @@ Close W17 R4 with package-level validation, manual UAT, PRD closeout, and a hist
 
 ## Tasks
 
-- [x] t1 Run `npm test -w packages/cli -- --run tests/backup.test.ts tests/uninstall.test.ts tests/audit.test.ts tests/lifecycle.test.ts tests/install.test.ts tests/skill-catalog.test.ts`.
-- [x] t2 Run `npm run validate:defaults -w packages/cli`.
-- [x] t3 Run `npm run build -w packages/cli`.
-- [x] t4 Run `npm run smoke:pack`.
-- [x] t5 Run `git diff --check` and changed-file Markdown link checks.
-- [x] t6 Run `bash scripts/check-wave-numbering.sh`.
-- [x] t7 Perform manual UAT covering selected-skill install, backup, uninstall/removal pruning, and legacy root `.backup/**` preservation.
-- [x] t8 Reconcile PRD closeout notes and risk-register status after implementation.
-- [x] t9 Create the W17 R4 closeout history record under `docs/assets/archive/history/**`.
+- [x] T1 Run `npm test -w packages/cli -- --run tests/backup.test.ts tests/uninstall.test.ts tests/audit.test.ts tests/lifecycle.test.ts tests/install.test.ts tests/skill-catalog.test.ts`.
+- [x] T2 Run `npm run validate:defaults -w packages/cli`.
+- [x] T3 Run `npm run build -w packages/cli`.
+- [x] T4 Run `npm run smoke:pack`.
+- [x] T5 Run `git diff --check` and changed-file Markdown link checks.
+- [x] T6 Run `bash scripts/check-wave-numbering.sh`.
+- [x] T7 Perform manual UAT covering selected-skill install, backup, uninstall/removal pruning, and legacy root `.backup/**` preservation.
+- [x] T8 Reconcile PRD closeout notes and risk-register status after implementation.
+- [x] T9 Create the W17 R4 closeout history record under `docs/assets/archive/history/**`.
 
 ## Acceptance Criteria
 

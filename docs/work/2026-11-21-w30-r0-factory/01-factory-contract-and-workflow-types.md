@@ -61,13 +61,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: Author `factory-contract.md` upstream with the four standard roles and the fields of a custom role (R-FACTORY-6, R-FACTORY-7, R-FACTORY-8).
-- [ ] t2: Add the capability catalog. List each capability and how setup proves it (R-FACTORY-9, R-FACTORY-10).
-- [ ] t3: Add the readiness states `draft`, `wired`, `ready`, and `drifted`, and what moves a workflow between them (R-FACTORY-12).
-- [ ] t4: Add the escalation floor, the message rules, and acceptance at the end of the given scope (R-FACTORY-37, R-FACTORY-38, R-FACTORY-39).
-- [ ] t5: Add the working rules, the limits and their defaults, and the backup rule outside git (R-FACTORY-20, R-FACTORY-40 to R-FACTORY-46).
-- [ ] t6: Add a rule catalog that maps each rule to its CLI check, where one exists, and to its contract text (R-FACTORY-52).
-- [ ] t7: Describe every example tool by capability only.
+- [ ] T1: Author `factory-contract.md` upstream with the four standard roles and the fields of a custom role (R-FACTORY-6, R-FACTORY-7, R-FACTORY-8).
+- [ ] T2: Add the capability catalog. List each capability and how setup proves it (R-FACTORY-9, R-FACTORY-10).
+- [ ] T3: Add the readiness states `draft`, `wired`, `ready`, and `drifted`, and what moves a workflow between them (R-FACTORY-12).
+- [ ] T4: Add the escalation floor, the message rules, and acceptance at the end of the given scope (R-FACTORY-37, R-FACTORY-38, R-FACTORY-39).
+- [ ] T5: Add the working rules, the limits and their defaults, and the backup rule outside git (R-FACTORY-20, R-FACTORY-40 to R-FACTORY-46).
+- [ ] T6: Add a rule catalog that maps each rule to its CLI check, where one exists, and to its contract text (R-FACTORY-52).
+- [ ] T7: Describe every example tool by capability only.
 
 ### Acceptance criteria
 
@@ -84,11 +84,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t8: Author `build-then-review.md`, `lead-and-specialists.md`, and `staged-backlog.md` upstream. Each names its roles, the capabilities each role needs, its steps, its limits, its integration owner rule for parallel work, and what it returns (R-FACTORY-17, R-FACTORY-18, R-FACTORY-20, R-FACTORY-42).
-- [ ] t9: Define the repo path and fields for a project-owned workflow type, and the rule that it never replaces a shipped type silently (R-FACTORY-19).
-- [ ] t10: Add the optional preflight step to the workflow type fields (R-FACTORY-21).
-- [ ] t11: Project the four resources into the package, then reseed them into this repository's `.make-docs/`.
-- [ ] t12: Map each design decision to one contract or workflow type section, and record the map for the reviewer.
+- [ ] T8: Author `build-then-review.md`, `lead-and-specialists.md`, and `staged-backlog.md` upstream. Each names its roles, the capabilities each role needs, its steps, its limits, its integration owner rule for parallel work, and what it returns (R-FACTORY-17, R-FACTORY-18, R-FACTORY-20, R-FACTORY-42).
+- [ ] T9: Define the repo path and fields for a project-owned workflow type, and the rule that it never replaces a shipped type silently (R-FACTORY-19).
+- [ ] T10: Add the optional preflight step to the workflow type fields (R-FACTORY-21).
+- [ ] T11: Project the four resources into the package, then reseed them into this repository's `.make-docs/`.
+- [ ] T12: Map each design decision to one contract or workflow type section, and record the map for the reviewer.
 
 ### Acceptance criteria
 

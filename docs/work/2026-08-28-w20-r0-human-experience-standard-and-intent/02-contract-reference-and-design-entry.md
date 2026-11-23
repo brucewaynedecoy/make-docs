@@ -40,11 +40,11 @@ The conditional section is necessary but not sufficient. Structural validation c
 
 ### Tasks
 
-- [x] t1: Add `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md` as the sole normative source for the Human Experience Standard.
-- [x] t2: Define `direct`, `indirect`, and `none`, the conditional section forms, field order, design position, lifecycle propagation, evidence levels, validation limits, and prospective activation in the contract.
-- [x] t3: Add `packages/docs/template/.make-docs/system/references/human-experience.md` with adaptable guidance for commands, interfaces, documents, APIs, workflows, file trees, and indirect effects.
-- [x] t4: Add examples and counterexamples for orientation, continuity, meaning, information amount, next action, recovery, control, terminology, human-and-machine separation, and valid `none` cases.
-- [x] t5: Review the reference to ensure that it explains the contract without adding a second policy source.
+- [x] T1: Add `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md` as the sole normative source for the Human Experience Standard.
+- [x] T2: Define `direct`, `indirect`, and `none`, the conditional section forms, field order, design position, lifecycle propagation, evidence levels, validation limits, and prospective activation in the contract.
+- [x] T3: Add `packages/docs/template/.make-docs/system/references/human-experience.md` with adaptable guidance for commands, interfaces, documents, APIs, workflows, file trees, and indirect effects.
+- [x] T4: Add examples and counterexamples for orientation, continuity, meaning, information amount, next action, recovery, control, terminology, human-and-machine separation, and valid `none` cases.
+- [x] T5: Review the reference to ensure that it explains the contract without adding a second policy source.
 
 ### Acceptance criteria
 
@@ -62,13 +62,13 @@ The conditional section is necessary but not sufficient. Structural validation c
 
 ### Tasks
 
-- [x] t6: Update the upstream design contract so each activated design has exactly one `## Human Experience Intent` section after `## Context` and before `## Decision`.
-- [x] t7: Update the upstream design template with the direct or indirect fields: `Impact`, `Affected humans`, `Human goal or effect`, `Experience promises`, `Complexity kept out of the human path`, and `Evidence required`.
-- [x] t8: Add the short `none` form with `Impact`, `Reason`, `Preserved experience`, and `Evidence required`.
-- [x] t9: Update the design workflow so the agent evaluates the change's human effect, not the fact that a person can read the design document.
-- [x] t10: Update the request-to-design prompt so the agent resolves Persona or human roles, states the goal before implementation detail, states observable promises, and stops for a missing product choice.
-- [x] t11: Keep Human Experience data in the document body. Do not add first-release frontmatter fields.
-- [x] t12: Add direct, indirect, none, misleading headless or agent-facing, and missing-product-choice examples to the design-generation fixture set.
+- [x] T6: Update the upstream design contract so each activated design has exactly one `## Human Experience Intent` section after `## Context` and before `## Decision`.
+- [x] T7: Update the upstream design template with the direct or indirect fields: `Impact`, `Affected humans`, `Human goal or effect`, `Experience promises`, `Complexity kept out of the human path`, and `Evidence required`.
+- [x] T8: Add the short `none` form with `Impact`, `Reason`, `Preserved experience`, and `Evidence required`.
+- [x] T9: Update the design workflow so the agent evaluates the change's human effect, not the fact that a person can read the design document.
+- [x] T10: Update the request-to-design prompt so the agent resolves Persona or human roles, states the goal before implementation detail, states observable promises, and stops for a missing product choice.
+- [x] T11: Keep Human Experience data in the document body. Do not add first-release frontmatter fields.
+- [x] T12: Add direct, indirect, none, misleading headless or agent-facing, and missing-product-choice examples to the design-generation fixture set.
 
 ### Acceptance criteria
 
@@ -86,13 +86,13 @@ The conditional section is necessary but not sufficient. Structural validation c
 
 ### Tasks
 
-- [x] t13: Extend the current document-validation owner around `validateGeneratedDocumentMetadata` or add the smallest dedicated design-body validator if separation is clearer.
-- [x] t14: Validate one section in the required position, one allowed impact value, the correct conditional fields, duplicate sections, empty values, and unresolved template placeholders.
-- [x] t15: Implement prospective activation so pre-activation historical designs remain readable and valid.
-- [x] t16: Add passing fixtures for direct, indirect, none, and historical cases.
-- [x] t17: Add structural failing fixtures for missing fields, invalid impact, duplicate section, wrong section order, and unresolved placeholders. Keep a well-formed but misleading `none` claim as an interpretation-review negative under t29; do not automate human meaning.
-- [x] t18: Ensure validator messages state structural facts and useful recovery. Do not report that a design is beautiful, intuitive, joyful, or coherent.
-- [x] t19: Add focused tests for all validator outcomes and for compatibility with existing document metadata validation.
+- [x] T13: Extend the current document-validation owner around `validateGeneratedDocumentMetadata` or add the smallest dedicated design-body validator if separation is clearer.
+- [x] T14: Validate one section in the required position, one allowed impact value, the correct conditional fields, duplicate sections, empty values, and unresolved template placeholders.
+- [x] T15: Implement prospective activation so pre-activation historical designs remain readable and valid.
+- [x] T16: Add passing fixtures for direct, indirect, none, and historical cases.
+- [x] T17: Add structural failing fixtures for missing fields, invalid impact, duplicate section, wrong section order, and unresolved placeholders. Keep a well-formed but misleading `none` claim as an interpretation-review negative under T29; do not automate human meaning.
+- [x] T18: Ensure validator messages state structural facts and useful recovery. Do not report that a design is beautiful, intuitive, joyful, or coherent.
+- [x] T19: Add focused tests for all validator outcomes and for compatibility with existing document metadata validation.
 
 ### Acceptance criteria
 
@@ -111,13 +111,13 @@ The conditional section is necessary but not sufficient. Structural validation c
 
 ### Tasks
 
-- [x] t20: Prove that the existing contract and reference Markdown patterns in `packages/docs/template/.make-docs/system-resources.catalog.json` include the new resources with stable URIs `make-docs://system/contract/human-experience-contract.md` and `make-docs://system/reference/human-experience.md`.
-- [x] t21: Update `packages/cli/src/rules.ts` so applicable install profiles include the new resource paths without creating a new resource family.
-- [x] t22: Verify `packages/cli/src/tool-directory.ts`, provider catalog validation, and resource resolution accept and discover the new files through existing system-resource behavior.
-- [x] t23: Extend resource-provider, resolver, operation-surface, consistency, and template-link tests for list and read behavior, stable identity, local paths, and offline use.
-- [x] t24: Update manifest and package-projection expectations through the supported generation path. Do not hand-author generated manifest state.
-- [x] t25: Project the reviewed upstream files into the repository dogfood instance only after upstream tests pass.
-- [x] t26: Verify upstream, package projection, and dogfood parity under the current source-of-truth contract.
+- [x] T20: Prove that the existing contract and reference Markdown patterns in `packages/docs/template/.make-docs/system-resources.catalog.json` include the new resources with stable URIs `make-docs://system/contract/human-experience-contract.md` and `make-docs://system/reference/human-experience.md`.
+- [x] T21: Update `packages/cli/src/rules.ts` so applicable install profiles include the new resource paths without creating a new resource family.
+- [x] T22: Verify `packages/cli/src/tool-directory.ts`, provider catalog validation, and resource resolution accept and discover the new files through existing system-resource behavior.
+- [x] T23: Extend resource-provider, resolver, operation-surface, consistency, and template-link tests for list and read behavior, stable identity, local paths, and offline use.
+- [x] T24: Update manifest and package-projection expectations through the supported generation path. Do not hand-author generated manifest state.
+- [x] T25: Project the reviewed upstream files into the repository dogfood instance only after upstream tests pass.
+- [x] T26: Verify upstream, package projection, and dogfood parity under the current source-of-truth contract.
 
 ### Acceptance criteria
 
@@ -135,12 +135,12 @@ The conditional section is necessary but not sufficient. Structural validation c
 
 ### Tasks
 
-- [x] t27: Run focused contract, template, validator, catalog, resource, consistency, and link tests.
-- [x] t28: Run the current `npm run validate:defaults` command and record the result.
-- [x] t29: Review direct, indirect, none, misleading, and historical fixtures against PRD 49 and the canonical contract.
-- [x] t30: Apply required Human Experience Review to the design-entry promises. Reuse the fixture and validator evidence. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise.
-- [x] t31: Give each material finding a disposition. Remediate and repeat affected proof, accept a bounded caveat or narrower claim, or record partial status. Create a durable obligation only when an accepted future outcome remains owed.
-- [x] t32: Record Phase 2 requirement dispositions and capability status with evidence.
+- [x] T27: Run focused contract, template, validator, catalog, resource, consistency, and link tests.
+- [x] T28: Run the current `npm run validate:defaults` command and record the result.
+- [x] T29: Review direct, indirect, none, misleading, and historical fixtures against PRD 49 and the canonical contract.
+- [x] T30: Apply required Human Experience Review to the design-entry promises. Reuse the fixture and validator evidence. Record `satisfied`, `material gap`, or `insufficient evidence` for each applicable promise.
+- [x] T31: Give each material finding a disposition. Remediate and repeat affected proof, accept a bounded caveat or narrower claim, or record partial status. Create a durable obligation only when an accepted future outcome remains owed.
+- [x] T32: Record Phase 2 requirement dispositions and capability status with evidence.
 
 ### Acceptance criteria
 
@@ -249,7 +249,7 @@ Reviewer: the implementing agent. The reviewed surface is source and installed M
 | --- | --- |
 | System resources | `create` for the contract/reference; `update-existing` for the four design-entry resources. Upstream, package, and local projection match. The approved sync also refreshes the existing UAT reference and retires the old contract with a retained backup. |
 | PRDs | `update-existing` for the R-033 delivery finding and its resolution; `none` for other PRDs because the implementation follows existing requirements. |
-| Plan and work | `update-existing` for this phase and index. Clarify t17 and t20 under the accepted P1 trace, without changing task IDs or product policy. |
+| Plan and work | `update-existing` for this phase and index. Clarify T17 and T20 under the accepted P1 trace, without changing task IDs or product policy. |
 | Developer and user guides | `none`: the shared contract, reference, and design workflow own the new entry. No separate guide or Skill is needed. |
 | History | `create`: one current session record at the current `.make-docs/archive/history/` path. Current PRD/path authority and the accepted P1 route govern over the installed history resource's old path. |
 | Obligations and scenarios | `none`: no newly accepted future outcome or activated human test. Existing P3–P5 work keeps its owners. |

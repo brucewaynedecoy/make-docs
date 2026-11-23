@@ -60,7 +60,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Correct the Store README and code comments: callers, backup names, recovery paths, and table counts.
+- [ ] T1: Correct the Store README and code comments: callers, backup names, recovery paths, and table counts.
 
 ### Acceptance criteria
 
@@ -70,9 +70,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t2: Copy the maintainer machine's Store to a temporary folder. Run `project list`, `setup store check`, and `setup store clean` on the copy with `MAKE_DOCS_HOME` pointed at it. Never run `clean` on the real Store.
-- [ ] t3: On the copy, confirm that a `sqlite3` write fails after the migration and that a removed trigger is reported as `store-unsafe`.
-- [ ] t4: Run `PERF-005` on the copy and record the vacuum decision.
+- [ ] T2: Copy the maintainer machine's Store to a temporary folder. Run `project list`, `setup store check`, and `setup store clean` on the copy with `MAKE_DOCS_HOME` pointed at it. Never run `clean` on the real Store.
+- [ ] T3: On the copy, confirm that a `sqlite3` write fails after the migration and that a removed trigger is reported as `store-unsafe`.
+- [ ] T4: Run `PERF-005` on the copy and record the vacuum decision.
 
 ### Acceptance criteria
 
@@ -84,9 +84,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t5: Run the full test suite and record known failures.
-- [ ] t6: Complete a Human Experience Review for each promise in the index, and record evidence in `evidence.md`.
-- [ ] t7: Update register D-062 with the result.
+- [ ] T5: Run the full test suite and record known failures.
+- [ ] T6: Complete a Human Experience Review for each promise in the index, and record evidence in `evidence.md`.
+- [ ] T7: Update register D-062 with the result.
 
 ### Acceptance criteria
 

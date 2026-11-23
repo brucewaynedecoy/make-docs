@@ -38,10 +38,10 @@ Current execution uses the [2026-10-08 recovery limits](../../plans/2026-09-24-w
 ### Automated Implementation Testing
 
 - Testing type: Automated Implementation Testing — `required`.
-- Decision informed: Whether one candidate supports t1-t3 and A51-A55 without a current source/package/installed gap.
+- Decision informed: Whether one candidate supports T1-T3 and A51-A55 without a current source/package/installed gap.
 - Reason now: This phase claims assembled and installed paths that prior source/mock proof did not establish.
 - Product maturity: Pre-release candidate with bounded source, package, installed, and selected Codex host qualification.
-- Scope: One candidate; full source suite required by t1 plus targeted P7 parity/safety probes; one package and disposable installed proof set; route/profile/resource/renderer/Store-state matrix. Reuse unchanged UI evidence.
+- Scope: One candidate; full source suite required by T1 plus targeted P7 parity/safety probes; one package and disposable installed proof set; route/profile/resource/renderer/Store-state matrix. Reuse unchanged UI evidence.
 - Executor: Code/validation agent, with independent coordinator review.
 - Gate effect: `blocking-claim-only` for candidate parity, safety, access, consent, and current review claims.
 - Effort budget: One initial focused/assembled acceptance batch, one package/isolated-installed proof set, and one affected retry per material finding within 90 minutes and $0. The clock starts with the first acceptance batch and excludes external approval waits. No new environment or broad repeat for reassurance.
@@ -323,9 +323,9 @@ The owner delegated the choice to approve the 73-record fixture or waive A56. Th
 
 ### Tasks
 
-- [x] t1: Run full source, package, installed, profile, operation, resource, route, renderer, and Store-state tests.
-- [x] t2: Prove live, explicit static, and chat fallback from the installed Skill.
-- [x] t3: Prove safe content, access, no hidden writes, and complete package assets.
+- [x] T1: Run full source, package, installed, profile, operation, resource, route, renderer, and Store-state tests.
+- [x] T2: Prove live, explicit static, and chat fallback from the installed Skill.
+- [x] T3: Prove safe content, access, no hidden writes, and complete package assets.
 
 ### Acceptance criteria
 
@@ -339,9 +339,9 @@ The owner delegated the choice to approve the 73-record fixture or waive A56. Th
 
 ### Tasks
 
-- [x] t4: Record the terminal A56 waiver in `PERF-002` version 3 and preserve the unrun version-2 plan. No measured pass is claimed.
-- [x] t5: Review wide, narrow, light, dark, print, keyboard, focus, and reduced-motion behavior.
-- [x] t6: Review refresh, changed-state, Explain, Work, and fallback experiences within the combined actual Codex and installed functional evidence scope.
+- [x] T4: Record the terminal A56 waiver in `PERF-002` version 3 and preserve the unrun version-2 plan. No measured pass is claimed.
+- [x] T5: Review wide, narrow, light, dark, print, keyboard, focus, and reduced-motion behavior.
+- [x] T6: Review refresh, changed-state, Explain, Work, and fallback experiences within the combined actual Codex and installed functional evidence scope.
 
 ### Acceptance criteria
 
@@ -361,7 +361,7 @@ The owner delegated the choice to approve the 73-record fixture or waive A56. Th
 
 ## Current P7 Progress
 
-t1–t3 have bounded source, private-package, and installed proof for the earlier repair-1 candidate. t4 is complete by the W25-only A56 waiver, not by a measurement pass. t5 is complete for the selected macOS Codex host and static browser path in the final installed Human Experience Review. t6 has bounded actual Codex refresh, changed-state, Explain, and Work observations plus installed fallback checks. No unsupported-native-host fallback claim exists. A51–A55 remain open for the full current-package and host scope. A57 records no unsupported speed or scale claim. A58 passes for the tested hosts and paths. A59 is advisory. The current browser-hash package passes clear same-chat Explain and Work delivery with short references. A duplicate Explain click showed `Already sent to chat`. The strict agent resolver refused stale and mismatched-wave inputs. A60 passes only in the tested Codex and resolver scope.
+T1–T3 have bounded source, private-package, and installed proof for the earlier repair-1 candidate. T4 is complete by the W25-only A56 waiver, not by a measurement pass. T5 is complete for the selected macOS Codex host and static browser path in the final installed Human Experience Review. T6 has bounded actual Codex refresh, changed-state, Explain, and Work observations plus installed fallback checks. No unsupported-native-host fallback claim exists. A51–A55 remain open for the full current-package and host scope. A57 records no unsupported speed or scale claim. A58 passes for the tested hosts and paths. A59 is advisory. The current browser-hash package passes clear same-chat Explain and Work delivery with short references. A duplicate Explain click showed `Already sent to chat`. The strict agent resolver refused stale and mismatched-wave inputs. A60 passes only in the tested Codex and resolver scope.
 
 The [P8 claim ledger](08-evidence-and-scope-correction.md#a51a60-claim-ledger) classifies each claim and the [single recovery summary](evidence.md#recovery-closeout-summary) preserves the exact candidate and host observations. P7 and W25 remain active. The P8 gate awaits review. No commit, push, publication, or release is implied.
 

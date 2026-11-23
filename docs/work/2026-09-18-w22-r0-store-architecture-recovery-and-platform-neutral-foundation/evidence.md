@@ -714,7 +714,7 @@ The proposed target can be checked against HX-1 through HX-6 only after each dec
 
 P1 is complete as of 2026-09-18.
 
-Tasks t1 through t12 are complete.
+Tasks T1 through T12 are complete.
 
 D1 through D8 have an owner disposition. P2 is unblocked by P1 authority, but P2 has not been authorized or started. Product implementation remains unauthorized.
 
@@ -826,7 +826,7 @@ The corpus-wide documentation index reports 247 older broken-link findings. None
 
 ### P2 Gate
 
-Tasks t1 through t12 are complete.
+Tasks T1 through T12 are complete.
 
 The owner accepted this current product contract on 2026-09-19. P2 is closed. No implementation blocker or unsettled product choice remains in P2.
 
@@ -910,7 +910,7 @@ The risk-list fixture does not exercise P3 platform behavior. It remains a visib
 
 ### P3 Gate
 
-Tasks t1 through t12 are complete. Acceptance criteria A13 through A19 are satisfied within the recorded evidence and limits.
+Tasks T1 through T12 are complete. Acceptance criteria A13 through A19 are satisfied within the recorded evidence and limits.
 
 The durable schema no longer depends on low-level file identity. The real-platform contract cases agree on public meaning. The owner authorized closeout on 2026-09-19. P3 is closed.
 
@@ -979,7 +979,7 @@ The W23 fixture does not exercise P4 harness, setup, Store-access, recovery, res
 
 ### P4 Gate
 
-Tasks t1 through t13 are complete. Acceptance criteria A20 through A27 are satisfied within the recorded evidence and limits.
+Tasks T1 through T13 are complete. Acceptance criteria A20 through A27 are satisfied within the recorded evidence and limits.
 
 Harness receipt history is separate from current caller proof. Setup and recovery use the accepted service boundary. Store-free work remains available. New projection writes have one owner for each fact. The owner authorized closeout on 2026-09-19. P4 is closed.
 
@@ -1046,7 +1046,7 @@ The W23 fixture does not exercise the P5 bridge, migration, setup, Store, or rec
 
 ### P5 Gate
 
-Tasks t1 through t16 are complete. Acceptance criteria A28 through A35 have source-level evidence within the recorded P6 and W23 limits.
+Tasks T1 through T16 are complete. Acceptance criteria A28 through A35 have source-level evidence within the recorded P6 and W23 limits.
 
 The owner authorized closeout on 2026-09-19. P5 is closed. P6 needs separate explicit authority.
 
@@ -1158,7 +1158,7 @@ This handoff is optional. Silence or no feedback does not reopen P6.
 
 ### P6 Gate
 
-Tasks t1 through t13 are complete. Acceptance criteria A36 through A44 are satisfied within the recorded evidence and limits.
+Tasks T1 through T13 are complete. Acceptance criteria A36 through A44 are satisfied within the recorded evidence and limits.
 
 One exact package passed the required source and installed-package gates on Windows, macOS, and Linux. The final comparison passed. The six W22 PRD risk records and all known W22 symptom chains have exact close evidence. No W22 deferred obligation or platform exception remains open.
 
@@ -1326,7 +1326,7 @@ This review does not support Stage 1 closeout. It does not claim real-platform i
 | First full-suite attempt and corrective checks | Failed: one backup test exceeded its 15-second test limit, and two retired-resource tests exposed a fail-closed regression. The backup case passed alone: 1 of 1. The retired-resource repair passed its focused checks. |
 | Final full CLI suite | Passed with the standard npm test command and an isolated `MAKE_DOCS_HOME`: 92 test files passed and 1 test file skipped; 1,468 tests passed and 5 installed-platform tests skipped; 1,473 tests total. The backup case passed in this run in 11.855 seconds. |
 
-These source results satisfy t1 through t8 and A45 through A49. They do not identify or prove the exact Stage 2 candidate on Windows, macOS, and Linux.
+These source results satisfy T1 through T8 and A45 through A49. They do not identify or prove the exact Stage 2 candidate on Windows, macOS, and Linux.
 
 ### Pull-Request Review Correction
 
@@ -1379,7 +1379,7 @@ This review supports Stage 1 closeout only. It does not claim real-platform inst
 
 ### P7 Gate
 
-Tasks t1 through t20 are complete. Acceptance criteria A45 through A56 pass. The earlier failure evidence, rejected candidates, and interim review gaps remain part of the record.
+Tasks T1 through T20 are complete. Acceptance criteria A45 through A56 pass. The earlier failure evidence, rejected candidates, and interim review gaps remain part of the record.
 
 The final exact candidate and live result are recorded in the P8 final acceptance section below because the accepted P8 corrections completed the same public recovery path. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the source, exact candidate, installed Ubuntu, installed macOS, installed Windows, and final comparison jobs. The live Make Docs and North Atlantic results completed without cross-project interference or deep-command recovery.
 
@@ -1441,7 +1441,7 @@ Reviewer: Codex agent.
 
 ### Reopened P7 Gate
 
-At this intermediate gate, Stage 3 tasks t16 through t19 and acceptance criteria A53 through A55 passed in source. Task t20 and A56 remained open. The next gate was one exact repaired package with comparable Windows, macOS, and Linux results, followed by separately approved local installation and live setup.
+At this intermediate gate, Stage 3 tasks T16 through T19 and acceptance criteria A53 through A55 passed in source. Task T20 and A56 remained open. The next gate was one exact repaired package with comparable Windows, macOS, and Linux results, followed by separately approved local installation and live setup.
 
 P7 and D-038 remained open at this point. The later final candidate and live evidence below close them.
 
@@ -1631,7 +1631,7 @@ Final Human Experience Review:
 
 ### Prior P8 Gate - Superseded By Videos Matter Counterevidence
 
-Stage 1 tasks t1 through t7, Stage 2 tasks t8 through t12, and Stage 3 tasks t13 through t19 are complete. Acceptance criteria A57 through A65 pass.
+Stage 1 tasks T1 through T7, Stage 2 tasks T8 through T12, and Stage 3 tasks T13 through T19 are complete. Acceptance criteria A57 through A65 pass.
 
 The source and authentic fixtures passed. One exact candidate passed the same installed-package contract on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with status 0, stable Store and project identities, no pending recovery, and no project file change. The recorded limit does not weaken the initial-upgrade proof because the authentic legacy fixture and three-platform installed contract own that transition.
 
@@ -1649,7 +1649,7 @@ The existing `modified-v1` fixture is not authentic for this case. It installs c
 
 ### Reopened P8 Gate
 
-The owner approved the P8 and D-038 authority update and this backlog commit on 2026-09-24. Task t20 is complete. Tasks t21 through t28 and acceptance criteria A66 through A70 are open.
+The owner approved the P8 and D-038 authority update and this backlog commit on 2026-09-24. Task T20 is complete. Tasks T21 through T28 and acceptance criteria A66 through A70 are open.
 
 Implementation has not started. It requires separate owner approval. A new exact-candidate install and the live Videos Matter upgrade also retain their applicable approval gates. P7 remains closed. P8 and D-038 remain open. W22 remains open.
 
@@ -1698,7 +1698,7 @@ The authentic schema-1 fixture now creates an unrecorded current target router. 
 | Package smoke-harness tests | Passed: 19 of 19 tests. |
 | Full CLI source suite | Passed: 93 test files and 1,502 tests. One installed-package file and its 5 platform cases used their normal source skip guard. |
 
-Tasks t21 through t25 are complete. Source evidence satisfies A66 through A68. Tasks t26 through t28 and A69 through A70 remain open. No exact Stage 4 package candidate has been built or installed. No live Videos Matter command ran. P8 and D-038 remain open. P7 remains closed.
+Tasks T21 through T25 are complete. Source evidence satisfies A66 through A68. Tasks T26 through T28 and A69 through A70 remain open. No exact Stage 4 package candidate has been built or installed. No live Videos Matter command ran. P8 and D-038 remain open. P7 remains closed.
 
 The shared checkout also contains separate uncommitted Backlog Review work. Stage 4 did not edit, stage, or commit those files.
 
@@ -1710,7 +1710,7 @@ The candidate was installed for the approved live Videos Matter test. The instal
 
 The live initial upgrade used `make-docs setup --project-resources none --codex-method mcp --claude-code-method mcp`. It completed with status 0. It preserved project `d02d0820-8ca1-4caa-af52-5f81d6dc5ca6` and checkout `3d7f3bfe-8a98-4231-82c1-647649dfdda7`. Store readback was `ready` with no pending operation. The reviewed backup was created. The saved resource selection remained `none`. The user-owned Codex MCP entry remained blocked from product changes, and the Claude Code MCP entry remained current.
 
-The immediate plain-setup repeat exposed a defect. It planned two project changes: generate `docs/assets/AGENTS.md` and `docs/assets/CLAUDE.md`. The live test declined that project apply. No second-run project change occurred. This result fails t27 and A70, so the first candidate is rejected even though its CI and initial live upgrade passed.
+The immediate plain-setup repeat exposed a defect. It planned two project changes: generate `docs/assets/AGENTS.md` and `docs/assets/CLAUDE.md`. The live test declined that project apply. No second-run project change occurred. This result fails T27 and A70, so the first candidate is rejected even though its CI and initial live upgrade passed.
 
 The cause was deterministic. The schema-1 first migration removed exact legacy `docs/assets` root routers while project-owned history and archive content remained below that surface. The new schema-4 manifest then caused the repeat planner to restore the missing root routers. The correction now carries or upgrades the surface routers during the first schema-1 migration whenever unrecorded, project-owned, changed, or otherwise preserved content will remain below that surface. It does not retain the routers when every legacy child is safely removable.
 
@@ -1726,7 +1726,7 @@ The authentic `0.1.0` fixture now includes project-owned history below `docs/ass
 | Package build | Passed with package version `2.0.2`. |
 | Default validation | Passed: 53 of 53 tests. |
 
-Tasks t26 through t28 remain open. A new exact `2.0.2` candidate must pass the Windows, macOS, and Linux installed-package contract. Videos Matter is now in the post-upgrade state. The new candidate must repair the two missing surface routers and then make the immediate repeat plan zero project changes. The authentic fixture and the three-platform installed contract retain responsibility for the direct schema-1 transition. No live reset or rollback is authorized only to recreate that starting state. P8 and D-038 remain open.
+Tasks T26 through T28 remain open. A new exact `2.0.2` candidate must pass the Windows, macOS, and Linux installed-package contract. Videos Matter is now in the post-upgrade state. The new candidate must repair the two missing surface routers and then make the immediate repeat plan zero project changes. The authentic fixture and the three-platform installed contract retain responsibility for the direct schema-1 transition. No live reset or rollback is authorized only to recreate that starting state. P8 and D-038 remain open.
 
 ### Stage 4 Final Exact Candidate And Live Acceptance
 
@@ -1744,7 +1744,7 @@ The immediate plain-setup repeat reported installed and package version `2.0.2`,
 
 Human Experience Review used the actual preview, blocked, success, and repeat output. Codex performed the review, and the owner accepted the result on 2026-09-24. The preview named the two planned project effects. The blocked result clearly stated that approval was missing and made no change. The success result named the synced version and project. The repeat result made current state and zero planned changes visible. The flow preserved control and supplied one safe next action. The only limit is the split live evidence noted above: the final candidate repaired an already-upgraded live project, while the authentic fixture and three-platform installed workflow prove the direct schema-1 transition.
 
-Tasks t20 through t28 and A66 through A70 pass. P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release retain separate gates.
+Tasks T20 through T28 and A66 through A70 pass. P8 and D-038 are closed. P7 remains closed. W22 remains open for revision-level closeout. Publication and release retain separate gates.
 
 ## P9 Windows Store Session Admission Retry
 

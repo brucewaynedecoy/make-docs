@@ -73,9 +73,9 @@ Human Experience Review is required agent work. It is not a fifth testing type. 
 
 ### Tasks
 
-- [x] t1: Define `live`, `static`, and `chat-fallback` delivery results and capability selection.
-- [x] t2: Require an explicit user request before static file generation.
-- [x] t3: Define natural explanations for unsupported UI, transport, Store, and host-task states.
+- [x] T1: Define `live`, `static`, and `chat-fallback` delivery results and capability selection.
+- [x] T2: Require an explicit user request before static file generation.
+- [x] T3: Define natural explanations for unsupported UI, transport, Store, and host-task states.
 
 ### Acceptance criteria
 
@@ -88,9 +88,9 @@ Human Experience Review is required agent work. It is not a fifth testing type. 
 
 ### Tasks
 
-- [x] t4: Define model, snapshot, session, project, and record identities.
-- [x] t5: Define fixed UI action identifiers and allowed message fields.
-- [x] t6: Define the boundary between source facts, cache fragments, agent judgment, and local UI state.
+- [x] T4: Define model, snapshot, session, project, and record identities.
+- [x] T5: Define fixed UI action identifiers and allowed message fields.
+- [x] T6: Define the boundary between source facts, cache fragments, agent judgment, and local UI state.
 
 ### Acceptance criteria
 

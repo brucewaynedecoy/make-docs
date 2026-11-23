@@ -58,12 +58,12 @@ Human Experience Review is separate. Review each promise against the current nor
 
 ### Tasks
 
-- [x] t1: Convert every accepted P1 fact into repository-canonical, Store-canonical, Store-cached, live-machine, short-lived guard, historical, or obsolete state.
-- [x] t2: Update PRDs 02 and 38 with one repository and Store boundary and one project and checkout identity model.
-- [x] t3: Update PRDs 18 and 38 with one operation journal, lock, interruption, recovery, and compatibility rule.
-- [x] t4: Update PRDs 28 and 38 with separate native-entry ownership, current executable proof, operation access, machine approval, and project approval.
-- [x] t5: Update PRDs 06, 07, 24, 25, and 39 with thin setup, Store-free work, one recovery path, and minimal resource projection state.
-- [x] t6: Update PRDs 10 and 16 with equal Windows, macOS, and Linux proof and the bounded platform layer.
+- [x] T1: Convert every accepted P1 fact into repository-canonical, Store-canonical, Store-cached, live-machine, short-lived guard, historical, or obsolete state.
+- [x] T2: Update PRDs 02 and 38 with one repository and Store boundary and one project and checkout identity model.
+- [x] T3: Update PRDs 18 and 38 with one operation journal, lock, interruption, recovery, and compatibility rule.
+- [x] T4: Update PRDs 28 and 38 with separate native-entry ownership, current executable proof, operation access, machine approval, and project approval.
+- [x] T5: Update PRDs 06, 07, 24, 25, and 39 with thin setup, Store-free work, one recovery path, and minimal resource projection state.
+- [x] T6: Update PRDs 10 and 16 with equal Windows, macOS, and Linux proof and the bounded platform layer.
 
 ### Acceptance criteria
 
@@ -87,12 +87,12 @@ Human Experience Review is separate. Review each promise against the current nor
 
 ### Tasks
 
-- [x] t7: Add or update numbered PRD 03 items for confirmed drift, open choices, and rebuild risks. Do not duplicate existing items.
-- [x] t8: Add `2026-09-18 — W22 R0` requirement-history entries to materially changed product PRDs.
-- [x] t9: Update PRD 00 links only where the accepted owner relationships changed.
-- [x] t10: Validate every PRD owner, source link, history entry, risk item, and Human Experience promise mapping.
-- [x] t11: Run PRD authority validation, links, path hygiene, metadata checks, and `git diff --check`.
-- [x] t12: Present the final current-authority change for owner acceptance and record any limit that blocks implementation.
+- [x] T7: Add or update numbered PRD 03 items for confirmed drift, open choices, and rebuild risks. Do not duplicate existing items.
+- [x] T8: Add `2026-09-18 — W22 R0` requirement-history entries to materially changed product PRDs.
+- [x] T9: Update PRD 00 links only where the accepted owner relationships changed.
+- [x] T10: Validate every PRD owner, source link, history entry, risk item, and Human Experience promise mapping.
+- [x] T11: Run PRD authority validation, links, path hygiene, metadata checks, and `git diff --check`.
+- [x] T12: Present the final current-authority change for owner acceptance and record any limit that blocks implementation.
 
 ### Acceptance criteria
 
@@ -110,4 +110,4 @@ Human Experience Review is separate. Review each promise against the current nor
 - Four testing decisions: Automated document checks passed. Guided Progress Review passed through owner acceptance on 2026-09-19. Performance and Unassisted Goal Testing remain `not-needed-now`.
 - Human Experience Review: Per-promise authority coverage, observations, conclusions, reviewer, and limits are recorded in [evidence.md](evidence.md#human-experience-review-1).
 - Evidence report: Validator results and the accepted owner decision are recorded in [evidence.md](evidence.md#validation-evidence).
-- Phase / capability status: Tasks t1 through t12 are complete. P2 is closed. P3 and later code work still require separate explicit implementation approval.
+- Phase / capability status: Tasks T1 through T12 are complete. P2 is closed. P3 and later code work still require separate explicit implementation approval.

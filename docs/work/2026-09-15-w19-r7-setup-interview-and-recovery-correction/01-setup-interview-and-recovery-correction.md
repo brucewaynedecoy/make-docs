@@ -67,11 +67,11 @@ Human Experience Review is separate. It uses V1-V8 to prepare a conclusion for H
 
 ### Tasks
 
-- [ ] t1: Add one source-owned Skills interaction state and renderer. Include list order, active row, detail, selected summary, instructions, keys, empty state, cancellation, and saved result.
-- [ ] t2: Make full setup and `setup skills` call the shared interaction with the same effective manifest, saved selection, scope, harness support, and trust data.
-- [ ] t3: Remove the full-setup path that collects a valid Skill change and rejects it only after the interview. Keep the focused final plan limited to Skill changes.
-- [ ] t4: Move target-checkout pending-operation admission before the first editable question in `setup`, `setup reconfigure`, and `setup skills`. Reuse read-only status state and write nothing on this stop.
-- [ ] t5: Add exact source-level and integration tests for V1 and V2. Cover fresh, existing, empty, all-selected, partial, cancel, changed-selection, and pending states.
+- [ ] T1: Add one source-owned Skills interaction state and renderer. Include list order, active row, detail, selected summary, instructions, keys, empty state, cancellation, and saved result.
+- [ ] T2: Make full setup and `setup skills` call the shared interaction with the same effective manifest, saved selection, scope, harness support, and trust data.
+- [ ] T3: Remove the full-setup path that collects a valid Skill change and rejects it only after the interview. Keep the focused final plan limited to Skill changes.
+- [ ] T4: Move target-checkout pending-operation admission before the first editable question in `setup`, `setup reconfigure`, and `setup skills`. Reuse read-only status state and write nothing on this stop.
+- [ ] T5: Add exact source-level and integration tests for V1 and V2. Cover fresh, existing, empty, all-selected, partial, cancel, changed-selection, and pending states.
 
 ### Acceptance criteria
 
@@ -96,12 +96,12 @@ Human Experience Review is separate. It uses V1-V8 to prepare a conclusion for H
 
 ### Tasks
 
-- [ ] t6: Add a compatible Store schema migration for stable failure code, safe summary, failed stage, and last safe next action. Preserve old rows and privacy limits.
-- [ ] t7: Create one action-selection function for setup admission, status, recovery, CLI JSON, and MCP. Derive its result from plan completeness, steps, ledgers, checkout binding, lock state, and live file evidence.
-- [ ] t8: Implement no-effect rollback for an incomplete zero-step operation with equal ledgers and no active lock. Change only that operation to `rolled-back` with a final time in one Store transaction.
-- [ ] t9: Preserve verified resume and rollback for complete partial plans. Keep changed, unknown, conflicting, and active-writer evidence blocked and intact.
-- [ ] t10: Record safe failure detail before operation context release when the Store remains writable. Preserve the first fault and recovery evidence when failure recording also fails.
-- [ ] t11: Add V3-V5 tests across human, JSON, MCP, restart, unrelated operation, and byte-preservation cases.
+- [ ] T6: Add a compatible Store schema migration for stable failure code, safe summary, failed stage, and last safe next action. Preserve old rows and privacy limits.
+- [ ] T7: Create one action-selection function for setup admission, status, recovery, CLI JSON, and MCP. Derive its result from plan completeness, steps, ledgers, checkout binding, lock state, and live file evidence.
+- [ ] T8: Implement no-effect rollback for an incomplete zero-step operation with equal ledgers and no active lock. Change only that operation to `rolled-back` with a final time in one Store transaction.
+- [ ] T9: Preserve verified resume and rollback for complete partial plans. Keep changed, unknown, conflicting, and active-writer evidence blocked and intact.
+- [ ] T10: Record safe failure detail before operation context release when the Store remains writable. Preserve the first fault and recovery evidence when failure recording also fails.
+- [ ] T11: Add V3-V5 tests across human, JSON, MCP, restart, unrelated operation, and byte-preservation cases.
 
 ### Acceptance criteria
 
@@ -126,11 +126,11 @@ Human Experience Review is separate. It uses V1-V8 to prepare a conclusion for H
 
 ### Tasks
 
-- [ ] t12: Run focused tests, the full CLI suite, default validation, PRD authority validation, link checks, path checks, and `git diff --check`. Separate any old baseline failure from new failures.
-- [ ] t13: Build one tarball after Stage 1 and Stage 2 pass. Record its identity and digest. Install it in isolated homes with isolated Store roots and the repository unavailable.
-- [ ] t14: Run V1-V7 through that exact packed executable. Include the pre-v2 Skills-disabled fixture, old managed blocks, zero-step incomplete operation, complete partial operation, verified backup and rollback, repeat setup, and interaction parity.
-- [ ] t15: Create the central `evidence.md`. Record per-case findings, package identity, environment, before and after inventories, reviewer, limits, and links. Confirm the affected real project and Store stayed unchanged.
-- [ ] t16: Present HX-1 through HX-6 in a Human Experience Review and run the owner Guided Progress Review. Record the owner response, apply corrections, update D-034 and D-035 only when their close rules pass, complete the coverage pass, and prepare the phase closeout for separate commit approval.
+- [ ] T12: Run focused tests, the full CLI suite, default validation, PRD authority validation, link checks, path checks, and `git diff --check`. Separate any old baseline failure from new failures.
+- [ ] T13: Build one tarball after Stage 1 and Stage 2 pass. Record its identity and digest. Install it in isolated homes with isolated Store roots and the repository unavailable.
+- [ ] T14: Run V1-V7 through that exact packed executable. Include the pre-v2 Skills-disabled fixture, old managed blocks, zero-step incomplete operation, complete partial operation, verified backup and rollback, repeat setup, and interaction parity.
+- [ ] T15: Create the central `evidence.md`. Record per-case findings, package identity, environment, before and after inventories, reviewer, limits, and links. Confirm the affected real project and Store stayed unchanged.
+- [ ] T16: Present HX-1 through HX-6 in a Human Experience Review and run the owner Guided Progress Review. Record the owner response, apply corrections, update D-034 and D-035 only when their close rules pass, complete the coverage pass, and prepare the phase closeout for separate commit approval.
 
 ### Acceptance criteria
 

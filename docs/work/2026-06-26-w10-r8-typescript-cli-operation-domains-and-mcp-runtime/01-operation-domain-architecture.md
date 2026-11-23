@@ -6,11 +6,11 @@ Define and implement the modular TypeScript operation-domain structure before mo
 
 ## Tasks
 
-- [x] t1: Define operation domain folders that mirror CLI/MCP command domains.
-- [x] t2: Extract shared operation input, output, error, provenance, and rendering types.
-- [x] t3: Keep dispatch layers thin and free of domain logic.
-- [x] t4: Add focused tests for direct operation-domain invocation without CLI parser or MCP transport.
-- [x] t5: Update developer-facing architecture notes for future operation additions.
+- [x] T1: Define operation domain folders that mirror CLI/MCP command domains.
+- [x] T2: Extract shared operation input, output, error, provenance, and rendering types.
+- [x] T3: Keep dispatch layers thin and free of domain logic.
+- [x] T4: Add focused tests for direct operation-domain invocation without CLI parser or MCP transport.
+- [x] T5: Update developer-facing architecture notes for future operation additions.
 
 ## Acceptance Criteria
 

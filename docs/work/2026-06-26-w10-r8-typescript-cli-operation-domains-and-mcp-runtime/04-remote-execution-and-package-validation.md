@@ -6,11 +6,11 @@ Prove the v2 runtime posture through package-runner execution instead of persist
 
 ## Tasks
 
-- [x] t1: Extend packed-package smoke validation for `npx`.
-- [x] t2: Add packed-package validation for `pnpm dlx`.
-- [x] t3: Add packed-package validation for `bunx` or `bun x`.
-- [x] t4: Use isolated temp roots, HOME, package-manager caches, and project config for each runner.
-- [x] t5: Keep existing package validation gates green.
+- [x] T1: Extend packed-package smoke validation for `npx`.
+- [x] T2: Add packed-package validation for `pnpm dlx`.
+- [x] T3: Add packed-package validation for `bunx` or `bun x`.
+- [x] T4: Use isolated temp roots, HOME, package-manager caches, and project config for each runner.
+- [x] T5: Keep existing package validation gates green.
 
 ## Acceptance Criteria
 

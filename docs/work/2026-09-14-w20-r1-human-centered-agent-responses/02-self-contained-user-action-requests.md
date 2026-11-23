@@ -62,13 +62,13 @@ Human Experience Review is separate required agent review work. It inspects the 
 
 ### Tasks
 
-- [x] t1: Recheck branch, HEAD, dirty state, and the exact P2 allowlist. Stop if a target hunk overlaps user work that cannot be preserved and separated.
-- [x] t2: Read the current P2 plan, PRD 49, PRD 15, Human Experience Contract, Human Experience Reference, Execution Workflow, Output Contract, and upstream-first dogfood contract.
-- [x] t3: Add the exact self-contained user-action rule from the P2 plan to `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md`.
-- [x] t4: Add the five required checklist questions and one weak-versus-useful example to `packages/docs/template/.make-docs/system/references/human-experience.md`.
-- [x] t5: Add a final check to `packages/docs/template/.make-docs/system/references/execution-workflow.md` that a requested action is understandable without another document.
-- [x] t6: Update `packages/docs/template/.make-docs/system/contracts/output-contract.md` to state that a route, coordinate, workflow term, or task ID does not replace a plain-language next step.
-- [x] t7: Audit `packages/docs/template/AGENTS.md`. Record a no-change result unless a small routing correction is required. Do not copy the detailed rule into the router.
+- [x] T1: Recheck branch, HEAD, dirty state, and the exact P2 allowlist. Stop if a target hunk overlaps user work that cannot be preserved and separated.
+- [x] T2: Read the current P2 plan, PRD 49, PRD 15, Human Experience Contract, Human Experience Reference, Execution Workflow, Output Contract, and upstream-first dogfood contract.
+- [x] T3: Add the exact self-contained user-action rule from the P2 plan to `packages/docs/template/.make-docs/system/contracts/human-experience-contract.md`.
+- [x] T4: Add the five required checklist questions and one weak-versus-useful example to `packages/docs/template/.make-docs/system/references/human-experience.md`.
+- [x] T5: Add a final check to `packages/docs/template/.make-docs/system/references/execution-workflow.md` that a requested action is understandable without another document.
+- [x] T6: Update `packages/docs/template/.make-docs/system/contracts/output-contract.md` to state that a route, coordinate, workflow term, or task ID does not replace a plain-language next step.
+- [x] T7: Audit `packages/docs/template/AGENTS.md`. Record a no-change result unless a small routing correction is required. Do not copy the detailed rule into the router.
 
 ### Acceptance criteria
 
@@ -93,12 +93,12 @@ Human Experience Review is separate required agent review work. It inspects the 
 
 ### Tasks
 
-- [x] t8: Use the existing dogfood route to update the four matching files under `.make-docs/system/`. Preserve every unrelated W19 R2 hunk.
-- [x] t9: Update root `AGENTS.md` only if t7 required an upstream router correction. Preserve all text outside the managed block.
-- [x] t10: Add or update focused assertions in `packages/cli/tests/human-experience-resources.test.ts` and `packages/cli/tests/human-experience-propagation.test.ts`.
-- [x] t11: Run `node scripts/copy-template-to-cli.mjs`. Compare the four generated files under `packages/cli/template/` with their upstream sources. Do not author the generated files.
-- [x] t12: Run the focused Human Experience tests, the affected default checks, the CLI build, and the package smoke check.
-- [x] t13: Prove upstream and dogfood byte parity, generated projection parity, router no-change or bounded-correction behavior, and path-limited diff cleanliness.
+- [x] T8: Use the existing dogfood route to update the four matching files under `.make-docs/system/`. Preserve every unrelated W19 R2 hunk.
+- [x] T9: Update root `AGENTS.md` only if T7 required an upstream router correction. Preserve all text outside the managed block.
+- [x] T10: Add or update focused assertions in `packages/cli/tests/human-experience-resources.test.ts` and `packages/cli/tests/human-experience-propagation.test.ts`.
+- [x] T11: Run `node scripts/copy-template-to-cli.mjs`. Compare the four generated files under `packages/cli/template/` with their upstream sources. Do not author the generated files.
+- [x] T12: Run the focused Human Experience tests, the affected default checks, the CLI build, and the package smoke check.
+- [x] T13: Prove upstream and dogfood byte parity, generated projection parity, router no-change or bounded-correction behavior, and path-limited diff cleanliness.
 
 ### Acceptance criteria
 
@@ -120,11 +120,11 @@ Human Experience Review is separate required agent review work. It inspects the 
 
 ### Tasks
 
-- [x] t14: Prepare representative replies for required authorization, optional feedback, a named blocker, a linked audit record, and an internal route or task label.
-- [x] t15: Apply Human Experience Review to each P2 promise. Record the human goal, surface, evidence, observation, conclusion, reviewer limits, and follow-up.
-- [x] t16: Fix accepted in-scope defects and rerun only the affected checks. Stop for any new product decision or scope expansion.
-- [x] t17: Update [evidence.md](evidence.md) with P2 findings, acceptance-case results, and claim limits.
-- [x] t18: Inspect the exact P2 allowlist and hunks. Prove that no W19 R2 P3 change is part of the P2 candidate.
+- [x] T14: Prepare representative replies for required authorization, optional feedback, a named blocker, a linked audit record, and an internal route or task label.
+- [x] T15: Apply Human Experience Review to each P2 promise. Record the human goal, surface, evidence, observation, conclusion, reviewer limits, and follow-up.
+- [x] T16: Fix accepted in-scope defects and rerun only the affected checks. Stop for any new product decision or scope expansion.
+- [x] T17: Update [evidence.md](evidence.md) with P2 findings, acceptance-case results, and claim limits.
+- [x] T18: Inspect the exact P2 allowlist and hunks. Prove that no W19 R2 P3 change is part of the P2 candidate.
 
 ### Acceptance criteria
 
@@ -150,10 +150,10 @@ Human Experience Review is separate required agent review work. It inspects the 
 
 ### Tasks
 
-- [x] t19: Present the P2 closeout, exact allowlist, Human Experience Review, test results, and remaining limits. Request explicit staging authority.
-- [x] t20: Only after staging authority, stage the exact P2 allowlist. Inspect the staged diff and prove that it contains no W19 R2 or unrelated user change.
-- [x] t21: Present the staged result and request separate commit authority.
-- [x] t22: Only after commit authority, read the current commit-message convention, create the P2 commit, and verify its exact contents and status.
+- [x] T19: Present the P2 closeout, exact allowlist, Human Experience Review, test results, and remaining limits. Request explicit staging authority.
+- [x] T20: Only after staging authority, stage the exact P2 allowlist. Inspect the staged diff and prove that it contains no W19 R2 or unrelated user change.
+- [x] T21: Present the staged result and request separate commit authority.
+- [x] T22: Only after commit authority, read the current commit-message convention, create the P2 commit, and verify its exact contents and status.
 
 ### Acceptance criteria
 

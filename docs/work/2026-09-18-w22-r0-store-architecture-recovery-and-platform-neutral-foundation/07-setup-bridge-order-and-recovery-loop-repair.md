@@ -78,14 +78,14 @@ Performance evidence lifecycle fields:
 
 ### Tasks
 
-- [x] t1: Build three authentic fixtures from supported older Make Docs packages. Reproduce the reciprocal setup loop and the later `partial-install` approval, checkpoint-3 `ambiguous-ownership` rejection, and pending-operation creation without using the owner's live Store.
-- [x] t2: Make full setup predict and verify the result of each approved prerequisite. Build one final project plan from that post-prerequisite state. Rebuild the plan before approval if the verified state changes.
-- [x] t3: Run ownership classification, migration admission, migration backup destination, native safety, approval, stale-state, and operation checks against the final plan before operation creation or the first durable write. Prove that a regular file at `.make-docs/backup` creates no pending operation.
-- [x] t4: Make the planner, compatibility classifier, migration coordinator, and executor agree on one reviewed action and result for every managed path. Do not offer approval for a plan that a later checkpoint will reject.
-- [x] t5: Make plain setup detect an interrupted operation and offer its valid resume or restore action. Keep `project state recover` as a support and automation control, not a normal upgrade step. Reject reciprocal or condition-preserving directions.
-- [x] t6: Preserve direct system setup independence, separate machine and project approvals, harness-intent timing, Store backup and journal rules, user files, changed native entries, Store-free work, and equal Windows, macOS, and Linux support.
-- [x] t7: Replace the test that expects the checkpoint-3 dead end with a regression for the required result. Add migration backup preflight, fail-closed retired-resource, human, and JSON cases for preview, block-before-write, success, failure, interruption, resume, restore, repeat, and no-op behavior.
-- [x] t8: Make the regressions pass. Run the focused setup, Store, migration, harness, CLI, JSON, MCP, and operation-boundary tests plus TypeScript and diff checks. Record the earlier passing results as incomplete history, not current acceptance.
+- [x] T1: Build three authentic fixtures from supported older Make Docs packages. Reproduce the reciprocal setup loop and the later `partial-install` approval, checkpoint-3 `ambiguous-ownership` rejection, and pending-operation creation without using the owner's live Store.
+- [x] T2: Make full setup predict and verify the result of each approved prerequisite. Build one final project plan from that post-prerequisite state. Rebuild the plan before approval if the verified state changes.
+- [x] T3: Run ownership classification, migration admission, migration backup destination, native safety, approval, stale-state, and operation checks against the final plan before operation creation or the first durable write. Prove that a regular file at `.make-docs/backup` creates no pending operation.
+- [x] T4: Make the planner, compatibility classifier, migration coordinator, and executor agree on one reviewed action and result for every managed path. Do not offer approval for a plan that a later checkpoint will reject.
+- [x] T5: Make plain setup detect an interrupted operation and offer its valid resume or restore action. Keep `project state recover` as a support and automation control, not a normal upgrade step. Reject reciprocal or condition-preserving directions.
+- [x] T6: Preserve direct system setup independence, separate machine and project approvals, harness-intent timing, Store backup and journal rules, user files, changed native entries, Store-free work, and equal Windows, macOS, and Linux support.
+- [x] T7: Replace the test that expects the checkpoint-3 dead end with a regression for the required result. Add migration backup preflight, fail-closed retired-resource, human, and JSON cases for preview, block-before-write, success, failure, interruption, resume, restore, repeat, and no-op behavior.
+- [x] T8: Make the regressions pass. Run the focused setup, Store, migration, harness, CLI, JSON, MCP, and operation-boundary tests plus TypeScript and diff checks. Record the earlier passing results as incomplete history, not current acceptance.
 
 ### Acceptance criteria
 
@@ -110,19 +110,19 @@ Performance evidence lifecycle fields:
 - Optional experience handoff: After installed proof, offer one bounded retry of the normal setup path and state what to notice. The owner can decline without blocking closure.
 - Explicit human acceptance gate: None for phase closeout. Any later live-Store verification remains a separate action.
 - Evidence report: The P7 section in `evidence.md` preserves the earlier incomplete results, installed counterevidence, interim review gaps, exact authentic-package identities, and final Stage 1 result.
-- Phase / capability status: Stage 1 tasks t1 through t8 and A45 through A49 are complete. P7 and D-038 remain open for Stage 2 tasks t9 through t15 and A50 through A52.
+- Phase / capability status: Stage 1 tasks T1 through T8 and A45 through A49 are complete. P7 and D-038 remain open for Stage 2 tasks T9 through T15 and A50 through A52.
 
 ## Stage 2 - Installed Package Proof and Corrective Closeout
 
 ### Tasks
 
-- [x] t9: Build one exact package candidate after all required source checks pass. Record its package identity, digest, size, and source commit.
-- [x] t10: Install the same candidate into isolated Windows, macOS, and Linux environments with the source checkout unavailable to product execution.
-- [x] t11: Run the authentic supported older-package regression contract on every host. Include full setup, direct system setup, block-before-write, failure, interruption, resume, restore, repeat, no-op, and normal-operation-without-deep-recovery cases.
-- [x] t12: Compare the three runs and reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, or different public result.
-- [x] t13: Complete the Human Experience Review from the installed output. Record observations, conclusions, evidence limits, and next actions for HX-2 and HX-5.
-- [x] t14: Run the coverage pass, full source suite, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check`.
-- [x] t15: Update the P7 evidence record and close D-038 only after every required case passes. Preserve the prior W19 R8 and W22 P1 through P6 results as historical evidence.
+- [x] T9: Build one exact package candidate after all required source checks pass. Record its package identity, digest, size, and source commit.
+- [x] T10: Install the same candidate into isolated Windows, macOS, and Linux environments with the source checkout unavailable to product execution.
+- [x] T11: Run the authentic supported older-package regression contract on every host. Include full setup, direct system setup, block-before-write, failure, interruption, resume, restore, repeat, no-op, and normal-operation-without-deep-recovery cases.
+- [x] T12: Compare the three runs and reject a missing host, repeated host, candidate mismatch, source execution, extract-only proof, or different public result.
+- [x] T13: Complete the Human Experience Review from the installed output. Record observations, conclusions, evidence limits, and next actions for HX-2 and HX-5.
+- [x] T14: Run the coverage pass, full source suite, default validation, package smoke checks, PRD authority validation, links, path hygiene, and `git diff --check`.
+- [x] T15: Update the P7 evidence record and close D-038 only after every required case passes. Preserve the prior W19 R8 and W22 P1 through P6 results as historical evidence.
 
 ### Acceptance criteria
 
@@ -150,11 +150,11 @@ Performance evidence lifecycle fields:
 
 ### Tasks
 
-- [x] t16: Record the live `2.0.1` counterevidence. Prove that the pending operation belongs to a different checkout while the current target is `ready` with no pending operation.
-- [x] t17: Scope installation-operation and project-lock conflicts to the exact target checkout. Keep machine-wide tool operations global. Preserve the unrelated project operation without change.
-- [x] t18: Rebuild the computer plan after the Store prerequisite. Show and reapprove a changed computer review. Read the current target before recovery guidance. Use the approved computer prompt wording.
-- [x] t19: Add the exact combined plain-setup regression plus focused component tests. Pass the full repository test command, package build, and diff check.
-- [x] t20: Build one new exact package candidate. Run the comparable Windows, macOS, and Linux installed workflow. Then install that exact candidate and repeat plain `make-docs setup` against the live Make Docs project.
+- [x] T16: Record the live `2.0.1` counterevidence. Prove that the pending operation belongs to a different checkout while the current target is `ready` with no pending operation.
+- [x] T17: Scope installation-operation and project-lock conflicts to the exact target checkout. Keep machine-wide tool operations global. Preserve the unrelated project operation without change.
+- [x] T18: Rebuild the computer plan after the Store prerequisite. Show and reapprove a changed computer review. Read the current target before recovery guidance. Use the approved computer prompt wording.
+- [x] T19: Add the exact combined plain-setup regression plus focused component tests. Pass the full repository test command, package build, and diff check.
+- [x] T20: Build one new exact package candidate. Run the comparable Windows, macOS, and Linux installed workflow. Then install that exact candidate and repeat plain `make-docs setup` against the live Make Docs project.
 
 ### Acceptance criteria
 
@@ -171,4 +171,4 @@ Performance evidence lifecycle fields:
 
 ### Current Result
 
-Tasks t16 through t20 and A53 through A56 pass. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the source contract, one exact package build, installed-package proof on Ubuntu, macOS, and Windows, and final evidence comparison. The live setup results completed without cross-project interference or deep-command recovery. P7 and D-038 are closed. The central evidence records the live-run limit that the final North Atlantic check began from an already-current `2.0.1` project state.
+Tasks T16 through T20 and A53 through A56 pass. Platform Safety run [35932516304](https://github.com/brucewaynedecoy/make-docs/actions/runs/35932516304) passed the source contract, one exact package build, installed-package proof on Ubuntu, macOS, and Windows, and final evidence comparison. The live setup results completed without cross-project interference or deep-command recovery. P7 and D-038 are closed. The central evidence records the live-run limit that the final North Atlantic check began from an already-current `2.0.1` project state.

@@ -13,12 +13,12 @@ Validate and close implementation work for the tool-directory model.
 
 ### Tasks
 
-- [x] t1: Run `npm test -w packages/cli`.
-- [x] t2: Run `npm run validate:defaults -w packages/cli`.
-- [x] t3: Run `npm run build -w packages/cli`.
-- [x] t4: Run `npm run smoke:pack`.
-- [x] t5: Run template/dogfood parity, managed-block/router, audit, backup, and uninstall checks relevant to touched paths.
-- [x] t6: Update risk-register status only with implementation evidence.
+- [x] T1: Run `npm test -w packages/cli`.
+- [x] T2: Run `npm run validate:defaults -w packages/cli`.
+- [x] T3: Run `npm run build -w packages/cli`.
+- [x] T4: Run `npm run smoke:pack`.
+- [x] T5: Run template/dogfood parity, managed-block/router, audit, backup, and uninstall checks relevant to touched paths.
+- [x] T6: Update risk-register status only with implementation evidence.
 
 ### Acceptance Criteria
 

@@ -12,11 +12,11 @@ Add canonical metadata fields to generated document templates and generation gui
 
 ## Tasks
 
-- [x] t1: Inventory generated document templates and prompt outputs that produce design, plan, PRD, work, history, guide, or playbook docs.
-- [x] t2: Add common `title`, `kind`, and `status` metadata to generated document templates where generation owns the output.
-- [x] t3: Add conditional `coordinate`, `persona`, `source`, `lifecycle`, and `follow_on` metadata where applicable.
-- [x] t4: Preserve existing body sections required by design, output, PRD, work, guide, and history contracts.
-- [x] t5: Avoid opportunistic rewrites of historical docs that are not part of the touched implementation surface.
+- [x] T1: Inventory generated document templates and prompt outputs that produce design, plan, PRD, work, history, guide, or playbook docs.
+- [x] T2: Add common `title`, `kind`, and `status` metadata to generated document templates where generation owns the output.
+- [x] T3: Add conditional `coordinate`, `persona`, `source`, `lifecycle`, and `follow_on` metadata where applicable.
+- [x] T4: Preserve existing body sections required by design, output, PRD, work, guide, and history contracts.
+- [x] T5: Avoid opportunistic rewrites of historical docs that are not part of the touched implementation surface.
 
 ## Acceptance Criteria
 

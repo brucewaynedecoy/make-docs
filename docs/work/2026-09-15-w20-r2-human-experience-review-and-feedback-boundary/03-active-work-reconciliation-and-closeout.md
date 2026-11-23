@@ -55,11 +55,11 @@ Human Experience Review is required agent review work. The final response will g
 
 ### Tasks
 
-- [x] t1: Add a W20 R2 supersession note to active W20 R0 P5 and preserve all other blockers.
-- [x] t2: Update only current W19 R6 P3 overview, work, and evidence records.
-- [x] t3: Keep W19 R6 P1 and P2 records as superseded history.
-- [x] t4: Record the W19 R6 agent review and optional experience handoff.
-- [x] t5: Rerun current W19 R6 technical close rules.
+- [x] T1: Add a W20 R2 supersession note to active W20 R0 P5 and preserve all other blockers.
+- [x] T2: Update only current W19 R6 P3 overview, work, and evidence records.
+- [x] T3: Keep W19 R6 P1 and P2 records as superseded history.
+- [x] T4: Record the W19 R6 agent review and optional experience handoff.
+- [x] T5: Rerun current W19 R6 technical close rules.
 
 ### Acceptance criteria
 

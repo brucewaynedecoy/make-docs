@@ -18,9 +18,9 @@ This phase refreshes manifest evidence, runs package/docs validation, performs t
 
 ### Tasks
 
-- [x] t1: Refresh `.make-docs/manifest.json` after managed asset moves.
-- [x] t2: Run targeted scans for old future-facing path targets.
-- [x] t3: Run CLI tests, default validation, build, smoke-pack, path hygiene, wave numbering, router checks, and `git diff --check`.
+- [x] T1: Refresh `.make-docs/manifest.json` after managed asset moves.
+- [x] T2: Run targeted scans for old future-facing path targets.
+- [x] T3: Run CLI tests, default validation, build, smoke-pack, path hygiene, wave numbering, router checks, and `git diff --check`.
 
 ### Acceptance criteria
 
@@ -52,8 +52,8 @@ This phase refreshes manifest evidence, runs package/docs validation, performs t
 
 ### Tasks
 
-- [x] t4: Create W9 R5 closeout history under `docs/assets/archive/history/**`.
-- [x] t5: Record final validation status and any manual/UAT decision.
+- [x] T4: Create W9 R5 closeout history under `docs/assets/archive/history/**`.
+- [x] T5: Record final validation status and any manual/UAT decision.
 
 ### Acceptance criteria
 

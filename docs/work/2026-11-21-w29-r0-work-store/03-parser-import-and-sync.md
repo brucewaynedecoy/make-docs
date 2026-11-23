@@ -52,9 +52,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Build a parser for the current work index and phase format: frontmatter, stages, tasks, acceptance criteria, dependencies, blockers, closeout, and links.
-- [ ] t2: Build a writer that renders identical bytes for any file the store did not change.
-- [ ] t3: Leave an unreadable file untouched and report its path and first failing line.
+- [ ] T1: Build a parser for the current work index and phase format: frontmatter, stages, tasks, acceptance criteria, dependencies, blockers, closeout, and links.
+- [ ] T2: Build a writer that renders identical bytes for any file the store did not change.
+- [ ] T3: Leave an unreadable file untouched and report its path and first failing line.
 
 ### Acceptance criteria
 
@@ -65,10 +65,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t4: Build first import for `docs/work/` and `.make-docs/archive/work/`, with a report of imported records, resolved dependencies, and unresolved bullets.
-- [ ] t5: Build two-way sync for each sync table row, and record the last applied digest after each write or import.
-- [ ] t6: Build the conflict report with both sides, the affected units, and one settle command for each choice.
-- [ ] t7: Respect `work.projection`. With copies off, write no file. Remove a copy only when its bytes match the last applied digest.
+- [ ] T4: Build first import for `docs/work/` and `.make-docs/archive/work/`, with a report of imported records, resolved dependencies, and unresolved bullets.
+- [ ] T5: Build two-way sync for each sync table row, and record the last applied digest after each write or import.
+- [ ] T6: Build the conflict report with both sides, the affected units, and one settle command for each choice.
+- [ ] T7: Respect `work.projection`. With copies off, write no file. Remove a copy only when its bytes match the last applied digest.
 
 ### Acceptance criteria
 

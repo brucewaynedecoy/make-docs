@@ -62,11 +62,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Add `packages/cli/tests/w19-r5-skill-adoption-existing-links.test.ts`. Build a throwaway project with `.agents/skills/preflight` and a relative `.claude/skills/preflight` link. Confirm that applying a reviewed adoption fails with "Invalid predeclared native copy fallback" before the fix.
-- [x] t2: In `packages/cli/src/skills-adoption.ts`, declare a copy fallback only when the native exposure path is currently missing.
-- [x] t3: Run the focused tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`, plus a real built-CLI adoption in a throwaway project and an adoption dry run in this checkout.
-- [x] t4: Keep the copy fallback when adoption replaces an outdated native folder with a link, by pruning fallbacks to planned missing-to-link steps after the plan is built. Add tests for a refused link, which must use the copy mirror, and for an allowed link.
-- [x] t5: After merging `main` with W28 R0, close D-053 in PRD 03 and repeat the checks and the throwaway adoption. Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
+- [x] T1: Add `packages/cli/tests/w19-r5-skill-adoption-existing-links.test.ts`. Build a throwaway project with `.agents/skills/preflight` and a relative `.claude/skills/preflight` link. Confirm that applying a reviewed adoption fails with "Invalid predeclared native copy fallback" before the fix.
+- [x] T2: In `packages/cli/src/skills-adoption.ts`, declare a copy fallback only when the native exposure path is currently missing.
+- [x] T3: Run the focused tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`, plus a real built-CLI adoption in a throwaway project and an adoption dry run in this checkout.
+- [x] T4: Keep the copy fallback when adoption replaces an outdated native folder with a link, by pruning fallbacks to planned missing-to-link steps after the plan is built. Add tests for a refused link, which must use the copy mirror, and for an allowed link.
+- [x] T5: After merging `main` with W28 R0, close D-053 in PRD 03 and repeat the checks and the throwaway adoption. Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
 
 ### Acceptance criteria
 

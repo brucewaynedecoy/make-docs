@@ -57,13 +57,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t1: Replace the `factory` Skill text. It loads the workflow, its type, and the factory contract. It refuses a workflow that is not `ready` and names the fix (R-FACTORY-12, R-FACTORY-33).
-- [ ] t2: Remove the profiles reference and the old Store reference. Keep the Skill explicit-invocation-only (R-FACTORY-48).
-- [ ] t3: Run the loop: sync, check assignments through their handles, renew claims, judge returned work, review with a separate reviewer, correct within the limit, accept units inside the given scope, close them, take the next ready unit, and escalate (R-FACTORY-32, R-FACTORY-34).
-- [ ] t4: Claim a wave, phase, stage, or task, with phase as the default. Open one lifecycle run at stage `implementation` per claim. Record evidence through the existing evidence and lifecycle evidence operations (R-FACTORY-29, R-FACTORY-30).
-- [ ] t5: Check an `unknown` assignment through its handle before any other step. Never send work again after an unclear handoff (R-FACTORY-28, R-FACTORY-41).
-- [ ] t6: Route quick items from the front desk by capability, like any other unit (R-FACTORY-31).
-- [ ] t7: Run preflight before a claim only when the workflow turns that step on (R-FACTORY-21).
+- [ ] T1: Replace the `factory` Skill text. It loads the workflow, its type, and the factory contract. It refuses a workflow that is not `ready` and names the fix (R-FACTORY-12, R-FACTORY-33).
+- [ ] T2: Remove the profiles reference and the old Store reference. Keep the Skill explicit-invocation-only (R-FACTORY-48).
+- [ ] T3: Run the loop: sync, check assignments through their handles, renew claims, judge returned work, review with a separate reviewer, correct within the limit, accept units inside the given scope, close them, take the next ready unit, and escalate (R-FACTORY-32, R-FACTORY-34).
+- [ ] T4: Claim a wave, phase, stage, or task, with phase as the default. Open one lifecycle run at stage `implementation` per claim. Record evidence through the existing evidence and lifecycle evidence operations (R-FACTORY-29, R-FACTORY-30).
+- [ ] T5: Check an `unknown` assignment through its handle before any other step. Never send work again after an unclear handoff (R-FACTORY-28, R-FACTORY-41).
+- [ ] T6: Route quick items from the front desk by capability, like any other unit (R-FACTORY-31).
+- [ ] T7: Run preflight before a claim only when the workflow turns that step on (R-FACTORY-21).
 
 ### Acceptance criteria
 
@@ -80,11 +80,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t8: Apply the working rules: judge the actual work, never let a reviewer review its own work, do not steer the reviewer, and stop a loop that repeats the same failure (R-FACTORY-40, R-FACTORY-41).
-- [ ] t9: Apply one writer per file in each working copy, and name an integration owner for parallel work. Follow the harness's worktree policy and any repository rule that forbids worktrees (R-FACTORY-42, R-FACTORY-43).
-- [ ] t10: Back up files before a change in a folder without git, through the P2 records (R-FACTORY-44).
-- [ ] t11: Send each floor event and each added event to the human channel. Each message says what happened, what is needed, whether it is required, what it blocks, and what happens next (R-FACTORY-37, R-FACTORY-38).
-- [ ] t12: Accept each unit inside the given scope on the reviewer's evidence. At the end of the scope, send one acceptance request with the reviewed result and its evidence. Ask for a grant before a merge or deploy (R-FACTORY-39).
+- [ ] T8: Apply the working rules: judge the actual work, never let a reviewer review its own work, do not steer the reviewer, and stop a loop that repeats the same failure (R-FACTORY-40, R-FACTORY-41).
+- [ ] T9: Apply one writer per file in each working copy, and name an integration owner for parallel work. Follow the harness's worktree policy and any repository rule that forbids worktrees (R-FACTORY-42, R-FACTORY-43).
+- [ ] T10: Back up files before a change in a folder without git, through the P2 records (R-FACTORY-44).
+- [ ] T11: Send each floor event and each added event to the human channel. Each message says what happened, what is needed, whether it is required, what it blocks, and what happens next (R-FACTORY-37, R-FACTORY-38).
+- [ ] T12: Accept each unit inside the given scope on the reviewer's evidence. At the end of the scope, send one acceptance request with the reviewed result and its evidence. Ask for a grant before a merge or deploy (R-FACTORY-39).
 
 ### Acceptance criteria
 
@@ -101,9 +101,9 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] t13: Update the backlog review "Work on this wave" action so that it sends the wave to the foreman through the front desk when a workflow is `ready` (R-FACTORY-47).
-- [ ] t14: Keep the action's current behavior when no workflow is `ready`.
-- [ ] t15: Regenerate the affected Skill bundles and app assets, and add tests for both paths.
+- [ ] T13: Update the backlog review "Work on this wave" action so that it sends the wave to the foreman through the front desk when a workflow is `ready` (R-FACTORY-47).
+- [ ] T14: Keep the action's current behavior when no workflow is `ready`.
+- [ ] T15: Regenerate the affected Skill bundles and app assets, and add tests for both paths.
 
 ### Acceptance criteria
 

@@ -46,14 +46,14 @@ This phase authors reusable system contracts, prompts, references, templates, me
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, and implementation authorization; confirm no prior-phase dependency and stop on unexpected user work or unsafe growth.
-- [x] t2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest in the phase-entry record.
-- [x] t3: Reevaluate at minimum Q-021 and R-009, R-010, R-017, and R-025; add any newly relevant item found by the live authority read.
-- [x] t4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: If no blocking item or authority gap remains, record an explicit no-blocker determination and the finite phase correction/review budget before unlocking t8.
-- [x] t6: If a blocker or authority gap exists, stop before implementation writes and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
-- [x] t7: After an owner decision, require the canonical PRD/register/history update, focused validation, separate decision commit, and recorded SHA for that decision commit before implementation unlocks; a work task cannot close a question, risk, finding, obligation, scenario, waiver, or capability by implication.
-- [x] t8: Record the Stage 1 outcome, applicable authority digests, dependency state, and implementation unlock or stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, and implementation authorization; confirm no prior-phase dependency and stop on unexpected user work or unsafe growth.
+- [x] T2: Reread the current normative bodies of every Source PRD plus PRD 03 and record each revision or content digest in the phase-entry record.
+- [x] T3: Reevaluate at minimum Q-021 and R-009, R-010, R-017, and R-025; add any newly relevant item found by the live authority read.
+- [x] T4: For every relevant `Open`, `Confirming`, `Deferred`, closed regression item, or new gap, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: If no blocking item or authority gap remains, record an explicit no-blocker determination and the finite phase correction/review budget before unlocking T8.
+- [x] T6: If a blocker or authority gap exists, stop before implementation writes and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; do not create a standalone decision file.
+- [x] T7: After an owner decision, require the canonical PRD/register/history update, focused validation, separate decision commit, and recorded SHA for that decision commit before implementation unlocks; a work task cannot close a question, risk, finding, obligation, scenario, waiver, or capability by implication.
+- [x] T8: Record the Stage 1 outcome, applicable authority digests, dependency state, and implementation unlock or stop result.
 
 ### Phase-entry record
 
@@ -161,11 +161,11 @@ The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. The owner
 
 ### Tasks
 
-- [x] t9: Inventory the current `packages/docs/template/` resource roots, schemas, metadata, catalogs, routers, and active product claims without treating the root dogfood copy or packaged projection as authoring authority.
-- [x] t10: Author one coherent upstream inventory in which contracts, prompts, references, and templates are peer system-resource types with the stable identities and required metadata defined by the PRDs.
-- [x] t11: Make prompts first-class across resource catalogs, schemas, authoring guidance, and system-workflow composition without reviving legacy selection fields or requiring local projection.
-- [x] t12: Author the Naive-UAT system-workflow resources as a composition of governing contracts, prompts, references, and applicable templates; keep reusable UAT policy out of any future Skill shim.
-- [x] t13: Withdraw affirmative current claims that Playbooks or Protocols are Make Docs product capabilities and replace their current resource-authority expectations with the four peer system-resource types; preserve every existing Playbook/Protocol default asset, catalog entry, payload, and other removal candidate intact for P8's fresh production-consumer trace, backup, lock/quiescence checks, and retirement work.
+- [x] T9: Inventory the current `packages/docs/template/` resource roots, schemas, metadata, catalogs, routers, and active product claims without treating the root dogfood copy or packaged projection as authoring authority.
+- [x] T10: Author one coherent upstream inventory in which contracts, prompts, references, and templates are peer system-resource types with the stable identities and required metadata defined by the PRDs.
+- [x] T11: Make prompts first-class across resource catalogs, schemas, authoring guidance, and system-workflow composition without reviving legacy selection fields or requiring local projection.
+- [x] T12: Author the Naive-UAT system-workflow resources as a composition of governing contracts, prompts, references, and applicable templates; keep reusable UAT policy out of any future Skill shim.
+- [x] T13: Withdraw affirmative current claims that Playbooks or Protocols are Make Docs product capabilities and replace their current resource-authority expectations with the four peer system-resource types; preserve every existing Playbook/Protocol default asset, catalog entry, payload, and other removal candidate intact for P8's fresh production-consumer trace, backup, lock/quiescence checks, and retirement work.
 
 ### Acceptance criteria
 
@@ -192,10 +192,10 @@ The decision commit SHA is `834aef3f339aa8999a60d2ea4619b180349ba65a`. The owner
 
 ### Tasks
 
-- [x] t14: Run focused frontmatter, schema, catalog, relative-link, anchor, and repository path-hygiene checks over the changed upstream documentation resources.
-- [x] t15: Prove that current reusable authority has no duplicate resource identity, no legacy mode-field authority, no active Playbook/Protocol capability claim, and no copied UAT business logic in a Skill surface.
-- [x] t16: Obtain an independent review of the upstream resource contract and correct only actionable defects within the finite two-attempt/two-cycle budget.
-- [x] t17: Record changed-file scope, validation evidence, remaining nonblocking items, and the exact P1 dependency handoff to P2 without projecting, dogfooding, publishing, or releasing.
+- [x] T14: Run focused frontmatter, schema, catalog, relative-link, anchor, and repository path-hygiene checks over the changed upstream documentation resources.
+- [x] T15: Prove that current reusable authority has no duplicate resource identity, no legacy mode-field authority, no active Playbook/Protocol capability claim, and no copied UAT business logic in a Skill surface.
+- [x] T16: Obtain an independent review of the upstream resource contract and correct only actionable defects within the finite two-attempt/two-cycle budget.
+- [x] T17: Record changed-file scope, validation evidence, remaining nonblocking items, and the exact P1 dependency handoff to P2 without projecting, dogfooding, publishing, or releasing.
 
 ### Acceptance criteria
 

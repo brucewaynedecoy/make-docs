@@ -53,8 +53,8 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Add `setup.store.check` (`make-docs setup store check`, MCP `setup_store_check`) in `setup` and `all`. It reads only.
-- [ ] t2: Report, in plain words first, the rows each rule would remove with counts and space, the decision items, and each crash leftover that blocks the machine and why.
+- [ ] T1: Add `setup.store.check` (`make-docs setup store check`, MCP `setup_store_check`) in `setup` and `all`. It reads only.
+- [ ] T2: Report, in plain words first, the rows each rule would remove with counts and space, the decision items, and each crash leftover that blocks the machine and why.
 
 ### Acceptance criteria
 
@@ -64,10 +64,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t3: Add `setup.store.clean` (`make-docs setup store clean`, MCP `setup_store_clean`) in `setup` and `all`, with the Store write permission, one prompt in an interactive run, and `--yes` in a non-interactive run.
-- [ ] t4: Back up the Store under `~/.make-docs/backup/` first and keep the three newest backups.
-- [ ] t5: Remove only the rows that the fixed rules cover, in one transaction. Skip a row whose condition a rule cannot prove, and report why.
-- [ ] t6: Vacuum the file, and report each rule, the rows removed, the space freed, the backup path, and how to restore it.
+- [ ] T3: Add `setup.store.clean` (`make-docs setup store clean`, MCP `setup_store_clean`) in `setup` and `all`, with the Store write permission, one prompt in an interactive run, and `--yes` in a non-interactive run.
+- [ ] T4: Back up the Store under `~/.make-docs/backup/` first and keep the three newest backups.
+- [ ] T5: Remove only the rows that the fixed rules cover, in one transaction. Skip a row whose condition a rule cannot prove, and report why.
+- [ ] T6: Vacuum the file, and report each rule, the rows removed, the space freed, the backup path, and how to restore it.
 
 ### Acceptance criteria
 

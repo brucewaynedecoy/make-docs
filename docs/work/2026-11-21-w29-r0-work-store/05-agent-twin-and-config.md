@@ -53,14 +53,14 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Author `work-store.md` in `packages/docs/template/`. Cover readiness, claims, report, close, sync, conflicts, and the tracker connection contract for an agent that edits files directly.
-- [ ] t2: State in the resource that it is the agent twin of the P4 operations, and that a change to either form needs a review of the other.
-- [ ] t3: Add the `work` block to the config schema: `projection` (default `on`) and `tracker` (connection name and field map).
-- [ ] t4: Reject state fields, IDs, digests, receipts, and secrets in the `work` block.
-- [ ] t5: Project the resource into the package, then into this repo's dogfood copy.
-- [ ] t6: Point routers that name work backlog rules at the new resource where an agent needs it.
-- [ ] t7: State in the resource that quick items live only in the work store, how `make-docs://project/<project>/tasks/` and `.../backlog/` URIs name a project and its work, and that a checkout without the CLI or a Store reads `docs/work/` directly and has no quick items.
-- [ ] t8: Validate `projectName` in config (PRD 24 R-CONFIG-STATE-9), and have setup propose the checkout folder name in the PRD 38 R-ID-8 form.
+- [ ] T1: Author `work-store.md` in `packages/docs/template/`. Cover readiness, claims, report, close, sync, conflicts, and the tracker connection contract for an agent that edits files directly.
+- [ ] T2: State in the resource that it is the agent twin of the P4 operations, and that a change to either form needs a review of the other.
+- [ ] T3: Add the `work` block to the config schema: `projection` (default `on`) and `tracker` (connection name and field map).
+- [ ] T4: Reject state fields, IDs, digests, receipts, and secrets in the `work` block.
+- [ ] T5: Project the resource into the package, then into this repo's dogfood copy.
+- [ ] T6: Point routers that name work backlog rules at the new resource where an agent needs it.
+- [ ] T7: State in the resource that quick items live only in the work store, how `make-docs://project/<project>/tasks/` and `.../backlog/` URIs name a project and its work, and that a checkout without the CLI or a Store reads `docs/work/` directly and has no quick items.
+- [ ] T8: Validate `projectName` in config (PRD 24 R-CONFIG-STATE-9), and have setup propose the checkout folder name in the PRD 38 R-ID-8 form.
 
 ### Acceptance criteria
 

@@ -44,14 +44,14 @@ This phase changes guidance and direct installed-proof behavior. It does not cre
 
 ### Tasks
 
-- [ ] t1: Update the shared contract and reference with the affected-first order: changed behavior, nearest meaningful integration boundary, smallest relevant regression set, then broader proof only after a stated trigger.
-- [ ] t2: Define `focused` as the normal default that an agent can run without owner interruption.
-- [ ] t3: Define `expanded` as bounded broader proof with a short reason tied to blast radius, coupling, failure cost, or an observed regression signal.
-- [ ] t4: Define `release-grade` as proof that needs explicit accepted product or release authority.
-- [ ] t5: Define a finite normal stop: affected proof passes, the justified regression boundary passes, and no material failure remains unexplained.
-- [ ] t6: State that test count, suite size, elapsed effort, and repeated green runs are not quality measures by themselves.
-- [ ] t7: State that unchanged broad suites are not rerun for reassurance when valid evidence and scope remain unchanged.
-- [ ] t8: Define when a changed implementation, affected dependency, environment drift, expired evidence, or changed claim triggers a rerun.
+- [ ] T1: Update the shared contract and reference with the affected-first order: changed behavior, nearest meaningful integration boundary, smallest relevant regression set, then broader proof only after a stated trigger.
+- [ ] T2: Define `focused` as the normal default that an agent can run without owner interruption.
+- [ ] T3: Define `expanded` as bounded broader proof with a short reason tied to blast radius, coupling, failure cost, or an observed regression signal.
+- [ ] T4: Define `release-grade` as proof that needs explicit accepted product or release authority.
+- [ ] T5: Define a finite normal stop: affected proof passes, the justified regression boundary passes, and no material failure remains unexplained.
+- [ ] T6: State that test count, suite size, elapsed effort, and repeated green runs are not quality measures by themselves.
+- [ ] T7: State that unchanged broad suites are not rerun for reassurance when valid evidence and scope remain unchanged.
+- [ ] T8: Define when a changed implementation, affected dependency, environment drift, expired evidence, or changed claim triggers a rerun.
 
 ### Acceptance criteria
 
@@ -69,14 +69,14 @@ This phase changes guidance and direct installed-proof behavior. It does not cre
 
 ### Tasks
 
-- [ ] t9: Update implementation preflight guidance to select an automated level from current change scope and failure cost.
-- [ ] t10: Update work and phase-close guidance to record the affected boundary, selected level, reason, effort budget, stop, evidence, and rerun trigger.
-- [ ] t11: Add a path for an agent to expand proof after a failing focused check, discovered coupling, or material blast-radius change.
-- [ ] t12: Require the agent to stop and seek authority before release-grade proof or a materially larger external-state test.
-- [ ] t13: Keep routine focused checks inside the implementation flow without asking the owner to approve each test command.
-- [ ] t14: Prevent an agent from asking a person to repeat automated assertions as a Guided Progress Review.
-- [ ] t15: Add examples for a local template edit, a cross-cutting resource change, a migration-sensitive update, and an unsupported release-grade proposal.
-- [ ] t16: Add phase-close checks that distinguish a failed covered claim from unrelated product or support claims.
+- [ ] T9: Update implementation preflight guidance to select an automated level from current change scope and failure cost.
+- [ ] T10: Update work and phase-close guidance to record the affected boundary, selected level, reason, effort budget, stop, evidence, and rerun trigger.
+- [ ] T11: Add a path for an agent to expand proof after a failing focused check, discovered coupling, or material blast-radius change.
+- [ ] T12: Require the agent to stop and seek authority before release-grade proof or a materially larger external-state test.
+- [ ] T13: Keep routine focused checks inside the implementation flow without asking the owner to approve each test command.
+- [ ] T14: Prevent an agent from asking a person to repeat automated assertions as a Guided Progress Review.
+- [ ] T15: Add examples for a local template edit, a cross-cutting resource change, a migration-sensitive update, and an unsupported release-grade proposal.
+- [ ] T16: Add phase-close checks that distinguish a failed covered claim from unrelated product or support claims.
 
 ### Acceptance criteria
 
@@ -94,15 +94,15 @@ This phase changes guidance and direct installed-proof behavior. It does not cre
 
 ### Tasks
 
-- [ ] t17: Route every performance candidate through PRD 48 qualification before a target, benchmark, or blocking criterion is adopted.
-- [ ] t18: Preserve `required-now`, `characterize-now`, `defer-required`, `not-needed`, and `reject-unsupported` specialist results while allowing the shared `not-needed-now` explanation in current decision records.
-- [ ] t19: Require a maturity decision based on current outcome, failure cost, reversibility, support scope, stability, and baseline value before sophisticated proof.
-- [ ] t20: Reject copied numbers, round targets, words such as `fast`, and production-grade expectations that lack an owning current requirement.
-- [ ] t21: Permit bounded proof for an MVP only when it protects a real feasibility cliff, user harm, resource boundary, external mandate, or current architecture decision.
-- [ ] t22: Bind a performance gate only to an accepted hard outcome or a bounded claim that the evidence actually covers.
-- [ ] t23: Reuse valid performance evidence while workload, build, environment, comparison, expiry, and claim remain suitable.
-- [ ] t24: Retain only enough evidence for the decision. Keep large raw output only when its owner contract or a current finding needs it.
-- [ ] t25: Route `defer-required` through PRD 45. Do not create an obligation for `not-needed` or `reject-unsupported`.
+- [ ] T17: Route every performance candidate through PRD 48 qualification before a target, benchmark, or blocking criterion is adopted.
+- [ ] T18: Preserve `required-now`, `characterize-now`, `defer-required`, `not-needed`, and `reject-unsupported` specialist results while allowing the shared `not-needed-now` explanation in current decision records.
+- [ ] T19: Require a maturity decision based on current outcome, failure cost, reversibility, support scope, stability, and baseline value before sophisticated proof.
+- [ ] T20: Reject copied numbers, round targets, words such as `fast`, and production-grade expectations that lack an owning current requirement.
+- [ ] T21: Permit bounded proof for an MVP only when it protects a real feasibility cliff, user harm, resource boundary, external mandate, or current architecture decision.
+- [ ] T22: Bind a performance gate only to an accepted hard outcome or a bounded claim that the evidence actually covers.
+- [ ] T23: Reuse valid performance evidence while workload, build, environment, comparison, expiry, and claim remain suitable.
+- [ ] T24: Retain only enough evidence for the decision. Keep large raw output only when its owner contract or a current finding needs it.
+- [ ] T25: Route `defer-required` through PRD 45. Do not create an obligation for `not-needed` or `reject-unsupported`.
 
 ### Acceptance criteria
 
@@ -121,16 +121,16 @@ This phase changes guidance and direct installed-proof behavior. It does not cre
 
 ### Tasks
 
-- [ ] t26: Add deterministic fixtures where a small change stops after focused proof and a cross-cutting change justifies expanded proof.
-- [ ] t27: Add a failure fixture where an agent proposes release-grade work without authority.
-- [ ] t28: Add a failure fixture where an unstable MVP path rejects a copied performance target.
-- [ ] t29: Add a passing fixture where a real feasibility cliff activates bounded performance proof.
-- [ ] t30: Add a failure fixture where a passed suite is used to claim unsupported product quality or static-adapter support.
-- [ ] t31: Add a passing fixture where unchanged valid evidence prevents an unnecessary rerun.
-- [ ] t32: Add a failure fixture where testing has no finite budget or stop condition.
-- [ ] t33: Run focused checks for every changed technical-testing resource, prompt, fixture, static adapter, and direct installed-proof owner.
-- [ ] t34: Confirm that W21 Performance Testing remains `not-needed-now` unless a current decision activated it during implementation.
-- [ ] t35: Record Phase 3 evidence, material findings, accepted obligations, and capability status for Phase 5 direct-proof assembly.
+- [ ] T26: Add deterministic fixtures where a small change stops after focused proof and a cross-cutting change justifies expanded proof.
+- [ ] T27: Add a failure fixture where an agent proposes release-grade work without authority.
+- [ ] T28: Add a failure fixture where an unstable MVP path rejects a copied performance target.
+- [ ] T29: Add a passing fixture where a real feasibility cliff activates bounded performance proof.
+- [ ] T30: Add a failure fixture where a passed suite is used to claim unsupported product quality or static-adapter support.
+- [ ] T31: Add a passing fixture where unchanged valid evidence prevents an unnecessary rerun.
+- [ ] T32: Add a failure fixture where testing has no finite budget or stop condition.
+- [ ] T33: Run focused checks for every changed technical-testing resource, prompt, fixture, static adapter, and direct installed-proof owner.
+- [ ] T34: Confirm that W21 Performance Testing remains `not-needed-now` unless a current decision activated it during implementation.
+- [ ] T35: Record Phase 3 evidence, material findings, accepted obligations, and capability status for Phase 5 direct-proof assembly.
 
 ### Acceptance criteria
 

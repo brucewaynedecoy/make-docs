@@ -46,13 +46,13 @@ P5 requires accepted and separately committed P2, P3, and P4. P4 includes the de
 
 ### Tasks
 
-- [x] t1: Verify the exact branch, HEAD, worktree, free disk, dirty-state allowlist, and accepted P2, P3, and P4 closeouts and commits; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread the current normative bodies of PRDs 06, 10, 14, 16, 18, 25, 28, 38, 39, 45, 46, 48, 49, and 50 plus PRD 03, and record each current revision or content digest.
-- [x] t3: Reevaluate at minimum Q-017 only if this phase changes layout behavior, closed R-003 as a package-resolution regression guard, R-017, R-021 only if static-adapter or support claims are touched, closed R-022 as a direct-proof regression guard, and R-029 through R-035; add newly relevant items from the live reread.
-- [x] t4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: If no blocking item or authority gap remains, record an explicit no-blocker result and finite phase correction/review budget before unlocking t8.
-- [x] t6: If a blocker or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options/trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
-- [x] t7: After an owner decision, require canonical PRD/register/history updates, focused validation, a separate decision-only commit, and the recorded decision commit SHA before marking this gate unlocked.
+- [x] T1: Verify the exact branch, HEAD, worktree, free disk, dirty-state allowlist, and accepted P2, P3, and P4 closeouts and commits; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread the current normative bodies of PRDs 06, 10, 14, 16, 18, 25, 28, 38, 39, 45, 46, 48, 49, and 50 plus PRD 03, and record each current revision or content digest.
+- [x] T3: Reevaluate at minimum Q-017 only if this phase changes layout behavior, closed R-003 as a package-resolution regression guard, R-017, R-021 only if static-adapter or support claims are touched, closed R-022 as a direct-proof regression guard, and R-029 through R-035; add newly relevant items from the live reread.
+- [x] T4: For every relevant `Open`, `Confirming`, `Deferred`, or closed regression item, record its ID, authority revision or digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: If no blocking item or authority gap remains, record an explicit no-blocker result and finite phase correction/review budget before unlocking T8.
+- [x] T6: If a blocker or authority gap exists, stop before implementation writes and present an owner decision package with the source anchor, affected phase/PRDs, bounded options/trade-offs, recommendation, consequences, exact PRD/register/history changes, validation, and decision-only commit boundary; do not create a standalone decision file.
+- [x] T7: After an owner decision, require canonical PRD/register/history updates, focused validation, a separate decision-only commit, and the recorded decision commit SHA before marking this gate unlocked.
 
 ### Acceptance criteria
 
@@ -74,20 +74,20 @@ P5 requires accepted and separately committed P2, P3, and P4. P4 includes the de
 - Entry state: branch `make-docs-v2`; HEAD `d868bdc56c191d81942d941eedd877034a95fe4d`; worktree clean; dirty-file allowlist empty; 118 GB free. P2 commit `f79ec885`, P3 commit `b840b746`, and P4 commit `d868bdc5` are present and separate.
 - Current authority digests: PRD 03 `419900e06e1bb63628feca85016cd1344bbeba0b`; PRD 06 `0a9ad0c0ef6d47748e5ce94e9b224f086d22f85a`; PRD 10 `d34c901ecfbc2f17661614e47c13da17af3e5251`; PRD 14 `e8e2dc65137a7752a869033259ffb734772e352e`; PRD 16 `cf8a657cc0f6e98dfea09d50ff1ce9e1b359fe44`; PRD 18 `adf1352a37d47baf76ad805631a6653fa05ff09d`; PRD 25 `0d5722d04a2cd8754cecd15900664fea20c80a30`; PRD 28 `ed4ba3a2c1361d7d96ee0fd9557909dc297684ba`; PRD 38 `d1a421ecbe8cdae173b0d8f56f0cc461963008fb`; PRD 39 `01c76e9e161d641c90318a2ec80c2a1f5b1bc6c6`; PRD 45 `db6313ca2afee45e0df25881b9474d6c12f9d6f9`; PRD 46 `9cab59c4c770954a7632f7d600d099bd9ad4d27d`; PRD 48 `3f8f3500c0fc4b934bd1d87f7463d28e3c1d6313`; PRD 49 `bb110e20fcafaf26ce24fc9cd8e1d939ebf3efc3`; PRD 50 `d1e76225ce920ccd689c87ad353bc11c615fffd5`.
 - Risk result: Q-017 is `unrelated` because P5 changes no layout behavior. R-003 and R-022 are `closed-regression-check` items for packed resolution and direct proof. R-017, R-021, R-029, R-030, R-031, R-032, R-034, and R-035 are `impacted-nonblocking` checks for canonical resources, exact installed claims, supported targets, finite work, single authority, current comparable evidence, proportionate testing, and twin parity. R-033 is a `closed-regression-check` for review of the real human-facing result. The entry reread found no new relevant question, risk, or authority gap. Review cycle 1 later found that PRD 39 described a stale registry count. The owner approved the final correction attempt. Current PRD 39 now matches the active registry, and PRD authority validation passes.
-- Disposition: no blocker exists. P5 is unlocked at t8. P5 permits at most two materially distinct correction attempts and two review cycles. It reuses unchanged valid evidence and reruns only failed affected checks after a material change. t6 and t7 were evaluated but were not activated because no owner decision was required.
+- Disposition: no blocker exists. P5 is unlocked at T8. P5 permits at most two materially distinct correction attempts and two review cycles. It reuses unchanged valid evidence and reruns only failed affected checks after a material change. T6 and T7 were evaluated but were not activated because no owner decision was required.
 - Phase / capability status: Stage 1 accepted and P5 active; gate completion alone does not complete P5.
 
 ## Stage 2 - Prove Upstream, Package, Dogfood, And Installed Resolution
 
 ### Tasks
 
-- [x] t8: Inventory exact authorized W19 R2 source resources, router pairs, lifecycle touchpoints, fixtures, generated copies, P4 deterministic operation, rule catalog, agent instructions, and package assets; reject unexpected surfaces.
-- [x] t9: Prove `packages/docs/template/ -> generated packages/cli/template/ -> selected root dogfood -> installed-project proof` in that order, with generated copies never hand-edited.
-- [x] t10: Verify all four peer URIs resolve to intended upstream bytes through optional project-local projection and machine-installed fallback, without requiring a full local snapshot.
-- [x] t11: Verify router pairs are byte-consistent where required, remain thin, and point to canonical contract/prompt/reference/template authority rather than duplicating policy.
-- [x] t12: Verify project-authored PRDs, `PERF-###` profiles, results, work, findings, waivers, obligations, history, and evidence do not enter shipped defaults or generated package assets.
-- [x] t13: Prove package, release, static-adapter, direct installed-product, Unassisted Goal Testing, Human Experience Review, and support authorities remain independent; package proof and Store receipts cannot promote a performance outcome or support claim.
-- [x] t14: Prove the exact admitted P4 projection only: one deterministic core through CLI/MCP, one stable catalog, one installed agent method, distinct proof states, and no benchmark, hidden write, retry service, Store schema, project record, or support-claim expansion.
+- [x] T8: Inventory exact authorized W19 R2 source resources, router pairs, lifecycle touchpoints, fixtures, generated copies, P4 deterministic operation, rule catalog, agent instructions, and package assets; reject unexpected surfaces.
+- [x] T9: Prove `packages/docs/template/ -> generated packages/cli/template/ -> selected root dogfood -> installed-project proof` in that order, with generated copies never hand-edited.
+- [x] T10: Verify all four peer URIs resolve to intended upstream bytes through optional project-local projection and machine-installed fallback, without requiring a full local snapshot.
+- [x] T11: Verify router pairs are byte-consistent where required, remain thin, and point to canonical contract/prompt/reference/template authority rather than duplicating policy.
+- [x] T12: Verify project-authored PRDs, `PERF-###` profiles, results, work, findings, waivers, obligations, history, and evidence do not enter shipped defaults or generated package assets.
+- [x] T13: Prove package, release, static-adapter, direct installed-product, Unassisted Goal Testing, Human Experience Review, and support authorities remain independent; package proof and Store receipts cannot promote a performance outcome or support claim.
+- [x] T14: Prove the exact admitted P4 projection only: one deterministic core through CLI/MCP, one stable catalog, one installed agent method, distinct proof states, and no benchmark, hidden write, retry service, Store schema, project record, or support-claim expansion.
 
 ### Acceptance criteria
 
@@ -117,14 +117,14 @@ P5 requires accepted and separately committed P2, P3, and P4. P4 includes the de
 
 ### Tasks
 
-- [x] t15: Run PRD-authority validation as a regression check and verify backlog traceability points to current normative PRDs rather than plan prose or requirement history.
-- [x] t16: Run focused contract, prompt, reference, template, URI, frontmatter, relative-link, anchor, managed-block, router-pair, and path-hygiene validation.
-- [x] t17: Run representative lifecycle fixtures covering target classes, characterization-before-promotion, versioned profiles, finite budgets, unchanged reuse, affected-only reruns, diminishing returns, normalized outcomes, expiry, singular requalification, waivers, gates, compatibility, and cross-mode separation.
-- [x] t18: Run local and packed-template resolution checks sufficient to preserve closed R-003, and only the broader package/implementation suites required by the actual changed surfaces.
-- [x] t19: Run P4 focused operation, registry, rule-catalog, CLI/MCP, installed-agent, one-sided-rule, twin-change, proof-state, unsafe-path, package, and non-capability tests.
-- [x] t20: Run whitespace and exact-diff hygiene; confirm the worktree contains only authorized design, plan, PRD, work, resource, implementation, test, and generated-copy changes.
-- [x] t21: Retry only affected failed checks after a material correction, reuse unchanged valid evidence, and stop at budget exhaustion, diminishing return, unsafe resource growth, or conflicting authority.
-- [x] t22: Independently review the complete W19 R2 implementation diff for duplicated authority, unsupported targets, hidden defaults, unbounded reruns, expiry loopholes, correctness trade-offs, rule drift, false cross-certification, cross-mode substitution, support promotion, and scope expansion.
+- [x] T15: Run PRD-authority validation as a regression check and verify backlog traceability points to current normative PRDs rather than plan prose or requirement history.
+- [x] T16: Run focused contract, prompt, reference, template, URI, frontmatter, relative-link, anchor, managed-block, router-pair, and path-hygiene validation.
+- [x] T17: Run representative lifecycle fixtures covering target classes, characterization-before-promotion, versioned profiles, finite budgets, unchanged reuse, affected-only reruns, diminishing returns, normalized outcomes, expiry, singular requalification, waivers, gates, compatibility, and cross-mode separation.
+- [x] T18: Run local and packed-template resolution checks sufficient to preserve closed R-003, and only the broader package/implementation suites required by the actual changed surfaces.
+- [x] T19: Run P4 focused operation, registry, rule-catalog, CLI/MCP, installed-agent, one-sided-rule, twin-change, proof-state, unsafe-path, package, and non-capability tests.
+- [x] T20: Run whitespace and exact-diff hygiene; confirm the worktree contains only authorized design, plan, PRD, work, resource, implementation, test, and generated-copy changes.
+- [x] T21: Retry only affected failed checks after a material correction, reuse unchanged valid evidence, and stop at budget exhaustion, diminishing return, unsafe resource growth, or conflicting authority.
+- [x] T22: Independently review the complete W19 R2 implementation diff for duplicated authority, unsupported targets, hidden defaults, unbounded reruns, expiry loopholes, correctness trade-offs, rule drift, false cross-certification, cross-mode substitution, support promotion, and scope expansion.
 
 ### Acceptance criteria
 
@@ -144,7 +144,7 @@ P5 requires accepted and separately committed P2, P3, and P4. P4 includes the de
 - Passed checks: PRD authority validation passed with 36 PRDs, 591 Markdown files, 196 structured files, 1,181 links, and no diagnostic. Path hygiene passed with 815 checked files and no finding or I/O error. The corrected performance validator passed with catalog version 1, 18 rules, 863 Markdown files, 287 candidates, 40 trace warnings, no error, no mutation, no benchmark, and no retry authority. TypeScript no-emit, router checks, all 13 smoke-harness tests, build, packed local smoke, and `git diff --check` passed.
 - Reused suite evidence: the full CLI suite passed 82 test files and 1,320 tests before it reached two stale inventory expectations. All other tests passed, and 1 file and 5 tests remained intentionally skipped. The first bounded correction added the admitted P4 MCP tool to the exact tool inventory and kept it separate from the 24 W19 R1 P3 operation IDs. The required affected-only rerun then passed both files and all 14 tests. Unchanged passing results were not repeated.
 - Coverage evidence: the suite passed all 20 CLI-projected prompt checks, 16 performance resource tests, 27 corrected performance validator tests, 12 template-link tests, 38 consistency tests, 6 MCP derivation tests, 7 registry contract tests, and 4 operation-domain tests. Fixtures cover each target class, all five outcomes, finite budgets, reuse, affected-only reruns, expiry, singular requalification, waivers, compatibility, proof separation, symbolic authority-root refusal, complete profile fields, required-field `none` refusal, valid archived version history, unsafe paths, and non-capabilities. No real performance benchmark ran.
-- Independent review status: task `01a0b4b4-1e12-7cd0-95ee-51f2305c398a` completed two read-only review cycles. Cycle 1 found six material issues. The owner approved the final correction attempt. The correction refuses symbolic authority roots, validates the complete canonical profile, refuses `none` in required fields, reconciles PRD 39 with the active registry, permits archived prior profile versions, and records the receipt repair as separate non-blocking work. Cycle 2 passed t22 with no remaining material finding. The reviewer made no change.
+- Independent review status: task `01a0b4b4-1e12-7cd0-95ee-51f2305c398a` completed two read-only review cycles. Cycle 1 found six material issues. The owner approved the final correction attempt. The correction refuses symbolic authority roots, validates the complete canonical profile, refuses `none` in required fields, reconciles PRD 39 with the active registry, permits archived prior profile versions, and records the receipt repair as separate non-blocking work. Cycle 2 passed T22 with no remaining material finding. The reviewer made no change.
 - Confirmed limits: the reviewer found no benchmark runner, project writer, retry service, Store schema, arbitrary shipped threshold, package leakage of project records, cross-mode certification, or support-claim promotion.
 - Budget status: both material correction attempts and both review cycles are used. No further correction or review is authorized under this phase budget.
 - Phase / capability status: Stage 3 is accepted. The final correction, affected validation, and independent review pass within the stated limits.
@@ -153,12 +153,12 @@ P5 requires accepted and separately committed P2, P3, and P4. P4 includes the de
 
 ### Tasks
 
-- [x] t23: Record exact branch, HEAD, worktree, dirty state, changed files, generated copies, free disk, and phase correction/review budget consumption.
-- [x] t24: Summarize target-class authority, resource identities, lifecycle and gate integration, evidence and requalification semantics, compatibility and state boundaries, P4 rule-catalog coverage, proof states, and validation limits.
-- [x] t25: Report validation commands and results, reused evidence, bounded waivers, unresolved questions, open risks, findings, deferred obligations, and exact supported scope without closing any item by inference.
-- [x] t26: Prove no benchmark execution, support promotion, publication, release, deployment, or unauthorized Store/product mutation occurred.
-- [x] t27: Distinguish each phase's task status from overall W19 R2 capability status. Apply agent Human Experience Review to each accepted promise and record the evidence, observation, conclusion, limit, and next action. Name any separately required decision, remediation, commit, publication, or release gate.
-- [x] t28: Present the bounded closeout and a short optional experience handoff. Do not require a human response unless an explicit acceptance gate applies. Stop before staging, commit, push, publication, release, deployment, benchmark execution, or support promotion without separate authorization.
+- [x] T23: Record exact branch, HEAD, worktree, dirty state, changed files, generated copies, free disk, and phase correction/review budget consumption.
+- [x] T24: Summarize target-class authority, resource identities, lifecycle and gate integration, evidence and requalification semantics, compatibility and state boundaries, P4 rule-catalog coverage, proof states, and validation limits.
+- [x] T25: Report validation commands and results, reused evidence, bounded waivers, unresolved questions, open risks, findings, deferred obligations, and exact supported scope without closing any item by inference.
+- [x] T26: Prove no benchmark execution, support promotion, publication, release, deployment, or unauthorized Store/product mutation occurred.
+- [x] T27: Distinguish each phase's task status from overall W19 R2 capability status. Apply agent Human Experience Review to each accepted promise and record the evidence, observation, conclusion, limit, and next action. Name any separately required decision, remediation, commit, publication, or release gate.
+- [x] T28: Present the bounded closeout and a short optional experience handoff. Do not require a human response unless an explicit acceptance gate applies. Stop before staging, commit, push, publication, release, deployment, benchmark execution, or support promotion without separate authorization.
 
 ### Acceptance criteria
 

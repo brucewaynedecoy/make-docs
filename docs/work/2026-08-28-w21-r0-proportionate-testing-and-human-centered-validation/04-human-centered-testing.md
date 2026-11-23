@@ -48,15 +48,15 @@ The agent performs Human Experience Review against the built result and accepted
 
 ### Tasks
 
-- [ ] t1: Update the shared contract and reference with the distinct purpose, normal participant, advisory gate effect, and valid results for Guided Progress Review.
-- [ ] t2: Define valid results as `experienced`, `feedback-recorded`, `declined`, `blocked-by-environment`, and `not-applicable`.
-- [ ] t3: Require the agent to prepare a safe starting state before inviting the person.
-- [ ] t4: Require one small realistic goal through the public product path, normally in one to five steps.
-- [ ] t5: State what is worth noticing without telling the person what verdict to give.
-- [ ] t6: Put optional troubleshooting after the normal path and provide cleanup or restoration when needed.
-- [ ] t7: State that the review cannot duplicate automated assertions, demand formal sign-off, or block completion.
-- [ ] t8: State that the person can decline without failed work, a negative acceptance result, or a deferred obligation.
-- [ ] t9: Update active facilitator and lifecycle guidance so the owner experiences the product result instead of internal test machinery.
+- [ ] T1: Update the shared contract and reference with the distinct purpose, normal participant, advisory gate effect, and valid results for Guided Progress Review.
+- [ ] T2: Define valid results as `experienced`, `feedback-recorded`, `declined`, `blocked-by-environment`, and `not-applicable`.
+- [ ] T3: Require the agent to prepare a safe starting state before inviting the person.
+- [ ] T4: Require one small realistic goal through the public product path, normally in one to five steps.
+- [ ] T5: State what is worth noticing without telling the person what verdict to give.
+- [ ] T6: Put optional troubleshooting after the normal path and provide cleanup or restoration when needed.
+- [ ] T7: State that the review cannot duplicate automated assertions, demand formal sign-off, or block completion.
+- [ ] T8: State that the person can decline without failed work, a negative acceptance result, or a deferred obligation.
+- [ ] T9: Update active facilitator and lifecycle guidance so the owner experiences the product result instead of internal test machinery.
 
 ### Acceptance criteria
 
@@ -74,16 +74,16 @@ The agent performs Human Experience Review against the built result and accepted
 
 ### Tasks
 
-- [ ] t10: Update active human-facing resource text from naive UAT to Unassisted Goal Testing while preserving the stable PRD filename, `NUAT-###` identities, and required compatibility paths.
-- [ ] t11: Keep detailed activation, scenario identity, qualification, anti-coaching, public-path, evidence, and result rules in the PRD 46 contract and reference owners.
-- [ ] t12: Activate Unassisted Goal Testing only when an unassisted attempt can reveal a material current uncertainty or explicit current acceptance authority requires it.
-- [ ] t13: Recognize valid triggers such as a new mental model, discoverability risk, costly wrong assumption, weak recovery, hidden relationship, or new public goal without suitable evidence.
-- [ ] t14: Define valid results as `clear`, `friction`, `blocked`, `invalid-run`, and `not-needed-now`.
-- [ ] t15: Keep the result diagnostic and advisory unless explicit current product or release authority gives it a blocking effect.
-- [ ] t16: Give the qualified person a realistic starting point, one or a few public goals, real safety limits, and no hidden path.
-- [ ] t17: Mark a coached, privately informed, broken-environment, or otherwise invalid execution as `invalid-run` without turning it into product failure.
-- [ ] t18: Preserve the canonical Persona evidence path and actual selected Persona slug without treating Persona as proof of tester qualification.
-- [ ] t19: Do not add a new mandatory Skill or runtime command for the first release.
+- [ ] T10: Update active human-facing resource text from naive UAT to Unassisted Goal Testing while preserving the stable PRD filename, `NUAT-###` identities, and required compatibility paths.
+- [ ] T11: Keep detailed activation, scenario identity, qualification, anti-coaching, public-path, evidence, and result rules in the PRD 46 contract and reference owners.
+- [ ] T12: Activate Unassisted Goal Testing only when an unassisted attempt can reveal a material current uncertainty or explicit current acceptance authority requires it.
+- [ ] T13: Recognize valid triggers such as a new mental model, discoverability risk, costly wrong assumption, weak recovery, hidden relationship, or new public goal without suitable evidence.
+- [ ] T14: Define valid results as `clear`, `friction`, `blocked`, `invalid-run`, and `not-needed-now`.
+- [ ] T15: Keep the result diagnostic and advisory unless explicit current product or release authority gives it a blocking effect.
+- [ ] T16: Give the qualified person a realistic starting point, one or a few public goals, real safety limits, and no hidden path.
+- [ ] T17: Mark a coached, privately informed, broken-environment, or otherwise invalid execution as `invalid-run` without turning it into product failure.
+- [ ] T18: Preserve the canonical Persona evidence path and actual selected Persona slug without treating Persona as proof of tester qualification.
+- [ ] T19: Do not add a new mandatory Skill or runtime command for the first release.
 
 ### Acceptance criteria
 
@@ -102,16 +102,16 @@ The agent performs Human Experience Review against the built result and accepted
 
 ### Tasks
 
-- [ ] t20: Connect the agent-owned W20 Human Experience Review lens to Guided Progress Review, Unassisted Goal Testing, expert review, indirect evidence, and remediation without creating another test run or default human gate.
-- [ ] t21: Reuse suitable W20 or implementation evidence for each applicable experience promise before selecting more testing.
-- [ ] t22: Record one `satisfied`, `material gap`, or `insufficient evidence` review conclusion per applicable promise.
-- [ ] t23: If evidence is insufficient, select the smallest testing type that can answer the current question.
-- [ ] t24: Require every human request to explain why it is useful now, the goal, expected time and effort, what the agent prepared, what to notice, gate effect, stop or cleanup, and feedback use.
-- [ ] t25: Start instructions from the person's goal and public product path.
-- [ ] t26: Keep raw payloads, long IDs, internal commands, hidden setup, and technical detail out of the normal path unless the goal needs them.
-- [ ] t27: Keep optional help clearly separate so it does not coach an unassisted result.
-- [ ] t28: Make feedback use explicit without manufacturing approval or asking the person to validate agent-owned assertions.
-- [ ] t29: Preserve the person's right to stop safely and report confusion in their own words.
+- [ ] T20: Connect the agent-owned W20 Human Experience Review lens to Guided Progress Review, Unassisted Goal Testing, expert review, indirect evidence, and remediation without creating another test run or default human gate.
+- [ ] T21: Reuse suitable W20 or implementation evidence for each applicable experience promise before selecting more testing.
+- [ ] T22: Record one `satisfied`, `material gap`, or `insufficient evidence` review conclusion per applicable promise.
+- [ ] T23: If evidence is insufficient, select the smallest testing type that can answer the current question.
+- [ ] T24: Require every human request to explain why it is useful now, the goal, expected time and effort, what the agent prepared, what to notice, gate effect, stop or cleanup, and feedback use.
+- [ ] T25: Start instructions from the person's goal and public product path.
+- [ ] T26: Keep raw payloads, long IDs, internal commands, hidden setup, and technical detail out of the normal path unless the goal needs them.
+- [ ] T27: Keep optional help clearly separate so it does not coach an unassisted result.
+- [ ] T28: Make feedback use explicit without manufacturing approval or asking the person to validate agent-owned assertions.
+- [ ] T29: Preserve the person's right to stop safely and report confusion in their own words.
 
 ### Acceptance criteria
 
@@ -130,17 +130,17 @@ The agent performs Human Experience Review against the built result and accepted
 
 ### Tasks
 
-- [ ] t30: Add a passing fixture where a guided review produces a recognizable result without duplicate technical checks.
-- [ ] t31: Add a passing fixture where the owner declines and the phase remains valid.
-- [ ] t32: Add a passing diagnostic fixture where an unassisted attempt reveals a hidden relationship or mental-model gap.
-- [ ] t33: Add a failure fixture where coaching invalidates an unassisted run.
-- [ ] t34: Add a passing fixture where a user-visible slice selects `not-needed-now` because the activity cannot change a current decision.
-- [ ] t35: Add a passing fixture where agent Human Experience Review reuses existing evidence and closes without a human response instead of creating a fifth run.
-- [ ] t36: Add a failure fixture where technically correct instructions are too long, too internal, or too difficult for the stated person and goal.
-- [ ] t37: Add a failure fixture where Guided Progress Review or default Unassisted Goal Testing is made a hard sign-off gate.
-- [ ] t38: Run focused checks for affected contracts, references, prompts, templates, Persona routing, evidence routing, and human scenario fixtures.
-- [ ] t39: Decide whether one W21 Unassisted Goal Test can answer a material current uncertainty. If not, record `not-needed-now` without an obligation.
-- [ ] t40: Record Phase 4 evidence, review conclusions, findings, obligations, and capability status for Phase 5.
+- [ ] T30: Add a passing fixture where a guided review produces a recognizable result without duplicate technical checks.
+- [ ] T31: Add a passing fixture where the owner declines and the phase remains valid.
+- [ ] T32: Add a passing diagnostic fixture where an unassisted attempt reveals a hidden relationship or mental-model gap.
+- [ ] T33: Add a failure fixture where coaching invalidates an unassisted run.
+- [ ] T34: Add a passing fixture where a user-visible slice selects `not-needed-now` because the activity cannot change a current decision.
+- [ ] T35: Add a passing fixture where agent Human Experience Review reuses existing evidence and closes without a human response instead of creating a fifth run.
+- [ ] T36: Add a failure fixture where technically correct instructions are too long, too internal, or too difficult for the stated person and goal.
+- [ ] T37: Add a failure fixture where Guided Progress Review or default Unassisted Goal Testing is made a hard sign-off gate.
+- [ ] T38: Run focused checks for affected contracts, references, prompts, templates, Persona routing, evidence routing, and human scenario fixtures.
+- [ ] T39: Decide whether one W21 Unassisted Goal Test can answer a material current uncertainty. If not, record `not-needed-now` without an obligation.
+- [ ] T40: Record Phase 4 evidence, review conclusions, findings, obligations, and capability status for Phase 5.
 
 ### Acceptance criteria
 
@@ -156,6 +156,6 @@ The agent performs Human Experience Review against the built result and accepted
 
 ### Closeout Notes
 
-- Testing decision(s): Use focused Automated Implementation Testing for affected resources and fixtures. Keep Performance Testing `not-needed-now`. Carry one optional Guided Progress Review candidate to Phase 5. Activate at most one Unassisted Goal Test only if t39 finds material current uncertainty.
+- Testing decision(s): Use focused Automated Implementation Testing for affected resources and fixtures. Keep Performance Testing `not-needed-now`. Carry one optional Guided Progress Review candidate to Phase 5. Activate at most one Unassisted Goal Test only if T39 finds material current uncertainty.
 - Human Experience Review: Required agent work for the human request pattern and exercise candidate. Reuse evidence from W20 and this phase. Keep the experience handoff optional unless an explicit gate applies.
 - Phase / capability status: Record the Phase 4 status and evidence before joint installed proof.

@@ -116,11 +116,11 @@ PERF disposition: The earlier delegated decision approved the exact 73-record fi
 
 | Work / criterion | Current disposition |
 | --- | --- |
-| t1–t3 / A51–A55 | Complete bounded source/package/installed proof, with selected native display and connected-chat outcomes. |
-| t4 / A56 | Terminal waiver recorded; no measurement pass. |
+| T1–T3 / A51–A55 | Complete bounded source/package/installed proof, with selected native display and connected-chat outcomes. |
+| T4 / A56 | Terminal waiver recorded; no measurement pass. |
 | A57 | No speed or scale claim created. |
-| t5 / A58 | Open: final-installed narrow, print, keyboard, focus, and reduced-motion checks. |
-| t6 | Complete within actual Codex refresh/changed-state/Explain/Work and installed fallback proof. No unsupported-native-host or multiple-host fallback claim. |
+| T5 / A58 | Open: final-installed narrow, print, keyboard, focus, and reduced-motion checks. |
+| T6 | Complete within actual Codex refresh/changed-state/Explain/Work and installed fallback proof. No unsupported-native-host or multiple-host fallback claim. |
 | A59 | Advisory three-step invitation offered: Search, Data, close Data. Optional feedback pending. No response gate or obligation. |
 | A60 | Bounded satisfied for reviewed core native/installed path. Accessibility scope limits remain explicit. |
 | P7 / W25 | Active; no final acceptance, staging, commit, push, publication, or release. |
@@ -136,7 +136,7 @@ The following records preserve prior results and permissions. They are not curre
 
 ## P7 Start and Testing Decisions — 2026-10-07
 
-The record agent verifies `w25-r0-p1-live-delivery-contract`, clean HEAD `fe9d312cafd54dff39d2e4c30cb3a480abc97b0c`, and no changes before P7 edits. The user authorizes P7 and its four prework items. P7 is in progress; t1-t6/A51-A60 remain unchecked/unproved until one exact candidate has suitable evidence. Preserve approved UI and prior source/mock limits.
+The record agent verifies `w25-r0-p1-live-delivery-contract`, clean HEAD `fe9d312cafd54dff39d2e4c30cb3a480abc97b0c`, and no changes before P7 edits. The user authorizes P7 and its four prework items. P7 is in progress; T1-T6/A51-A60 remain unchecked/unproved until one exact candidate has suitable evidence. Preserve approved UI and prior source/mock limits.
 
 The [P7 work decisions](07-parity-performance-and-acceptance.md#current-testing-decisions) contain all eleven PRD 50 fields. Automated/candidate acceptance has one focused/assembled batch, one package/isolated-installed proof set, and one affected retry per material finding within 90 minutes/$0. The clock starts with the first acceptance batch and excludes external approval waits. Required agent Human Experience Review reuses suitable evidence and one finite UI matrix, with one affected correction/review cycle. Guided review is one advisory invitation of at most five normal-use steps; decline or no response creates no gate or obligation. Unassisted Goal Testing is `not-needed-now`, with zero runs.
 
@@ -208,11 +208,11 @@ P1 is source-level contract evidence. P2 is now complete as a bounded source and
 
 The user separately authorized P3 implementation on 2026-09-30. Its tested source checkpoint uses the same branch after P2 commit `0c112e57`. The user then authorized P3 closeout and a local commit on that date. P3 is closed for shared source integration. These records belong to the P3 phase closeout commit. All 147 affected tests, 53 default checks, and the type check pass. Final mixed, small, limited, and large output comparisons preserve report meaning and accepted layout. Required agent review finds no material gap within the local browser limit. The owner's optional feedback was “Clear; no change” on an earlier generated sample. No production live widget or new browser review is claimed.
 
-The user separately authorized P4 implementation on 2026-10-04 after accepted W24 authority was merged at `26bdf1ce`. Its tested source checkpoint uses the current branch, based on `bdd21481`. The user then authorized P4 closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. P4 is closed for source tool/resource integration and useful no-UI output. These records belong to the phase closeout commit. Tasks t1-t6 and A25-A32 pass. The selected evidence covers 541 unique cases across bounded runs, type and build checks, asset drift checks, and independent output review. Required agent Human Experience Review found no material gap within that scope. Full product widget and host behavior remain P5-P7 work. P5 is next eligible and needs separate implementation authority.
+The user separately authorized P4 implementation on 2026-10-04 after accepted W24 authority was merged at `26bdf1ce`. Its tested source checkpoint uses the current branch, based on `bdd21481`. The user then authorized P4 closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. P4 is closed for source tool/resource integration and useful no-UI output. These records belong to the phase closeout commit. Tasks T1-T6 and A25-A32 pass. The selected evidence covers 541 unique cases across bounded runs, type and build checks, asset drift checks, and independent output review. Required agent Human Experience Review found no material gap within that scope. Full product widget and host behavior remain P5-P7 work. P5 is next eligible and needs separate implementation authority.
 
-The user separately authorized P5 preflight fixes and implementation on 2026-10-04. Its tested pre-commit checkpoint is based on P4 commit `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2` on the same branch. On 2026-10-06, the owner approved the live footer remedy and five labels, then separately asked to close P5 and commit it. P5 is closed within source and finite browser scope. t1-t6/A33-A40, the repaired 73-record changed result, required agent review, and 405 unique selected cases across finite runs support the closeout. These records belong to the P5 phase closeout commit. Root owns staging and the local commit. P6/P7, installation, Store/host changes, branch changes, push, publication, and release remain outside this authority.
+The user separately authorized P5 preflight fixes and implementation on 2026-10-04. Its tested pre-commit checkpoint is based on P4 commit `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2` on the same branch. On 2026-10-06, the owner approved the live footer remedy and five labels, then separately asked to close P5 and commit it. P5 is closed within source and finite browser scope. T1-T6/A33-A40, the repaired 73-record changed result, required agent review, and 405 unique selected cases across finite runs support the closeout. These records belong to the P5 phase closeout commit. Root owns staging and the local commit. P6/P7, installation, Store/host changes, branch changes, push, publication, and release remain outside this authority.
 
-The user separately authorized P6 implementation and then closeout/local commit on client date 2026-10-06. Its pre-commit base is `04edf4f61ee5af21c319dbc4698cc578fb5362c7`. P6 is closed within source and bounded mock-host/static scope. t1-t6/A41-A50, the original e4/304-case checkpoint, and final 3bde/137-case affected proof remain distinct. Preview approval and later direct layout/Data-modal requests supply consultation. Required agent reviews are satisfied within recorded limits. The [closeout record](#p6-closeout--2026-10-06) and phase history belong to the authorized local commit. P7, push, release, installation, Store/host changes, and branch changes remain outside this authority.
+The user separately authorized P6 implementation and then closeout/local commit on client date 2026-10-06. Its pre-commit base is `04edf4f61ee5af21c319dbc4698cc578fb5362c7`. P6 is closed within source and bounded mock-host/static scope. T1-T6/A41-A50, the original e4/304-case checkpoint, and final 3bde/137-case affected proof remain distinct. Preview approval and later direct layout/Data-modal requests supply consultation. Required agent reviews are satisfied within recorded limits. The [closeout record](#p6-closeout--2026-10-06) and phase history belong to the authorized local commit. P7, push, release, installation, Store/host changes, and branch changes remain outside this authority.
 
 ## P1 Tested State
 
@@ -384,7 +384,7 @@ All eight cases pass within the bounded fixture scope. The result applies to the
 
 ## P2 Document Checks
 
-The source-guide agent read the current P2 work and plan, PRD 50 review rules, lifecycle build guidance, execution workflow, coverage contract, source Backlog guidance, and the maintainer MCP guide before editing. The agent preserved t1-t6 and A9-A16. All six tasks now have evidence.
+The source-guide agent read the current P2 work and plan, PRD 50 review rules, lifecycle build guidance, execution workflow, coverage contract, source Backlog guidance, and the maintainer MCP guide before editing. The agent preserved T1-T6 and A9-A16. All six tasks now have evidence.
 
 The selected content path check passed for the five changed Markdown files. The final link check also passed for this phase's history and new capture links. The agent checked the history's required headings, tables, coordinate, and relative paths against the current history contract. These checks establish document hygiene, not package or host behavior. Run the selected path check from the project root:
 
@@ -661,13 +661,13 @@ Next is [W25 R0 P4 preflight](04-backlog-profile-tools-and-ui-resource.md) again
 
 The user authorized P4 implementation on 2026-10-04. The source-guide agent verified branch `w25-r0-p1-live-delivery-contract`, HEAD `bdd21481497cd78d53baa445dff8c8bbc21c7211`, and a clean working tree before its first edits. Accepted W24 authority was merged at `26bdf1ce`, from W24 completion `b4c253c1`. The dated merge handoff above remains historical evidence.
 
-The initial P4 work, plan, and index updates preserve t1-t6 and A25-A32. They bind the accepted W24 dependency and the user's implementation authority. P4's current claim is shared tool/resource integration, read-only access, exact profile membership, and useful output without UI. Product widget controls, host display, refresh review flow, installed acceptance, and broader host support remain later work.
+The initial P4 work, plan, and index updates preserve T1-T6 and A25-A32. They bind the accepted W24 dependency and the user's implementation authority. P4's current claim is shared tool/resource integration, read-only access, exact profile membership, and useful output without UI. Product widget controls, host display, refresh review flow, installed acceptance, and broader host support remain later work.
 
 The records use the PRD 50 common decision fields. Automated Implementation Testing is required with a finite affected-first pass and gate effect `blocking-claim-only`. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`, each with a zero-run budget. Required Human Experience Review is separate agent work. It records observations, conclusions, limits, reviewer, and next actions from actual results. No owner response gate or new obligation is created.
 
 The initial PRD authority command `make-docs run prd authority validate --target-root .` passed: 35 PRDs, 586 Markdown source files, 1,103 links, and zero diagnostics. `git diff --check` passed after the first-step edits. These record-only checks did not establish P4 implementation acceptance. The implementation evidence below supplies the later proof.
 
-At the implementation checkpoint, the final source and tests were frozen and uncommitted. Tasks t1-t6 and A25-A32 had evidence below. That authority did not permit phase closeout, history creation, or a local commit. The user later authorized those steps on 2026-10-04. P4 is closed. These records belong to the P4 phase closeout commit. The tested checkpoint remains the earlier source state based on `bdd21481`.
+At the implementation checkpoint, the final source and tests were frozen and uncommitted. Tasks T1-T6 and A25-A32 had evidence below. That authority did not permit phase closeout, history creation, or a local commit. The user later authorized those steps on 2026-10-04. P4 is closed. These records belong to the P4 phase closeout commit. The tested checkpoint remains the earlier source state based on `bdd21481`.
 
 The earlier implementation authority did not permit staging or commit. The closeout instruction now authorizes staging the reviewed P4 file set and a local commit. It does not authorize a new host review, Store write, installation, push, publication, release, branch change, or P5 work.
 
@@ -933,12 +933,12 @@ The final browser command was `node docs/work/2026-09-24-w25-r0-live-backlog-rev
 
 | Item | Result and evidence |
 | --- | --- |
-| t1 / A33 | Shared-model rendering keeps Attention before Next and Work/Data under Backlog. Earlier body/CSS parity binds the baseline. The approved live-only footer is the deliberate later difference. Final affected browser order and report context agree. |
-| t2 / A34-A35 | Accepted colors, status reasons, six phase meanings, detail classes, type, rules, and spacing remain distinct. The coordinator passed wide/narrow/light/dark/print review. |
-| t3 / A36 | Pass within final source/browser scope. Owner-approved live footer placement/labels, retained reports, no-model chat recovery, failed/missing bridge, and valid large changed state have affected proof. Static footer and masthead link remain. P5 executes no P6 action. |
-| t4 / A37 | Local-control tests, the earlier browser control pass, and coordinator interaction produce zero `tools/call` and agent `ui/message` requests. Display-size notifications carry layout only. |
-| t5 / A38 | Data is lazy. User-started JSON contains the complete validated model, independent of local filters. Browser download equality and focused checks pass. |
-| t6 / A39 | Accepted control names and keyboard paths remain intact. Bounded browser keyboard use, visible focus, reduced motion, safe hostile text, and focused checks pass. |
+| T1 / A33 | Shared-model rendering keeps Attention before Next and Work/Data under Backlog. Earlier body/CSS parity binds the baseline. The approved live-only footer is the deliberate later difference. Final affected browser order and report context agree. |
+| T2 / A34-A35 | Accepted colors, status reasons, six phase meanings, detail classes, type, rules, and spacing remain distinct. The coordinator passed wide/narrow/light/dark/print review. |
+| T3 / A36 | Pass within final source/browser scope. Owner-approved live footer placement/labels, retained reports, no-model chat recovery, failed/missing bridge, and valid large changed state have affected proof. Static footer and masthead link remain. P5 executes no P6 action. |
+| T4 / A37 | Local-control tests, the earlier browser control pass, and coordinator interaction produce zero `tools/call` and agent `ui/message` requests. Display-size notifications carry layout only. |
+| T5 / A38 | Data is lazy. User-started JSON contains the complete validated model, independent of local filters. Browser download equality and focused checks pass. |
+| T6 / A39 | Accepted control names and keyboard paths remain intact. Bounded browser keyboard use, visible focus, reduced motion, safe hostile text, and focused checks pass. |
 | A40 | Pass within source and finite browser scope. The owner-approved footer remedy and larger-input adapter repair have final actual-source proof. Required agent review finds no material visible/control defect in that scope. The unattributed inspection log stays an explicit limit. |
 
 ### P5 Required Human Experience Review
@@ -962,13 +962,13 @@ The four common decisions remain in the [P5 work record](05-live-widget-and-loca
 
 Guide coverage is `update-existing`: five upstream Markdown guides state the full local widget, safe client data, local controls, source-path recovery, and feedback limits. Chat/static remain usable without CLI or Store. Saved-file and separate-task consent is unchanged. Installed Skill copies and accepted static source were not edited. PRD reconciliation is `link-only`; no accepted product rule changed. The user's 2026-10-06 closeout instruction authorizes history coverage `create`: one [P5 record](../../../.make-docs/archive/history/2026-10-06-w25-r0-p5-live-widget-and-local-interaction.md) records this session. No prior P5 history existed.
 
-P5 is closed on 2026-10-06 within source and finite browser scope. The footer and larger-input adapter findings are resolved by affected proof. t1-t6 and A33-A40 have bounded evidence. The user authorized the reviewed local commit. P6 refresh calls, controlled review messages, task actions, and P7 acceptance remain pending separate authority. No production host, installed acceptance, Store write, host setting, publication, or release claim is made.
+P5 is closed on 2026-10-06 within source and finite browser scope. The footer and larger-input adapter findings are resolved by affected proof. T1-T6 and A33-A40 have bounded evidence. The user authorized the reviewed local commit. P6 refresh calls, controlled review messages, task actions, and P7 acceptance remain pending separate authority. No production host, installed acceptance, Store write, host setting, publication, or release claim is made.
 
 ## P5 Owner Status UI Finding — 2026-10-06
 
 The owner said “Overall I think it passes.” The owner found the rest of the report fine. At the initial review, the multiple statuses above the masthead were unaccepted. Their UI, content, and placement had not been reviewed with the owner. This opened a material finding in the status/notice block. The coordinator's source/PRD review found that its location is a P5 implementation choice, not a mandated product location.
 
-Current conclusion: resolved within the final source and finite browser proof below. t3 and A40 are complete within that scope. Existing tests, synthetic browser proof, source hashes, agent observations, and other completed tasks remain valid within their earlier scope. The earlier “Clear; no change” concerned only choosing a wave and opening details. Footer approval was separate and explicit.
+Current conclusion: resolved within the final source and finite browser proof below. T3 and A40 are complete within that scope. Existing tests, synthetic browser proof, source hashes, agent observations, and other completed tasks remain valid within their earlier scope. The earlier “Clear; no change” concerned only choosing a wave and opening details. Footer approval was separate and explicit.
 
 The owner's next direction was: “Status message should be in the footer. Remove the ‘Open the project’ link from the footer and show a permanent ‘Status: <status>’.” On 2026-10-06, the owner answered “Yes, approved” to the preview placement and exact five labels below. The approved change removes above-masthead notices and replaces only the live footer's `Open the project` link with permanent plain `Status: <status>`. The static report footer and masthead link stay unchanged. The rest of the owner's report feedback remains valid.
 
@@ -1006,7 +1006,7 @@ The final [73-record changed view](evidence/p5/footer-source-large-changed-final
 
 The smaller checking/source-failure/bad-update cases retain the report and exact approved labels. Checking follows validated matching refresh input. Settled missing and rejected bridges retain valid data and the update-failed footer, including after a later valid result. The separate no-model view shows `Report unavailable` and the existing chat next action. The 390 × 844 failed-bridge capture keeps its long status readable. Data-to-Work size changes retain the footer inside the frame. Keyboard disclosure opens Facts, Inference, and Recommended action. The saved review retains the exact observations and capture links. Earlier unchanged display, Data/download, and print proof is reused.
 
-Required agent conclusion: the approved footer placement/words and preserved report/control boundary are satisfied within the finite reviewed scope. t3 and A40 are resolved. The owner's explicit approval covers the footer choice; it is not a production-host, fresh-review, or lived-use claim.
+Required agent conclusion: the approved footer placement/words and preserved report/control boundary are satisfied within the finite reviewed scope. T3 and A40 are resolved. The owner's explicit approval covers the footer choice; it is not a production-host, fresh-review, or lived-use claim.
 
 One changed-tab observer log has no source URL or stack. The canonical widget and parent contain no MutationObserver, and no material visible/control fault accompanied it. Attribution is unsupported. This record does not claim an empty changed-tab error log or invent a source repair. The fresh normal tab logs are empty. An attributable stack or visible fault would trigger a check of that exact case.
 
@@ -1083,7 +1083,7 @@ At final review, branch `w25-r0-p1-live-delivery-contract`, HEAD `19c19f42d90d83
 
 ## P5 Closeout — 2026-10-06
 
-The user explicitly asked to close W25 R0 P5 and then commit it. P5 is closed within the source and finite browser scope already proved. Tasks t1-t6 and A33-A40 remain complete. The owner-approved live footer and repaired large-input validator are preserved. Current final resource is 427,214 bytes, SHA-256 `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a`. The tested pre-commit checkpoint remains based on `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2`. These records belong to the P5 phase closeout commit.
+The user explicitly asked to close W25 R0 P5 and then commit it. P5 is closed within the source and finite browser scope already proved. Tasks T1-T6 and A33-A40 remain complete. The owner-approved live footer and repaired large-input validator are preserved. Current final resource is 427,214 bytes, SHA-256 `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a`. The tested pre-commit checkpoint remains based on `19c19f42d90d836ed7c1a5e23f7abf1230bee1c2`. These records belong to the P5 phase closeout commit.
 
 Closeout reuses 405 unique selected cases across finite runs. The final48 and overlapping159, type/build/drift, exact stdio proof, and saved browser review already pass. Source bytes did not change during closeout. No code test or browser review is repeated. The required agent review and scoped owner approval remain valid. The unattributed changed-tab observer log remains a limit; fresh normal logs are empty.
 
@@ -1116,7 +1116,7 @@ That command exits two before inspecting the history. The current history contra
 
 ## P6 Start and Design Gate — 2026-10-06
 
-The source-guide agent verified branch `w25-r0-p1-live-delivery-contract`, HEAD `04edf4f61ee5af21c319dbc4698cc578fb5362c7`, and a clean working tree before its first P6 edits. P1-P5 are closed. This start record binds implementation authority and the direct user design gate. At that point, t1-t6 and A41-A50 needed actual proof. The later [implementation result](#p6-implementation-and-acceptance-evidence--2026-10-06) is separate acceptance evidence.
+The source-guide agent verified branch `w25-r0-p1-live-delivery-contract`, HEAD `04edf4f61ee5af21c319dbc4698cc578fb5362c7`, and a clean working tree before its first P6 edits. P1-P5 are closed. This start record binds implementation authority and the direct user design gate. At that point, T1-T6 and A41-A50 needed actual proof. The later [implementation result](#p6-implementation-and-acceptance-evidence--2026-10-06) is separate acceptance evidence.
 
 The user explicitly requires preview approval for any new or updated P6 live UI element, wording, or behavior. Reviewer: Tyler. Surface: a concrete preview of exact controls, icons, accessible names, text, placement, outcomes, and recovery/disabled states. Acceptance question: approve this exact preview for live activation? Gate effect: blocking for that activation and the affected whole-surface A50 claim. It is separate from advisory Guided Progress Review and required agent Human Experience Review. The approval below covers only the exact feedback-removed version; actual-source proof is still required.
 
@@ -1228,12 +1228,12 @@ The owner approved only the exact `v1.2-feedback-removed` preview. The actual so
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Owned Refresh calls the existing refresh tool. Source/controller checks and the unchanged/changed browser paths pass. Existing P4 refresh starts with current deterministic facts. |
-| t2 | Unchanged, exact changed lists, typed source/cache limits, and prior-report retention have source and selected browser proof. Failed writes preserve a validated report in the agent helper. |
-| t3 | The portable agent helper validates the whole rebuilt model before proposing cache input. The active-agent callback keeps existing fresh miss/rejected selection and write/allowWrite admission. No browser cache write occurs. |
-| t4 | Fixed wave actions and changed-review requests validate exact identities and source references. Browser requests and changed-review deduplication pass. |
-| t5 | New Task sends only a fixed request to the active agent. Current facts, direct named-chat intent, host support, and a real creation result are checked by the tested helper. No task is created in this browser proof. |
-| t6 | A valid replacement restores current state. Invalid, stale, late, or failed results cannot discard the reviewed report within the tested boundary. Local view state survives the observed replacement. |
+| T1 | Owned Refresh calls the existing refresh tool. Source/controller checks and the unchanged/changed browser paths pass. Existing P4 refresh starts with current deterministic facts. |
+| T2 | Unchanged, exact changed lists, typed source/cache limits, and prior-report retention have source and selected browser proof. Failed writes preserve a validated report in the agent helper. |
+| T3 | The portable agent helper validates the whole rebuilt model before proposing cache input. The active-agent callback keeps existing fresh miss/rejected selection and write/allowWrite admission. No browser cache write occurs. |
+| T4 | Fixed wave actions and changed-review requests validate exact identities and source references. Browser requests and changed-review deduplication pass. |
+| T5 | New Task sends only a fixed request to the active agent. Current facts, direct named-chat intent, host support, and a real creation result are checked by the tested helper. No task is created in this browser proof. |
+| T6 | A valid replacement restores current state. Invalid, stale, late, or failed results cannot discard the reviewed report within the tested boundary. Local view state survives the observed replacement. |
 
 | ID | Result and evidence limit |
 | --- | --- |
@@ -1293,7 +1293,7 @@ The user directly requests removal of Work/Data tabs and an icon-only top Data b
 
 ## P6 Closeout — 2026-10-06
 
-The user now explicitly authorizes P6 closeout and a local commit on this client date. P6 is closed within the recorded source/mock/static scope. t1-t6/A41-A50 and frozen source/evidence are preserved. The [phase history](../../../.make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md) supplies the commit body. The prior e4/304 checkpoint and final 3bde/137 affected set stay distinct. Preview approval and exact wave-layout/Data-modal requests supply consultation; required agent reviews are satisfied and Guided Review is advisory. No new gate or UI change is added.
+The user now explicitly authorizes P6 closeout and a local commit on this client date. P6 is closed within the recorded source/mock/static scope. T1-T6/A41-A50 and frozen source/evidence are preserved. The [phase history](../../../.make-docs/archive/history/2026-10-06-w25-r0-p6-refresh-cache-and-agent-actions.md) supplies the commit body. The prior e4/304 checkpoint and final 3bde/137 affected set stay distinct. Preview approval and exact wave-layout/Data-modal requests supply consultation; required agent reviews are satisfied and Guided Review is advisory. No new gate or UI change is added.
 
 Root stages the reviewed closeout files and creates the authorized local commit. The records belong to that closeout commit and do not self-reference its future SHA. Pre-commit base remains `04edf4f61ee5af21c319dbc4698cc578fb5362c7`. Push, release, installation, Store/host changes, branch changes, and P7 are outside this authority. P7 retains real-host, installed, and PERF-002 acceptance work. Existing height, emitted-download-only, and unassigned-log limits remain unchanged.
 

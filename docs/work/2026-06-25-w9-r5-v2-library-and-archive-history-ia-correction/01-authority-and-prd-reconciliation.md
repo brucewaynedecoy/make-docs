@@ -20,9 +20,9 @@ This phase captures the corrective design, reconciles active PRDs in place, and 
 
 ### Tasks
 
-- [x] t1: Create W9 R5 design authority with `Route: change-plan` and `Coordinate Handoff: W9 R5`.
-- [x] t2: Create the W9 R5 plan bundle under `docs/plans/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/`.
-- [x] t3: Create the W9 R5 work backlog under `docs/work/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/`.
+- [x] T1: Create W9 R5 design authority with `Route: change-plan` and `Coordinate Handoff: W9 R5`.
+- [x] T2: Create the W9 R5 plan bundle under `docs/plans/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/`.
+- [x] T3: Create the W9 R5 work backlog under `docs/work/2026-06-25-w9-r5-v2-library-and-archive-history-ia-correction/`.
 
 ### Acceptance criteria
 
@@ -44,10 +44,10 @@ This phase captures the corrective design, reconciles active PRDs in place, and 
 
 ### Tasks
 
-- [x] t4: Update PRD 22 to name `docs/assets/library/**` and `docs/assets/archive/history/**` as the effective managed project asset paths.
-- [x] t5: Update PRD 03 risk/register entries for duplicated path knowledge and W9 R5 supersession.
-- [x] t6: Update supporting PRDs that still name old paths as future-facing authority.
-- [x] t7: Update active plan/work routers and unresolved downstream backlog prefaces to apply W9 R5.
+- [x] T4: Update PRD 22 to name `docs/assets/library/**` and `docs/assets/archive/history/**` as the effective managed project asset paths.
+- [x] T5: Update PRD 03 risk/register entries for duplicated path knowledge and W9 R5 supersession.
+- [x] T6: Update supporting PRDs that still name old paths as future-facing authority.
+- [x] T7: Update active plan/work routers and unresolved downstream backlog prefaces to apply W9 R5.
 
 ### Acceptance criteria
 

@@ -6,11 +6,11 @@ Rewrite selected first-party skills so they call CLI/shared-core operations inst
 
 ## Tasks
 
-- [x] t1: Update `closeout-commit`, `closeout-phase`, `work-on-wave`, and `work-on-phase` skill prose, references, and metadata to call the CLI/shared-core boundary.
-- [x] t2: Update `packages/cli/skill-registry.json` and registry tests only after the replacement operation and skill rewrite both exist.
-- [x] t3: Classify removed helper scripts as managed old scripts, managed wrappers, modified local files, or custom scripts.
-- [x] t4: Preserve no-default-skills behavior for bare installs.
-- [x] t5: Keep explicit selected-skill installs functional for project and home scopes.
+- [x] T1: Update `closeout-commit`, `closeout-phase`, `work-on-wave`, and `work-on-phase` skill prose, references, and metadata to call the CLI/shared-core boundary.
+- [x] T2: Update `packages/cli/skill-registry.json` and registry tests only after the replacement operation and skill rewrite both exist.
+- [x] T3: Classify removed helper scripts as managed old scripts, managed wrappers, modified local files, or custom scripts.
+- [x] T4: Preserve no-default-skills behavior for bare installs.
+- [x] T5: Keep explicit selected-skill installs functional for project and home scopes.
 
 ## Implementation Notes
 

@@ -63,10 +63,10 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [
 
 ### Tasks
 
-- [x] t1: Add exact report-record cross-reference validation for every Next item and every non-null Attention item.
-- [x] t2: Preserve `recordPath` as the reference identity and derive the visible sourced coordinate from the matched report record.
-- [x] t3: Update deterministic contract checks and the agentic Skill twin together. Require null Attention paths to mean backlog-wide findings.
-- [x] t4: Update chat guidance and fixtures so Next and wave-specific Attention items show the coordinate, while null Attention items use `Backlog finding`.
+- [x] T1: Add exact report-record cross-reference validation for every Next item and every non-null Attention item.
+- [x] T2: Preserve `recordPath` as the reference identity and derive the visible sourced coordinate from the matched report record.
+- [x] T3: Update deterministic contract checks and the agentic Skill twin together. Require null Attention paths to mean backlog-wide findings.
+- [x] T4: Update chat guidance and fixtures so Next and wave-specific Attention items show the coordinate, while null Attention items use `Backlog finding`.
 
 ### Acceptance criteria
 
@@ -84,10 +84,10 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [
 
 ### Tasks
 
-- [x] t5: Render every wave-specific Next and Attention item as one accessible click or tap target with a visible coordinate.
-- [x] t6: On activation, select `All`, activate Backlog Work, set search to the wave coordinate, refresh results, and bring the filtered result into view when needed.
-- [x] t7: Add the conditional icon-only `Clear search` control. Preserve the active filter when it clears search.
-- [x] t8: Preserve independent wave source links, row disclosure, Data state, print reading order, reduced motion, and inert project text.
+- [x] T5: Render every wave-specific Next and Attention item as one accessible click or tap target with a visible coordinate.
+- [x] T6: On activation, select `All`, activate Backlog Work, set search to the wave coordinate, refresh results, and bring the filtered result into view when needed.
+- [x] T7: Add the conditional icon-only `Clear search` control. Preserve the active filter when it clears search.
+- [x] T8: Preserve independent wave source links, row disclosure, Data state, print reading order, reduced motion, and inert project text.
 
 ### Acceptance criteria
 
@@ -103,10 +103,10 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [
 
 ### Tasks
 
-- [x] t9: Run focused and full automated checks for model validation, twin parity, chat meaning, HTML interaction state, safe content, print, and package declarations.
-- [x] t10: Render the retained 70-record report model and review the corrected W19 R6 recommendation on desktop and a narrow screen.
-- [x] t11: Run keyboard, visible-focus, reduced-motion, and search-clear checks. Complete Guided Progress Review and Human Experience Review.
-- [x] t12: Move Attention before Next and replace section-specific spacing with an order-independent second-visible-section rule.
+- [x] T9: Run focused and full automated checks for model validation, twin parity, chat meaning, HTML interaction state, safe content, print, and package declarations.
+- [x] T10: Render the retained 70-record report model and review the corrected W19 R6 recommendation on desktop and a narrow screen.
+- [x] T11: Run keyboard, visible-focus, reduced-motion, and search-clear checks. Complete Guided Progress Review and Human Experience Review.
+- [x] T12: Move Attention before Next and replace section-specific spacing with an order-independent second-visible-section rule.
 
 ### Acceptance criteria
 
@@ -128,7 +128,7 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [
 - Evidence report: [P6 result in the central report](evidence.md#p6-report-item-traceability-and-navigation).
 - History: [P6 closeout record](../../../.make-docs/archive/history/2026-09-22-w23-r0-p6-report-item-traceability-and-navigation.md).
 - Phase / capability status: P6 closes only the accepted traceability, navigation, and owner-requested section-order scope. P7 remains the final package parity and acceptance phase.
-- Authority status: The owner approved P6 preflight and implementation, reviewed the generated report, requested the final layout corrections, and directed P6 closeout and local commit on 2026-09-22. Tasks t1 through t12 and A45-A52 are complete. P7 remains a separate action.
+- Authority status: The owner approved P6 preflight and implementation, reviewed the generated report, requested the final layout corrections, and directed P6 closeout and local commit on 2026-09-22. Tasks T1 through T12 and A45-A52 are complete. P7 remains a separate action.
 
 ## Coverage Pass
 

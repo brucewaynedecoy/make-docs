@@ -41,9 +41,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 - Base maintenance action: `create`
 - Performance applicability: `characterize-now`
-- Canonical `PERF-###` profile link or `none`: `PERF-004`, written in this phase by t1 before any measurement.
+- Canonical `PERF-###` profile link or `none`: `PERF-004`, written in this phase by T1 before any measurement.
 - Finite evidence budget and stop-rule reference or `not-applicable`: the `PERF-004` profile's budget and stop rules.
-- Execution packet link or `not-applicable`: Stage 2 tasks t6 and t7.
+- Execution packet link or `not-applicable`: Stage 2 tasks T6 and T7.
 - Outcome and evidence handoff or `none`: the central `evidence.md` report after a result exists.
 - Gate disposition and supported-scope limit or `not-applicable`: informational for speed. Sync correctness stays blocking.
 
@@ -62,11 +62,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Write the `PERF-004` profile in this phase file under the performance evidence profile template.
-- [ ] t2: Install the candidate in a clean fixture project and in this repo's dogfood instance. Run first import.
-- [ ] t3: Edit the same backlog in two checkouts that share git. Prove import, write, conflict stop, and settle.
-- [ ] t4: Prove a project without Store access keeps `docs/work/` as the authority and every existing command behaves as before.
-- [ ] t5: Prove the commands work in a folder without git.
+- [ ] T1: Write the `PERF-004` profile in this phase file under the performance evidence profile template.
+- [ ] T2: Install the candidate in a clean fixture project and in this repo's dogfood instance. Run first import.
+- [ ] T3: Edit the same backlog in two checkouts that share git. Prove import, write, conflict stop, and settle.
+- [ ] T4: Prove a project without Store access keeps `docs/work/` as the authority and every existing command behaves as before.
+- [ ] T5: Prove the commands work in a folder without git.
 
 ### Acceptance criteria
 
@@ -78,10 +78,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t6: Run `PERF-004` on a project with many backlogs within its budget.
-- [ ] t7: Record the baseline and the fast-path decision.
-- [ ] t8: Complete a Human Experience Review for each promise in the index.
-- [ ] t9: Create `evidence.md`, record every result and limit, and link it from the index.
+- [ ] T6: Run `PERF-004` on a project with many backlogs within its budget.
+- [ ] T7: Record the baseline and the fast-path decision.
+- [ ] T8: Complete a Human Experience Review for each promise in the index.
+- [ ] T9: Create `evidence.md`, record every result and limit, and link it from the index.
 
 ### Acceptance criteria
 

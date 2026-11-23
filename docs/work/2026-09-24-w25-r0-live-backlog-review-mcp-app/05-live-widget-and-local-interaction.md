@@ -115,11 +115,11 @@ Required agent Human Experience Review is separate from these four types. Review
 
 ### Tasks
 
-- [x] t1: Render the accepted report structure from the shared model.
-- [x] t2: Preserve light, dark, responsive, and print variables and spacing.
-- [x] t3: Add live, refresh, changed, and action feedback states without hiding content.
+- [x] T1: Render the accepted report structure from the shared model.
+- [x] T2: Preserve light, dark, responsive, and print variables and spacing.
+- [x] T3: Add live, refresh, changed, and action feedback states without hiding content.
 
-t3's scoped footer finding is resolved by the owner's approved placement/words and final actual-source proof below. No other task was reopened.
+T3's scoped footer finding is resolved by the owner's approved placement/words and final actual-source proof below. No other task was reopened.
 
 ### Acceptance criteria
 
@@ -137,9 +137,9 @@ t3's scoped footer finding is resolved by the owner's approved placement/words a
 
 ### Tasks
 
-- [x] t4: Implement search, clear, filters, sort, disclosure, theme, print, Data, and download as local actions.
-- [x] t5: Preserve lazy Data formatting and user-started JSON creation.
-- [x] t6: Add keyboard, focus, reduced-motion, and safe-text tests.
+- [x] T4: Implement search, clear, filters, sort, disclosure, theme, print, Data, and download as local actions.
+- [x] T5: Preserve lazy Data formatting and user-started JSON creation.
+- [x] T6: Add keyboard, focus, reduced-motion, and safe-text tests.
 
 ### Acceptance criteria
 
@@ -165,7 +165,7 @@ t3's scoped footer finding is resolved by the owner's approved placement/words a
 
 ## Current Implementation State
 
-- P5 is closed on 2026-10-06 within the source and finite browser scope. t1-t6 and A33-A40 have evidence. The owner approved the footer placement and exact five labels. The actual-source remedy and 73-record changed refresh pass. See [resolved finding](evidence.md#p5-owner-status-ui-finding--2026-10-06).
+- P5 is closed on 2026-10-06 within the source and finite browser scope. T1-T6 and A33-A40 have evidence. The owner approved the footer placement and exact five labels. The actual-source remedy and 73-record changed refresh pass. See [resolved finding](evidence.md#p5-owner-status-ui-finding--2026-10-06).
 - Current proof covers 405 unique selected cases across finite runs: revised widget48, affected304, and defaults53. The final48 and overlapping159 pass; unaffected earlier cases are reused. Required agent review is complete within the recorded limits.
 - The owner's earlier “Clear; no change” covered only the choose-wave/details path. It did not accept the notice's UI, content, or placement. No new general owner response gate is created.
 - The user authorized closeout and a local commit on 2026-10-06. These records belong to the P5 phase closeout commit. The tested pre-commit checkpoint remains based on `19c19f42`, with final resource hash `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a`. Root owns staging the reviewed file set and committing it.
@@ -173,12 +173,12 @@ t3's scoped footer finding is resolved by the owner's approved placement/words a
 
 ## Owner Status UI Finding — 2026-10-06
 
-The owner said “Overall I think it passes.” The rest of the report looks fine to the owner. At the initial review, the multiple statuses above the masthead were unaccepted. Their UI, content, and placement had not been reviewed with the owner. This opened a material finding in t3 and the A40 whole-surface claim.
+The owner said “Overall I think it passes.” The rest of the report looks fine to the owner. At the initial review, the multiple statuses above the masthead were unaccepted. Their UI, content, and placement had not been reviewed with the owner. This opened a material finding in T3 and the A40 whole-surface claim.
 
 The owner's next direction was: “Status message should be in the footer. Remove the ‘Open the project’ link from the footer and show a permanent ‘Status: <status>’.” The owner then answered “Yes, approved” to the preview placement and exact five labels on 2026-10-06. Remove notices above the live masthead. Replace only the live footer's `Open the project` link with permanent plain `Status: <status>`. Use `Ready`, `Checking source facts`, `Needs review`, `Last reviewed report — source unavailable`, and `Last reviewed report — update failed`. Preserve the static report footer and the masthead link.
 
 The approved [footer preview](http://127.0.0.1:52444/?state=current) used the retained 2026-10-04 report with 73 records and simulated statuses. It was not a fresh 2026-10-06 review. Scoped light/dark/narrow and paired-view checks passed. This preview approval establishes placement and words, not actual-source completion.
 
-The approved source remedy passes. Final [browser review](evidence/p5/footer-browser-review.md) confirms the footer, report boundary, rare states, local controls, size, and valid 73-record changed result. The browser crypto adapter's 32-hash limit was repaired under unchanged schema/hash rules. Final source hash is `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a`. t3 and A40 are resolved within this proof. The existing technical proof and unrelated work remain valid. The user's separate 2026-10-06 closeout instruction now closes P5. This creates no general owner response gate.
+The approved source remedy passes. Final [browser review](evidence/p5/footer-browser-review.md) confirms the footer, report boundary, rare states, local controls, size, and valid 73-record changed result. The browser crypto adapter's 32-hash limit was repaired under unchanged schema/hash rules. Final source hash is `134ffdc7635434bf1cbdbf3a908166036d68654a321c0e6d12fc34e1f9c7869a`. T3 and A40 are resolved within this proof. The existing technical proof and unrelated work remain valid. The user's separate 2026-10-06 closeout instruction now closes P5. This creates no general owner response gate.
 
 One changed-tab inspection log remains unattributed. It has no source URL or stack. Canonical widget and parent code contain no MutationObserver, and no material visible/control fault accompanied it. Fresh normal-tab logs are empty before and after normal use. This is a recorded limit, not a speculative source defect. Production-host and installed proof remain later work.

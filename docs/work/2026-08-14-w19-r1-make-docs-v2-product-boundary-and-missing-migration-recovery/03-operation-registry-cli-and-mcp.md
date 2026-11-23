@@ -42,14 +42,14 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread all Source PRDs and PRD 03 from the active worktree and record each revision or content digest.
-- [x] t3: Reevaluate at minimum Q-001, Q-007, Q-023, Q-024, R-005, R-017, R-021, and R-025; include Q-012 and Q-013 only if live work introduces agentic or plugin scope, and add newly relevant items from the live reread.
-- [x] t4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
-- [x] t5: Record an explicit no-blocker determination and finite correction/review budget before unlocking t8 when no blocker or gap remains.
-- [x] t6: Stop before implementation for each blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [x] t7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; task completion cannot close governed records implicitly.
-- [x] t8: Record the Stage 1 result, authority digests, P2 dependency evidence, and implementation unlock or stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2 closeout, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread all Source PRDs and PRD 03 from the active worktree and record each revision or content digest.
+- [x] T3: Reevaluate at minimum Q-001, Q-007, Q-023, Q-024, R-005, R-017, R-021, and R-025; include Q-012 and Q-013 only if live work introduces agentic or plugin scope, and add newly relevant items from the live reread.
+- [x] T4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
+- [x] T5: Record an explicit no-blocker determination and finite correction/review budget before unlocking T8 when no blocker or gap remains.
+- [x] T6: Stop before implementation for each blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] T7: Require canonical authority changes, focused validation, a separate decision commit, and its recorded SHA before unlock; task completion cannot close governed records implicitly.
+- [x] T8: Record the Stage 1 result, authority digests, P2 dependency evidence, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -69,16 +69,16 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 - Decision evidence: the owner approved Option 1, authorized the documentation-only commit and push, and then gave separate implementation authorization. Decision commit `dddb6d1645ac32e96d95812cb5a3c875052a52c5` was pushed before implementation started.
 - P2 dependency evidence: accepted P2 implementation commit `6bf85e59d0da488a053c242cca9509849e0ae8cd` supplied the resource identity and resolver core required by P3.
 - Testing-mode decision(s): public-surface parity candidates are identified; scenario execution remains P7.
-- Phase / capability status: no P3 blocker remained after the decision commit. The owner gave explicit implementation authorization, and Stage 1 unlocked t9 with a finite implementation and review scope.
+- Phase / capability status: no P3 blocker remained after the decision commit. The owner gave explicit implementation authorization, and Stage 1 unlocked T9 with a finite implementation and review scope.
 
 ## Stage 2 - Register Retained Operations
 
 ### Tasks
 
-- [x] t9: Retain the existing active `prd.authority.validate`, `work.item.resolve`, `work.evidence.record`, and `work.evidence.read` identifiers. Activate `resource.list`, `resource.read`, and `resource.ensure` in the canonical registry. Map them to `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>`. Record stable input/output schemas, mutation class, provenance behavior, and typed errors sourced from P2.
-- [x] t10: Register 17 operations as pending. Register `project.surface.ensure` with `pendingLineage: W19 R1 P4`. Register `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` with `pendingLineage: W19 R1 P6`. Register `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` with `pendingLineage: W19 R1 P7`. Do not claim that a pending handler exists.
-- [x] t11: Do not introduce or reintroduce a Playbook/Protocol registry entry, unapproved plugin/workflow-bundle operation namespace, or affirmative legacy product claim, and fail closed on unknown operation identifiers; preserve every pre-existing Playbook/Protocol registry entry, implementation, and public surface unchanged as a frozen retirement candidate until P5 establishes lock/quiescence and P8 completes a fresh production-consumer trace, backup, and traced retirement.
-- [x] t12: Prove each active P3 operation resolves to one shared-core handler. Prove each pending entry returns a typed pending result and does not claim a handler. Prove registry metadata cannot create a second lifecycle transition, resource type, Persona rule, or support claim. Do not alter a frozen legacy entry to satisfy this proof.
+- [x] T9: Retain the existing active `prd.authority.validate`, `work.item.resolve`, `work.evidence.record`, and `work.evidence.read` identifiers. Activate `resource.list`, `resource.read`, and `resource.ensure` in the canonical registry. Map them to `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>`. Record stable input/output schemas, mutation class, provenance behavior, and typed errors sourced from P2.
+- [x] T10: Register 17 operations as pending. Register `project.surface.ensure` with `pendingLineage: W19 R1 P4`. Register `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` with `pendingLineage: W19 R1 P6`. Register `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` with `pendingLineage: W19 R1 P7`. Do not claim that a pending handler exists.
+- [x] T11: Do not introduce or reintroduce a Playbook/Protocol registry entry, unapproved plugin/workflow-bundle operation namespace, or affirmative legacy product claim, and fail closed on unknown operation identifiers; preserve every pre-existing Playbook/Protocol registry entry, implementation, and public surface unchanged as a frozen retirement candidate until P5 establishes lock/quiescence and P8 completes a fresh production-consumer trace, backup, and traced retirement.
+- [x] T12: Prove each active P3 operation resolves to one shared-core handler. Prove each pending entry returns a typed pending result and does not claim a handler. Prove registry metadata cannot create a second lifecycle transition, resource type, Persona rule, or support claim. Do not alter a frozen legacy entry to satisfy this proof.
 
 ### Acceptance criteria
 
@@ -105,10 +105,10 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [x] t13: Implement the seven CLI roots `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. Preserve the context-aware bare `make-docs` flow. Project the active resource CLI paths, pending `make-docs project surface ensure <archive|artifacts|assets>`, pending `make-docs run lifecycle <operation>`, and the six pending `make-docs run uat` paths from the registry as thin adapters.
-- [x] t14: Preserve read-only versus mutating distinctions in help, dry-run/review flow, exit status, human output, and stable machine-readable output.
-- [x] t15: Render provenance, ownership, conflict, unavailable, blocked, and typed receipt outcomes without upgrading a receipt into proof of repository mutation or acceptance.
-- [x] t16: Verify CLI handlers contain no resolver precedence, Store transition, Persona selection, anti-coaching, finding, or gate business logic.
+- [x] T13: Implement the seven CLI roots `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. Preserve the context-aware bare `make-docs` flow. Project the active resource CLI paths, pending `make-docs project surface ensure <archive|artifacts|assets>`, pending `make-docs run lifecycle <operation>`, and the six pending `make-docs run uat` paths from the registry as thin adapters.
+- [x] T14: Preserve read-only versus mutating distinctions in help, dry-run/review flow, exit status, human output, and stable machine-readable output.
+- [x] T15: Render provenance, ownership, conflict, unavailable, blocked, and typed receipt outcomes without upgrading a receipt into proof of repository mutation or acceptance.
+- [x] T16: Verify CLI handlers contain no resolver precedence, Store transition, Persona selection, anti-coaching, finding, or gate business logic.
 
 ### Acceptance criteria
 
@@ -132,10 +132,10 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [x] t17: Expose system-resource inventory and reads through native MCP resources using the same stable URI, resolver, provenance, and typed not-found/conflict semantics as the CLI.
-- [x] t18: Expose one MCP tool for every admitted operation. Route active resource ensure through its shared handler and authorization checks. Route the pending project surface, lifecycle, and Naive-UAT tools only to typed pending results until P4, P6, or P7 activates their handlers.
-- [x] t19: Keep MCP native-resource reads side-effect free and prevent MCP transport code from defining alternative resource identity, Store transitions, Persona defaulting, UAT policy, or evidence routing.
-- [x] t20: Normalize CLI/MCP error and receipt projections so transport-specific envelopes do not change operation meaning; preserve every pre-existing Playbook/Protocol transport and public surface unchanged without adding a new legacy route or affirmative product claim.
+- [x] T17: Expose system-resource inventory and reads through native MCP resources using the same stable URI, resolver, provenance, and typed not-found/conflict semantics as the CLI.
+- [x] T18: Expose one MCP tool for every admitted operation. Route active resource ensure through its shared handler and authorization checks. Route the pending project surface, lifecycle, and Naive-UAT tools only to typed pending results until P4, P6, or P7 activates their handlers.
+- [x] T19: Keep MCP native-resource reads side-effect free and prevent MCP transport code from defining alternative resource identity, Store transitions, Persona defaulting, UAT policy, or evidence routing.
+- [x] T20: Normalize CLI/MCP error and receipt projections so transport-specific envelopes do not change operation meaning; preserve every pre-existing Playbook/Protocol transport and public surface unchanged without adding a new legacy route or affirmative product claim.
 
 ### Acceptance criteria
 
@@ -159,11 +159,11 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 
 ### Tasks
 
-- [x] t21: Add focused conformance tests that inject registry, resolver, authorization, and transport failures and prove CLI/MCP semantic parity without shared test fixtures masking divergence.
-- [x] t22: Verify native MCP resource discovery/read behavior for all four types. Verify MCP-tool behavior for the seven active and seventeen pending nonlegacy identifiers.
-- [x] t23: Run focused CLI, MCP, registry, type, link/path, and whitespace checks; reuse unchanged valid evidence and do not invent performance targets.
-- [x] t24: Obtain independent review of registry ownership, public grammar, MCP resource/tool selection, policy duplication, new legacy exposure, and premature legacy-surface mutation or removal; correct only actionable defects within budget.
-- [x] t25: Record the exact 24-identifier nonlegacy inventory, its seven active and seventeen pending states, the frozen pre-existing Playbook/Protocol surface baseline, validation evidence, nonblocking items, the P4/P6/P7 handler handoffs, and the locked P5/P8 quiescence-and-retirement handoff.
+- [x] T21: Add focused conformance tests that inject registry, resolver, authorization, and transport failures and prove CLI/MCP semantic parity without shared test fixtures masking divergence.
+- [x] T22: Verify native MCP resource discovery/read behavior for all four types. Verify MCP-tool behavior for the seven active and seventeen pending nonlegacy identifiers.
+- [x] T23: Run focused CLI, MCP, registry, type, link/path, and whitespace checks; reuse unchanged valid evidence and do not invent performance targets.
+- [x] T24: Obtain independent review of registry ownership, public grammar, MCP resource/tool selection, policy duplication, new legacy exposure, and premature legacy-surface mutation or removal; correct only actionable defects within budget.
+- [x] T25: Record the exact 24-identifier nonlegacy inventory, its seven active and seventeen pending states, the frozen pre-existing Playbook/Protocol surface baseline, validation evidence, nonblocking items, the P4/P6/P7 handler handoffs, and the locked P5/P8 quiescence-and-retirement handoff.
 
 ### Acceptance criteria
 
@@ -191,19 +191,19 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 - Locked legacy handoff: P5 must establish lock and quiescence before a legacy mutation. P8 must complete a fresh production-consumer trace, backup, and traced retirement before it removes a frozen Playbook or Protocol surface.
 - Historical independent coordinator gate: the coordinator independently reran the 106 focused tests, the package build, the selected MCP and seven-root CLI tests, policy, wave numbering, path hygiene, whitespace, PRD authority, changed-document link, and legacy-freeze checks. That gate passed the then-selected checks. The owner later rejected P3 acceptance and expanded the required gate to include the full remediation inventory in Stage 6.
 - Superseded classification: the earlier broad-repository-debt and nonblocking classification is superseded. The owner directed P3 to revisit the build stage under the lifecycle straddle rule. This explicit revisit departs from the default lifecycle arc because acceptance was rejected after the earlier focused gate.
-- Historical phase / capability status: P3 implementation and the independent quality gate passed after the explicit Stage 6 build-stage revisit. Independent review t24 was closed again. Owner acceptance and commit or push had not occurred at this historical checkpoint. Stage 6 and the final P3 history record supersede this status. P4 remains separately gated.
+- Historical phase / capability status: P3 implementation and the independent quality gate passed after the explicit Stage 6 build-stage revisit. Independent review T24 was closed again. Owner acceptance and commit or push had not occurred at this historical checkpoint. Stage 6 and the final P3 history record supersede this status. P4 remains separately gated.
 
 ## Stage 6 - Revisit Build-Stage Acceptance Debt
 
 ### Tasks
 
-- [x] t26: Correct the four P3 regressions found by the expanded review: the `run/entry.ts` dependency-direction violation, the stale four-domain expectation, parity logic that was not canonical-root-aware, and the assertion that treated pending `lifecycle.checkpoint` as pruned.
-- [x] t27: Complete the prompt path migration from the retired nested prompt path to the selected system-resource projection. Remove stale prompt-path assumptions without restoring a second source of truth.
-- [x] t28: Correct the audit `paths[0]` undefined crash. Prove invalid input fails before path resolution and valid manifest-present and manifest-missing audit flows retain their typed results.
-- [x] t29: Correct the verified 66 TypeScript errors across 15 files. Rerun the package TypeScript check without broad casts or weaker contracts.
-- [x] t30: Reconcile template, dogfood, and instruction-router drift. Prove upstream-first template authority and the installed dogfood projection agree where the current contracts require parity.
-- [x] t31: Correct all findings from the refreshed full broken-link index, including archive, template/generated, artifact, design, plan/work, and CLI README findings. Rerun the full index with `.make-docs` included.
-- [x] t32: Run a new full independent gate across the complete P3 surface and remediation inventory. Record exact commands and results. Keep owner acceptance separate from implementation and validation evidence.
+- [x] T26: Correct the four P3 regressions found by the expanded review: the `run/entry.ts` dependency-direction violation, the stale four-domain expectation, parity logic that was not canonical-root-aware, and the assertion that treated pending `lifecycle.checkpoint` as pruned.
+- [x] T27: Complete the prompt path migration from the retired nested prompt path to the selected system-resource projection. Remove stale prompt-path assumptions without restoring a second source of truth.
+- [x] T28: Correct the audit `paths[0]` undefined crash. Prove invalid input fails before path resolution and valid manifest-present and manifest-missing audit flows retain their typed results.
+- [x] T29: Correct the verified 66 TypeScript errors across 15 files. Rerun the package TypeScript check without broad casts or weaker contracts.
+- [x] T30: Reconcile template, dogfood, and instruction-router drift. Prove upstream-first template authority and the installed dogfood projection agree where the current contracts require parity.
+- [x] T31: Correct all findings from the refreshed full broken-link index, including archive, template/generated, artifact, design, plan/work, and CLI README findings. Rerun the full index with `.make-docs` included.
+- [x] T32: Run a new full independent gate across the complete P3 surface and remediation inventory. Record exact commands and results. Keep owner acceptance separate from implementation and validation evidence.
 
 ### Acceptance criteria
 
@@ -213,7 +213,7 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 - The package TypeScript check reports no error.
 - Template, dogfood, and instruction-router checks pass under upstream-first authority.
 - A refreshed full broken-link index with `.make-docs` included reports no unresolved finding from the verified starting inventory.
-- The full test suite and all focused P3 checks pass. A new independent gate confirms the result before t24 can close again.
+- The full test suite and all focused P3 checks pass. A new independent gate confirms the result before T24 can close again.
 
 ### Dependencies
 
@@ -230,5 +230,5 @@ This phase keeps all deterministic policy and state-transition logic in the shar
 - Repository gate evidence: `bash scripts/check-instruction-routers.sh`, `bash scripts/check-wave-numbering.sh`, and `git diff --check` passed. `python3 .make-docs/scripts/check_path_hygiene.py --repo-root . --format json` checked 86 files with zero errors. The PRD authority gate checked 37 PRDs, 1,028 Markdown files, 40 structured files, and 668 links with zero diagnostics.
 - Documentation and path evidence: the refreshed jdocmunch index contains 1,375 documents and 18,008 sections with zero broken links. The live retired prompt-root scan returned zero matches.
 - Manifest and audit evidence: the compiled audit reports zero `instruction-content-mismatch` paths and zero `managed-file-modified` paths. It preserves only the two root instruction files because they contain valid user content outside matching managed blocks, plus their 16 parent paths. All 89 manifest entries and their nested hashes match current bytes.
-- Phase / capability status: remediation tasks t26 through t32 are complete. P3 implementation and the independent quality gate pass, and t24 is closed again. The owner tested and accepted W19 R1 P3 on 2026-08-18. Implementation commit `93749c9e7d17d4c1cf446d9456499de5fee59635` was pushed to `origin/make-docs-v2`. A later Party integration test found an installed-provider identity mismatch and local catalog-membership defect. Repair commit `f2ed36c6dabf65b7707a5a821d467b4704fc62df` corrected both defects and added full-snapshot provider coverage. The final gate passed the build, zero-error TypeScript check, 68 test files and 1,201 tests, 48 default-content tests, package smoke check, and diff checks. The owner completed the naive-style Party tests successfully. The repair commit was pushed, and no P3 code work remains.
+- Phase / capability status: remediation tasks T26 through T32 are complete. P3 implementation and the independent quality gate pass, and T24 is closed again. The owner tested and accepted W19 R1 P3 on 2026-08-18. Implementation commit `93749c9e7d17d4c1cf446d9456499de5fee59635` was pushed to `origin/make-docs-v2`. A later Party integration test found an installed-provider identity mismatch and local catalog-membership defect. Repair commit `f2ed36c6dabf65b7707a5a821d467b4704fc62df` corrected both defects and added full-snapshot provider coverage. The final gate passed the build, zero-error TypeScript check, 68 test files and 1,201 tests, 48 default-content tests, package smoke check, and diff checks. The owner completed the naive-style Party tests successfully. The repair commit was pushed, and no P3 code work remains.
 - Lifecycle departure: the final work-record and history reconciliation follows the pushed implementation and repair commits. The defect appeared during real-project testing after the initial owner acceptance and required a bounded repair loop. This late documentation closeout records that explicit straddle from the normal implement, coverage, and commit order.

@@ -53,10 +53,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Add the PRD 38 R-MIN rows from P1 before any table exists.
-- [ ] t2: Add the v8 migration entry, its journal row, and the v8 expected-table list. Install the Store write guard triggers on each new table, and add each table to the Store table catalog (PRD 38 R-WRITE-GUARD-3, R-MAINT-1).
-- [ ] t3: Use the reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
-- [ ] t4: Keep writer refusal on v6 and reader refusal on any newer schema.
+- [ ] T1: Add the PRD 38 R-MIN rows from P1 before any table exists.
+- [ ] T2: Add the v8 migration entry, its journal row, and the v8 expected-table list. Install the Store write guard triggers on each new table, and add each table to the Store table catalog (PRD 38 R-WRITE-GUARD-3, R-MAINT-1).
+- [ ] T3: Use the reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
+- [ ] T4: Keep writer refusal on v6 and reader refusal on any newer schema.
 
 ### Acceptance criteria
 
@@ -67,11 +67,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t5: Add a Store service for units, dependencies, links, claims, the sync ledger, and conflicts, with `expectedVersion` on every write.
-- [ ] t6: Enforce one live claim per unit in the schema.
-- [ ] t7: Expire claims by time, as short-lived mutation guards.
-- [ ] t8: Add a test that fails when the R-MIN register and the physical schema drift.
-- [ ] t9: Resolve project names and IDs only through `project_register` from W32 R0 (PRD 38 R-REGISTER-2). Add no second project name record.
+- [ ] T5: Add a Store service for units, dependencies, links, claims, the sync ledger, and conflicts, with `expectedVersion` on every write.
+- [ ] T6: Enforce one live claim per unit in the schema.
+- [ ] T7: Expire claims by time, as short-lived mutation guards.
+- [ ] T8: Add a test that fails when the R-MIN register and the physical schema drift.
+- [ ] T9: Resolve project names and IDs only through `project_register` from W32 R0 (PRD 38 R-REGISTER-2). Add no second project name record.
 
 ### Acceptance criteria
 

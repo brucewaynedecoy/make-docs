@@ -19,7 +19,7 @@ source:
 
 Provide the implementation queue for [PRD 51](../../prd/51-backlog-review-and-reporting.md), the [design](../../designs/2026-09-18-backlog-review-and-reporting.md), and the [W23 R0 plan](../../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md).
 
-The owner authorized P1 through P6, and P1 through P6 are complete. The former P6 package-acceptance phase became P7. On 2026-10-26, the owner accepted the cumulative W23 and W25 proof for P7 t2–t10 and directed t11 to close through W25's later handoff and release review. W23 is complete in that stated scope. This record update does not change source, Store, installation, publication, or release behavior.
+The owner authorized P1 through P6, and P1 through P6 are complete. The former P6 package-acceptance phase became P7. On 2026-10-26, the owner accepted the cumulative W23 and W25 proof for P7 T2–T10 and directed T11 to close through W25's later handoff and release review. W23 is complete in that stated scope. This record update does not change source, Store, installation, publication, or release behavior.
 
 ## Human Experience Trace
 

@@ -55,12 +55,12 @@ Human Experience Review: Inspect a fresh full-project report under the revised r
 
 ### Tasks
 
-- [x] t1: Update `packages/cli/src/operations/prd/authority.ts` to prune directory segments named exactly `evidence` or `implementation-evidence`, without case sensitivity, before traversal. Apply the rule to active PRD discovery and live Markdown scanning. Preserve root and symlink safety.
-- [x] t2: Add regression tests that fail if an excluded directory is entered or a file inside it is read. Cover nested and mixed-case paths, authority-looking evidence, eligible custom live Markdown, and a filename that merely contains `evidence`.
-- [x] t3: Update the rule upstream in `packages/docs/template/.make-docs/system/references/prd-change-management.md` and `packages/docs/template/.make-docs/system/contracts/output-contract.md`. Dogfood the upstream files and prove packed CLI guidance matches.
-- [x] t4: Run the built validator against the full North Atlantic BuildOS project as read-only input. Save the report, selected Markdown count, elapsed time, and any error in phase evidence. Compare the count with the P2 report without claiming a fixed speed target.
-- [x] t5: Run relevant tests and link checks. Complete the agent Human Experience Review.
-- [x] t6: Record the directory-name selector and its full-project result as narrow candidate evidence. Keep D-043 open because the rule does not define working documents.
+- [x] T1: Update `packages/cli/src/operations/prd/authority.ts` to prune directory segments named exactly `evidence` or `implementation-evidence`, without case sensitivity, before traversal. Apply the rule to active PRD discovery and live Markdown scanning. Preserve root and symlink safety.
+- [x] T2: Add regression tests that fail if an excluded directory is entered or a file inside it is read. Cover nested and mixed-case paths, authority-looking evidence, eligible custom live Markdown, and a filename that merely contains `evidence`.
+- [x] T3: Update the rule upstream in `packages/docs/template/.make-docs/system/references/prd-change-management.md` and `packages/docs/template/.make-docs/system/contracts/output-contract.md`. Dogfood the upstream files and prove packed CLI guidance matches.
+- [x] T4: Run the built validator against the full North Atlantic BuildOS project as read-only input. Save the report, selected Markdown count, elapsed time, and any error in phase evidence. Compare the count with the P2 report without claiming a fixed speed target.
+- [x] T5: Run relevant tests and link checks. Complete the agent Human Experience Review.
+- [x] T6: Record the directory-name selector and its full-project result as narrow candidate evidence. Keep D-043 open because the rule does not define working documents.
 
 ### Acceptance criteria
 
@@ -102,13 +102,13 @@ This candidate is superseded. Stage 2 replaced its code, tests, and guidance. Th
 
 ### Tasks
 
-- [x] t1: Replace directory-name pruning with default source selection from direct PRD, design, plan, and work document shapes. Do not enter unrelated descendants beneath plan or work packages. Keep root and symlink safety.
-- [x] t2: Add the optional `prd_authority.markdown_sources` exact-path reader in project config. Reject directories, globs, archive paths, symlinks, unsafe paths, and missing declared files with clear validation results. Do not write config or require Store access.
-- [x] t3: Read a finite YAML header after path selection and before any body read. Use `kind` and `status` as role checks where contracts define them. Keep selected older documents without frontmatter in scope. Fail clearly when malformed or over-limit metadata prevents a required check.
-- [x] t4: Add access and diagnostic tests for default paths, arbitrary stored-copy directory names, copied frontmatter, standard and custom working paths, older files, invalid declarations, Store absence, report coverage, and existing CLI/MCP behavior.
-- [x] t5: Update shipped guidance upstream, dogfood it, and check the packed CLI copy. Explain how a project declares a custom working document and how a user reads the coverage result.
-- [x] t6: Run the built validator against North Atlantic BuildOS as read-only input. Save the fresh report, selected-source classes, counts, elapsed time, and limits. Compare with P2 and the superseded P3 candidate without treating their rules as equivalent.
-- [x] t7: Complete the agent Human Experience Review from the fresh result. Run relevant tests and link checks. Close D-043 only when runtime, tests, shipped guidance, and full-project proof meet the revised PRDs.
+- [x] T1: Replace directory-name pruning with default source selection from direct PRD, design, plan, and work document shapes. Do not enter unrelated descendants beneath plan or work packages. Keep root and symlink safety.
+- [x] T2: Add the optional `prd_authority.markdown_sources` exact-path reader in project config. Reject directories, globs, archive paths, symlinks, unsafe paths, and missing declared files with clear validation results. Do not write config or require Store access.
+- [x] T3: Read a finite YAML header after path selection and before any body read. Use `kind` and `status` as role checks where contracts define them. Keep selected older documents without frontmatter in scope. Fail clearly when malformed or over-limit metadata prevents a required check.
+- [x] T4: Add access and diagnostic tests for default paths, arbitrary stored-copy directory names, copied frontmatter, standard and custom working paths, older files, invalid declarations, Store absence, report coverage, and existing CLI/MCP behavior.
+- [x] T5: Update shipped guidance upstream, dogfood it, and check the packed CLI copy. Explain how a project declares a custom working document and how a user reads the coverage result.
+- [x] T6: Run the built validator against North Atlantic BuildOS as read-only input. Save the fresh report, selected-source classes, counts, elapsed time, and limits. Compare with P2 and the superseded P3 candidate without treating their rules as equivalent.
+- [x] T7: Complete the agent Human Experience Review from the fresh result. Run relevant tests and link checks. Close D-043 only when runtime, tests, shipped guidance, and full-project proof meet the revised PRDs.
 
 ### Acceptance criteria
 

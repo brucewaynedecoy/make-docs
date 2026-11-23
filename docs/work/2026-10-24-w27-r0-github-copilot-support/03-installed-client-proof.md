@@ -40,10 +40,10 @@ A user can select Copilot, inspect one setup change, then use Make Docs in the C
 
 ### Tasks
 
-- [x] t1: Run a real Copilot CLI session from the built package. Record tool discovery, allowed Store read, denied operation, Store-free resource read, and sandbox result.
-- [x] t2: Run the same matrix in the GitHub Copilot app. Record its separate native source and result.
-- [x] t3: Check trusted and untrusted project entry behavior, same-name precedence, and shared skill discovery.
-- [x] t4: Dispose of direct Copilot CLI and app checks on Windows and Linux for the 2.0.5 scope. The owner cannot run them before release and accepted macOS as the only tested client platform. No Windows or Linux Copilot client test passed; CI contract checks do not replace one.
+- [x] T1: Run a real Copilot CLI session from the built package. Record tool discovery, allowed Store read, denied operation, Store-free resource read, and sandbox result.
+- [x] T2: Run the same matrix in the GitHub Copilot app. Record its separate native source and result.
+- [x] T3: Check trusted and untrusted project entry behavior, same-name precedence, and shared skill discovery.
+- [x] T4: Dispose of direct Copilot CLI and app checks on Windows and Linux for the 2.0.5 scope. The owner cannot run them before release and accepted macOS as the only tested client platform. No Windows or Linux Copilot client test passed; CI contract checks do not replace one.
 
 ### Acceptance criteria
 
@@ -59,10 +59,10 @@ A user can select Copilot, inspect one setup change, then use Make Docs in the C
 
 ### Tasks
 
-- [x] t5: Prove repeat setup, drift detection, reviewed repair, key rotation, removal, and rollback in a disposable profile.
-- [x] t6: Compare the real setup text with the Human Experience promises. Record observation, conclusion, limit, and next action for each.
-- [x] t7: Run build, type, focused tests, packaging checks, and link checks. Record exact results.
-- [x] t8: Prepare the PR review packet and the 2.0.5 release notes. Separate approval was given for the W27 push and PR; PR #42 was merged. Release publication remains separate.
+- [x] T5: Prove repeat setup, drift detection, reviewed repair, key rotation, removal, and rollback in a disposable profile.
+- [x] T6: Compare the real setup text with the Human Experience promises. Record observation, conclusion, limit, and next action for each.
+- [x] T7: Run build, type, focused tests, packaging checks, and link checks. Record exact results.
+- [x] T8: Prepare the PR review packet and the 2.0.5 release notes. Separate approval was given for the W27 push and PR; PR #42 was merged. Release publication remains separate.
 
 ### Acceptance criteria
 
@@ -125,7 +125,7 @@ The personal Copilot app on macOS connected through a trusted disposable folder 
 
 With an approved temporary CLI user entry installed, the app listed Make Docs as Connected and returned `ready` through it. A same-name project entry stayed inactive while the folder was untrusted. After trust, the project entry took precedence and its changed key caused `store-denied`. The app also loaded the shipped `preflight` Skill from `.agents/skills`. Cleanup restored the exact original CLI MCP file, removed the saved folder trust and test files, and left Railway as the only installed MCP entry.
 
-Proof limits retained after bounded closeout: a same-name app-added entry and direct Copilot client runs beyond macOS. Windows and Linux CI contract checks do not replace those client runs. No tested cross-platform Copilot client claim is ready. On 2026-10-26, the owner accepted macOS as the tested client scope and discharged P3 t4 without a Windows or Linux test pass. The W27 PR was reviewed and merged as PR #42. Version 2.0.5 still needs its separate release review and publication decision. The [draft release notes](../../assets/project/2026-10-24-v2.0.5-release-notes.md) and [security review](../../assets/project/2026-10-24-v2.0.5-security-review.md) retain that limit.
+Proof limits retained after bounded closeout: a same-name app-added entry and direct Copilot client runs beyond macOS. Windows and Linux CI contract checks do not replace those client runs. No tested cross-platform Copilot client claim is ready. On 2026-10-26, the owner accepted macOS as the tested client scope and discharged P3 T4 without a Windows or Linux test pass. The W27 PR was reviewed and merged as PR #42. Version 2.0.5 still needs its separate release review and publication decision. The [draft release notes](../../assets/project/2026-10-24-v2.0.5-release-notes.md) and [security review](../../assets/project/2026-10-24-v2.0.5-security-review.md) retain that limit.
 
 ### Future direct platform test if the support claim expands
 

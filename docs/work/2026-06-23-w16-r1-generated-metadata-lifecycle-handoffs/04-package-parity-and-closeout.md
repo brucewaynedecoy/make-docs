@@ -12,11 +12,11 @@ Prove metadata-bearing templates work in dogfood, local dev, and packed package 
 
 ## Tasks
 
-- [x] t1: Update `packages/docs/template/` first for metadata-bearing generated templates.
-- [x] t2: Reseed root dogfood copies under review.
-- [x] t3: Verify `packages/cli/template/` reflects metadata-bearing templates after copy/prepack.
-- [x] t4: Update parity tests for metadata-bearing template files.
-- [x] t5: Update PRD/risk closeout evidence and any required history records.
+- [x] T1: Update `packages/docs/template/` first for metadata-bearing generated templates.
+- [x] T2: Reseed root dogfood copies under review.
+- [x] T3: Verify `packages/cli/template/` reflects metadata-bearing templates after copy/prepack.
+- [x] T4: Update parity tests for metadata-bearing template files.
+- [x] T5: Update PRD/risk closeout evidence and any required history records.
 
 ## Acceptance Criteria
 

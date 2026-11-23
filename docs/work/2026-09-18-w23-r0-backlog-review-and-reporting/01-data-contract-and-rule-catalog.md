@@ -63,10 +63,10 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t1: Define valid current-frontmatter work-index and phase shapes, partial current-format handling, inventory-only unsupported handling, phase-map authority, and the private source-reader adapter boundary. Inventory supported task, dependency, blocker, closeout, source-link, and Git evidence shapes without adding a legacy body parser.
-- [x] t2: Complete the accepted version 1 snapshot schema with raw values, sourced facts, provenance, the fixed capability map, record counts, repository-relative record identity, required-key rules, and partial-result states.
-- [x] t3: Define the separate report model with fact, inference, and recommendation claim classes, one exclusive `waveStatus` per live record, one flexible `statusReason` per displayed wave, four fixed portfolio tallies, archive scope, creation date, and the accepted Git and file-time hierarchy for last-updated evidence.
-- [x] t4: Define stable one-to-one rule and diagnostic identities, fixed default severity, human message and remediation fields, and how duplicate coordinates, broken links, malformed records, open-task conflicts, and missing closeout evidence remain visible without controlling report status.
+- [x] T1: Define valid current-frontmatter work-index and phase shapes, partial current-format handling, inventory-only unsupported handling, phase-map authority, and the private source-reader adapter boundary. Inventory supported task, dependency, blocker, closeout, source-link, and Git evidence shapes without adding a legacy body parser.
+- [x] T2: Complete the accepted version 1 snapshot schema with raw values, sourced facts, provenance, the fixed capability map, record counts, repository-relative record identity, required-key rules, and partial-result states.
+- [x] T3: Define the separate report model with fact, inference, and recommendation claim classes, one exclusive `waveStatus` per live record, one flexible `statusReason` per displayed wave, four fixed portfolio tallies, archive scope, creation date, and the accepted Git and file-time hierarchy for last-updated evidence.
+- [x] T4: Define stable one-to-one rule and diagnostic identities, fixed default severity, human message and remediation fields, and how duplicate coordinates, broken links, malformed records, open-task conflicts, and missing closeout evidence remain visible without controlling report status.
 
 ### Acceptance criteria
 
@@ -84,11 +84,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t5: Define stable diagnostics with trigger, evidence class, human meaning, and safe next action.
-- [x] t6: Create the deterministic-agentic rule catalog with parity mappings and explicit one-sided reasons.
-- [x] t7: Create six synthetic fixture groups: canonical current record, mixed portfolio, source-shape limits, conflicts and links, dates and capabilities, and safety and human errors. Use fixed dates and expected structured results for static fixtures. Use test-created temporary repositories or directories for Git, file-time, and path-safety state.
-- [x] t8: Draft expected compact chat and HTML report models with status reasons for each fixture class. Define semantic agent-response checks that preserve diagnostic meaning but do not freeze exact prose.
-- [x] t9: Review the schema and examples for source traceability, honest uncertainty, and useful default detail.
+- [x] T5: Define stable diagnostics with trigger, evidence class, human meaning, and safe next action.
+- [x] T6: Create the deterministic-agentic rule catalog with parity mappings and explicit one-sided reasons.
+- [x] T7: Create six synthetic fixture groups: canonical current record, mixed portfolio, source-shape limits, conflicts and links, dates and capabilities, and safety and human errors. Use fixed dates and expected structured results for static fixtures. Use test-created temporary repositories or directories for Git, file-time, and path-safety state.
+- [x] T8: Draft expected compact chat and HTML report models with status reasons for each fixture class. Define semantic agent-response checks that preserve diagnostic meaning but do not freeze exact prose.
+- [x] T9: Review the schema and examples for source traceability, honest uncertainty, and useful default detail.
 
 ### Acceptance criteria
 

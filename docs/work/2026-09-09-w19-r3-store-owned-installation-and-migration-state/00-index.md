@@ -20,7 +20,7 @@ Move every live Make Docs installation and migration record into the global Stor
 
 This is an interrupt revision of W19 R1. W19 R2 already exists. The source lineage therefore uses W19 R3. The backlog has exactly one implementation phase with five ordered stages. A partial receipt move cannot close that phase.
 
-**Accepted and closed, 2026-09-09:** The user explicitly accepted the W19 R3 closeout and authorized its commit. All tasks t1-t25 are complete. Package proof, reviewed live transfer, final fault checks, and installed CLI status support this result. Package commits are `e954843e` and `9912dd81`; the implementation commit is the next authorized action. W20 and W21 remain paused for the next owner-requested interrupt package.
+**Accepted and closed, 2026-09-09:** The user explicitly accepted the W19 R3 closeout and authorized its commit. All tasks T1-T25 are complete. Package proof, reviewed live transfer, final fault checks, and installed CLI status support this result. Package commits are `e954843e` and `9912dd81`; the implementation commit is the next authorized action. W20 and W21 remain paused for the next owner-requested interrupt package.
 
 Read the [design](../../designs/2026-09-09-store-owned-installation-and-migration-state.md), [plan](../../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/00-overview.md), and current [PRD 38](../../prd/38-global-store-and-project-state.md). Current PRDs own product requirements. The plan owns order. Historical W19 R1 work explains the defect but cannot override the current storage rule. [D-031](../../prd/03-open-questions-and-risk-register.md#d-031-migration-state-remains-in-the-project-despite-the-store-boundary) is closed with owner acceptance.
 
@@ -32,7 +32,7 @@ Read the [design](../../designs/2026-09-09-store-owned-installation-and-migratio
 
 ## Usage Notes
 
-- t1-t25 are complete. Use their phase-local IDs across the five stages. Stages are not separate phases or independently complete product increments. See the phase file's [running evidence](01-store-state-cutover.md#implementation-evidence-running).
+- T1-T25 are complete. Use their phase-local IDs across the five stages. Stages are not separate phases or independently complete product increments. See the phase file's [running evidence](01-store-state-cutover.md#implementation-evidence-running).
 - Work from the accepted current checkout. Check branch, HEAD, dirty files, installed CLI, and Store health before implementation. Do not create or switch a branch or worktree without explicit user permission.
 - The Store owns the installation manifest, applied hashes and ownership, operation progress, receipts, locks, conflict decisions, and recovery metadata. Local config holds declarative project identity and desired settings only.
 - Local project history, plans, PRDs, work state, guides, artifacts, and backup file copies remain under their content contracts. A local history entry or backup description cannot drive installation recovery.
@@ -52,7 +52,7 @@ W19 R3 is accepted and closed. The owner requested a new interrupt package after
 
 ## Draft Validation Baseline
 
-Before backlog generation, PRD authority validation passed for 39 PRDs with no diagnostics. The defaults baseline was 45 of 46 tests. The existing `consistency.test.ts:669` check assumes D-001 through D-030 and fails on existing D-031. P1 t15 includes its correction. Do not treat that known failure as evidence that unrelated new failures are acceptable.
+Before backlog generation, PRD authority validation passed for 39 PRDs with no diagnostics. The defaults baseline was 45 of 46 tests. The existing `consistency.test.ts:669` check assumes D-001 through D-030 and fails on existing D-031. P1 T15 includes its correction. Do not treat that known failure as evidence that unrelated new failures are acceptable.
 
 ## Intended Follow-On
 

@@ -51,9 +51,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [x] t1: Write the catalog entry for each of the 17 tables and for `project_register`: purpose, writers, readers, record class, maintenance class, and retention.
-- [x] t2: Write the catalog entry for each `installation_migration_records` kind.
-- [x] t3: Add a test that fails when the catalog, the physical schema, and the PRD 38 R-MIN rows drift.
+- [x] T1: Write the catalog entry for each of the 17 tables and for `project_register`: purpose, writers, readers, record class, maintenance class, and retention.
+- [x] T2: Write the catalog entry for each `installation_migration_records` kind.
+- [x] T3: Add a test that fails when the catalog, the physical schema, and the PRD 38 R-MIN rows drift.
 
 ### Acceptance criteria
 
@@ -64,10 +64,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [x] t4: Write each fixed rule in PRD 38 R-MAINT-3 as a precise condition, with the liveness proof it uses.
-- [x] t5: Write the decision items in PRD 38 R-MAINT-4 and the reason text for each.
-- [x] t6: Set the retention windows and the kept harness receipt count.
-- [x] t7: Build fixture Stores for each rule, each decision item, and each crash leftover that blocks the machine today.
+- [x] T4: Write each fixed rule in PRD 38 R-MAINT-3 as a precise condition, with the liveness proof it uses.
+- [x] T5: Write the decision items in PRD 38 R-MAINT-4 and the reason text for each.
+- [x] T6: Set the retention windows and the kept harness receipt count.
+- [x] T7: Build fixture Stores for each rule, each decision item, and each crash leftover that blocks the machine today.
 
 ### Acceptance criteria
 

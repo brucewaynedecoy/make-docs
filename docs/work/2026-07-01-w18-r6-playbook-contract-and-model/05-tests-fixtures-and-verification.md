@@ -28,14 +28,14 @@ This phase lands the unit-test and fixture suite for the library and the closing
 
 ### Tasks
 
-- [x] t1: Build valid fixtures, including a fixture equivalent to the architecture artifact Section 2.6 worked example, and assert it parses without error (R-TEST-1, R-WF-7).
-- [x] t2: Build at least one failing fixture per diagnostic code — PB-DOC-001, PB-FM-002, PB-DEP-003, PB-DEP-004, PB-WF-005, PB-WF-006, PB-FILE-007 — and assert each triggers its exact code and severity (R-TEST-1).
-- [x] t3: Cover required-heading-order violations, including missing, reordered, and interleaved-unknown-section cases (R-TEST-2, R-DOC-5, R-DOC-7).
-- [x] t4: Cover dependency-table schema violations: wrong columns, invalid kind or requirement enums, and duplicate IDs (R-TEST-2, R-DEP-2, R-DEP-3).
-- [x] t5: Cover malformed and absent workflow blocks: zero blocks, two blocks, a `yaml` info string instead of `playbook`, and unparseable block content (R-TEST-2, R-WF-1).
-- [x] t6: Cover cross-reference integrity violations in both directions — step references to unknown dependency IDs and routing targets to unknown step ids — plus the `requires`-targets-`optional` contradiction and the unreferenced-dependency warning (R-TEST-2, R-DEP-4).
-- [x] t7: Cover legacy-filename detection for `kind: playbook` on a plain `<slug>.md` file (R-TEST-2, R-DOC-2).
-- [x] t8: Assert fail-soft diagnostic collection (multiple problems yield multiple diagnostics) and fail-closed runnability (any error marks the model not runnable) (R-MODEL-3).
+- [x] T1: Build valid fixtures, including a fixture equivalent to the architecture artifact Section 2.6 worked example, and assert it parses without error (R-TEST-1, R-WF-7).
+- [x] T2: Build at least one failing fixture per diagnostic code — PB-DOC-001, PB-FM-002, PB-DEP-003, PB-DEP-004, PB-WF-005, PB-WF-006, PB-FILE-007 — and assert each triggers its exact code and severity (R-TEST-1).
+- [x] T3: Cover required-heading-order violations, including missing, reordered, and interleaved-unknown-section cases (R-TEST-2, R-DOC-5, R-DOC-7).
+- [x] T4: Cover dependency-table schema violations: wrong columns, invalid kind or requirement enums, and duplicate IDs (R-TEST-2, R-DEP-2, R-DEP-3).
+- [x] T5: Cover malformed and absent workflow blocks: zero blocks, two blocks, a `yaml` info string instead of `playbook`, and unparseable block content (R-TEST-2, R-WF-1).
+- [x] T6: Cover cross-reference integrity violations in both directions — step references to unknown dependency IDs and routing targets to unknown step ids — plus the `requires`-targets-`optional` contradiction and the unreferenced-dependency warning (R-TEST-2, R-DEP-4).
+- [x] T7: Cover legacy-filename detection for `kind: playbook` on a plain `<slug>.md` file (R-TEST-2, R-DOC-2).
+- [x] T8: Assert fail-soft diagnostic collection (multiple problems yield multiple diagnostics) and fail-closed runnability (any error marks the model not runnable) (R-MODEL-3).
 
 ### Acceptance criteria
 
@@ -51,11 +51,11 @@ This phase lands the unit-test and fixture suite for the library and the closing
 
 ### Tasks
 
-- [x] t9: Run validation over all shipped default Playbooks in `packages/docs/template/` and assert zero errors (R-TEST-3).
-- [x] t10: Run validation over the dogfood instance's `docs/assets/playbooks/**` and assert the migrated default Playbook validates with zero errors downstream (R-TEST-3).
-- [x] t11: Verify contract/validator parity by walking the Phase 1 contract's stated rules against the implemented validation layers and diagnostic catalog, and fix whichever side drifted (R-AUTH-3).
-- [x] t12: Run the standard package and consistency validation relevant to the touched surfaces (build, unit tests, defaults validation, and pack smoke where shipped files changed) so template, dogfood, and packaged copies agree.
-- [x] t13: Record the phase history breadcrumbs per the history-record contract with the `W18 R6 P<N>` coordinates as phases close.
+- [x] T9: Run validation over all shipped default Playbooks in `packages/docs/template/` and assert zero errors (R-TEST-3).
+- [x] T10: Run validation over the dogfood instance's `docs/assets/playbooks/**` and assert the migrated default Playbook validates with zero errors downstream (R-TEST-3).
+- [x] T11: Verify contract/validator parity by walking the Phase 1 contract's stated rules against the implemented validation layers and diagnostic catalog, and fix whichever side drifted (R-AUTH-3).
+- [x] T12: Run the standard package and consistency validation relevant to the touched surfaces (build, unit tests, defaults validation, and pack smoke where shipped files changed) so template, dogfood, and packaged copies agree.
+- [x] T13: Record the phase history breadcrumbs per the history-record contract with the `W18 R6 P<N>` coordinates as phases close.
 
 ### Acceptance criteria
 
