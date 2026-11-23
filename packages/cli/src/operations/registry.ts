@@ -654,6 +654,8 @@ function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: 
         ? storeChangedOutsideNextAction(path.dirname(String(issue!.path)))
         : unsafe
         ? `Run \`make-docs project state status --target-root ${JSON.stringify(targetRoot)}\` and review the Store state.`
+        : typeof record.nextAction === "string" && record.nextAction
+        ? record.nextAction
         : "Restore access to the configured Make Docs Store, then retry only this operation.",
       details: { projectRoot: targetRoot, ...(issue ? { issue: { ...issue } } : {}) },
     });

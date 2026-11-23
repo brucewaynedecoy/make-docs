@@ -582,3 +582,246 @@ Schema 6 has every column that the move reads and writes, the same as 2.0.9. Sch
 ### Limits
 
 - W33 R0 P4 made the `project move` and smoke changes. The 2.0.5 reader message check changed with this fix, at integration.
+
+## P5 Real Store Proof and Acceptance
+
+Covers A19 to A24 in [P5](05-real-store-proof-and-acceptance.md). Evidence date: 2026-11-23. Branch: `t3/w32-r0-p5-real-store-proof`, from `docs/w29-w30-work-store-and-factory` at `c2498d55`. Node `v26.13.1`. CLI package version `2.0.9`, built with `npm run build`. No command opened the real Store. Every run used a duplicate of the read-only Store copy that the owner made, with `MAKE_DOCS_HOME` and `HOME` set to temporary folders. The read-only copy kept its SHA-256 (`66d7e4187df5`) through the phase. This report keeps counts, sizes, rule IDs, timings, and redacted examples only: `<project-1>` to `<project-3>` are the owner's projects, `<tmp-project>` is the temporary project that converted the copy, and `<store>` is the duplicate folder.
+
+Units: sizes in this section use the CLI's own label. The CLI prints "MB" for MiB: 1 MB here is 1,048,576 bytes, so 39,780,352 bytes is 37.9 MB. Exact byte counts are given where they matter.
+
+### Owner Decisions (2026-11-23)
+
+1. P5 runs on a copy of the real Store. Done: one read-only copy, and nine duplicates of it, each deleted after use.
+2. Rule 002 stays off. `FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE` is built, and the owner kept the rule off: the catalog state is now `built-kept-off` (a new state) and the rule's activation reason names the decision. On the copy, rule 002 would remove nothing: `tool_operations` has 6 rows, all `completed`, and none is a pending `tool.update` or `tool.uninstall`. `setup store check` keeps reporting what the rule would do, so the owner can revisit it.
+3. `setup store check` and `setup store clean` stay off the native agent command rule list. `make-docs setup store --help` and the Store README now say that people run them in a terminal and agents use the `setup_store_check` and `setup_store_clean` MCP tools.
+4. `project list --target-root`: help text only. The help now says that the list always shows every project in the Store, and that `--target-root <path>` is the project folder whose harness access allows the Store read, does not filter the list, and defaults to the current folder. The registry usage string stays as in PRD 39.
+
+### Drift Fixes (A19)
+
+- `packages/cli/src/store/README.md` is rewritten against the code. It now names only callers, files, and paths that exist: `bootstrapGlobalStore` is called only by `make-docs update` (it said the install apply); the `projects` mirror functions, the Playbook run functions, and `pruneProjectFromStore` have no command caller (it said the apply flow and `setup remove` call them); `setup remove` keeps Store rows; identity lives in `.make-docs/config.yaml` `projectId` first; the inventory link is `docs/assets/project/migrated-operations-inventory.md`; the playbook-packaging seam it named does not exist. It names both backup kinds (`store.db.bridge-v<from>-to-v7-<uuid>.backup` and `backup/store-clean-<time>-<id>.db`, with the `.partial` name while clean writes it), the 18 tables of schema 7 with their 54 guard triggers, schemas 1 to 7, the real conversion path (setup preparation, one verified backup, one transaction per migration with its journal row), the write guard and its limit under R-WRITE-GUARD-6, the maintenance commands, the real locking pragmas (including `trusted_schema` and `synchronous = FULL` on the installation path), and the real recovery path: a corrupt Store is kept and refused, never quarantined and replaced. The privacy audit was rechecked: `skill-resolver.ts` still holds the only `fetch`.
+- Code comments: `OpenStoreDatabaseResult.recovered` and `quarantinedPath` now say that they are always false and null today, and `quarantineDatabase` says that nothing calls it. `KNOWN_STORE_FILES` in `lifecycle.ts` no longer claims to be every file the Store writes.
+- R-WRITE-GUARD-6 in status: `make-docs project state status` now returns `storeIntegrity.writeGuard` (`state` `intact`, and `limit` from the new `STORE_WRITE_GUARD_LIMIT`) and prints "Store write guard: on." with the limit. A guard problem never reaches status, because the guarded open refuses the Store as `store-unsafe` first.
+- The repeated `store-unsafe` next action (P2 follow-up): `StoreAccessStateError` now removes a next action from the end of its reason when the reason already ends with it (`withoutRepeatedNextAction`), so the message and the `reason` field state it once. On the copy with a dropped trigger, "Do not write the Store." now appears once in the `project list` refusal (it appeared twice).
+- The setup `nextAction` for a name refusal (P3 follow-up): setup now gives a `project-name-invalid` or `project-name-taken` refusal its own next action ("Choose another projectName in .make-docs/config.yaml, then run `make-docs setup` again."), the failed condition states the reason once, and `store.mutationState` is `none` (it said `applied` for a Store that needed no conversion). Reproduced before the fix on two temporary projects with the same `projectName`.
+- Template-first rule: no shipped resource under `packages/docs/template/` changed, so no dogfood copy changed.
+
+### Findings On The Copy That P5 Fixed
+
+- A schema 6 Store gave `project list` the next action "Restore access to the configured Make Docs Store, then retry only this operation." That is wrong: the Store is reachable and only needs conversion. The installation state error now carries its next action, and `project list` on a schema 6 Store says "Run make-docs setup to review and apply the Store conversion, then run this command again." An absent Store says "Run make-docs setup in a project first."
+- After any clean, `removeGlobalStore` (the Store removal of `make-docs uninstall --remove-store`) refused the whole Store, because `backup` is a project `.make-docs/` marker and clean makes `<store>/backup/`. Shown on a cleaned duplicate: status `refused`, nothing removed. Now a `backup/` folder next to `store.db` that holds only `store-clean-*.db` and `.store-clean-*.db.partial` files (and a file browser's `.DS_Store` or `Thumbs.db`) is the Store's own. Removal deletes the Store files and keeps the backups (fails closed). The result names them in a new `keptBackups` field. A `backup/` folder with any other file still refuses, now with "its backup folder has other files (...), so Make Docs cannot tell that it holds only Store backups" instead of "marks a project .make-docs/ directory".
+- Reviewed scope of `make-docs uninstall --remove-store` (review fix, PRD 39 R-SELF-1, PRD 38 R-LIFE-1): before confirmation, the Store line now says "explicit removal selected; the Store database and its records will be deleted; Store backups stay in `<store>/backup/` and as store.db.bridge-*.backup files in `<store>`". It said "all stored history and recovery records will be deleted". After removal, when only backups remain, it says "Removed the Store. Kept N backup(s) at `<store>/backup/`. Delete them yourself if you no longer need them." It said "partially removed". It no longer prints "The global Store is preserved" when the Store is being removed; the line is now printed only without `--remove-store`. A test runs a real clean, then `runToolUninstallCommand` with `removeStore: true`, and checks all three texts.
+- Rows inside the 30-day window (owner wording request, confirmed in the Guided Progress Review on 2026-11-23): `setup store check` and `setup store clean` now say how many rows of rules 003, 004, and 005 wait for the window and the first day one can go, for example "Clean would remove nothing. 38 rows wait for the 30-day window; the first can go on 2026-12-14." The check JSON has a new `waiting` field (`rows`, `retentionDays`, `firstDate`). The count uses the same rules and proofs with every finished operation treated as old enough, minus the rows that act now, so it reads only. With nothing else to review, the next action is "Run make-docs setup store check again on or after <date>." Tested on a fixture before, inside, and after the window.
+- The clean dry run printed its summary twice ("Store clean: Dry run. ..." and "Store check: ..."), the Store line twice, and "Next: Review each item above and use its next step." twice. A dry run and a clean with nothing to remove now state each once.
+
+### Copy Run (A20)
+
+Store copy: schema 6 from Make Docs 2.0.9, 37,003,264 bytes, 9,034 pages of 4,096 bytes (121 free), `quick_check` ok, 17 tables, 0 triggers, `auto_vacuum` 0. Rows: 3 checkouts, 3 ledgers, 9 installation operations (all `completed`), 321 steps, 44 migration records, 6 tool operations, 4 schema journal rows, and 0 rows in every other table. `installation_migration_records` used 27.1 MB of the file, `installation_steps` 3.8 MB, and `installation_operations` 3.1 MB.
+
+1. Before conversion, on schema 6: `project list` and `setup store check` (text and `--json`) refuse with `store-unavailable` and change nothing (same SHA-256). Check says "uses schema 6. Store maintenance needs schema 7. Nothing was changed." and "Run make-docs setup to convert the Store".
+2. Conversion: `make-docs setup --target <tmp-project> --dry-run --no-codex --no-claude-code --no-github-copilot --no-skills` showed `store.disposition: convert`, `sourceSchemaVersion: 6`, `targetSchemaVersion: 7`, and one change: "Create and verify one Store backup before converting schema 6 to schema 7." The same command with `--yes` and no other prompt or flag applied it in 0.5 s. Receipt: the setup result (`status: complete`, `store.mutationState: applied`), the schema journal row 7 ("W32 R0 P2 project register, failed operations, receipt columns, and write guard"), and the verified backup `store.db.bridge-v6-to-v7-<uuid>.backup` (36,507,648 bytes, mode `0600`). Store preparation writes no `store_migration_receipts` row; that table stayed empty, as designed. After conversion: `user_version` 7, 18 tables, 54 triggers, `quick_check` ok, `store.db` mode `0600`, 39,780,352 bytes (9,712 pages, 758 free). The setup of `<tmp-project>` added 1 checkout, 1 ledger, 1 operation, 2 steps, 1 migration record, and 1 `project_register` row.
+3. `project list` (text and `--json`): "The Store knows 4 projects with 4 checkouts. 1 checkout folder is missing." Three owner projects show "Last seen: not recorded yet" (the v7 register starts empty, a P3 decision), and `<tmp-project>` shows its time. No project has a name.
+4. `setup store check` (text and `--json`, real clock): "Clean would remove nothing. 1 item needs your decision. No crash leftover blocks this computer. Nothing was changed." Guard intact, no broken reference, no unguarded table, no unclassified record. The decision is STORE-DECISION-001 for `<project-1>`, whose folder is gone. Check took 0.11 s and changed no byte. After the review fix, a re-run on a fresh duplicate says "Clean would remove nothing. 38 rows wait for the 30-day window; the first can go on 2026-12-14. 1 item needs your decision. ..." (37 owner rows and 1 `<tmp-project>` row; the oldest operation finished on 2026-11-14).
+5. `setup store clean --dry-run`, then `setup store clean` without `--yes` (refused: "Clean changes the Store, so it needs one confirmation. Nothing was changed."), then `setup store clean --yes`: "Clean removed nothing: no fixed rule proves a row now. No backup was made, and the Store did not change." The SHA-256 stayed the same. After the review fix, the same clean says "Clean removed nothing: no fixed rule proves a row now. 38 rows wait for the 30-day window; the first can go on 2026-12-14. No backup was made, and the Store did not change."
+
+Why nothing today: rules 003, 004, and 005 wait 30 days after an operation finishes, and the newest real operation finished on 2026-11-23. With the clock moved (harness, same `checkStore` code), 2026-12-15 gives 2 rows (rule 004, 658,806 bytes), and 2026-12-23T06:00Z gives 37 rows and 35,243,794 bytes from the owner's data alone. On 2026-12-24 the `<tmp-project>` operation joins (1 more rule 004 row).
+
+Clean with the clock at 2026-12-24T12:00:00Z (three runs, each on a fresh duplicate; see [PERF-005](#run-of-perf-005-a22)):
+
+| Rule | Rows changed | Row data |
+| --- | --- | --- |
+| STORE-RULE-003 saved file contents | 13 `installation_steps` rows trimmed (`contentBase64` removed) | 3,765,909 bytes |
+| STORE-RULE-004 full ledgers | 10 `installation_operations` rows trimmed (ledgers set to NULL, receipt columns kept) | 3,301,934 bytes |
+| STORE-RULE-005 plans and write intents | 15 `installation_migration_records` rows removed (13 atomic write intents and 2 detached plans of one `setup.skills.adopt` operation) | 28,245,075 bytes |
+| Rules 001, 006, 007, 008, 009 | 0 | 0 |
+| Rule 002 (off) | 0, and 0 candidates | 0 |
+
+| Table | Rows before | Rows after | Bytes before (`dbstat`) | Bytes after |
+| --- | --- | --- | --- | --- |
+| `installation_migration_records` | 45 | 30 | 28,446,720 | 172,032 |
+| `installation_operations` | 10 | 10 | 3,321,856 | 4,096 |
+| `installation_steps` | 323 | 323 | 3,952,640 | 176,128 |
+| `installation_ledgers` | 4 | 4 | 679,936 | 679,936 |
+| Every other table | unchanged | unchanged | unchanged | unchanged |
+
+File: 39,780,352 bytes (9,712 pages, 758 free) before, 1,298,432 bytes (317 pages, 0 free) after; 38,481,920 bytes and 9,395 pages freed. Backup: one `backup/store-clean-20261224T120000000Z-<id>.db`, 36,675,584 bytes, mode `0600`, `quick_check` ok, schema 7, 54 triggers; kept count 1, none rotated. The STORE-DECISION-001 item stayed. Restore by the printed steps on one cleaned duplicate (copy the backup over `store.db`, delete `-wal` and `-shm`): `setup store check` then read schema 7, guard intact, 45 migration records, and the full ledgers again.
+
+Largest `work_evidence` payload (P2 follow-up): the copy has 0 `work_evidence` rows, so the largest payload is 0 bytes, under the 65,536-byte limit. The limit was not reached by real data.
+
+### Guard On The Copy (A21)
+
+On the converted duplicate, the macOS `sqlite3` 3.54.0 shell ran `UPDATE store_schema_journal ...`, `INSERT INTO installation_locks ...`, and `DELETE FROM tool_operations`. Each failed with "no such function: make_docs_write_guard", the row counts stayed, and the `store.db` SHA-256 stayed the same. Then `DROP TRIGGER make_docs_guard_installation_locks_delete` (DDL needs no function) left 53 triggers. After that:
+
+- `project list`, `project state status`, and `setup store clean --yes` each stop with `store-unsafe`: "The Store was changed outside Make Docs: Table installation_locks has no BEFORE DELETE guard trigger. No project files changed." and the next action "Do not write the Store. Run make-docs setup store check to review it. The newest Store backup is `<store>/store.db.bridge-v6-to-v7-<uuid>.backup`."
+- `setup store check` reads it read only: "The Store was changed outside Make Docs." in the summary, a note "Check read it without writing. Clean refuses until the Store is restored from a backup or repaired.", `guardIntact: false`, the missing trigger, and "Next: Do not write the Store. Restore the newest Store backup or repair the Store, then run make-docs setup store check again."
+- The `store.db` SHA-256 was the same before and after these commands.
+
+### Run Of PERF-005 (A22)
+
+The run binds the [PERF-005 profile](05-real-store-proof-and-acceptance.md#perf-005-store-clean-with-vacuum-on-a-real-store-copy), version `1`, digest `sha256:877be6157fb09ab6958a55dec732050f36ebfaccf3169335f7a610dac52b7774` (SHA-256 of the profile text from its heading to the end of the profile, with the digest field as `{{DIGEST}}`). Budget event `W32-R0-P5-PERF-005-1`: three runs, each on a fresh duplicate, converted by `make-docs setup --yes`, then the [harness](evidence/p5/performance/perf-005-harness.mjs) runs the shipped `checkStore` and `cleanStore` once with the clock at 2026-12-24T12:00:00Z. Redacted raw results: [perf-005-results.json](evidence/p5/performance/perf-005-results.json).
+
+| Run | Setup conversion | Check | Clean (total) | `VACUUM INTO` backup | `VACUUM` | WAL checkpoint | File before | File after |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 0.51 s | 45 ms | 166 ms | 57 ms | 4 ms | 3 ms | 39,780,352 B | 1,298,432 B |
+| 2 | 0.50 s | 51 ms | 176 ms | 59 ms | 4 ms | 2 ms | 39,780,352 B | 1,298,432 B |
+| 3 | 0.49 s | 45 ms | 164 ms | 58 ms | 4 ms | 2 ms | 39,780,352 B | 1,298,432 B |
+
+Median clean 166 ms (range 164 to 176 ms). Every run changed the same 38 rows, freed 9,395 pages, and verified its backup. Outcome `pass` within its scope. Stopped after three runs, with no failure.
+
+Vacuum decision: keep the `VACUUM` in `clean`. The Store has `auto_vacuum` 0, so without the vacuum the 9,395 freed pages stay in the file and it keeps its 37.9 MB. With it, the file shrinks by 96.7 percent, and the vacuum and the checkpoint add about 7 ms. The backup `VACUUM INTO` is the largest step (about 58 ms) and is required for safety. This is informational: three runs on one machine, with a warm cache, and no speed promise.
+
+### Validation (A23)
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- New `tests/w32-r0-p5-store-wording.test.ts` (12 tests after the review fixes): a repeated next action is stated once; a dropped guard trigger gives one "Do not write the Store." in the `project list` refusal; a schema 6 Store names `make-docs setup`; a setup name refusal has its own next action and `store.mutationState: none`; status states the guard limit in JSON and text; the clean dry run states its summary, Store line, and next action once; Store removal keeps a clean backup folder (also with `.DS_Store` and `Thumbs.db`), names the kept backups, and refuses a `backup/` folder with other files with the plain "other files" reason; `uninstall --remove-store` after a real clean names the kept backup folder before confirmation, says "Removed the Store. Kept 1 backup at ..." after, and prints no "preserved" line; check and clean say how many rows wait for the 30-day window and the first date, before, inside, and after the window, and name the next check date when nothing else needs review; and the help explains `--target-root` and who runs the Store commands.
+- `tests/store-table-catalog.test.ts`: the rule 002 follow-up state is `built-kept-off`.
+- After the review fixes, full suite after `npm run build`, counted from `npx vitest run --reporter=json`: 2573 passed, 3 failed, 6 skipped (2582 tests in 136 files). The 3 failures are the known ones: 2 in `tests/mcp-app-contract.test.ts` and fixture 11 in `tests/p5-migration-safety.test.ts` (sandbox only). The Store and uninstall test files all pass: `w32-r0-p5-store-wording` 12, `w32-r0-p4-store-maintenance` 54, `store-table-catalog` 36, `p6-global-store-lifecycle` 20, `self-management` 17, `w19-r3-tool-state` 15, `store-lifecycle` 13, and `store-verification` 6. Type check, build, `validate:defaults` (53 passed), the router check, `project paths validate` (valid, 0 findings), and `project doctor check` (no problems) pass again. `check performance-evidence` still fails only on the 17 known W23 errors; `PERF-005` has none.
+- First review round, full suite after `npm run build`, counted from `npx vitest run --reporter=json`: 2570 passed, 3 failed, 6 skipped (2579 tests in 136 files). The 3 failures exist without this change: 2 in `tests/mcp-app-contract.test.ts` and fixture 11 in `tests/p5-migration-safety.test.ts`, which fails only in the sandbox. The `w19-r5-skills-command` and `cli.test.ts` timeout failures did not occur in this run. A first full run found 3 tests that matched the old schema 6 text ("Run make-docs setup to review and apply the compatibility bridge"): `setup-system.ts` chose its next action by that text. It now keys on the shared `STORE_LEGACY_SCHEMA_NEXT_ACTION`, and the 3 tests pass. The same run caught the catalog test while its file was being edited; it passes now.
+- `node packages/cli/dist/index.js project paths validate` (temporary `MAKE_DOCS_HOME`): valid, 1,104 files, 0 findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 379 files. `npm run validate:defaults -w packages/cli`: 53 passed. `bash scripts/check-instruction-routers.sh`: passed. `make-docs check performance-evidence`: `failed` globally with the 17 known errors in the unchanged W23 work and evidence; `PERF-005` has no error, and the only W32 warning is the older P1 line 100 (`PERF-VAL-014`). Catalog digest after the rule 002 change: `sha256:1436ae952940aca10eea21deea8ec866445fea019788695257c6969c2835481c`.
+
+### Human Experience Review (A23)
+
+Each promise of the [index](00-index.md#human-experience-trace), checked against the copy run:
+
+| Promise | Evidence on the copy | Result | Open item |
+| --- | --- | --- | --- |
+| `project list` shows every project, its name, ID, checkouts, and any missing folder. | 4 projects, 4 checkouts, one missing folder named in plain words; no name is set, so each shows "(no project name)"; three show "Last seen: not recorded yet. The next Make Docs write for this project records it." | Met. | None. |
+| `setup store check` explains what is safe to remove, what needs a decision, and the space a clean frees, and changes nothing. | Summary line first, each rule, the one decision with its next step; no byte changed. With the clock 31 days later: "Clean would remove or trim 38 rows (about 33.7 MB) under 3 rules." | Met. After the review fix, "would remove nothing" also says that 38 rows wait for the 30-day window and that the first can go on 2026-12-14. One wording limit stays: rows are named by raw keys (for example an operation ID and a step number). | FOLLOW-UP-P5-ROW-KEYS. |
+| `setup store clean` removes only proven rows, after a backup, and reports what it removed and how to restore. | Same 38 rows as check planned; verified backup; "Space: 37.9 MB before, 1.2 MB after, 36.7 MB freed."; numbered restore steps; restore proved on a duplicate. Nothing to remove gives no backup and no change. | Met. | None. |
+| A program that is not Make Docs cannot change the Store by accident, and Make Docs says so if the guard is removed. | `sqlite3` writes fail and change nothing; a dropped trigger gives `store-unsafe` with one next action; check reads the changed Store; status states the limit. | Met. | None. |
+| A crash never leaves a lock or a pending row that blocks the machine forever. | The copy has no lock, no pending operation, and no pending tool operation: "No crash leftover blocks this computer." Fixture proof stays in P4. | Met on the copy; the crash cases are proved on fixtures only. | None. |
+
+### Follow-Ups
+
+These stay open after P5. None blocks the Wave. The owner chose to track the first two (option A, 2026-11-23).
+
+- FOLLOW-UP-P5-TEXT-REFUSAL-JSON: a refusal of a command run in text mode prints the raw JSON error (for example `project list` on a schema 6 Store, or `setup store clean` without `--yes`). Every CLI operation error prints this way today, not only Store commands, so the fix belongs to the shared CLI error output.
+- FOLLOW-UP-P5-ROW-KEYS: check and clean name each row by its raw key (for example `<op-adopt>|9` or `<checkout>|backup|atomic:<op-adopt>:10`). A person cannot tell what the row is. A plain label (operation kind, file, date) would help.
+- FOLLOW-UP-P5-MB-LABEL: `formatBytes` in `packages/cli/src/store/maintenance.ts` divides by 1,048,576 and prints "MB". Either print "MiB" or divide by 1,000,000. P5 keeps the label and states the unit in this report.
+
+### Guided Progress Review
+
+Passed on 2026-11-23. The owner reviewed the redacted output below (`project list`, `setup store check`, `setup store clean`, and `uninstall --remove-store`) and chose option A: accept the output, fix the 30-day wording now, and track the other two wording points (raw JSON on text-mode refusals, rows named by raw keys) as follow-ups. The 30-day wording is done in P5 (see Findings On The Copy That P5 Fixed). The W32 index is `completed`.
+
+### Owner Sample For The Guided Progress Review
+
+Real output on a duplicate of the owner's Store, redacted. `<project-1>` has a missing folder.
+
+```text
+$ make-docs project list
+The Store knows 4 projects with 4 checkouts. 1 checkout folder is missing.
+
+(no project name)
+  Project ID: <id-1>
+  Last seen: not recorded yet. The next Make Docs write for this project records it.
+  Checkout:
+    <project-1>
+      The folder is missing. It was moved or deleted.
+
+(no project name)
+  Project ID: <id-tmp>
+  Last seen: 2026-11-23T12:07:59.314Z
+  Checkout:
+    <tmp-project>
+
+(no project name)
+  Project ID: <id-2>
+  Last seen: not recorded yet. The next Make Docs write for this project records it.
+  Checkout:
+    <project-2>
+
+(no project name)
+  Project ID: <id-3>
+  Last seen: not recorded yet. The next Make Docs write for this project records it.
+  Checkout:
+    <project-3>
+```
+
+```text
+$ make-docs setup store check
+Store check: Clean would remove nothing. 38 rows wait for the 30-day window; the first can go on 2026-12-14. 1 item needs your decision. No crash leftover blocks this computer. Nothing was changed.
+Store: <store>/store.db (schema 7, 37.9 MB).
+
+Fixed rules:
+  STORE-RULE-001 Dead-owner lock with no pending operation: would remove nothing.
+  STORE-RULE-002 Abandoned tool update or uninstall (not on yet): would remove nothing.
+  STORE-RULE-003 Saved file contents of a terminal operation: would remove nothing.
+  STORE-RULE-004 Full ledgers of a terminal operation: would remove nothing.
+  STORE-RULE-005 Detached plan snapshots and atomic write intents of a terminal operation: would remove nothing.
+  STORE-RULE-006 Quiescence barrier whose lock is gone (not on yet): would remove nothing.
+  STORE-RULE-007 Checkpoint journal row with a migration receipt: would remove nothing.
+  STORE-RULE-008 Backlog review cache rows for old versions: would remove nothing.
+  STORE-RULE-009 Harness receipt history beyond the kept count: would remove nothing.
+
+Needs your decision (never removed by a rule):
+  STORE-DECISION-001 Checkout folder is missing: The folder <project-1> for project <id-1> no longer exists. Make Docs keeps its Store rows, including 0 unfinished changes and 0 cached review results, because the folder may have moved or may be on a drive that is not connected.
+    Next: If the project moved, run `make-docs setup` in the new folder to move the checkout. If the folder is gone for good, a later reviewed removal can clear its rows.
+
+Next: Review each item above and use its next step.
+```
+
+The same check with the clock 31 days later (shortened; each `Remove:` line names a row key):
+
+```text
+Store check: Clean would remove or trim 38 rows (about 33.7 MB) under 3 rules. 1 item needs your decision. No crash leftover blocks this computer. Nothing was changed.
+Store: <store>/store.db (schema 7, 37.9 MB).
+
+Fixed rules:
+  STORE-RULE-003 Saved file contents of a terminal operation: would remove or trim 13 rows (about 3.6 MB).
+    Remove: <op-adopt>|9 (After STORE-RULE-005 removes this operation's plan and write intents in the same clean.)
+    ...
+  STORE-RULE-004 Full ledgers of a terminal operation: would remove or trim 10 rows (about 3.1 MB).
+    Remove: <op-1>
+    ...
+  STORE-RULE-005 Detached plan snapshots and atomic write intents of a terminal operation: would remove or trim 15 rows (about 26.9 MB).
+    Remove: <checkout>|backup|atomic:<op-adopt>:10
+    ...
+
+Next: Run make-docs setup store clean to back up the Store and remove these rows.
+```
+
+```text
+$ make-docs setup store clean --yes        (clock 31 days later)
+Store clean: Clean removed or trimmed 38 rows (about 33.7 MB of row data) under 3 rules. The Store file shrank by 36.7 MB. The backup is <store>/backup/store-clean-20261224T120000000Z-<id>.db.
+Store: <store>/store.db.
+
+Each rule:
+  STORE-RULE-003 Saved file contents of a terminal operation: 13 rows (about 3.6 MB).
+  STORE-RULE-004 Full ledgers of a terminal operation: 10 rows (about 3.1 MB).
+  STORE-RULE-005 Detached plan snapshots and atomic write intents of a terminal operation: 15 rows (about 26.9 MB).
+  (the six other rules: 0 rows)
+
+Space: 37.9 MB before, 1.2 MB after, 36.7 MB freed.
+Backup: <store>/backup/store-clean-20261224T120000000Z-<id>.db
+
+To restore this backup:
+  1. Stop every Make Docs command and MCP server on this computer.
+  2. Copy <store>/backup/store-clean-20261224T120000000Z-<id>.db over <store>/store.db.
+  3. Delete <store>/store.db-wal and <store>/store.db-shm if they exist.
+  4. Run make-docs project state status in a project to check the Store.
+
+Next: Run make-docs setup store check to review the items that need your decision.
+```
+
+Today, `make-docs setup store clean --yes` on the same Store prints "Store clean: Clean removed nothing: no fixed rule proves a row now. 38 rows wait for the 30-day window; the first can go on 2026-12-14. No backup was made, and the Store did not change." followed by the same rule and decision lists as check.
+
+Real output of `runToolUninstallCommand` with `removeStore: true` and a package-runner (no binary) detection, on a converted duplicate right after a clean (clock 31 days ahead):
+
+```text
+make-docs uninstall removes the installed binary:
+- global Store: <store> (explicit removal selected; the Store database and its records will be deleted; Store backups stay in <store>/backup/ and as store.db.bridge-*.backup files in <store>)
+- installed binary: none detected (remote execution via a package runner; nothing persistent to remove)
+Repository content is never touched; to remove make-docs from a project, use `make-docs setup remove`.
+Removed the Store. Kept 2 backups at <store>/backup/ and <store>/. Delete them yourself if you no longer need them.
+No persistent make-docs binary is installed: this invocation uses a package runner. The Store remains available unless explicit removal was selected.
+```
+
+Afterwards the folder held only `backup/store-clean-20261224T120000000Z-<id>.db` and `store.db.bridge-v6-to-v7-<uuid>.backup`. The last line comes from the package-runner branch and still says "The Store remains available unless explicit removal was selected."; it is true but reads oddly after a removal. P5 leaves it, because W33 R0 P5 is changing the uninstall text at the same time.
+
+### Limits
+
+- The real Store itself was never read or cleaned. A real clean needs separate owner approval.
+- The clean numbers use a clock moved 31 days ahead through the harness, because the copy's newest operations are inside the 30-day retention window. The CLI has no clock option.
+- The copy has no crash leftover, no lock, no `work_evidence`, no lifecycle run, and no backlog cache, so rules 001, 007, 008, and 009 and the crash leftovers were not exercised on real data.
+- `PERF-005` covers one Store copy on one macOS machine.
+- The owner's Guided Progress Review passed on 2026-11-23 (option A). A real `setup store clean` of the owner's Store, after about 2026-12-23 when the first operations leave the 30-day window, needs separate owner approval.
+- The CLI prints MiB as "MB" (FOLLOW-UP-P5-MB-LABEL).

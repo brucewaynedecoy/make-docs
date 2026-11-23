@@ -7,6 +7,7 @@ import { platform, type ProcessLiveness } from "../platform";
 import {
   CURRENT_STORE_SCHEMA_VERSION,
   STORE_CLEAN_BACKUP_PATTERN,
+  STORE_CLEAN_PARTIAL_BACKUP_PATTERN,
   applyStoreFileMode,
   classifyStoreCheckpoint9State,
   inspectStoreWriteGuard,
@@ -490,6 +491,52 @@ export function evaluateStoreRules(db: StoreDatabase, env: StoreMaintenanceEnvir
   return STORE_FIXED_RULES.map((rule) => results.get(rule.id)!);
 }
 
+/** Rules whose rows wait for the terminal operation retention window. */
+const RETENTION_RULES: ReadonlySet<StoreFixedRuleId> = new Set(["STORE-RULE-003", "STORE-RULE-004", "STORE-RULE-005"]);
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Rows that a retention rule would act on once their operation leaves the retention window. */
+export interface StoreRetentionWaiting {
+  rows: number;
+  retentionDays: number;
+  /** The first day (UTC, `YYYY-MM-DD`) on which one of these rows can go. */
+  firstDate: string;
+}
+
+/**
+ * Find the rows of STORE-RULE-003, 004, and 005 that wait only for the
+ * retention window: the same rules and proofs, with every finished operation
+ * treated as old enough, minus the rows that already act now. Reads only.
+ */
+function findRetentionWaiting(db: StoreDatabase, env: StoreMaintenanceEnvironment, current: readonly StoreMaintenanceRuleEvaluation[]): StoreRetentionWaiting | null {
+  const retentionDays = STORE_MAINTENANCE_SETTINGS.terminalOperationRetentionDays.value;
+  const acting = new Set(current.flatMap((evaluation) => evaluation.rows.filter((row) => row.outcome === "act").map((row) => `${row.rule}\u0000${row.key}`)));
+  const later = new Date(env.now.getTime() + 36_500 * DAY_MS);
+  const ctx: EvaluationContext = { db, env: { ...env, now: later }, parameters: storeMaintenanceSqlParameters(later, env.versions), rule005Removals: null, processes: undefined };
+  let rows = 0;
+  let first = Number.POSITIVE_INFINITY;
+  for (const id of STORE_RULE_APPLY_ORDER) {
+    if (!RETENTION_RULES.has(id)) continue;
+    const evaluation = evaluateRule(ruleById.get(id)!, ctx);
+    if (id === "STORE-RULE-005") ctx.rule005Removals = new Set(evaluation.rows.filter((row) => row.outcome === "act").map((row) => row.key));
+    for (const row of evaluation.rows) {
+      if (row.outcome !== "act" || acting.has(`${row.rule}\u0000${row.key}`)) continue;
+      const finished = Date.parse(text(row.row.finished_at ?? row.row.operation_finished_at));
+      if (!Number.isFinite(finished)) continue;
+      rows += 1;
+      first = Math.min(first, finished + retentionDays * DAY_MS);
+    }
+  }
+  if (rows === 0) return null;
+  // The UTC day on which the first row's window ends; the row can go later that day.
+  return { rows, retentionDays, firstDate: new Date(Math.max(first, env.now.getTime())).toISOString().slice(0, 10) };
+}
+
+/** One plain sentence about the rows that wait for the retention window. */
+export function describeRetentionWaiting(waiting: StoreRetentionWaiting, more: boolean): string {
+  return `${plural(waiting.rows, `${more ? "more " : ""}row`)} ${waiting.rows === 1 ? "waits" : "wait"} for the ${waiting.retentionDays}-day window; the first can go on ${waiting.firstDate}.`;
+}
+
 function fillReason(template: string, row: Row): string {
   return template.replace(/\{([a-z_]+)\}/g, (_match, column: string) => text(row[column]));
 }
@@ -640,6 +687,8 @@ export interface StoreCheckReport {
   summary: string;
   store: StoreStateReport;
   totals: { actRows: number; actBytes: number; skippedRows: number; decisions: number; leftovers: number };
+  /** Rows of STORE-RULE-003, 004, and 005 that wait for the retention window, or null. */
+  waiting: StoreRetentionWaiting | null;
   rules: StoreMaintenanceRuleReport[];
   decisions: StoreMaintenanceDecision[];
   leftovers: StoreMaintenanceLeftover[];
@@ -756,10 +805,12 @@ function buildCheckReport(db: StoreDatabase, databasePath: string, guardProblems
   const actBytes = rules.reduce((sum, rule) => sum + rule.act.bytes, 0);
   const skippedRows = rules.reduce((sum, rule) => sum + rule.skipped.rows, 0);
   const actingRules = rules.filter((rule) => rule.act.rows > 0).length;
+  const waiting = findRetentionWaiting(db, env, evaluations);
   const summary = [
     actRows > 0
       ? `Clean would remove or trim ${plural(actRows, "row")} (about ${formatBytes(actBytes)}) under ${plural(actingRules, "rule")}.`
       : "Clean would remove nothing.",
+    waiting ? describeRetentionWaiting(waiting, actRows > 0) : null,
     skippedRows > 0 ? `${plural(skippedRows, "row")} ${skippedRows === 1 ? "is" : "are"} skipped, each with its reason.` : null,
     decisions.length > 0 ? `${plural(decisions.length, "item")} ${decisions.length === 1 ? "needs" : "need"} your decision.` : "Nothing needs your decision.",
     leftovers.length > 0 ? `${plural(leftovers.length, "crash leftover")} ${leftovers.length === 1 ? "blocks" : "block"} this computer.` : "No crash leftover blocks this computer.",
@@ -772,7 +823,9 @@ function buildCheckReport(db: StoreDatabase, databasePath: string, guardProblems
       ? "Run make-docs setup store clean to back up the Store and remove these rows."
       : leftovers.length > 0 || decisions.length > 0
         ? "Review each item above and use its next step."
-        : "Nothing to do.";
+        : waiting
+          ? `Run make-docs setup store check again on or after ${waiting.firstDate}.`
+          : "Nothing to do.";
   const report: StoreCheckReport = {
     schemaVersion: 1,
     kind: "store-check",
@@ -782,6 +835,7 @@ function buildCheckReport(db: StoreDatabase, databasePath: string, guardProblems
     summary,
     store,
     totals: { actRows, actBytes, skippedRows, decisions: decisions.length, leftovers: leftovers.length },
+    waiting,
     rules,
     decisions,
     leftovers,
@@ -812,8 +866,7 @@ export function checkStore(storeRoot: string, env: StoreMaintenanceEnvironment):
 /* ------------------------------------------------------------------------ */
 
 export const STORE_CLEAN_BACKUP_DIRECTORY = "backup";
-/** A clean backup that is still being written or checked. It never counts as a backup. */
-const PARTIAL_BACKUP_PATTERN = /^\.store-clean-\d{8}T\d{9}Z-[0-9a-f]{8}\.db\.partial$/;
+const PARTIAL_BACKUP_PATTERN = STORE_CLEAN_PARTIAL_BACKUP_PATTERN;
 const PARTIAL_BACKUP_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 /** The Store backup folder, `<store>/backup/` (`~/.make-docs/backup/` by default). */
@@ -1129,7 +1182,7 @@ export function cleanStore(storeRoot: string, env: StoreMaintenanceEnvironment, 
       return planOnly(`Dry run. ${check.summary}`, planned > 0 ? "Run make-docs setup store clean without --dry-run to back up the Store and remove these rows." : check.nextAction);
     }
     if (planned === 0) {
-      return planOnly("Clean removed nothing: no fixed rule proves a row now. No backup was made, and the Store did not change.", check.nextAction);
+      return planOnly(`Clean removed nothing: no fixed rule proves a row now.${check.waiting ? ` ${describeRetentionWaiting(check.waiting, false)}` : ""} No backup was made, and the Store did not change.`, check.nextAction);
     }
 
     options.testHooks?.afterPlan?.(db);

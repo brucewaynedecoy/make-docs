@@ -19,6 +19,9 @@ export const SETUP_STORE_HELP = [
   "An interactive run asks once. A non-interactive run needs --yes.",
   "--dry-run shows what clean would do and changes nothing.",
   "",
+  "Run these commands yourself in a terminal. An agent uses the setup_store_check",
+  "and setup_store_clean MCP tools instead; they are not native command rules.",
+  "",
 ].join("\n");
 
 export function renderStoreCheck(report: StoreCheckReport): string {
@@ -72,7 +75,12 @@ export function renderStoreClean(report: StoreCleanReport): string {
     lines.push("", "To restore this backup:");
     report.restore.forEach((step, index) => lines.push(`  ${index + 1}. ${step}`));
   } else {
-    lines.push("", renderStoreCheck(report.check).trimEnd());
+    // A dry run or a clean with nothing to prove shows the check. Its summary,
+    // Store line, and next action are already above or below, so each is stated once.
+    const check = renderStoreCheck(report.check).trimEnd().split("\n").slice(1);
+    if (check.at(-1)?.startsWith("Next: ")) check.pop();
+    while (check.at(-1) === "") check.pop();
+    lines.splice(1, 1, ...check);
   }
   lines.push("", `Next: ${report.nextAction}`, "");
   return lines.join("\n");

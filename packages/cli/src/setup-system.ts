@@ -10,7 +10,7 @@ import { getStoreDatabasePath, resolveStoreRoot } from "./store/paths";
 import { loadGlobalConfig, writeGlobalConfig, type GlobalConfig, type GlobalHarnessIntent } from "./store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "./store/harness-integration-receipts";
 import { completeHarnessSystemOperation, failHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
-import { readInstallationStatus } from "./store/installation-state";
+import { readInstallationStatus, STORE_LEGACY_SCHEMA_NEXT_ACTION } from "./store/installation-state";
 import type { SetupHarnessState } from "./setup-state";
 import type { Harness, HarnessSelections } from "./types";
 import { platform } from "./platform";
@@ -315,7 +315,7 @@ function recoveryActionForPlanFailure(
   targetRoot: string,
   storeRoot: string,
 ): string {
-  if (reason.includes("Run make-docs setup to review and apply the compatibility bridge")) {
+  if (reason.includes(STORE_LEGACY_SCHEMA_NEXT_ACTION)) {
     return "Run `make-docs setup` to review and apply the Store compatibility bridge. Full setup will retry the approved machine work after that prerequisite verifies.";
   }
   if (reason.includes("Store operation is already pending")) {

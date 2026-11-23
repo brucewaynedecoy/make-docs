@@ -71,6 +71,8 @@ import {
   classifyStoreCheckpoint9State,
   loadSqliteDriver,
   openStoreSqliteConnection,
+  ProjectNameInvalidError,
+  ProjectNameTakenError,
   type StoreCompatibilityBridgePreview,
 } from "./store";
 import {
@@ -1577,7 +1579,11 @@ async function runResolvedCli(
       nextAction: observedStoreBridge.nextAction,
     };
   } catch (error) {
-    const failedCondition = error instanceof Error ? error.message : String(error);
+    // A project name refusal states its reason once, and its own next action below.
+    const nameRefusal = error instanceof ProjectNameInvalidError || error instanceof ProjectNameTakenError ? error : null;
+    const failedCondition = nameRefusal
+      ? `${nameRefusal.reason} Make Docs refused this Store write.`
+      : error instanceof Error ? error.message : String(error);
     let observedStoreBridge = storeBridgePreview;
     try {
       observedStoreBridge = previewStoreCompatibilityBridge(storeRoot);
@@ -1591,7 +1597,10 @@ async function runResolvedCli(
       blockers: observedStoreBridge.blockers,
       nextAction,
     };
-    const storeMutationState = observedStoreBridge.storeState === "supported-current"
+    // A Store that needed no conversion was not changed by the bridge, so it reports "none".
+    const storeMutationState = storeBridgePreview.changes.store.length === 0
+      ? "none" as const
+      : observedStoreBridge.storeState === "supported-current"
       ? "applied" as const
       : observedStoreBridge.storeState === storeBridgePreview.storeState &&
           observedStoreBridge.sourceSchemaVersion === storeBridgePreview.sourceSchemaVersion
@@ -1614,7 +1623,7 @@ async function runResolvedCli(
         nextAction,
       });
     } else {
-      output.write(`Setup stopped at the Store prerequisite. ${failedCondition}\nNext: ${nextAction}\n`);
+      output.write(`${nameRefusal ? "Setup stopped at the project name." : "Setup stopped at the Store prerequisite."} ${failedCondition}\nNext: ${nextAction}\n`);
     }
     return;
   }
@@ -2848,6 +2857,9 @@ function renderSystemSetupResult(result: import("./setup-system").SystemSetupRes
 }
 
 function storePrerequisiteFailureAction(error: unknown): string {
+  if (error instanceof ProjectNameInvalidError || error instanceof ProjectNameTakenError) {
+    return error.nextAction.replace("run the command again", "run `make-docs setup` again");
+  }
   if (error instanceof Checkpoint9ReceiptProjectionError) {
     return "Restore write access for the Store receipt projection, then run `make-docs setup` to verify and resume the recorded bridge.";
   }

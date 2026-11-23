@@ -1,7 +1,7 @@
 ---
 title: "W32 R0 Store Review and Maintenance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W32 R0"
 follow_on:
   route: "implementation-loop"
@@ -62,6 +62,7 @@ Out of scope:
 - Acceptance case IDs run from A1 to A27 across this backlog. A25 to A27 sit in P2.
 - The [evidence report](evidence.md) holds the acceptance evidence for each phase.
 - No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
+- Status: `completed` on 2026-11-23. All five phases are built, and the owner's Guided Progress Review of the `project list`, `setup store check`, `setup store clean`, and `uninstall --remove-store` output passed on 2026-11-23 ([P5 evidence](evidence.md#guided-progress-review)). A real `setup store clean` of the owner's Store needs separate owner approval.
 
 ## Intended Follow-On
 
@@ -73,6 +74,17 @@ This handoff is advisory-default-but-overridable.
 - Coordinate Handoff: Carry W32 R0 into phase history records and commits, adding the active P number.
 
 ## Change History
+
+### 2026-11-23 — W32 R0 P5
+
+- Kind: `edit`
+- Affected scope: P5 T1, T2, and T6.
+- Previous scope: P5 corrected the Store README and comments and reviewed the wording of each promise.
+- Replacement scope: P5 also fixes three defects that the real Store copy showed: Store removal refused a Store that has the clean backup folder; a schema 6 Store gave the next action "Restore access to the configured Make Docs Store"; and the clean dry run printed its summary and next action twice. The rule 002 follow-up also records the owner's choice to keep the rule off (`built-kept-off`). After the independent review, P5 also makes `uninstall --remove-store` name the kept backups before and after removal, and makes check and clean say how many rows wait for the 30-day window (an owner wording request).
+- Rationale: each defect blocks or misleads a person on a real Store, and each fix is small and tested.
+- PRD decision: `none` — PRD 38 R-LIFE-1, R-MAINT, and PRD 39 R-STORE-CMD-5 already require the behavior.
+- Owner approval: the owner's P5 decisions on 2026-11-23, and the owner's Guided Progress Review on 2026-11-23 (option A).
+- Source: [P5 evidence](evidence.md#p5-real-store-proof-and-acceptance)
 
 ### 2026-11-22 — W32 R0 P3
 

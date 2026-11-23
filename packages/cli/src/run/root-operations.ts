@@ -402,7 +402,7 @@ export async function runProjectCommand(
 
 async function runProjectListCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
   if (argv[0] === "--help" || argv[0] === "-h") {
-    process.stdout.write("Usage: make-docs project list [--target-root <path>] [--json]\nList every project that the Make Docs Store knows. It reads only and changes nothing.\n--target-root names the project whose harness access admits the Store read. It defaults to the current folder.\n");
+    process.stdout.write("Usage: make-docs project list [--target-root <path>] [--json]\nList every project that the Make Docs Store knows. It reads only and changes nothing.\nThe list always shows every project in the Store, whichever folder you run it from.\n--target-root <path>  The project folder whose harness access allows this Store read. It does not filter the list. It defaults to the current folder.\n");
     return;
   }
   let json = false;
@@ -716,6 +716,7 @@ async function runProjectStateCommand(
     ...(value.pendingOperation ? [`${(value.pendingOperation as {status?: unknown}).status === "failed" ? "Failed operation" : "Pending operation"}: ${JSON.stringify(value.pendingOperation)}`] : []),
     ...((value.storeSchema as {warning?: unknown} | undefined)?.warning ? [`Store schema: ${String((value.storeSchema as {warning: unknown}).warning)}`] : []),
     ...(["brokenReferencesWarning", "unguardableWarning"] as const).flatMap((key) => { const text = (value.storeIntegrity as Record<string, unknown> | undefined)?.[key]; return text ? [`Store check: ${String(text)}`] : []; }),
+    ...(() => { const guard = (value.storeIntegrity as {writeGuard?: {state?: unknown; limit?: unknown}} | undefined)?.writeGuard; return guard?.limit ? [`Store write guard: ${guard.state === "intact" ? "on" : "not installed yet"}. ${String(guard.limit)}`] : []; })(),
     ...(value.operationId ? [`Operation: ${String(value.operationId)}`] : []),
     ...(value.dryRun ? ["Preview only. No files or Store records changed."] : []),
     ...(Array.isArray(value.changes) ? value.changes.map((change: {path: string; to: string}) => `- ${change.path}: ${change.to}`) : []),

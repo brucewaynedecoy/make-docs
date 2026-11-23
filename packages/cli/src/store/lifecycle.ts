@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, rmdirSync, statSync, unlinkSync } from "node:fs";
 import path from "node:path";
-import { withStoreDatabase } from "./database";
+import { STORE_CLEAN_BACKUP_PATTERN, STORE_CLEAN_PARTIAL_BACKUP_PATTERN, withStoreDatabase } from "./database";
 import {
   GLOBAL_CONFIG_FILE,
   GLOBAL_MANIFEST_FILE,
@@ -120,7 +120,13 @@ export function pruneProjectFromStore(
 /** Quarantine files created by database recovery are store-owned too. */
 const STORE_QUARANTINE_FILE_PREFIX = `${STORE_DATABASE_FILE}.corrupt-`;
 
-/** The complete set of files the store ever writes under its root. */
+/**
+ * The store files that removal deletes. Removal keeps the Store backups
+ * (`store.db.bridge-v<from>-to-v<to>-<id>.backup` and the clean backup folder
+ * `backup/`) and names them in `keptBackups`. Any other entry, such as a lock
+ * or lease file that a running command still holds, is kept and reported
+ * with the entries the Store does not own.
+ */
 const KNOWN_STORE_FILES = new Set([
   GLOBAL_CONFIG_FILE,
   GLOBAL_MANIFEST_FILE,
@@ -156,6 +162,11 @@ export interface RemoveGlobalStoreResult {
   removedFiles: string[];
   /** Store root-relative names of entries that were kept. */
   retainedEntries: string[];
+  /**
+   * Store root-relative paths of the Store backup files that removal kept on
+   * purpose (`backup/store-clean-*.db` and `store.db.bridge-*.backup`).
+   */
+  keptBackups: string[];
   warnings: string[];
 }
 
@@ -180,6 +191,7 @@ export function removeGlobalStore(
     storeRoot,
     removedFiles: [],
     retainedEntries: [],
+    keptBackups: [],
     warnings: [],
   };
 
@@ -197,8 +209,24 @@ export function removeGlobalStore(
     return result;
   }
 
+  // `backup/` marks a project `.make-docs/` folder, except the Store's own
+  // clean backup folder (W32 R0 P4): next to `store.db`, it holds only
+  // `store-clean-*.db` backups, `.store-clean-*.db.partial` files, and the
+  // file browser's own `.DS_Store` or `Thumbs.db`.
+  const backupFolder = entries.includes(STORE_DATABASE_FILE) ? readStoreBackupFolder(path.join(storeRoot, "backup")) : null;
+  if (backupFolder && backupFolder.otherFiles.length > 0) {
+    result.status = "refused";
+    result.retainedEntries = entries;
+    result.warnings.push(
+      `Refusing to remove ${storeRoot}: its backup folder has other files (${backupFolder.otherFiles.join(", ")}), ` +
+        "so Make Docs cannot tell that it holds only Store backups. No files were removed. " +
+        "Move those files out of the backup folder, then run the removal again.",
+    );
+    return result;
+  }
+  const storeBackupFolder = backupFolder !== null;
   const projectMarkers = entries.filter((entry) =>
-    PROJECT_MAKE_DOCS_MARKERS.includes(entry),
+    PROJECT_MAKE_DOCS_MARKERS.includes(entry) && !(entry === "backup" && storeBackupFolder),
   );
   if (projectMarkers.length > 0) {
     result.status = "refused";
@@ -240,14 +268,43 @@ export function removeGlobalStore(
       );
     }
   } else {
-    result.warnings.push(
-      `The store directory ${storeRoot} was kept because it contains entries the store does not own: ` +
-        `${result.retainedEntries.join(", ")}.`,
-    );
+    const backupEntries = result.retainedEntries.filter((entry) => entry === "backup" ? storeBackupFolder : STORE_BRIDGE_BACKUP_PATTERN.test(entry));
+    result.keptBackups = backupEntries.flatMap((entry) => entry === "backup" ? backupFolder!.backups.map((name) => `backup/${name}`) : [entry]);
+    const others = result.retainedEntries.filter((entry) => !backupEntries.includes(entry));
+    if (others.length > 0) {
+      result.warnings.push(
+        `The store directory ${storeRoot} was kept because it contains entries the store does not own: ` +
+          `${others.join(", ")}.`,
+      );
+    }
   }
 
   result.status = "retained";
   return result;
+}
+
+/** A schema bridge backup next to `store.db`. */
+const STORE_BRIDGE_BACKUP_PATTERN = /^store\.db\.bridge-.+\.backup$/;
+/** Files that a file browser adds to any folder. They do not make the backup folder foreign. */
+const FILE_BROWSER_FILES = new Set([".DS_Store", "Thumbs.db"]);
+
+/**
+ * Sort the entries of `<store>/backup/`: finished Store clean backups, and
+ * other files. Partial clean backups and file browser files are neither.
+ * Null when the folder is absent or unreadable.
+ */
+function readStoreBackupFolder(folder: string): { backups: string[]; otherFiles: string[] } | null {
+  try {
+    if (!statSync(folder).isDirectory()) return null;
+    const names = readdirSync(folder).sort();
+    return {
+      // A partial file is not a usable backup, so it is kept but not counted.
+      backups: names.filter((name) => STORE_CLEAN_BACKUP_PATTERN.test(name)),
+      otherFiles: names.filter((name) => !STORE_CLEAN_BACKUP_PATTERN.test(name) && !STORE_CLEAN_PARTIAL_BACKUP_PATTERN.test(name) && !FILE_BROWSER_FILES.has(name)),
+    };
+  } catch {
+    return null;
+  }
 }
 
 function toMessage(error: unknown): string {

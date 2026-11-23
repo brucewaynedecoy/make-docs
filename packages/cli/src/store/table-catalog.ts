@@ -913,7 +913,7 @@ export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreF
     title: "Abandoned tool update or uninstall",
     prdBullet: "a pending `tool.update` or `tool.uninstall` whose owner is proven dead",
     action: "mark-failed-abandoned",
-    activation: { state: "inactive", until: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE", reason: "The package-manager-idle check exists (W32 R0 P4, maintenance.ts packageManagerIdleProof), but the owner has not approved turning this rule on. `setup store check` reports what the check would find." },
+    activation: { state: "inactive", until: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE", reason: "The package-manager-idle check exists (W32 R0 P4, maintenance.ts packageManagerIdleProof). The owner decided on 2026-11-23 to keep this rule off. `setup store check` reports what the check would find, so the owner can revisit the decision." },
     condition: [
       "The row is in tool_operations with status `pending` and operation `tool.update` or `tool.uninstall`.",
       "The owner-process-dead proof passes for the row's pid and hostname.",
@@ -1442,8 +1442,10 @@ export interface StoreFollowUp {
   /**
    * `done` once the phase that owns it has landed it. `built-pending-approval`:
    * the helper exists and is tested, and the rule it unblocks waits for the owner.
+   * `built-kept-off`: the helper exists and is tested, and the owner decided to
+   * keep the rule it unblocks off. The owner can revisit that decision.
    */
-  state: "open" | "built-pending-approval" | "done";
+  state: "open" | "built-pending-approval" | "built-kept-off" | "done";
   /** What landed, for a done follow-up. */
   resolution?: string;
 }
@@ -1486,8 +1488,8 @@ export const STORE_FOLLOW_UPS: readonly StoreFollowUp[] = Object.freeze<StoreFol
     phase: "W32 R0 P4",
     need: "Build the package-manager-idle proof from the recorded `manager` and `command`, with `unknown` on any doubt. Then the owner decides whether STORE-RULE-002 turns on.",
     unblocks: ["STORE-RULE-002"],
-    state: "built-pending-approval",
-    resolution: "Built in W32 R0 P4: maintenance.ts packageManagerIdleProof reads the full process list of this host (POSIX `ps -A -ww -o pid=,args=`) and examines every word of every line. Any process that names the recorded manager (also as a path or a `.js`, `.cjs`, `.sh`, or `.rb` file) or the make-docs package counts as running. Any doubt gives `unknown`: another platform, an unreadable or empty list, an unreadable command line of a possible manager, an unknown manager, or no command. It never uses `binaryPath`. STORE-RULE-002 stays inactive until the owner approves it.",
+    state: "built-kept-off",
+    resolution: "Built in W32 R0 P4: maintenance.ts packageManagerIdleProof reads the full process list of this host (POSIX `ps -A -ww -o pid=,args=`) and examines every word of every line. Any process that names the recorded manager (also as a path or a `.js`, `.cjs`, `.sh`, or `.rb` file) or the make-docs package counts as running. Any doubt gives `unknown`: another platform, an unreadable or empty list, an unreadable command line of a possible manager, an unknown manager, or no command. It never uses `binaryPath`. On 2026-11-23 (W32 R0 P5) the owner kept STORE-RULE-002 off; it stays inactive until the owner turns it on.",
   },
   {
     id: "FOLLOW-UP-P4-RULE-ACTIVATION",

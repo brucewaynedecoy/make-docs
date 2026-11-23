@@ -59,6 +59,14 @@ export const STORE_WRITE_GUARD_EVENTS = ["insert", "update", "delete"] as const;
 export type StoreWriteGuardEvent = (typeof STORE_WRITE_GUARD_EVENTS)[number];
 /** The reason that Store open reports when a guard trigger is missing or changed. */
 export const STORE_CHANGED_OUTSIDE_REASON = "changed outside Make Docs";
+/**
+ * The limit of the write guard, which status and documentation state (PRD 38
+ * R-WRITE-GUARD-6). The guard stops accidental and casual direct writes. It
+ * does not stop a program that runs as the same person and sets out to remove
+ * it; Make Docs detects that at the next Store open.
+ */
+export const STORE_WRITE_GUARD_LIMIT =
+  "The write guard stops accidental and casual direct writes to the Store. A program that runs as you and sets out to remove the guard is not blocked; Make Docs detects it at the next Store open. Agents write the Store only through Make Docs commands or MCP tools.";
 
 export function storeWriteGuardTriggerName(table: string, event: StoreWriteGuardEvent): string {
   return `make_docs_guard_${table}_${event}`;
@@ -205,6 +213,8 @@ export function inspectStoreVersionRollback(db: StoreDatabase): string[] {
 
 /** The name of a finished `setup store clean` backup in `<store>/backup/` (W32 R0 P4). */
 export const STORE_CLEAN_BACKUP_PATTERN = /^store-clean-\d{8}T\d{9}Z-[0-9a-f]{8}\.db$/;
+/** A clean backup that is still being written or checked, `.store-clean-*.db.partial`. It never counts as a backup. */
+export const STORE_CLEAN_PARTIAL_BACKUP_PATTERN = /^\.store-clean-\d{8}T\d{9}Z-[0-9a-f]{8}\.db\.partial$/;
 
 const SQLITE_HEADER = Buffer.from("SQLite format 3\0", "latin1");
 
@@ -945,9 +955,13 @@ export interface OpenStoreDatabaseResult {
   databasePath: string;
   /** True when no database file existed and a fresh one was created. */
   created: boolean;
-  /** True when a corrupt database was quarantined and a fresh one created. */
+  /**
+   * Always false today. A corrupt or unknown Store is kept and refused, never
+   * replaced (R-DB-4), so no open quarantines a database. The field stays for
+   * the bootstrap report shape.
+   */
   recovered: boolean;
-  /** Quarantine location of the corrupt database, when `recovered` is true. */
+  /** Always null today; see `recovered`. */
   quarantinedPath: string | null;
   /** Schema version before this open (null for a fresh database). */
   previousSchemaVersion: number | null;
@@ -2282,6 +2296,7 @@ export function openStoreSqliteConnection(
   });
 }
 
+/** Not called today: a corrupt Store is kept and refused, not quarantined (see `OpenStoreDatabaseResult.recovered`). */
 function quarantineDatabase(databasePath: string): string {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const quarantinedPath = `${databasePath}.corrupt-${stamp}`;

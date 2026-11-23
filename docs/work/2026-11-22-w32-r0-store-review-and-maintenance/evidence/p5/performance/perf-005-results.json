@@ -1,0 +1,1027 @@
+{
+ "profile": "PERF-005",
+ "profileVersion": 1,
+ "note": "Paths, project names, and IDs are left out. Each run used a fresh duplicate of the read-only real Store copy.",
+ "runs": [
+  {
+   "run": 1,
+   "clockNow": "2026-12-24T12:00:00.000Z",
+   "setupConversionWallSeconds": 0.51,
+   "checkMs": 44.6,
+   "cleanMs": 166.2,
+   "statementMs": {
+    "VACUUM INTO <backup>": 56.9,
+    "BEGIN IMMEDIATE": 0.0,
+    "COMMIT": 0.6,
+    "VACUUM": 4.1,
+    "PRAGMA wal_checkpoint(TRUNCATE)": 2.6
+   },
+   "rules": [
+    {
+     "id": "STORE-RULE-001",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-002",
+     "state": "inactive",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-003",
+     "state": "active",
+     "changed": 13,
+     "bytes": 3765909,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-004",
+     "state": "active",
+     "changed": 10,
+     "bytes": 3301934,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-005",
+     "state": "active",
+     "changed": 15,
+     "bytes": 28245075,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-006",
+     "state": "inactive",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-007",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-008",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-009",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    }
+   ],
+   "totals": {
+    "changedRows": 38,
+    "rowBytes": 35312918,
+    "skippedRows": 0
+   },
+   "space": {
+    "beforeBytes": 39780352,
+    "afterBytes": 1298432,
+    "freedBytes": 38481920,
+    "vacuumed": true,
+    "vacuumError": null
+   },
+   "backupBytes": 36675584,
+   "backupsKept": 1,
+   "backupsRemoved": 0,
+   "decisions": 1,
+   "leftovers": 0,
+   "stages": {
+    "copy": {
+     "file": {
+      "fileBytes": 37003264,
+      "user_version": 6,
+      "page_count": 9034,
+      "freelist": 121
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 3,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 3,
+       "bytes": 610304
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 44,
+       "bytes": 28446720
+      },
+      "installation_operations": {
+       "rows": 9,
+       "bytes": 3252224
+      },
+      "installation_steps": {
+       "rows": 321,
+       "bytes": 3952640
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 4,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    },
+    "migrated": {
+     "file": {
+      "fileBytes": 39780352,
+      "user_version": 7,
+      "page_count": 9712,
+      "freelist": 758
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 4,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 4,
+       "bytes": 679936
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 45,
+       "bytes": 28446720
+      },
+      "installation_operations": {
+       "rows": 10,
+       "bytes": 3321856
+      },
+      "installation_steps": {
+       "rows": 323,
+       "bytes": 3952640
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "project_register": {
+       "rows": 1,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 5,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    },
+    "cleaned": {
+     "file": {
+      "fileBytes": 1298432,
+      "user_version": 7,
+      "page_count": 317,
+      "freelist": 0
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 4,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 4,
+       "bytes": 679936
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 30,
+       "bytes": 172032
+      },
+      "installation_operations": {
+       "rows": 10,
+       "bytes": 4096
+      },
+      "installation_steps": {
+       "rows": 323,
+       "bytes": 176128
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "project_register": {
+       "rows": 1,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 5,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    }
+   }
+  },
+  {
+   "run": 2,
+   "clockNow": "2026-12-24T12:00:00.000Z",
+   "setupConversionWallSeconds": 0.5,
+   "checkMs": 50.7,
+   "cleanMs": 176.2,
+   "statementMs": {
+    "VACUUM INTO <backup>": 58.8,
+    "BEGIN IMMEDIATE": 0.0,
+    "COMMIT": 1.0,
+    "VACUUM": 4.1,
+    "PRAGMA wal_checkpoint(TRUNCATE)": 2.4
+   },
+   "rules": [
+    {
+     "id": "STORE-RULE-001",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-002",
+     "state": "inactive",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-003",
+     "state": "active",
+     "changed": 13,
+     "bytes": 3765909,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-004",
+     "state": "active",
+     "changed": 10,
+     "bytes": 3301934,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-005",
+     "state": "active",
+     "changed": 15,
+     "bytes": 28245075,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-006",
+     "state": "inactive",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-007",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-008",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-009",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    }
+   ],
+   "totals": {
+    "changedRows": 38,
+    "rowBytes": 35312918,
+    "skippedRows": 0
+   },
+   "space": {
+    "beforeBytes": 39780352,
+    "afterBytes": 1298432,
+    "freedBytes": 38481920,
+    "vacuumed": true,
+    "vacuumError": null
+   },
+   "backupBytes": 36675584,
+   "backupsKept": 1,
+   "backupsRemoved": 0,
+   "decisions": 1,
+   "leftovers": 0,
+   "stages": {
+    "copy": {
+     "file": {
+      "fileBytes": 37003264,
+      "user_version": 6,
+      "page_count": 9034,
+      "freelist": 121
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 3,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 3,
+       "bytes": 610304
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 44,
+       "bytes": 28446720
+      },
+      "installation_operations": {
+       "rows": 9,
+       "bytes": 3252224
+      },
+      "installation_steps": {
+       "rows": 321,
+       "bytes": 3952640
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 4,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    },
+    "migrated": {
+     "file": {
+      "fileBytes": 39780352,
+      "user_version": 7,
+      "page_count": 9712,
+      "freelist": 758
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 4,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 4,
+       "bytes": 679936
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 45,
+       "bytes": 28446720
+      },
+      "installation_operations": {
+       "rows": 10,
+       "bytes": 3321856
+      },
+      "installation_steps": {
+       "rows": 323,
+       "bytes": 3952640
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "project_register": {
+       "rows": 1,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 5,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    },
+    "cleaned": {
+     "file": {
+      "fileBytes": 1298432,
+      "user_version": 7,
+      "page_count": 317,
+      "freelist": 0
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 4,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 4,
+       "bytes": 679936
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 30,
+       "bytes": 172032
+      },
+      "installation_operations": {
+       "rows": 10,
+       "bytes": 4096
+      },
+      "installation_steps": {
+       "rows": 323,
+       "bytes": 176128
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "project_register": {
+       "rows": 1,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 5,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    }
+   }
+  },
+  {
+   "run": 3,
+   "clockNow": "2026-12-24T12:00:00.000Z",
+   "setupConversionWallSeconds": 0.49,
+   "checkMs": 45.3,
+   "cleanMs": 164.4,
+   "statementMs": {
+    "VACUUM INTO <backup>": 57.9,
+    "BEGIN IMMEDIATE": 0.0,
+    "COMMIT": 0.6,
+    "VACUUM": 3.8,
+    "PRAGMA wal_checkpoint(TRUNCATE)": 2.2
+   },
+   "rules": [
+    {
+     "id": "STORE-RULE-001",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-002",
+     "state": "inactive",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-003",
+     "state": "active",
+     "changed": 13,
+     "bytes": 3765909,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-004",
+     "state": "active",
+     "changed": 10,
+     "bytes": 3301934,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-005",
+     "state": "active",
+     "changed": 15,
+     "bytes": 28245075,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-006",
+     "state": "inactive",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-007",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-008",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    },
+    {
+     "id": "STORE-RULE-009",
+     "state": "active",
+     "changed": 0,
+     "bytes": 0,
+     "skipped": 0
+    }
+   ],
+   "totals": {
+    "changedRows": 38,
+    "rowBytes": 35312918,
+    "skippedRows": 0
+   },
+   "space": {
+    "beforeBytes": 39780352,
+    "afterBytes": 1298432,
+    "freedBytes": 38481920,
+    "vacuumed": true,
+    "vacuumError": null
+   },
+   "backupBytes": 36675584,
+   "backupsKept": 1,
+   "backupsRemoved": 0,
+   "decisions": 1,
+   "leftovers": 0,
+   "stages": {
+    "copy": {
+     "file": {
+      "fileBytes": 37003264,
+      "user_version": 6,
+      "page_count": 9034,
+      "freelist": 121
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 3,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 3,
+       "bytes": 610304
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 44,
+       "bytes": 28446720
+      },
+      "installation_operations": {
+       "rows": 9,
+       "bytes": 3252224
+      },
+      "installation_steps": {
+       "rows": 321,
+       "bytes": 3952640
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 4,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    },
+    "migrated": {
+     "file": {
+      "fileBytes": 39780352,
+      "user_version": 7,
+      "page_count": 9712,
+      "freelist": 758
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 4,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 4,
+       "bytes": 679936
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 45,
+       "bytes": 28446720
+      },
+      "installation_operations": {
+       "rows": 10,
+       "bytes": 3321856
+      },
+      "installation_steps": {
+       "rows": 323,
+       "bytes": 3952640
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "project_register": {
+       "rows": 1,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 5,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    },
+    "cleaned": {
+     "file": {
+      "fileBytes": 1298432,
+      "user_version": 7,
+      "page_count": 317,
+      "freelist": 0
+     },
+     "tables": {
+      "backlog_review_cache": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_checkouts": {
+       "rows": 4,
+       "bytes": 40960
+      },
+      "installation_ledgers": {
+       "rows": 4,
+       "bytes": 679936
+      },
+      "installation_locks": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "installation_migration_records": {
+       "rows": 30,
+       "bytes": 172032
+      },
+      "installation_operations": {
+       "rows": 10,
+       "bytes": 4096
+      },
+      "installation_steps": {
+       "rows": 323,
+       "bytes": 176128
+      },
+      "installation_transfers": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "playbook_runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "project_register": {
+       "rows": 1,
+       "bytes": 4096
+      },
+      "projects": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "run_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "runs": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_checkpoint_journal": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_migration_receipts": {
+       "rows": 0,
+       "bytes": 4096
+      },
+      "store_schema_journal": {
+       "rows": 5,
+       "bytes": 4096
+      },
+      "tool_operations": {
+       "rows": 6,
+       "bytes": 16384
+      },
+      "work_evidence": {
+       "rows": 0,
+       "bytes": 4096
+      }
+     }
+    }
+   }
+  }
+ ]
+}

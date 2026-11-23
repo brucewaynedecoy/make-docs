@@ -297,7 +297,7 @@ describe("W32 R0 P1 fixed rules and decision items", () => {
     expect(inactive.map((rule) => rule.id)).toEqual(["STORE-RULE-002", "STORE-RULE-006"]);
     expect(followUps.get("FOLLOW-UP-P4-RULE-ACTIVATION")).toMatchObject({ state: "done", unblocks: [] });
     // The package-manager-idle check is built, and rule 002 waits for the owner.
-    expect(followUps.get("FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE")).toMatchObject({ state: "built-pending-approval", unblocks: ["STORE-RULE-002"] });
+    expect(followUps.get("FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE")).toMatchObject({ state: "built-kept-off", unblocks: ["STORE-RULE-002"] });
     expect(STORE_FIXED_RULES.find((rule) => rule.id === "STORE-RULE-002")!.activation).toMatchObject({ state: "inactive", until: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE" });
     for (const rule of inactive) {
       if (rule.activation.state !== "inactive") continue;

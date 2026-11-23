@@ -336,6 +336,8 @@ export function assertHarnessOperationAllowed(input: {
           ? storeChangedOutsideNextAction(path.dirname(String(issue!.path)))
           : unsafe
           ? `Run \`make-docs project state status --target-root ${JSON.stringify(input.targetRoot)}\` and review the Store state.`
+          : typeof record.nextAction === "string" && record.nextAction
+          ? record.nextAction
           : "Restore access to the configured Make Docs Store, then retry only this operation.",
         details: { projectRoot: input.targetRoot, ...(issue ? { issue: { ...issue } } : {}) },
       });

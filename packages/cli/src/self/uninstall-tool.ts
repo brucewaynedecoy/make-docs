@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, rmdirSync } from "node:fs";
+import path from "node:path";
 import { stdin, stdout } from "node:process";
 import { confirm, isCancel } from "@clack/prompts";
 import {
@@ -81,7 +82,7 @@ export async function runToolUninstallCommand(
 
   emit("make-docs uninstall removes the installed binary:");
   emit(
-    `- global Store: ${storeRoot} (${options.removeStore ? "explicit removal selected; all stored history and recovery records will be deleted" : "preserved"})`,
+    `- global Store: ${storeRoot} (${options.removeStore ? `explicit removal selected; the Store database and its records will be deleted; Store backups stay in ${path.join(storeRoot, "backup")}${path.sep} and as store.db.bridge-*.backup files in ${storeRoot}` : "preserved"})`,
   );
   emit(`- installed binary: ${describeBinaryFootprint(detection)}`);
   emit(
@@ -123,7 +124,7 @@ export async function runToolUninstallCommand(
 
   const targetDir = process.cwd();
   prepareToolOperationStore(targetDir, storeRoot);
-  emit(`The global Store is preserved at ${storeRoot}.`);
+  if (!options.removeStore) emit(`The global Store is preserved at ${storeRoot}.`);
   const removeSelectedStore = () => {
     if (!options.removeStore) return;
     const removal = withStoreRemovalLock(targetDir, storeRoot, () =>
@@ -224,7 +225,15 @@ function describeStoreRemoval(removal: RemoveGlobalStoreResult): string {
       return `No global store exists at ${removal.storeRoot}; nothing to remove.`;
     case "refused":
       return `Refused to remove ${removal.storeRoot}; see the warning below.`;
-    default:
+    default: {
+      // Store backups stay on purpose (R-LIFE-1). When only backups remain, the Store itself is gone.
+      const kept = removal.keptBackups ?? [];
+      const others = removal.retainedEntries.filter((entry) => entry !== "backup" && !kept.includes(entry));
+      if (kept.length > 0 && others.length === 0) {
+        const folders = [...new Set(kept.map((file) => `${path.dirname(path.join(removal.storeRoot, file))}${path.sep}`))];
+        return `Removed the Store. Kept ${kept.length} backup${kept.length === 1 ? "" : "s"} at ${folders.join(" and ")}. Delete them yourself if you no longer need them.`;
+      }
       return `The global store at ${removal.storeRoot} was partially removed; retained entries: ${removal.retainedEntries.join(", ") || "(none)"}.`;
+    }
   }
 }

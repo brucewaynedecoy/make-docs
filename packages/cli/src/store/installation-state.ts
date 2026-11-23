@@ -4,7 +4,7 @@ import path from 'node:path';
 import { parseDocument } from 'yaml';
 import { recoverDeadStoreLeases } from './lease-recovery';
 import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAssetLock, type GlobalAssetLock } from './global-asset-lock';
-import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, fillInstallationOperationReceipt, formatStoreIssue, readStoreSchemaJournal, inspectStoreBrokenReferences, describeStoreBrokenReferences, listUnguardableStoreTables, isSqliteContention, makeStoreIssue, openStoreSqliteConnection, STORE_BUSY_TIMEOUT_MS, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
+import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, fillInstallationOperationReceipt, formatStoreIssue, readStoreSchemaJournal, inspectStoreBrokenReferences, describeStoreBrokenReferences, listUnguardableStoreTables, isSqliteContention, STORE_WRITE_GUARD_LIMIT, STORE_WRITE_GUARD_SINCE_SCHEMA, makeStoreIssue, openStoreSqliteConnection, STORE_BUSY_TIMEOUT_MS, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
 import { resolveStoreRoot, getStoreDatabasePath } from './paths';
 import { validateAndMigrateManifest } from '../manifest';
 import { parseManagedBlock } from '../managed-block';
@@ -14,8 +14,11 @@ import { platform, PlatformOperationError, type FileMutationGuard } from '../pla
 import { listRegisteredProjects, recordProjectInRegister, type ProjectListResult, type ProjectNameConflict } from './project-register';
 import { findInstallationLocks } from './root-path-match';
 export class InstallationStateError extends Error {
-    constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string, readonly issue?: StoreIssue) { super(message); this.name = 'InstallationStateError'; }
+    /** `nextAction`, when set, is the one step that the scoped Store error names (for example `make-docs setup` for a legacy schema). */
+    constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string, readonly issue?: StoreIssue, readonly nextAction?: string) { super(message); this.name = 'InstallationStateError'; }
 }
+/** The next action for a Store at a supported legacy schema: only a reviewed `make-docs setup` converts it. */
+export const STORE_LEGACY_SCHEMA_NEXT_ACTION = 'Run make-docs setup to review and apply the Store conversion, then run this command again.';
 export interface InstallationLock {
     projectRoot: string;
     storeRoot: string;
@@ -395,7 +398,7 @@ export function readDetachedInstallationOperation(projectRoot: string, operation
         return {status: op.status, plan, planPruned: false as const};
     }, {storeRoot, readOnly: true});
 }
-function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string, issue?: StoreIssue): never { throw new InstallationStateError(code, message, issue); }
+function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string, issue?: StoreIssue, nextAction?: string): never { throw new InstallationStateError(code, message, issue, nextAction); }
 /** Resolve absent leaves without trusting a symlink spelling of an external path. */
 export function canonicalInstallationPath(input: string): string {
     try {
@@ -505,7 +508,7 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
         if (current.state === 'supported-current')
             return;
         if (current.state === 'supported-legacy' && reviewedStoreBridgeDepth === 0)
-            fail('store-unavailable', `The Store uses supported legacy schema ${current.schemaVersion}. Run make-docs setup to review and apply the compatibility bridge. No project files changed.`);
+            fail('store-unavailable', `The Store uses supported legacy schema ${current.schemaVersion}. No project files changed. ${STORE_LEGACY_SCHEMA_NEXT_ACTION}`, undefined, STORE_LEGACY_SCHEMA_NEXT_ACTION);
         if (current.state !== 'supported-legacy' && current.state !== 'absent') {
             const issue = ('issue' in current ? current.issue : undefined) ?? {
                 code: current.state === 'corrupt' ? 'corrupt' as const : current.state === 'newer-unknown' ? 'schema-newer' as const : 'schema-unknown' as const,
@@ -1689,6 +1692,11 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
                 unguardableWarning: unguardableTables.length
                     ? `SQLite cannot guard ${unguardableTables.map(entry => `${entry.kind} table ${entry.table}`).join(', ')}, so a program that is not Make Docs can still write it. No Make Docs data lives there. Run make-docs setup store check to review it.`
                     : null,
+                // A guard problem never reaches status: the guarded open refuses the Store as store-unsafe first.
+                writeGuard: {
+                    state: schema.schemaVersion >= STORE_WRITE_GUARD_SINCE_SCHEMA ? 'intact' as const : 'not-installed' as const,
+                    limit: STORE_WRITE_GUARD_LIMIT,
+                },
             };
             const toolOperations = (db.prepare("SELECT operation_id AS operationId,operation,started_at AS startedAt,status FROM tool_operations WHERE status='pending' ORDER BY started_at LIMIT 10").all() as {
                 operationId: string;
@@ -1736,9 +1744,9 @@ export function readProjectRegisterList(projectRoot: string, storeRoot?: string)
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
     const c = classifyStoreCheckpoint9State(store);
     if (c.state === 'absent')
-        fail('store-unavailable', 'The Store is absent, so it knows no projects. Run make-docs setup in a project first.');
+        fail('store-unavailable', 'The Store is absent, so it knows no projects. Nothing was changed. Run make-docs setup in a project first.', undefined, 'Run make-docs setup in a project first.');
     if (c.state === 'supported-legacy')
-        fail('store-unavailable', `The Store uses supported legacy schema ${c.schemaVersion}. Run make-docs setup to review and apply the compatibility bridge. No project files changed.`);
+        fail('store-unavailable', `The Store uses supported legacy schema ${c.schemaVersion}. No project files changed. ${STORE_LEGACY_SCHEMA_NEXT_ACTION}`, undefined, STORE_LEGACY_SCHEMA_NEXT_ACTION);
     if (c.state !== 'supported-current')
         fail('store-unavailable', 'issue' in c && c.issue ? formatStoreIssue(c.issue) : `Store is ${c.state}.`, 'issue' in c ? c.issue : undefined);
     return withInstallationDatabase(root, db => listRegisteredProjects(db), { storeRoot: store, readOnly: true });
