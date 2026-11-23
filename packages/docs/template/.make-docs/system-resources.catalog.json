@@ -32,7 +32,8 @@
       "type": "reference",
       "sourceRoot": ".make-docs/system/references",
       "include": [
-        "*.md"
+        "*.md",
+        "factory/workflows/*.md"
       ],
       "exclude": [
         "AGENTS.md",
@@ -74,6 +75,12 @@
     },
     {
       "uri": "make-docs://system/contract/design-contract.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/factory-contract.md",
       "profiles": [
         "workflow"
       ]
@@ -266,6 +273,24 @@
       "profiles": [
         "workflow",
         "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/factory/workflows/build-then-review.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/factory/workflows/lead-and-specialists.md",
+      "profiles": [
+        "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/factory/workflows/staged-backlog.md",
+      "profiles": [
+        "workflow"
       ]
     },
     {

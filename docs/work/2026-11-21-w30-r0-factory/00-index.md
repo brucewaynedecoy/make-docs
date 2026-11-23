@@ -62,6 +62,7 @@ Limits:
 - Each Human Experience promise above stays traceable through its phase, evidence decision, and gate.
 - No deferred obligation or Unassisted Goal Testing scenario applies now. P6 reassesses Unassisted Goal Testing for first setup.
 - When a phase retains evidence for acceptance or review, create this backlog's central `evidence.md` and link it here. Do not create it empty.
+- Acceptance evidence is in the [W30 R0 Evidence Report](evidence.md).
 
 ## Intended Follow-On
 

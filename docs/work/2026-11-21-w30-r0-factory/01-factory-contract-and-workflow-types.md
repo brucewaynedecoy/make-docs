@@ -61,13 +61,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T1: Author `factory-contract.md` upstream with the four standard roles and the fields of a custom role (R-FACTORY-6, R-FACTORY-7, R-FACTORY-8).
-- [ ] T2: Add the capability catalog. List each capability and how setup proves it (R-FACTORY-9, R-FACTORY-10).
-- [ ] T3: Add the readiness states `draft`, `wired`, `ready`, and `drifted`, and what moves a workflow between them (R-FACTORY-12).
-- [ ] T4: Add the escalation floor, the message rules, and acceptance at the end of the given scope (R-FACTORY-37, R-FACTORY-38, R-FACTORY-39).
-- [ ] T5: Add the working rules, the limits and their defaults, and the backup rule outside git (R-FACTORY-20, R-FACTORY-40 to R-FACTORY-46).
-- [ ] T6: Add a rule catalog that maps each rule to its CLI check, where one exists, and to its contract text (R-FACTORY-52).
-- [ ] T7: Describe every example tool by capability only.
+- [x] T1: Author `factory-contract.md` upstream with the four standard roles and the fields of a custom role (R-FACTORY-6, R-FACTORY-7, R-FACTORY-8).
+- [x] T2: Add the capability catalog. List each capability and how setup proves it (R-FACTORY-9, R-FACTORY-10).
+- [x] T3: Add the readiness states `draft`, `wired`, `ready`, and `drifted`, and what moves a workflow between them (R-FACTORY-12).
+- [x] T4: Add the escalation floor, the message rules, and acceptance at the end of the given scope (R-FACTORY-37, R-FACTORY-38, R-FACTORY-39).
+- [x] T5: Add the working rules, the limits and their defaults, and the backup rule outside git (R-FACTORY-20, R-FACTORY-40 to R-FACTORY-46).
+- [x] T6: Add a rule catalog that maps each rule to its CLI check, where one exists, and to its contract text (R-FACTORY-52).
+- [x] T7: Describe every example tool by capability only.
 
 ### Acceptance criteria
 
@@ -84,11 +84,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T8: Author `build-then-review.md`, `lead-and-specialists.md`, and `staged-backlog.md` upstream. Each names its roles, the capabilities each role needs, its steps, its limits, its integration owner rule for parallel work, and what it returns (R-FACTORY-17, R-FACTORY-18, R-FACTORY-20, R-FACTORY-42).
-- [ ] T9: Define the repo path and fields for a project-owned workflow type, and the rule that it never replaces a shipped type silently (R-FACTORY-19).
-- [ ] T10: Add the optional preflight step to the workflow type fields (R-FACTORY-21).
-- [ ] T11: Project the four resources into the package, then reseed them into this repository's `.make-docs/`.
-- [ ] T12: Map each design decision to one contract or workflow type section, and record the map for the reviewer.
+- [x] T8: Author `build-then-review.md`, `lead-and-specialists.md`, and `staged-backlog.md` upstream. Each names its roles, the capabilities each role needs, its steps, its limits, its integration owner rule for parallel work, and what it returns (R-FACTORY-17, R-FACTORY-18, R-FACTORY-20, R-FACTORY-42).
+- [x] T9: Define the repo path and fields for a project-owned workflow type, and the rule that it never replaces a shipped type silently (R-FACTORY-19).
+- [x] T10: Add the optional preflight step to the workflow type fields (R-FACTORY-21).
+- [x] T11: Project the four resources into the package, then reseed them into this repository's `.make-docs/`.
+- [x] T12: Map each design decision to one contract or workflow type section, and record the map for the reviewer.
 
 ### Acceptance criteria
 
@@ -103,10 +103,13 @@ There are no performance candidates.
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing `selected` and done: `packages/cli/tests/w30-r0-p1-factory-resources.test.ts` (7 tests) checks byte parity, catalog entries, offline list and read with and without local projection, the contract content, the state moves, the claim timing, the rule catalog checks, the workflow type sections, examples, and step order, and the product-name and task ID guards. The PRD authority and path-hygiene validators pass. Performance Testing `not-needed-now`: text only. Guided Progress Review `not-needed-now`: P5 reviews the real escalation messages. Unassisted Goal Testing `not-needed-now`.
+- Performance evidence: none needed. No measurement was taken.
+- Human Experience Review: done by the implementing agent on the contract text. Each escalation message must say what happened, what is needed, whether it is required or optional, what it blocks, and what happens next, and the contract gives one example. The real messages are reviewed in P5.
+- Independent review: ten findings, all fixed. They covered the state moves, the smallest setup, the rule catalog checks and missing rows, claim timing, the name clash, two owner choices, the upgrade effect of projection, the step order in two workflow types, one word in a rule row, and a too-wide tool-name test. The [evidence report](evidence.md#independent-review-fixes) lists each fix.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: none in this phase. The owner reviews the new choices listed in the evidence report.
+- Evidence report: [P1 Factory Contract and Workflow Types](evidence.md#p1-factory-contract-and-workflow-types), with the design decision map for T12 and A7.
+- Phase / capability status: implementation complete and uncommitted, on `4daaf18f`. A1 to A8 have evidence. The factory and work queue commands named in the resources are planned, not built.
+- Waits for: nothing. P1 could start any time.
+- Next: P2 waits for all of [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md).

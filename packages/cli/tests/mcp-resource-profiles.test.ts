@@ -46,7 +46,7 @@ const EXPECTED: Record<McpServerProfile, string[]> = {
   all: Object.values(URI),
 };
 const SHIPPED_COUNTS: Record<McpServerProfile, number> = {
-  core: 7, setup: 8, workflow: 48, quality: 34, backlog: 8, all: 63,
+  core: 7, setup: 8, workflow: 52, quality: 34, backlog: 8, all: 67,
 };
 const wireUris = (profile: McpServerProfile, native: string[]) => [...native,
   ...(profile === "all" || profile === "backlog" ? [BACKLOG_REVIEW_UI_RESOURCE.uri] : [])].sort();
