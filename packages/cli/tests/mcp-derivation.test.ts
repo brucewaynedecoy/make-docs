@@ -24,38 +24,38 @@ const sqliteAvailable = loadSqliteDriver().available;
  */
 
 const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
-  "prd.authority.validate": "prd_validate",
-  "performance.evidence.validate": "performance_validate",
+  "prd.authority.validate": "check_prd",
+  "performance.evidence.validate": "check_performance_evidence",
   "work.item.resolve": "work_item_resolve",
-  "work.evidence.record": "evidence_record",
-  "work.evidence.read": "evidence_read",
+  "work.evidence.record": "work_evidence_record",
+  "work.evidence.read": "work_evidence_read",
   "work.backlog.snapshot": "backlog_snapshot",
-  "work.backlog-cache.lookup": "backlog_cache_read",
+  "work.backlog-cache.lookup": "backlog_cache_lookup",
   "work.backlog-cache.write": "backlog_cache_write",
   "backlog.review.open": "backlog_review_open",
   "backlog.review.refresh": "backlog_review_refresh",
   "resource.list": "resource_list",
   "resource.read": "resource_read",
   "resource.ensure": "resource_ensure",
-  "project.surface.ensure": "surface_ensure",
-  "project.path-hygiene.repair": "paths_repair",
-  "project.path-hygiene.validate": "paths_validate",
+  "project.surface.ensure": "project_surface_ensure",
+  "project.path-hygiene.repair": "project_paths_repair",
+  "project.path-hygiene.validate": "project_paths_validate",
   "project.doctor.check": "project_doctor_check",
   "project.doctor.fix": "project_doctor_fix",
   "setup.store.check": "setup_store_check",
   "setup.store.clean": "setup_store_clean",
-  "project.state.status": "project_status",
-  "project.state.recover": "project_recover",
-  "project.checkout-move.preview": "checkout_move_preview",
-  "project.checkout-move.apply": "checkout_move_apply",
-  "project.checkout-register.preview": "checkout_register_preview",
-  "project.checkout-register.apply": "checkout_register_apply",
-  "project.persona.list": "personas",
+  "project.state.status": "project_state_status",
+  "project.state.recover": "project_state_recover",
+  "project.checkout-move.preview": "project_move_preview",
+  "project.checkout-move.apply": "project_move_apply",
+  "project.checkout-register.preview": "project_checkout_preview",
+  "project.checkout-register.apply": "project_checkout_apply",
+  "project.persona.list": "project_persona_list",
   "project.register.list": "project_list",
-  "project.layout.preview": "layout_preview",
-  "project.layout.prepare": "layout_prepare",
-  "project.layout.apply": "layout_apply",
-  "project.layout.verify": "layout_verify",
+  "project.layout.preview": "project_layout_preview",
+  "project.layout.prepare": "project_layout_prepare",
+  "project.layout.apply": "project_layout_apply",
+  "project.layout.verify": "project_layout_verify",
   "lifecycle.start": "lifecycle_start",
   "lifecycle.show": "lifecycle_show",
   "lifecycle.list": "lifecycle_list",
@@ -66,12 +66,12 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "lifecycle.complete": "lifecycle_complete",
   "lifecycle.fail": "lifecycle_fail",
   "lifecycle.abandon": "lifecycle_abandon",
-  "uat.scenario.validate": "uat_scenario_validate",
-  "uat.persona.resolve": "uat_persona_resolve",
-  "uat.target.validate": "uat_target_validate",
-  "uat.evidence-reference.validate": "uat_evidence_validate",
-  "uat.finding.validate": "uat_finding_validate",
-  "uat.result.validate": "uat_result_validate",
+  "uat.scenario.validate": "check_uat_scenario",
+  "uat.persona.resolve": "check_uat_persona",
+  "uat.target.validate": "check_uat_target",
+  "uat.evidence-reference.validate": "check_uat_evidence",
+  "uat.finding.validate": "check_uat_finding",
+  "uat.result.validate": "check_uat_result",
 };
 
 const SUPPORT_EVIDENCE_REF =
@@ -189,7 +189,7 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
   });
 
   test("write operations without allowWrite are refused by the core, not the tool", async () => {
-    await expect(callMakeDocsMcpTool("evidence_record", {})).rejects.toThrow(
+    await expect(callMakeDocsMcpTool("work_evidence_record", {})).rejects.toThrow(
       "Operation `work.evidence.record` mutates state and requires write permission from the calling surface",
     );
 
@@ -203,7 +203,7 @@ describe("MCP derivation parity (R-REG-2, R-MIG-3, R-CORE-1)", () => {
 
   test("derived descriptors mark write operations and carry operation input schemas", () => {
     const descriptors = new Map(MAKE_DOCS_MCP_TOOLS.map((tool) => [tool.name, tool]));
-    const writeTool = descriptors.get("evidence_record")!;
+    const writeTool = descriptors.get("work_evidence_record")!;
     expect(writeTool.description).toContain("allowWrite=true");
     expect(Object.keys(writeTool.inputSchema)).toEqual(
       expect.arrayContaining(["allowWrite", "dryRun", "approvals"]),

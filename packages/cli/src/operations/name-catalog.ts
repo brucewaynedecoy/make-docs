@@ -6,9 +6,11 @@
  * Each entry holds the current CLI path and MCP name and the new CLI path and
  * MCP name under PRD 39 R-NAME-1 to R-NAME-4.
  *
- * This is a contract. Nothing reads it to route commands or name tools yet.
- * W33 R0 P2 builds the command tree and the MCP names from it. Operation IDs
- * do not change. CLI paths here omit the leading `make-docs`.
+ * W33 R0 P2 built the command tree and the MCP names from it, so every
+ * current entry's current names are its new names. `formerCli` and
+ * `formerMcp` keep the names from before W33 R0 for the P3 migration
+ * aliases. Operation IDs do not change. CLI paths here omit the leading
+ * `make-docs`.
  */
 
 export const NAME_CATALOG_ID = "make-docs.name-catalog.v1";
@@ -117,7 +119,7 @@ export type NameCatalogStatus = "current" | "planned";
 export type NameCatalogPlanner = "W29 R0" | "W30 R0" | "W31 R0" | "W32 R0";
 
 export interface NameCatalogEntry {
-  /** Registry operation ID, or the MCP name of a hand-defined tool. */
+  /** Registry operation ID, or the current MCP name of a hand-defined tool. */
   id: string;
   kind: NameCatalogEntryKind;
   status: NameCatalogStatus;
@@ -128,6 +130,16 @@ export interface NameCatalogEntry {
   currentCli: string | null;
   /** Current MCP name, or null when no tool exists. */
   currentMcp: string | null;
+  /**
+   * CLI path before W33 R0, or null when none existed. W33 R0 P3 keeps it as a
+   * hidden alias when it differs from `newCli` (PRD 39 R-MIG-1).
+   */
+  formerCli: string | null;
+  /**
+   * MCP name before W33 R0, or null when none existed. W33 R0 P3 keeps it as a
+   * hidden alias when it differs from `newMcp`.
+   */
+  formerMcp: string | null;
   /** A name an earlier plan used for a planned entry. It never shipped. */
   formerPlannedMcp?: string;
   /** New CLI path after `make-docs`. */
@@ -257,21 +269,43 @@ export function mcpNameForCliPath(cliPath: string): string {
   return cliPath.replace(/[ -]/g, "_");
 }
 
-type EntryInput = Omit<NameCatalogEntry, "newMcp" | "cliCommand"> & { cliCommand?: boolean };
+type EntryInput = Omit<NameCatalogEntry, "newMcp" | "cliCommand" | "formerCli" | "formerMcp"> & {
+  cliCommand?: boolean;
+  formerCli?: string | null;
+  formerMcp?: string | null;
+};
 
 function entry(input: EntryInput): NameCatalogEntry {
-  return { ...input, cliCommand: input.cliCommand ?? true, newMcp: mcpNameForCliPath(input.newCli) };
+  return {
+    ...input,
+    formerCli: input.formerCli ?? null,
+    formerMcp: input.formerMcp ?? null,
+    cliCommand: input.cliCommand ?? true,
+    newMcp: mcpNameForCliPath(input.newCli),
+  };
 }
 
+/** A current operation. Since W33 R0 P2 its current names are its new names. */
 function current(
   id: string,
   group: NameGroup,
-  currentCli: string,
-  currentMcp: string,
+  formerCli: string,
+  formerMcp: string,
   newCli: string,
   extra: Partial<EntryInput> = {},
 ): NameCatalogEntry {
-  return entry({ id, kind: "operation", status: "current", group, currentCli, currentMcp, newCli, ...extra });
+  return entry({
+    id,
+    kind: "operation",
+    status: "current",
+    group,
+    currentCli: newCli,
+    currentMcp: mcpNameForCliPath(newCli),
+    formerCli,
+    formerMcp,
+    newCli,
+    ...extra,
+  });
 }
 
 function planned(
@@ -284,12 +318,14 @@ function planned(
   return entry({ id, kind: "operation", status: "planned", plannedBy, group, currentCli: null, currentMcp: null, newCli, ...extra });
 }
 
+/** A hand-defined MCP tool. Its ID is its current MCP name; `formerName` is its name before W33 R0. */
 function tool(
-  name: string,
+  formerName: string,
   group: NameGroup,
   newCli: string,
   reason: string,
 ): NameCatalogEntry {
+  const name = mcpNameForCliPath(newCli);
   return entry({
     id: name,
     kind: "hand-defined-tool",
@@ -297,6 +333,8 @@ function tool(
     group,
     currentCli: null,
     currentMcp: name,
+    formerCli: null,
+    formerMcp: formerName,
     newCli,
     cliCommand: false,
     reason,
@@ -540,6 +578,13 @@ export function validateNameCatalog(
     if (item.kind === "operation" && item.status === "current" && (item.currentCli === null || item.currentMcp === null)) {
       add("shape", item.id, "A current operation has a current CLI path and MCP name.");
     }
+    // W33 R0 P2: the live names are the new names.
+    if (item.status === "current" && (item.currentMcp !== item.newMcp || item.currentCli !== (item.cliCommand ? item.newCli : null))) {
+      add("shape", item.id, "A current entry's current names are its new names.");
+    }
+    if (item.status === "planned" && (item.formerCli !== null || item.formerMcp !== null)) {
+      add("shape", item.id, "A planned entry has no former names.");
+    }
   }
 
   // Unique names.
@@ -562,8 +607,8 @@ export function validateNameCatalog(
   const oldCli = new Map<string, string>();
   const oldMcp = new Map<string, string>();
   for (const item of entries) {
-    if (item.currentCli) oldCli.set(item.currentCli, item.id);
-    if (item.currentMcp) oldMcp.set(item.currentMcp, item.id);
+    if (item.formerCli) oldCli.set(item.formerCli, item.id);
+    if (item.formerMcp) oldMcp.set(item.formerMcp, item.id);
     if (item.formerPlannedMcp) oldMcp.set(item.formerPlannedMcp, item.id);
   }
   for (const item of entries) {
@@ -789,7 +834,7 @@ const DOTTED_ID = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*){1,2}$/;
 
 /**
  * PRD 25 R-MCP-PROFILE lines: every tool name (a backticked word with an
- * underscore) is a current or new catalog MCP name, and every backticked
+ * underscore) is a current, new, or former catalog MCP name, and every backticked
  * operation ID is a catalog ID.
  */
 export function compareMcpProfileNames(prd25: string, entries: readonly NameCatalogEntry[]): string[] {
@@ -798,6 +843,7 @@ export function compareMcpProfileNames(prd25: string, entries: readonly NameCata
   for (const item of entries) {
     names.add(item.newMcp);
     if (item.currentMcp) names.add(item.currentMcp);
+    if (item.formerMcp) names.add(item.formerMcp);
   }
   const ids = new Set(entries.map((item) => item.id));
   const lines = prd25.split("\n").filter((line) => /^- R-MCP-PROFILE-\d+ /.test(line));
@@ -806,7 +852,7 @@ export function compareMcpProfileNames(prd25: string, entries: readonly NameCata
     const requirement = line.match(/^- (R-MCP-PROFILE-\d+)/)![1]!;
     for (const token of [...line.matchAll(/`([^`]+)`/g)].map((found) => found[1]!)) {
       if (SNAKE_NAME.test(token) && !names.has(token)) {
-        problems.push(`${requirement} names the tool \`${token}\`, which is not a current or new catalog name.`);
+        problems.push(`${requirement} names the tool \`${token}\`, which is not a current, new, or former catalog name.`);
       }
       if (DOTTED_ID.test(token) && !ids.has(token)) {
         problems.push(`${requirement} names the operation \`${token}\`, which the catalog does not have.`);
@@ -830,9 +876,10 @@ export function compareBacklogAppPaths(prd51: string, entries: readonly NameCata
 
 /**
  * PRD 39 R-RUN-1: "active `run <prefix>` commands for `a`, `b`, and `c`" and
- * "planned `<prefix>` commands for ...". Active paths must equal the current
- * `run` paths. Planned paths must equal the new paths of planned `run`-tree
- * operations (the work queue and the factory).
+ * "planned `<prefix>` commands for ...". Active paths must equal the former
+ * `run` paths, which W33 R0 P3 keeps as migration aliases. Planned paths must
+ * equal the new paths of planned `run`-tree operations (the work queue and
+ * the factory).
  */
 export function parseRRun1(rRun1: string): { active: string[]; planned: string[] } {
   const start = rRun1.indexOf("It contains ");
@@ -860,7 +907,7 @@ export function parseRRun1(rRun1: string): { active: string[]; planned: string[]
 export function compareRRun1(rRun1: string, entries: readonly NameCatalogEntry[]): string[] {
   const problems: string[] = [];
   const { active, planned } = parseRRun1(rRun1);
-  const currentRun = entries.filter((item) => item.currentCli?.startsWith("run ")).map((item) => item.currentCli!);
+  const currentRun = entries.filter((item) => item.formerCli?.startsWith("run ")).map((item) => item.formerCli!);
   const plannedRun = entries
     .filter((item) => item.status === "planned" && (item.group === "work" || item.group === "factory"))
     .map((item) => item.newCli);

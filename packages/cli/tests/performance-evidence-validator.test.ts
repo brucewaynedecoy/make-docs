@@ -426,15 +426,14 @@ describe("performance.evidence.validate", () => {
       { targetRoot: root },
       createExecutionContext({ surface: "test", writesAllowed: false }),
     );
-    const mcp = await callMakeDocsMcpTool("performance_validate", {
+    const mcp = await callMakeDocsMcpTool("check_performance_evidence", {
       targetRoot: root,
     });
 
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     await runRunCommand([
-      "performance",
-      "evidence",
-      "validate",
+      "check",
+      "performance-evidence",
       "--target-root",
       root,
       "--json",
@@ -446,7 +445,7 @@ describe("performance.evidence.validate", () => {
 
     writeSpy.mockClear();
     await runRunCommand(
-      ["performance", "evidence", "validate", "--target-root", root],
+      ["check", "performance-evidence", "--target-root", root],
       { isTty: true },
     );
     const human = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");

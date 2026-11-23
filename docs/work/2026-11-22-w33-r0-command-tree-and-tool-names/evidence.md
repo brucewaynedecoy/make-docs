@@ -215,3 +215,110 @@ The owner decided ND-01 to ND-10 on 2026-11-22. Six were accepted as proposed, a
 - The R-MCP-PROFILE check reads tool names that have an underscore. One-word names such as `domains` look like profile names, so it does not check them.
 - Profile membership of the new MCP names is not in the catalog. P2 owns it.
 - A3: the owner accepted the names on 2026-11-22. The last step is the owner's final look at this updated table.
+
+## P2 Command Tree and Tool Names
+
+Covers A4 to A6 in [P2](02-command-tree-and-tool-names.md). Evidence date: 2026-11-23. Base commit: `10674ba6` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`.
+
+### What Changed
+
+- `packages/cli/src/operations/registry.ts`: every operation's CLI projection is its new path from the name catalog. The CLI roots are the eleven PRD 39 R-TOP-1 groups. `run` is not a root. An operation with no projection now fails instead of falling back to `run`. New `operationFullCliPath()` gives the group and the path.
+- `packages/cli/src/mcp/tools.ts`: the hand-picked `MCP_TOOL_NAME_BY_OPERATION` map is gone. `deriveMcpToolName()` takes the CLI path after `make-docs` and changes spaces and hyphens to underscores (R-NAME-3). The six hand-defined tools take their catalog names, and each name is checked against the path it would have. The server fails at load when a name has more than 26 characters (R-NAME-4).
+- `packages/cli/src/run/cli.ts`: one dispatcher runs the `work`, `backlog`, `lifecycle`, `factory`, and `check` groups. It matches the longest full CLI path in the registry projection, so a path need not look like its operation ID (`check prd` runs `prd.authority.validate`). Each group's help comes from the registry. An unknown command lists the valid commands of its group.
+- `packages/cli/src/cli.ts`: the top level has the eleven groups and no `run`. `make-docs --help` lists the groups by capability, in plain words. `make-docs project paths validate|repair` replaces `project path-hygiene`. The removed `operations` command now names `make-docs <group> <command>`.
+- `packages/cli/src/run/root-operations.ts`: `make-docs project move` replaces `project checkout-move`, and `make-docs project checkout` replaces `project checkout-register`. The project help lists its commands by capability.
+- `packages/cli/src/operations/name-catalog.ts`: each current entry's current names are its new names. New `formerCli` and `formerMcp` fields keep the names from before W33 R0 for the P3 aliases. A hand-defined tool's ID is now its new MCP name. The alias-collision rule, the R-RUN-1 check, and the R-MCP-PROFILE check read the former names. New shape rules fail a current entry whose current names are not its new names, and a planned entry with a former name.
+- Code messages that named an old command now name the new one: the `--last` lifecycle error, the Store table catalog next action, and the setup checkout-move next action.
+- No alias was added. No shipped text, Skill, router, template, or PRD changed. Operation IDs and profile membership did not change.
+
+### Top-Level Help
+
+`make-docs --help` now prints:
+
+```text
+make-docs
+
+Set up Make Docs, work with your project's docs and backlog, and serve tools to agents.
+
+Usage:
+  make-docs
+  make-docs <group> <command> [options]
+  make-docs <group> --help
+
+Bare command:
+  Run make-docs with no command to see install status (when installed) or start
+  a guided setup (when not installed). Bare invocation never syncs.
+
+Global flags:
+  --version, -v   Print the installed make-docs version and exit.
+  --help, -h      Show help for a group or command.
+
+Groups:
+  setup        Install, sync, or remove Make Docs in this project. Set up this computer and check the Store.
+  project      See and repair this project: state, checkouts, Personas, layout, paths, and the doctor.
+  resource     List, read, or copy Make Docs system resources.
+  work         Find work items and record work evidence.
+  backlog      Read the backlog, use its review cache, and open the review app.
+  lifecycle    Start, track, and finish lifecycle runs.
+  factory      Run approved backlog work through workers and review. No commands yet.
+  check        Check PRDs, performance evidence, and user test records. Changes nothing.
+  mcp          Serve Make Docs tools to agents over MCP.
+  update       Update the installed make-docs tool.
+  uninstall    Remove make-docs from this computer.
+
+Examples:
+  make-docs
+  make-docs setup --yes
+  make-docs setup system --dry-run
+  make-docs project state status
+  make-docs resource list
+  make-docs work item resolve 'W18 R11 P2'
+  make-docs backlog snapshot --target-root .
+  make-docs lifecycle list
+  make-docs check prd
+  make-docs mcp
+
+Use --help or -h with a group to list its commands.
+```
+
+### Name Rule (A4, A5)
+
+- Every MCP tool name is the CLI path after `make-docs`, with spaces and hyphens as underscores. No exception exists. The six hand-defined tools have no CLI command (ND-10), so their names use the path they would have.
+- The live registry passes the catalog rules. The catalog's current CLI paths equal the registry projection, and its current MCP names equal the derived server names, for all 48 operations and 6 tools.
+- 32 CLI paths and 31 MCP names changed. Each old name is kept in `formerCli` or `formerMcp` for P3.
+- The longest MCP name is `check_performance_evidence` (26 characters).
+
+### Profile Membership (A6)
+
+A new test in `tests/mcp-profiles.test.ts` holds the W24 profile inventory under the names from before W33 R0. It maps each name through the catalog to its new name and checks that every profile has the same members. It passes for `core`, `setup`, `workflow`, `quality`, and `backlog`. The profile metadata lives on each operation and did not change. Native MCP resources did not change.
+
+### Tests Whose Expectations Changed
+
+Each of these tests pinned an old CLI path or MCP name that P2 made out of date:
+
+- `name-catalog.test.ts`: hand-defined tool IDs are their new names. Fixtures use `formerCli` and `formerMcp`. The R-MCP-PROFILE message says "current, new, or former". New tests check live names, former names, and the new shape rules.
+- `run-cli.test.ts`, `reorganization-verification.test.ts`: group argv instead of `run` argv, group help instead of `run` help, the new error text, and the five dispatcher groups instead of the `run` root.
+- `cli.test.ts`: the old seven-command help test became an exact help snapshot. A new test checks that each group's help lists its commands. The `operations` guidance names `make-docs <group> <command>`.
+- `mcp.test.ts`, `mcp-derivation.test.ts`, `mcp-profiles.test.ts`, `mcp-profile-discovery.test.ts`, `mcp-app-contract.test.ts`: the new tool names, the new MCP help line, and an unknown operation fails with "Unknown operation identifier" because no name map exists.
+- `p3-operation-surfaces.test.ts`, `p8-runtime-retirement.test.ts`: the new `check uat evidence` usage and the new error for a retired ID. A retired route is not a group, so it fails with "Unknown argument". Help is read from `make-docs lifecycle --help`.
+- `p7-ugt.test.ts`, `prd-authority.test.ts`, `performance-evidence-validator.test.ts`, `backlog-cache.test.ts`, `backlog-snapshot.test.ts`, `w26-p3-cross-interface.test.ts`: `check ...` and `backlog ...` argv instead of `run ...` argv, and the new tool names.
+- `w22-r1-ownership.test.ts`, `path-hygiene-cli.test.ts`, `p5-migration-safety.test.ts`: `project move`, `project checkout`, and `project paths` instead of `checkout-move`, `checkout-register`, and `path-hygiene`, and the new tool names.
+- `w19-r5-recovery-cli.test.ts`, `w19-r6-access-config.test.ts`, `w19-r8-mid-task-installed.test.ts`, `w24-p4-compatibility.test.ts`, `w27-r0-copilot-adapter.test.ts`: the new tool names only.
+
+`backlog-review-skill.test.ts` did not change. It reads the shipped Skill text, which still names the old commands until P4.
+
+### Commands Run
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npm run build`: passed.
+- `npx vitest run tests/name-catalog.test.ts tests/mcp-derivation.test.ts tests/reorganization-verification.test.ts tests/run-cli.test.ts tests/mcp-profiles.test.ts`: 108 passed.
+- `npx vitest run --reporter=json`: 2368 tests, 2359 passed, 3 failed, 6 skipped, counted from the JSON file. The 3 failures exist without this phase: two stdio tests in `tests/mcp-app-contract.test.ts` and the sandbox-only fixture 11 in `tests/p5-migration-safety.test.ts`.
+- `node packages/cli/dist/index.js check prd --target-root .`: status `passed`, no diagnostics.
+
+### Limits
+
+- Old names do not work in this phase. `make-docs run ...` fails with "Unknown argument: run", and an old MCP name fails as an unknown tool. P3 adds the hidden aliases.
+- Shipped Skills, routers, references, and PRD prose still name the old commands. P4 moves them.
+- Native command rules are made from the registry, so they now use the new paths, such as `make-docs check prd`. Rules that a machine installed before this change use the old `run` paths. This phase did not test how an installed machine treats those rules. P3 or P5 must check it.
+- The internal function names in `src/run/cli.ts` (`runRunCommand`, `adaptRunCliArgv`, `resolveRunOperationPath`) did not change. They now take argv that starts with the group.
+

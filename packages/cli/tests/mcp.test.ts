@@ -21,39 +21,39 @@ describe("make-docs MCP runtime", () => {
     expect(createMakeDocsMcpServer()).toBeDefined();
     expect(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).toEqual([
       // Hand-defined non-operation tools.
-      "domains",
-      "install_status",
-      "manifest",
-      "config",
-      "compatibility",
-      "install_plan",
+      "mcp_domains_list",
+      "setup_status",
+      "setup_manifest_read",
+      "setup_config_read",
+      "setup_compatibility_check",
+      "setup_plan",
       // Derived from the operation registry (R-REG-2, R-MIG-3).
-      "prd_validate",
-      "performance_validate",
-      "checkout_register_preview",
-      "checkout_register_apply",
-      "checkout_move_preview",
-      "checkout_move_apply",
-      "project_status",
+      "check_prd",
+      "check_performance_evidence",
+      "project_checkout_preview",
+      "project_checkout_apply",
+      "project_move_preview",
+      "project_move_apply",
+      "project_state_status",
       "project_list",
-      "project_recover",
-      "surface_ensure",
-      "paths_validate",
-      "paths_repair",
-      "personas",
-      "layout_preview",
-      "layout_prepare",
-      "layout_apply",
-      "layout_verify",
+      "project_state_recover",
+      "project_surface_ensure",
+      "project_paths_validate",
+      "project_paths_repair",
+      "project_persona_list",
+      "project_layout_preview",
+      "project_layout_prepare",
+      "project_layout_apply",
+      "project_layout_verify",
       "project_doctor_check",
       "project_doctor_fix",
       "setup_store_check",
       "setup_store_clean",
       "work_item_resolve",
-      "evidence_record",
-      "evidence_read",
+      "work_evidence_record",
+      "work_evidence_read",
       "backlog_snapshot",
-      "backlog_cache_read",
+      "backlog_cache_lookup",
       "backlog_cache_write",
       "backlog_review_open",
       "backlog_review_refresh",
@@ -70,12 +70,12 @@ describe("make-docs MCP runtime", () => {
       "lifecycle_complete",
       "lifecycle_fail",
       "lifecycle_abandon",
-      "uat_scenario_validate",
-      "uat_persona_resolve",
-      "uat_target_validate",
-      "uat_evidence_validate",
-      "uat_finding_validate",
-      "uat_result_validate",
+      "check_uat_scenario",
+      "check_uat_persona",
+      "check_uat_target",
+      "check_uat_evidence",
+      "check_uat_finding",
+      "check_uat_result",
     ]);
   });
 
@@ -127,14 +127,15 @@ describe("make-docs MCP runtime", () => {
     const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
     expect(output).toContain("make-docs mcp");
     expect(output).toContain("TypeScript-owned make-docs MCP server");
-    expect(output).toContain("same operation registry and core used by `make-docs run`");
+    expect(output).toContain("same operation registry and core as the CLI groups");
+    expect(output).toContain("Each MCP tool name is its CLI path with underscores");
   });
 
   test("plans install changes without writing files", async () => {
     const root = createTempDir("make-docs-mcp-plan-");
     tempRoots.push(root);
 
-    const payload = await callMakeDocsMcpTool("install_plan", {
+    const payload = await callMakeDocsMcpTool("setup_plan", {
       targetDir: root,
     });
     const result = payload.result as {

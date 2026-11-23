@@ -1334,7 +1334,7 @@ export const STORE_DECISION_ITEMS: readonly StoreDecisionItem[] = Object.freeze<
     proofs: [],
     settings: ["lifecycleRunReviewAgeDays"],
     reasonText: "Lifecycle run {run_id} in project {project_id} has been {status} at stage {lifecycle_stage} since {updated_at}. Make Docs never closes a run for you.",
-    nextAction: "Resume, complete, or abandon the run with `make-docs run lifecycle`.",
+    nextAction: "Resume, complete, or abandon the run with `make-docs lifecycle`.",
   },
   {
     id: "STORE-DECISION-003",

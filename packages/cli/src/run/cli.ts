@@ -14,12 +14,9 @@ import {
   type CliOperationLaunch,
 } from "../operations/context";
 import {
-  hasOperation,
-  getOperation,
   invokeOperation,
   listOperations,
-  operationCliProjection,
-  operationCliPath,
+  operationFullCliPath,
   type OperationDescriptor,
 } from "../operations/registry";
 import { OperationError, type JsonValue } from "../operations/types";
@@ -49,12 +46,34 @@ interface RunCliInvocation {
 type RunCliAdapter = (options: OperationOptions) => RunCliInvocation;
 
 /**
+ * The top-level groups (PRD 39 R-TOP-1) whose commands this dispatcher runs.
+ * They held the old `make-docs run` tree. `project`, `resource`, and
+ * `setup store` keep their own routers in `root-operations.ts` and
+ * `setup-store.ts`. `factory` has no commands yet.
+ */
+export const OPERATION_GROUPS = ["work", "backlog", "lifecycle", "factory", "check"] as const;
+export type OperationGroup = (typeof OPERATION_GROUPS)[number];
+
+export function isOperationGroup(value: string | undefined): value is OperationGroup {
+  return value !== undefined && (OPERATION_GROUPS as readonly string[]).includes(value);
+}
+
+/** Plain-words capability of each group, for help text. */
+export const OPERATION_GROUP_SUMMARIES: Readonly<Record<OperationGroup, string>> = {
+  work: "Find work items and record work evidence.",
+  backlog: "Read the backlog, use its review cache, and open the review app.",
+  lifecycle: "Start, track, and finish lifecycle runs.",
+  factory: "Run approved backlog work through workers and review.",
+  check: "Check PRDs, performance evidence, and user test records. Changes nothing.",
+};
+
+/**
  * Intent-named CLI spellings over existing registry operations (R-GRAM-1..2).
- * A spelling maps a derived-looking CLI path to a registry identifier plus a
- * fixed execution-context overlay; it is presentation-layer routing only —
- * the registry, the operation input, and the MCP surface are untouched.
- * Every spelling still dispatches through a registry identifier, honoring
- * registry parity rule.
+ * A spelling maps a full CLI path (after `make-docs`) to a registry
+ * identifier plus a fixed execution-context overlay; it is
+ * presentation-layer routing only — the registry, the operation input, and
+ * the MCP surface are untouched. Every spelling still dispatches through a
+ * registry identifier, honoring registry parity rule.
  */
 const RUN_CLI_SPELLINGS: Record<
   string,
@@ -62,8 +81,8 @@ const RUN_CLI_SPELLINGS: Record<
 > = {
 };
 
-/** CLI display form of an identifier, from the registry's single derivation rule. */
-const operationPath = operationCliPath;
+/** Full CLI path of an identifier after `make-docs`, from the registry projection. */
+const operationPath = operationFullCliPath;
 
 /**
  * `--repo-root` default (R-FLAG-1): the nearest ancestor of the working
@@ -136,7 +155,7 @@ function resolveLifecycleRunIdOption(options: OperationOptions, operation: strin
     ).pop();
     if (!latest) {
       throw new OperationError(
-        "`--last` found no lifecycle runs for this project; start one with `make-docs run lifecycle start`.",
+        "`--last` found no lifecycle runs for this project; start one with `make-docs lifecycle start`.",
       );
     }
     return latest.runId;
@@ -356,13 +375,13 @@ for (const operation of listOperations().filter((entry) => entry.domain === "uat
   });
 }
 
-// Pending run projections have no semantics to adapt. They still resolve to
+// Pending projections have no semantics to adapt. They still resolve to
 // their reserved identifiers and the registry returns the typed lineage
 // refusal before input validation. Active adapters remain explicit above.
 for (const operation of listOperations()) {
   if (
     operation.status === "pending" &&
-    operation.cli.root === "run" &&
+    isOperationGroup(operation.cli.root) &&
     RUN_CLI_ADAPTERS[operation.id] === undefined
   ) {
     RUN_CLI_ADAPTERS[operation.id] = () => ({ input: {} });
@@ -385,48 +404,58 @@ export function listRunCliSpellings(): { spelling: string; operation: string }[]
   }));
 }
 
-const MAX_IDENTIFIER_SEGMENTS = 3;
-
-function isDispatchablePath(id: string): boolean {
-  return (
-    (hasOperation(id) && operationCliProjection(getOperation(id).id).root === "run") ||
-    id in RUN_CLI_SPELLINGS
+/** Registry operations that the dispatcher runs, in registry order. */
+function groupOperations(group?: OperationGroup): OperationDescriptor[] {
+  return listOperations().filter((operation) =>
+    group === undefined ? isOperationGroup(operation.cli.root) : operation.cli.root === group,
   );
 }
 
+/** Every dispatchable full CLI path, mapped to its operation ID or spelling key. */
+function dispatchablePaths(group: OperationGroup): Map<string, string> {
+  const paths = new Map<string, string>();
+  for (const operation of groupOperations(group)) paths.set(operationPath(operation.id), operation.id);
+  for (const spelling of Object.keys(RUN_CLI_SPELLINGS)) {
+    if (spelling.split(" ", 1)[0] === group) paths.set(spelling, spelling);
+  }
+  return paths;
+}
+
 /**
- * Derives the operation identifier from leading non-flag argv tokens by
- * joining them with dots and taking the longest registry match. Never a
- * hand-maintained path list: `hasOperation` (plus the declared spelling
- * table) is the only source of truth. The returned id may be a spelling key;
- * the dispatcher maps it to its registry identifier and context overlay.
+ * Resolves the operation from leading non-flag argv tokens. `argv[0]` is the
+ * group (PRD 39 R-TOP-1). The longest full CLI path in the registry
+ * projection (or the declared spelling table) wins. Never a hand-maintained
+ * path list. The returned id may be a spelling key; the dispatcher maps it
+ * to its registry identifier and context overlay.
  */
 export function resolveRunOperationPath(argv: string[]): { id: string; rest: string[] } {
+  const group = argv[0];
+  if (!isOperationGroup(group)) {
+    throw new OperationError(
+      `Unknown make-docs command group: \`${group ?? ""}\`. Groups with registry commands: ${OPERATION_GROUPS.join(", ")}.`,
+    );
+  }
+  const paths = dispatchablePaths(group);
+  const longest = Math.max(1, ...[...paths.keys()].map((cliPath) => cliPath.split(" ").length));
   const leading: string[] = [];
   for (const arg of argv) {
-    if (arg.startsWith("--") || leading.length === MAX_IDENTIFIER_SEGMENTS) {
+    if (arg.startsWith("--") || leading.length === longest) {
       break;
     }
     leading.push(arg);
   }
-  for (let length = Math.min(MAX_IDENTIFIER_SEGMENTS, leading.length); length >= 2; length -= 1) {
-    const id = leading.slice(0, length).join(".");
-    if (isDispatchablePath(id)) {
+  for (let length = leading.length; length >= 2; length -= 1) {
+    const id = paths.get(leading.slice(0, length).join(" "));
+    if (id !== undefined) {
       return { id, rest: argv.slice(length) };
     }
   }
   const attempted = leading.join(" ") || argv.join(" ");
-  const known = [
-    ...listOperations()
-      .filter((operation) => operation.cli.root === "run")
-      .map((operation) => operationPath(operation.id)),
-    ...Object.keys(RUN_CLI_SPELLINGS).map((spelling) => operationPath(spelling)),
-  ]
-    .sort()
-    .map((pathName) => `  ${pathName}`)
-    .join("\n");
+  const known = [...paths.keys()].sort().map((pathName) => `  make-docs ${pathName}`).join("\n");
   throw new OperationError(
-    `Unknown make-docs run operation: \`${attempted}\`. Valid operations:\n${known}`,
+    paths.size === 0
+      ? `Unknown make-docs command: \`${attempted}\`. The ${group} group has no commands yet.`
+      : `Unknown make-docs command: \`${attempted}\`. Valid ${group} commands:\n${known}`,
   );
 }
 
@@ -436,21 +465,22 @@ function summaryTail(summary: string): string {
   return summary.replace(/^Operation `[^`]+`:\s*/, "");
 }
 
-function printRunHelp(): void {
-  const byDomain = new Map<string, OperationDescriptor[]>();
-  for (const operation of listOperations().filter((entry) => entry.cli.root === "run")) {
-    const group = byDomain.get(operation.domain) ?? [];
-    group.push(operation);
-    byDomain.set(operation.domain, group);
-  }
+/** Help for one group: its capability in plain words and each of its commands. */
+export function renderOperationGroupHelp(group: OperationGroup): string {
+  const operations = groupOperations(group);
   const lines: string[] = [
-    "Usage: make-docs run <operation...> [options]",
+    `make-docs ${group}`,
     "",
-    "Operation paths are the registry identifier segments (e.g. `run work item resolve`",
-    "invokes `work.item.resolve`).",
+    OPERATION_GROUP_SUMMARIES[group],
+    "",
+    `Usage: make-docs ${group} <command> [options]`,
+    "",
   ];
-  for (const [domain, operations] of byDomain) {
-    lines.push("", `${domain}:`);
+  const spellings = Object.entries(RUN_CLI_SPELLINGS).filter(([spelling]) => spelling.split(" ", 1)[0] === group);
+  if (operations.length === 0 && spellings.length === 0) {
+    lines.push("This group has no commands yet.");
+  } else {
+    lines.push("Commands:");
     for (const operation of operations) {
       const markers = [
         ...(operation.mutates === "write" ? ["[write]"] : []),
@@ -459,25 +489,25 @@ function printRunHelp(): void {
           : []),
       ];
       const marker = markers.length > 0 ? ` ${markers.join(" ")}` : "";
-      lines.push(`  ${operationPath(operation.id)}${marker}`);
+      lines.push(`  ${operation.cli.command}${marker}`);
       lines.push(`      ${summaryTail(operation.summary)}`);
     }
-    // Declared spellings render inside their operation's domain group so the
-    // intent-named grammar is discoverable from the derived help (R-GRAM-1).
-    for (const [spelling, entry] of Object.entries(RUN_CLI_SPELLINGS)) {
-      if (spelling.split(".", 1)[0] !== domain) {
-        continue;
-      }
-      lines.push(`  ${operationPath(spelling)}`);
+    // Declared spellings render inside their group so the intent-named
+    // grammar is discoverable from the derived help (R-GRAM-1).
+    for (const [spelling, entry] of spellings) {
+      lines.push(`  make-docs ${spelling}`);
       lines.push(`      ${entry.summary}`);
     }
   }
+  if (operations.some((operation) => operation.mutates === "write")) {
+    lines.push("", "[write] commands change files or Store records.");
+  }
   lines.push("");
-  process.stdout.write(lines.join("\n"));
+  return lines.join("\n");
 }
 
 /**
- * The adapted form of one `make-docs run` argv.
+ * The adapted form of one group command argv (`argv[0]` is the group).
  * Operation routing and safety tests use this value to check the real parser,
  * registry identifier, typed input, and context overlay without running the operation.
  */
@@ -493,7 +523,7 @@ export interface AdaptedRunCliInvocation {
 }
 
 /**
- * Resolves and adapts one `make-docs run` argv through the registry-derived
+ * Resolves and adapts one group command argv through the registry-derived
  * path resolver and the per-identifier adapters, throwing exactly where the
  * real dispatch would (unknown operation, missing required flags, malformed
  * values) — without invoking the operation. {@link runRunCommand} routes
@@ -509,7 +539,7 @@ export function adaptRunCliArgv(argv: string[]): AdaptedRunCliInvocation {
     // Registry/adapter drift: the conformance test pins this, but fail loudly
     // rather than silently for an identifier added without a CLI adapter.
     throw new OperationError(
-      `Operation \`${operationId}\` is registered but has no \`run\` CLI adapter; add one in src/run/cli.ts.`,
+      `Operation \`${operationId}\` is registered but has no CLI adapter; add one in src/run/cli.ts.`,
     );
   }
   const options = parseOperationOptions(rest);
@@ -536,8 +566,9 @@ export async function runRunCommand(
   seams: RunCommandSeams = {},
   launch: CliOperationLaunch = resolveCliOperationLaunch(),
 ): Promise<void> {
-  if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
-    printRunHelp();
+  const group = argv[0];
+  if (isOperationGroup(group) && (argv.length === 1 || argv[1] === "--help" || argv[1] === "-h")) {
+    process.stdout.write(renderOperationGroupHelp(group));
     return;
   }
   const { id, operationId, options, invocation: adapted, spellingDryRun } = adaptRunCliArgv(argv);

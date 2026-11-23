@@ -42,9 +42,9 @@ import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
  * The operation registry (R-REG-1): the single source of truth for which
  * deterministic operations exist. Identifiers follow `domain.verb` or
  * `domain.object.verb` — lowercase, dot-separated, hyphenated multiword
- * segments — and are stable and append-only. The CLI `run` tree, the MCP
- * tool list are surfaces derived
- * from or conformance-checked against this registry (R-REG-2, R-SURF-1).
+ * segments — and are stable and append-only. The CLI groups and the MCP
+ * tool list are surfaces derived from or conformance-checked against this
+ * registry (R-REG-2, R-SURF-1).
  */
 
 export type OperationMutation = "read" | "write";
@@ -56,11 +56,16 @@ export type OperationMutation = "read" | "write";
  */
 export type OperationStatus = "active" | "pending";
 
+/** PRD 39 R-TOP-1: the top-level groups. `run` is not a group. */
 export type OperationCliRoot =
   | "setup"
   | "project"
   | "resource"
-  | "run"
+  | "work"
+  | "backlog"
+  | "lifecycle"
+  | "factory"
+  | "check"
   | "mcp"
   | "update"
   | "uninstall";
@@ -181,26 +186,33 @@ export const ADMITTED_OPERATION_IDS = [
   "uat.result.validate",
 ] as const;
 
+/**
+ * Canonical CLI projection of each admitted operation (PRD 39 R-TOP-1,
+ * R-TOP-3, R-NAME): the top-level group and the path under it. W33 R0 P2
+ * moved every operation to its group from the name catalog
+ * (`name-catalog.ts`). The MCP tool name is derived from this path
+ * (R-NAME-3), so the two cannot drift.
+ */
 const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [OperationCliRoot, string]> = {
-  "prd.authority.validate": ["run", "prd authority validate"],
-  "performance.evidence.validate": ["run", "performance evidence validate"],
-  "work.item.resolve": ["run", "work item resolve"],
-  "work.evidence.record": ["run", "work evidence record"],
-  "work.evidence.read": ["run", "work evidence read"],
-  "work.backlog.snapshot": ["run", "work backlog snapshot"],
-  "work.backlog-cache.lookup": ["run", "work backlog-cache lookup"],
-  "work.backlog-cache.write": ["run", "work backlog-cache write"],
-  "backlog.review.open": ["run", "backlog review open"],
-  "backlog.review.refresh": ["run", "backlog review refresh"],
+  "prd.authority.validate": ["check", "prd"],
+  "performance.evidence.validate": ["check", "performance-evidence"],
+  "work.item.resolve": ["work", "item resolve"],
+  "work.evidence.record": ["work", "evidence record"],
+  "work.evidence.read": ["work", "evidence read"],
+  "work.backlog.snapshot": ["backlog", "snapshot"],
+  "work.backlog-cache.lookup": ["backlog", "cache lookup"],
+  "work.backlog-cache.write": ["backlog", "cache write"],
+  "backlog.review.open": ["backlog", "review open"],
+  "backlog.review.refresh": ["backlog", "review refresh"],
   "resource.list": ["resource", "list"],
   "resource.read": ["resource", "read"],
   "resource.ensure": ["resource", "ensure"],
   "project.state.status": ["project", "state status"],
   "project.state.recover": ["project", "state recover"],
-  "project.checkout-move.preview": ["project", "checkout-move preview"],
-  "project.checkout-move.apply": ["project", "checkout-move apply"],
-  "project.checkout-register.preview": ["project", "checkout-register preview"],
-  "project.checkout-register.apply": ["project", "checkout-register apply"],
+  "project.checkout-move.preview": ["project", "move preview"],
+  "project.checkout-move.apply": ["project", "move apply"],
+  "project.checkout-register.preview": ["project", "checkout preview"],
+  "project.checkout-register.apply": ["project", "checkout apply"],
   "project.persona.list": ["project", "persona list"],
   "project.register.list": ["project", "list"],
   "project.layout.preview": ["project", "layout preview"],
@@ -208,41 +220,41 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "project.layout.apply": ["project", "layout apply"],
   "project.layout.verify": ["project", "layout verify"],
   "project.surface.ensure": ["project", "surface ensure"],
-  "project.path-hygiene.validate": ["project", "path-hygiene validate"],
-  "project.path-hygiene.repair": ["project", "path-hygiene repair"],
+  "project.path-hygiene.validate": ["project", "paths validate"],
+  "project.path-hygiene.repair": ["project", "paths repair"],
   "project.doctor.check": ["project", "doctor check"],
   "project.doctor.fix": ["project", "doctor fix"],
   "setup.store.check": ["setup", "store check"],
   "setup.store.clean": ["setup", "store clean"],
-  "lifecycle.start": ["run", "lifecycle start"],
-  "lifecycle.show": ["run", "lifecycle show"],
-  "lifecycle.list": ["run", "lifecycle list"],
-  "lifecycle.checkpoint": ["run", "lifecycle checkpoint"],
-  "lifecycle.pause": ["run", "lifecycle pause"],
-  "lifecycle.resume": ["run", "lifecycle resume"],
-  "lifecycle.attach-evidence": ["run", "lifecycle attach-evidence"],
-  "lifecycle.complete": ["run", "lifecycle complete"],
-  "lifecycle.fail": ["run", "lifecycle fail"],
-  "lifecycle.abandon": ["run", "lifecycle abandon"],
-  "uat.scenario.validate": ["run", "uat scenario validate"],
-  "uat.persona.resolve": ["run", "uat persona resolve"],
-  "uat.target.validate": ["run", "uat target validate"],
-  "uat.evidence-reference.validate": ["run", "uat evidence-reference validate"],
-  "uat.finding.validate": ["run", "uat finding validate"],
-  "uat.result.validate": ["run", "uat result validate"],
+  "lifecycle.start": ["lifecycle", "start"],
+  "lifecycle.show": ["lifecycle", "show"],
+  "lifecycle.list": ["lifecycle", "list"],
+  "lifecycle.checkpoint": ["lifecycle", "checkpoint"],
+  "lifecycle.pause": ["lifecycle", "pause"],
+  "lifecycle.resume": ["lifecycle", "resume"],
+  "lifecycle.attach-evidence": ["lifecycle", "attach-evidence"],
+  "lifecycle.complete": ["lifecycle", "complete"],
+  "lifecycle.fail": ["lifecycle", "fail"],
+  "lifecycle.abandon": ["lifecycle", "abandon"],
+  "uat.scenario.validate": ["check", "uat scenario"],
+  "uat.persona.resolve": ["check", "uat persona"],
+  "uat.target.validate": ["check", "uat target"],
+  "uat.evidence-reference.validate": ["check", "uat evidence"],
+  "uat.finding.validate": ["check", "uat finding"],
+  "uat.result.validate": ["check", "uat result"],
 };
 
 const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
-  "backlog.review.open": "make-docs run backlog review open --report-json <file-or-json> [--json]",
-  "backlog.review.refresh": "make-docs run backlog review refresh --envelope-json <file-or-json> [--json]",
+  "backlog.review.open": "make-docs backlog review open --report-json <file-or-json> [--json]",
+  "backlog.review.refresh": "make-docs backlog review refresh --envelope-json <file-or-json> [--json]",
   "work.backlog.snapshot":
-    "make-docs run work backlog snapshot --target-root <project> [--json]",
+    "make-docs backlog snapshot --target-root <project> [--json]",
   "work.backlog-cache.lookup":
-    "make-docs run work backlog-cache lookup --target-root <project> --snapshot-json <file-or-json> [--json]",
+    "make-docs backlog cache lookup --target-root <project> --snapshot-json <file-or-json> [--json]",
   "work.backlog-cache.write":
-    "make-docs run work backlog-cache write --target-root <project> --snapshot-json <file-or-json> --records-json <file-or-json> [--json]",
+    "make-docs backlog cache write --target-root <project> --snapshot-json <file-or-json> --records-json <file-or-json> [--json]",
   "performance.evidence.validate":
-    "make-docs run performance evidence validate [--target-root <project>] [--json]",
+    "make-docs check performance-evidence [--target-root <project>] [--json]",
   "project.persona.list": "make-docs project persona list [--target-root <path>] [--json]",
   "project.register.list": "make-docs project list [--json]",
   "project.layout.preview": "make-docs project layout preview [--map <source>=<destination>] [--target-root <path>] [--json]",
@@ -251,16 +263,16 @@ const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number
   "project.layout.verify": "make-docs project layout verify <operation-id> [--target-root <path>] [--json]",
   "project.state.status": "make-docs project state status [--json]",
   "project.state.recover": "make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--json]",
-  "project.checkout-move.preview": "make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]",
-  "project.checkout-move.apply": "make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
-  "project.checkout-register.preview": "make-docs project checkout-register preview [--target-root <path>] [--json]",
-  "project.checkout-register.apply": "make-docs project checkout-register apply --review <digest> [--target-root <path>] [--json]",
+  "project.checkout-move.preview": "make-docs project move preview [--source-checkout <id>] [--target-root <path>] [--json]",
+  "project.checkout-move.apply": "make-docs project move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
+  "project.checkout-register.preview": "make-docs project checkout preview [--target-root <path>] [--json]",
+  "project.checkout-register.apply": "make-docs project checkout apply --review <digest> [--target-root <path>] [--json]",
   "resource.read": "make-docs resource read <uri>",
   "resource.ensure": "make-docs resource ensure <uri>",
   "project.surface.ensure":
     "make-docs project surface ensure <archive|artifacts|assets>",
-  "project.path-hygiene.validate": "make-docs project path-hygiene validate",
-  "project.path-hygiene.repair": "make-docs project path-hygiene repair",
+  "project.path-hygiene.validate": "make-docs project paths validate",
+  "project.path-hygiene.repair": "make-docs project paths repair",
   "project.doctor.check": "make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
   "project.doctor.fix": "make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
   "setup.store.check": "make-docs setup store check [--json]",
@@ -272,22 +284,28 @@ export function operationDomain(id: string): string {
 }
 
 /**
- * CLI display path of an identifier: its dot segments as argv tokens under
- * `make-docs run` (`resource.list` -> `resource list`). This is the
- * single derivation rule the `run` command tree is built from (R-REG-2);
- * surfaces and the runner reuse it rather than hand-maintaining command
+ * CLI path of an identifier under its group (`project.checkout-move.preview`
+ * -> `move preview` under `project`). The registry's explicit projection is
+ * the only source; surfaces reuse it rather than hand-maintaining command
  * strings.
  */
 export function operationCliPath(id: string): string {
-  return ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS]?.[1] ?? id.split(".").join(" ");
+  return operationCliProjection(id).path;
+}
+
+/** Full CLI path after `make-docs`: the group and the path (`project move preview`). */
+export function operationFullCliPath(id: string): string {
+  const projection = operationCliProjection(id);
+  return `${projection.root} ${projection.path}`;
 }
 
 export function operationCliProjection(id: string): OperationCliProjection {
   getOperation(id);
-  const [root, cliPath] = ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS] ?? [
-    "run",
-    id.split(".").join(" "),
-  ];
+  const projection = ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS];
+  if (projection === undefined) {
+    throw new OperationError(`Operation \`${id}\` has no CLI projection.`);
+  }
+  const [root, cliPath] = projection;
   return {
     root,
     path: cliPath,
@@ -300,7 +318,7 @@ export function operationCliProjection(id: string): OperationCliProjection {
 /**
  * The human CLI command form of a registered operation (R-TIER-1): the
  * command a reader runs by hand when the runner cannot execute the operation
- * itself. Derived from the registry identifier via {@link operationCliPath};
+ * itself. Read from the registry CLI projection via {@link operationCliProjection};
  * throws for unknown identifiers so a caller can never present a
  * command the CLI does not accept.
  */

@@ -387,10 +387,10 @@ describe("work.backlog.snapshot surfaces", () => {
   test("registers one read-only Store-free operation and a required target-root CLI input", async () => {
     const targetRoot = root();
     fixture(targetRoot);
-    const adapted = adaptRunCliArgv(["work", "backlog", "snapshot", "--target-root", targetRoot, "--json"]);
+    const adapted = adaptRunCliArgv(["backlog", "snapshot", "--target-root", targetRoot, "--json"]);
     expect(adapted.operationId).toBe("work.backlog.snapshot");
     expect(adapted.invocation.input).toEqual({ targetRoot });
-    expect(() => adaptRunCliArgv(["work", "backlog", "snapshot"])).toThrow("requires --target-root");
+    expect(() => adaptRunCliArgv(["backlog", "snapshot"])).toThrow("requires --target-root");
     expect(getOperation("work.backlog.snapshot")).toMatchObject({
       mutates: "read",
       access: { store: "none", project: "read", hostConfig: "none" },
@@ -436,7 +436,7 @@ describe("work.backlog.snapshot surfaces", () => {
       output.push(String(chunk));
       return true;
     });
-    await runRunCommand(["work", "backlog", "snapshot", "--target-root", targetRoot, "--json"], { isTty: false });
+    await runRunCommand(["backlog", "snapshot", "--target-root", targetRoot, "--json"], { isTty: false });
     spy.mockRestore();
     const cli = JSON.parse(output.join("")) as BacklogSnapshotV1;
     const mcp = await callMakeDocsMcpTool("backlog_snapshot", { targetRoot });
@@ -452,7 +452,7 @@ describe("work.backlog.snapshot surfaces", () => {
   test("keeps CLI and MCP root failures typed the same way", async () => {
     const missing = path.join(root(), "missing");
     await expect(
-      runRunCommand(["work", "backlog", "snapshot", "--target-root", missing, "--json"]),
+      runRunCommand(["backlog", "snapshot", "--target-root", missing, "--json"]),
     ).rejects.toMatchObject({ code: "BACKLOG-VAL-001", ruleId: "BACKLOG-RULE-001" });
     await expect(
       callMakeDocsMcpTool("backlog_snapshot", { targetRoot: missing }),

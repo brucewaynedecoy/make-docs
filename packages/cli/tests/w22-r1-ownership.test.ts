@@ -218,7 +218,7 @@ describe('W22 R1 P2 reviewed checkout move', () => {
     expect(operations.get('project.checkout-move.preview')?.access).toEqual({store: 'read', project: 'read', hostConfig: 'none'});
     expect(operations.get('project.checkout-move.apply')?.access).toEqual({store: 'write', project: 'read', hostConfig: 'none'});
     expect(operations.get('project.checkout-register.apply')?.access).toEqual({store: 'write', project: 'write', hostConfig: 'none'});
-    const applyTool = MAKE_DOCS_MCP_TOOLS.find(item => item.name === 'checkout_move_apply');
+    const applyTool = MAKE_DOCS_MCP_TOOLS.find(item => item.name === 'project_move_apply');
     expect(applyTool?.inputSchema).toHaveProperty('allowWrite');
   });
 
@@ -229,7 +229,7 @@ describe('W22 R1 P2 reviewed checkout move', () => {
     const prior = process.env.MAKE_DOCS_HOME;
     process.env.MAKE_DOCS_HOME = f.store;
     try {
-      await expect(callMakeDocsMcpTool('checkout_move_apply', {targetRoot: moved, sourceCheckoutId: f.checkoutId, sourceRoot: f.root, reviewDigest: candidate.reviewDigest})).rejects.toThrow(/requires write permission/i);
+      await expect(callMakeDocsMcpTool('project_move_apply', {targetRoot: moved, sourceCheckoutId: f.checkoutId, sourceRoot: f.root, reviewDigest: candidate.reviewDigest})).rejects.toThrow(/requires write permission/i);
     } finally {
       if (prior === undefined) delete process.env.MAKE_DOCS_HOME;
       else process.env.MAKE_DOCS_HOME = prior;
@@ -258,11 +258,11 @@ describe('W22 R1 P2 reviewed checkout move', () => {
     process.env[MCP_CONNECTION_ID_ENV] = connection.MAKE_DOCS_MCP_CONNECTION_ID;
     process.env[MCP_CONNECTION_KEY_ENV] = connection.MAKE_DOCS_MCP_CONNECTION_KEY;
     try {
-      const preview = (await callMakeDocsMcpTool('checkout_move_preview', {targetRoot: moved}, {profile: 'setup'})).result as ReturnType<typeof previewInstallationCheckoutMove>;
+      const preview = (await callMakeDocsMcpTool('project_move_preview', {targetRoot: moved}, {profile: 'setup'})).result as ReturnType<typeof previewInstallationCheckoutMove>;
       const selected = preview.candidates[0];
       expect(selected.checkoutId).toBe(f.checkoutId);
       expect(selected.available).toBe(true);
-      const applied = (await callMakeDocsMcpTool('checkout_move_apply', {
+      const applied = (await callMakeDocsMcpTool('project_move_apply', {
         targetRoot: moved, sourceCheckoutId: f.checkoutId, sourceRoot: f.root,
         reviewDigest: selected.reviewDigest, allowWrite: true,
       }, {profile: 'setup'})).result as {status: string; checkoutId: string};
@@ -323,12 +323,12 @@ describe('W22 R1 P2 reviewed checkout move', () => {
     const output = vi.spyOn(process.stdout, 'write').mockImplementation((chunk: any) => { writes.push(String(chunk)); return true; });
     process.env.MAKE_DOCS_HOME = f.store;
     try {
-      await runCli(['project', 'checkout-move', 'preview', '--target-root', moved, '--json']);
+      await runCli(['project', 'move', 'preview', '--target-root', moved, '--json']);
       const preview = JSON.parse(writes.at(-1)!);
       const selected = preview.candidates[0];
-      await runCli(['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', f.checkoutId, '--source-root', f.root, '--review', selected.reviewDigest, '--json']);
+      await runCli(['project', 'move', 'apply', '--target-root', moved, '--source-checkout', f.checkoutId, '--source-root', f.root, '--review', selected.reviewDigest, '--json']);
       expect(JSON.parse(writes.at(-1)!)).toMatchObject({status: 'completed', effect: 'checkout-binding-moved', projectFilesChanged: false, nextAction: expect.any(String)});
-      await runCli(['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', f.checkoutId, '--source-root', f.root, '--review', selected.reviewDigest]);
+      await runCli(['project', 'move', 'apply', '--target-root', moved, '--source-checkout', f.checkoutId, '--source-root', f.root, '--review', selected.reviewDigest]);
       expect(writes.at(-1)).toContain('Checkout move: already-completed');
       expect(writes.at(-1)).toContain(`Source: ${canonicalInstallationPath(f.root)}`);
       expect(writes.at(-1)).toContain(`Checkout ID: ${f.checkoutId}`);
@@ -509,10 +509,10 @@ describe('W22 R1 P2 reviewed checkout move', () => {
     const output = vi.spyOn(process.stdout, 'write').mockImplementation((chunk: any) => { writes.push(String(chunk)); return true; });
     process.env.MAKE_DOCS_HOME = f.store;
     try {
-      await runCli(['project', 'checkout-register', 'preview', '--target-root', separate, '--json']);
+      await runCli(['project', 'checkout', 'preview', '--target-root', separate, '--json']);
       const preview = JSON.parse(writes.at(-1)!);
       expect(preview.separateReviewDigest).toMatch(/^[a-f0-9]{64}$/);
-      await runCli(['project', 'checkout-register', 'apply', '--target-root', separate, '--review', preview.separateReviewDigest, '--json']);
+      await runCli(['project', 'checkout', 'apply', '--target-root', separate, '--review', preview.separateReviewDigest, '--json']);
       const result = JSON.parse(writes.at(-1)!);
       expect(result.checkoutId).not.toBe(f.checkoutId);
       expect(result).toMatchObject({effect: 'new-checkout-binding', projectFilesChanged: false, nextAction: expect.any(String)});

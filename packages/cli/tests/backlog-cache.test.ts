@@ -168,12 +168,12 @@ describe("backlog review cache", () => {
       status: "active",
     });
     expect(adaptRunCliArgv([
-      "work", "backlog-cache", "lookup",
+      "backlog", "cache", "lookup",
       "--target-root", projectRoot,
       "--snapshot-json", snapshotPath,
     ]).invocation.input).toEqual({ targetRoot: projectRoot, snapshot });
     expect(adaptRunCliArgv([
-      "work", "backlog-cache", "write",
+      "backlog", "cache", "write",
       "--target-root", projectRoot,
       "--snapshot-json", snapshotPath,
       "--records-json", recordsPath,

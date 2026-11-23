@@ -224,11 +224,11 @@ export async function runProjectCommand(
   argv: string[],
   launch: CliOperationLaunch = resolveCliOperationLaunch(),
 ): Promise<void> {
-  if (argv[0] === "checkout-move") {
+  if (argv[0] === "move") {
     await runProjectCheckoutMoveCommand(argv.slice(1), launch);
     return;
   }
-  if (argv[0] === "checkout-register") {
+  if (argv[0] === "checkout") {
     await runProjectCheckoutRegisterCommand(argv.slice(1), launch);
     return;
   }
@@ -251,19 +251,35 @@ export async function runProjectCommand(
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     process.stdout.write(
       [
-        "Usage: make-docs project list [--target-root <path>] [--json]",
-        "       make-docs project surface ensure <archive|artifacts|assets>",
-        "       make-docs project persona list [--target-root <path>] [--json]",
-        "       make-docs project layout preview [--map <source>=<destination>] [--json]",
-        "       make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--json]",
-        "       make-docs project layout apply|verify <operation-id> [--target-root <path>] [--json]",
-        "       make-docs project state status [--target-root <path>] [--json]",
-        "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
-        "       make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]",
-        "       make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
-        "       make-docs project checkout-register preview|apply [--review <digest>] [--target-root <path>] [--json]",
-        "       make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
-        "       make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
+        "make-docs project",
+        "",
+        "See and repair this project: its Store state, checkouts, Personas, layout,",
+        "support folders, paths and links, and docs.",
+        "",
+        "Usage: make-docs project <command> [options]",
+        "",
+        "Projects:",
+        "  make-docs project list [--target-root <path>] [--json]",
+        "State:",
+        "  make-docs project state status [--target-root <path>] [--json]",
+        "  make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
+        "Checkouts:",
+        "  make-docs project move preview [--source-checkout <id>] [--target-root <path>] [--json]",
+        "  make-docs project move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
+        "  make-docs project checkout preview [--target-root <path>] [--json]",
+        "  make-docs project checkout apply --review <digest> [--target-root <path>] [--json]",
+        "Personas and layout:",
+        "  make-docs project persona list [--target-root <path>] [--json]",
+        "  make-docs project layout preview [--map <source>=<destination>] [--json]",
+        "  make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--json]",
+        "  make-docs project layout apply|verify <operation-id> [--target-root <path>] [--json]",
+        "Support folders:",
+        "  make-docs project surface ensure <archive|artifacts|assets>",
+        "Paths and links:",
+        "  make-docs project paths validate|repair [--target <dir>] [--scope content|managed] [--path <path> ...] [--format text|json]",
+        "Doctor:",
+        "  make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
+        "  make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
         "",
         "Installation state belongs to the global Make Docs Store.",
         "The ensure command checks Store installation evidence and configured routers",
@@ -275,6 +291,16 @@ export async function runProjectCommand(
         "Use --resume to apply the remaining verified steps of a complete saved plan.",
         "Use --rollback to restore verified prior file state. Changed files block recovery.",
         "Add --dry-run to inspect recovery without applying changes.",
+        "",
+        "Move gives this folder the saved checkout ID of an old folder. Checkout",
+        "registers this folder as a new checkout. Both preview first.",
+        "",
+        "Paths validate checks local docs for unsafe paths and links. Paths repair",
+        "previews by default. Add --apply to write, or --dry-run to preview.",
+        "",
+        "Doctor check reads project files, shows each problem and its exact change, and",
+        "changes nothing. Doctor fix changes only what the check's review digest names,",
+        "keeps a backup, and says how to undo the fix.",
         "",
       ].join("\n"),
     );
@@ -407,10 +433,10 @@ export function renderProjectList(value: ProjectListResult): string {
 async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
   const [verb, ...args] = argv;
   if (!verb || verb === "--help" || verb === "-h") {
-    process.stdout.write("Usage: make-docs project checkout-register preview [--target-root <path>] [--json]\n       make-docs project checkout-register apply --review <digest> [--target-root <path>] [--json]\nThis makes a new checkout ID. It leaves other checkout IDs and pending work in place.\n");
+    process.stdout.write("Usage: make-docs project checkout preview [--target-root <path>] [--json]\n       make-docs project checkout apply --review <digest> [--target-root <path>] [--json]\nThis makes a new checkout ID. It leaves other checkout IDs and pending work in place.\n");
     return;
   }
-  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown checkout-register action: ${verb}.`);
+  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown project checkout action: ${verb}.`);
   let targetRoot: string | undefined, reviewDigest: string | undefined, json = false;
   const seen = new Set<string>();
   while (args.length) {
@@ -422,9 +448,9 @@ async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOper
       if (!value || value.startsWith("--")) throw new OperationError(`${flag} requires a value.`);
       if (flag === "--target-root") targetRoot = path.resolve(value);
       else if (verb === "apply") reviewDigest = value;
-      else throw new OperationError("--review is valid only with checkout-register apply.");
+      else throw new OperationError("--review is valid only with project checkout apply.");
     } else if (flag === "--json") json = true;
-    else throw new OperationError(`Unexpected checkout-register option: ${flag}.`);
+    else throw new OperationError(`Unexpected project checkout option: ${flag}.`);
   }
   if (verb === "apply" && !reviewDigest) throw new OperationError("Checkout registration requires --review from one preview.");
   const invocation = await invokeOperation(`project.checkout-register.${verb}`, {
@@ -448,10 +474,10 @@ async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOper
 async function runProjectCheckoutMoveCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
   const [verb, ...args] = argv;
   if (!verb || verb === "--help" || verb === "-h") {
-    process.stdout.write("Usage: make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]\n       make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]\nPreview is read only. Apply changes one Store checkout path after exact review.\n");
+    process.stdout.write("Usage: make-docs project move preview [--source-checkout <id>] [--target-root <path>] [--json]\n       make-docs project move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]\nPreview is read only. Apply changes one Store checkout path after exact review.\n");
     return;
   }
-  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown checkout-move action: ${verb}.`);
+  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown project move action: ${verb}.`);
   let targetRoot: string | undefined, sourceCheckoutId: string | undefined, sourceRoot: string | undefined, reviewDigest: string | undefined;
   let json = false, dryRun = false;
   const seen = new Set<string>();
@@ -466,7 +492,7 @@ async function runProjectCheckoutMoveCommand(argv: string[], launch: CliOperatio
     else if (flag === "--review" && verb === "apply") reviewDigest = value();
     else if (flag === "--json") json = true;
     else if (flag === "--dry-run" && verb === "apply") dryRun = true;
-    else throw new OperationError(`Unexpected checkout-move option: ${flag}.`);
+    else throw new OperationError(`Unexpected project move option: ${flag}.`);
   }
   if (verb === "apply" && (!sourceCheckoutId || !sourceRoot || !reviewDigest)) throw new OperationError("Apply requires --source-checkout, --source-root, and --review from one preview.");
   const invocation = await invokeOperation(`project.checkout-move.${verb}`, {

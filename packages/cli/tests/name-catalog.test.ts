@@ -23,7 +23,7 @@ import {
   type NameCatalogSources,
 } from "../src/operations/name-catalog";
 import { ADMITTED_OPERATION_IDS, listOperations } from "../src/operations/registry";
-import { MAKE_DOCS_MCP_TOOLS, MCP_TOOL_NAME_BY_OPERATION } from "../src/mcp/tools";
+import { MAKE_DOCS_MCP_TOOLS, listDerivedMcpOperationTools } from "../src/mcp/tools";
 import { WORK_STORE_OPERATIONS } from "../src/operations/work/work-store";
 import { PACKAGE_ROOT } from "../src/utils";
 
@@ -40,7 +40,7 @@ function realSources(): NameCatalogSources {
   return {
     registeredOperationIds: operations.map((operation) => operation.id),
     currentCliByOperation: new Map(operations.map((operation) => [operation.id, `${operation.cli.root} ${operation.cli.path}`])),
-    currentMcpByOperation: new Map(Object.entries(MCP_TOOL_NAME_BY_OPERATION)),
+    currentMcpByOperation: new Map(listDerivedMcpOperationTools().map((tool) => [tool.operation, tool.name])),
     handDefinedTools: MAKE_DOCS_MCP_TOOLS.filter((tool) => tool.operation === undefined).map((tool) => tool.name),
     mutatesByOperation: new Map(operations.map((operation) => [operation.id, operation.mutates])),
   };
@@ -108,6 +108,8 @@ function fixture(overrides: Partial<NameCatalogEntry>): NameCatalogEntry {
     group: "work",
     currentCli: null,
     currentMcp: null,
+    formerCli: null,
+    formerMcp: null,
     cliCommand: true,
     ...overrides,
     newCli,
@@ -122,7 +124,11 @@ describe("W33 R0 P1 name catalog", () => {
     const plannedOperations = NAME_CATALOG.filter((item) => item.status === "planned");
     expect(currentOperations).toHaveLength(ADMITTED_OPERATION_IDS.length);
     expect(currentOperations).toHaveLength(48);
+    // W33 R0 P2: a hand-defined tool's ID is its current MCP name.
     expect(tools.map((item) => item.id).sort()).toEqual(
+      ["mcp_domains_list", "setup_compatibility_check", "setup_config_read", "setup_manifest_read", "setup_plan", "setup_status"],
+    );
+    expect(tools.map((item) => item.formerMcp).sort()).toEqual(
       ["compatibility", "config", "domains", "install_plan", "install_status", "manifest"],
     );
     const byWave = (wave: string) => plannedOperations.filter((item) => item.plannedBy === wave).length;
@@ -140,6 +146,42 @@ describe("W33 R0 P1 name catalog", () => {
 
   it("covers every registry operation and hand-defined tool with their current names, and nothing else", () => {
     expect(checkNameCatalogCoverage(NAME_CATALOG, realSources())).toEqual([]);
+  });
+
+  it("W33 R0 P2: the live CLI paths and MCP names are the new names", () => {
+    const sources = realSources();
+    for (const item of NAME_CATALOG.filter((candidate) => candidate.kind === "operation" && candidate.status === "current")) {
+      expect(sources.currentCliByOperation.get(item.id), item.id).toBe(item.newCli);
+      expect(sources.currentMcpByOperation.get(item.id), item.id).toBe(item.newMcp);
+    }
+    for (const item of NAME_CATALOG.filter((candidate) => candidate.kind === "hand-defined-tool")) {
+      expect(sources.handDefinedTools, item.id).toContain(item.newMcp);
+    }
+    expect([...sources.currentCliByOperation.values()].some((cli) => cli.startsWith("run "))).toBe(false);
+  });
+
+  it("W33 R0 P2: keeps every name from before W33 R0 for the P3 aliases", () => {
+    const current = NAME_CATALOG.filter((item) => item.status === "current");
+    for (const item of current) {
+      expect(item.formerMcp, item.id).toBeTruthy();
+      expect(item.formerCli === null, item.id).toBe(!item.cliCommand);
+    }
+    expect(NAME_CATALOG.filter((item) => item.status === "planned").every((item) => item.formerCli === null && item.formerMcp === null)).toBe(true);
+    expect([find("prd.authority.validate").formerCli, find("prd.authority.validate").formerMcp]).toEqual(["run prd authority validate", "prd_validate"]);
+    expect([find("project.checkout-move.preview").formerCli, find("project.checkout-move.preview").formerMcp]).toEqual([
+      "project checkout-move preview",
+      "checkout_move_preview",
+    ]);
+    expect(find("setup_status").formerMcp).toBe("install_status");
+    const renamedCli = current.filter((item) => item.formerCli !== null && item.formerCli !== item.newCli);
+    const renamedMcp = current.filter((item) => item.formerMcp !== item.newMcp);
+    expect({ cli: renamedCli.length, mcp: renamedMcp.length }).toEqual({ cli: 32, mcp: 31 });
+  });
+
+  it("W33 R0 P2: fails a current entry whose current name is not its new name, or a planned entry with a former name", () => {
+    const stale = fixture({ id: "work.stale.add", status: "current", plannedBy: undefined, currentCli: "run work stale add", currentMcp: "work_stale_add", newCli: "work stale add" });
+    expect(rulesFor([stale])).toContain("shape");
+    expect(rulesFor([fixture({ formerMcp: "fixture_add" })])).toContain("shape");
   });
 
   it("uses only the eleven groups and retires `run`", () => {
@@ -297,7 +339,16 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
   });
 
   it("a new name that is another entry's old name", () => {
-    const old = fixture({ id: "work.old.add", status: "current", plannedBy: undefined, currentCli: "run work old add", currentMcp: "work_fixture_add", newCli: "work old add" });
+    const old = fixture({
+      id: "work.old.add",
+      status: "current",
+      plannedBy: undefined,
+      currentCli: "work old add",
+      currentMcp: "work_old_add",
+      formerCli: "run work old add",
+      formerMcp: "work_fixture_add",
+      newCli: "work old add",
+    });
     expect(rulesFor([fixture({}), old])).toContain("alias-collision");
   });
 
@@ -347,12 +398,23 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     expect(checkNameCatalogCoverage(without("lifecycle.start"), sources)).toEqual([
       "Registry operation lifecycle.start has no catalog entry.",
     ]);
-    expect(checkNameCatalogCoverage(without("manifest"), sources)).toEqual(["Hand-defined tool manifest has no catalog entry."]);
-    const extraOperation = fixture({ id: "work.ghost.add", status: "current", plannedBy: undefined, currentCli: "run work ghost add", currentMcp: "ghost", newCli: "work ghost add" });
+    expect(checkNameCatalogCoverage(without("setup_manifest_read"), sources)).toEqual([
+      "Hand-defined tool setup_manifest_read has no catalog entry.",
+    ]);
+    const extraOperation = fixture({
+      id: "work.ghost.add",
+      status: "current",
+      plannedBy: undefined,
+      currentCli: "work ghost add",
+      currentMcp: "work_ghost_add",
+      formerCli: "run work ghost add",
+      formerMcp: "ghost",
+      newCli: "work ghost add",
+    });
     expect(checkNameCatalogCoverage([...NAME_CATALOG, extraOperation], sources)).toEqual([
       "Catalog operation work.ghost.add is current but not in the registry.",
     ]);
-    const extraTool = { ...find("manifest"), id: "ghost_tool", currentMcp: "ghost_tool", newCli: "setup ghost read", newMcp: "setup_ghost_read" };
+    const extraTool = { ...find("setup_manifest_read"), id: "ghost_tool", currentMcp: "ghost_tool", newCli: "setup ghost read", newMcp: "setup_ghost_read" };
     expect(checkNameCatalogCoverage([...NAME_CATALOG, extraTool], sources)).toEqual([
       "Catalog tool ghost_tool is not a hand-defined MCP tool.",
     ]);
@@ -420,7 +482,7 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
 
   it("a PRD 25 R-MCP-PROFILE line with a name the catalog does not have", () => {
     expect(PRD_LISTS.mcpProfiles(PRD_25.replace("`project_list` and `setup_store_check` read only", "`project_register_list` and `setup_store_check` read only"))).toEqual([
-      "R-MCP-PROFILE-10 names the tool `project_register_list`, which is not a current or new catalog name.",
+      "R-MCP-PROFILE-10 names the tool `project_register_list`, which is not a current, new, or former catalog name.",
     ]);
     expect(PRD_LISTS.mcpProfiles(PRD_25.replace("includes `work.backlog.snapshot`", "includes `work.backlog.snap`"))).toEqual([
       "R-MCP-PROFILE-5 names the operation `work.backlog.snap`, which the catalog does not have.",

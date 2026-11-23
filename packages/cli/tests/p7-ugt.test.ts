@@ -7,7 +7,7 @@ import { acquireProjectMigrationLock, releaseProjectMigrationLock, enterLegacyCo
 import { runCli } from "../src/cli";
 import { callMakeDocsMcpTool, deriveMcpToolName } from "../src/mcp/tools";
 import { createExecutionContext } from "../src/operations/context";
-import { invokeOperation, getOperation } from "../src/operations/registry";
+import { invokeOperation, getOperation, operationFullCliPath } from "../src/operations/registry";
 import { loadInstalledSystemResourceProvider } from "../src/operations/resource/provider";
 import { UAT_WORKFLOW_RESOURCES, validateUatCheckpoint10 } from "../src/operations/uat/ops";
 import { scenarioSchema, decisionSchema } from "../src/operations/uat/schemas";
@@ -60,7 +60,7 @@ function fixture() {
   return { root, proof, decision, qualification, scenario, source, target, finding, findingRecord, run, resultValue, resultRecord };
 }
 function invoke(id: string, input: unknown) { return invokeOperation(id, input, createExecutionContext({ surface: "test", writesAllowed: false })); }
-function args(id: string, input: unknown) { return ["run", ...id.split("."), "--payload-json", JSON.stringify(input), "--json"]; }
+function args(id: string, input: unknown) { return [...operationFullCliPath(id).split(" "), "--payload-json", JSON.stringify(input), "--json"]; }
 describe("P7 fixed focused budget", () => {
   it("D1 validates governing resources and schemas before activation; dogfood bodies match", () => {
     const f = fixture(); expect(scenarioSchema.safeParse(f.scenario).success).toBe(true); expect(decisionSchema.safeParse(f.decision).success).toBe(true);
@@ -84,7 +84,7 @@ describe("P7 fixed focused budget", () => {
   });
   it("O7 invalid input fails through both transports", async () => {
     await expect(runCli(args("uat.target.validate",{}))).rejects.toThrow();
-    await expect(callMakeDocsMcpTool("uat_target_validate",{})).rejects.toThrow();
+    await expect(callMakeDocsMcpTool("check_uat_target",{})).rejects.toThrow();
   });
   it("O8 provider workflow works without snapshots or Skill", async () => {
     const f = fixture(); expect((await invoke("uat.persona.resolve",{targetRoot:f.root})).value).toMatchObject({authority:UAT_WORKFLOW_RESOURCES,persona:{slug:"user"}});

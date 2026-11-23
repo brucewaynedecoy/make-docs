@@ -2,7 +2,7 @@ import { OperationError } from "./types";
 
 /**
  * Shared argv-parsing helpers for the CLI operation surfaces: the registry
- * derived `make-docs run` tree (`src/run/cli.ts`) and the legacy pruned
+ * derived command groups (`src/run/cli.ts`) and the legacy pruned
  * cluster dispatcher (`src/operations/cli.ts`). Parsing only — no operation
  * logic lives here.
  */

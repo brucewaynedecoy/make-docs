@@ -4,6 +4,8 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { listOperations } from "../src/operations/registry";
 import { OperationError } from "../src/operations/types";
 import {
+  OPERATION_GROUPS,
+  isOperationGroup,
   listRunCliAdapters,
   resolveRunOperationPath,
   runRunCommand,
@@ -48,7 +50,7 @@ function captureStdout() {
   };
 }
 
-describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
+describe("registry command groups (W18 R11, W33 R0 P2, R-REG-2, R-TOP-1, R-TOP-3)", () => {
   const tempRoots: string[] = [];
 
   afterEach(() => {
@@ -58,9 +60,9 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
     }
   });
 
-  test("every run projection resolves through its canonical token path", () => {
-    for (const operation of listOperations().filter((entry) => entry.cli.root === "run")) {
-      const tokens = operation.cli.path.split(" ");
+  test("every group projection resolves through its canonical token path", () => {
+    for (const operation of listOperations().filter((entry) => isOperationGroup(entry.cli.root))) {
+      const tokens = [operation.cli.root, ...operation.cli.path.split(" ")];
       const resolved = resolveRunOperationPath([...tokens, "--repo-root", "."]);
       expect(resolved.id, operation.id).toBe(operation.id);
       expect(resolved.rest, operation.id).toEqual(["--repo-root", "."]);
@@ -76,15 +78,29 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
       id: "lifecycle.show",
       rest: ["--run-id", "run-1"],
     });
-    expect(resolveRunOperationPath(["uat", "persona", "resolve", "--persona", "user"])).toEqual({
+    expect(resolveRunOperationPath(["check", "uat", "persona", "--persona", "user"])).toEqual({
       id: "uat.persona.resolve",
       rest: ["--persona", "user"],
     });
+    expect(resolveRunOperationPath(["check", "prd", "--target-root", "."])).toEqual({
+      id: "prd.authority.validate",
+      rest: ["--target-root", "."],
+    });
+    expect(resolveRunOperationPath(["backlog", "cache", "lookup", "--json"])).toEqual({
+      id: "work.backlog-cache.lookup",
+      rest: ["--json"],
+    });
+  });
+
+  test("the groups are the R-TOP-1 groups that hold registry commands, and `run` is not one", () => {
+    expect([...OPERATION_GROUPS]).toEqual(["work", "backlog", "lifecycle", "factory", "check"]);
+    expect(listOperations().some((operation) => (operation.cli.root as string) === "run")).toBe(false);
+    expect(() => resolveRunOperationPath(["run", "lifecycle", "list"])).toThrow(/Unknown make-docs command group: `run`/);
   });
 
   test("adapter map and registry identifiers agree exactly in both directions", () => {
     const registryIds = listOperations()
-      .filter((operation) => operation.cli.root === "run")
+      .filter((operation) => isOperationGroup(operation.cli.root))
       .map((operation) => operation.id);
     const adapterIds = listRunCliAdapters();
     expect([...adapterIds].sort()).toEqual([...registryIds].sort());
@@ -107,16 +123,15 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
     );
   });
 
-  test("derived help lists every identifier, marks writes, and names pending lineages", async () => {
-    const stdout = captureStdout();
-
-    await runRunCommand([]);
-
-    const output = stdout.output();
-    for (const operation of listOperations().filter((entry) => entry.cli.root === "run")) {
+  test("derived group help lists every command, marks writes, and names pending lineages", async () => {
+    for (const operation of listOperations().filter((entry) => isOperationGroup(entry.cli.root))) {
+      const stdout = captureStdout();
+      await runRunCommand([operation.cli.root, "--help"]);
+      const output = stdout.output();
+      stdout.spy.mockRestore();
       const line = output
         .split("\n")
-        .find((candidate) => candidate.trim().startsWith(operation.cli.path));
+        .find((candidate) => candidate.trim().startsWith(`make-docs ${operation.cli.root} ${operation.cli.path}`));
       expect(line, operation.id).toBeDefined();
       if (operation.mutates === "write") {
         expect(line, operation.id).toContain("[write]");
@@ -131,12 +146,14 @@ describe("make-docs run command (W18 R11, R-REG-2, R-TOP-3)", () => {
   });
 
   test("unknown operation paths error cleanly and list valid operations", async () => {
-    await expect(runRunCommand(["playbook", "fly"])).rejects.toBeInstanceOf(OperationError);
-    await expect(runRunCommand(["playbook", "fly"])).rejects.toThrow(
-      /Unknown make-docs run operation: `playbook fly`/,
+    await expect(runRunCommand(["work", "fly"])).rejects.toBeInstanceOf(OperationError);
+    await expect(runRunCommand(["work", "fly"])).rejects.toThrow(
+      /Unknown make-docs command: `work fly`/,
     );
-    // The valid-operations listing is derived from the registry.
-    await expect(runRunCommand(["playbook", "fly"])).rejects.toThrow(/work evidence record/);
+    // The valid-commands listing is derived from the registry.
+    await expect(runRunCommand(["work", "fly"])).rejects.toThrow(/make-docs work evidence record/);
+    await expect(runRunCommand(["factory", "status"])).rejects.toThrow(/The factory group has no commands yet/);
+    await expect(runRunCommand(["playbook", "fly"])).rejects.toThrow(/Unknown make-docs command group: `playbook`/);
   });
 
   test.skipIf(!sqliteAvailable)(

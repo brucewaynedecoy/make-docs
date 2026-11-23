@@ -30,7 +30,7 @@ The package is intentionally small. Most changes land in one of these files:
 - [`src/operations/`](./operations/): modular deterministic operation domains shared by CLI commands and MCP tools
 - [`src/operations/registry.ts`](./operations/registry.ts): the append-only operation registry — the single source of truth for deterministic operations
 - [`src/operations/context.ts`](./operations/context.ts): the injected execution context that gates writes, dry-run, and approvals uniformly
-- [`src/run/cli.ts`](./run/cli.ts): the `make-docs run` surface derived from the registry
+- [`src/run/cli.ts`](./run/cli.ts): the registry command groups (`work`, `backlog`, `lifecycle`, `factory`, `check`) derived from the registry
 - [`src/mcp/`](./mcp/): read-first MCP stdio server registration and tool handlers
 - Historical path `src/operations/cli.ts`: legacy dispatch for the pruned operation cluster, removed by the W18 R11 pruning phase
 - [`src/operations.ts`](./operations.ts): compatibility facade for callers that still import `src/operations`
@@ -38,7 +38,7 @@ The package is intentionally small. Most changes land in one of these files:
 
 ## Operation Domains
 
-New deterministic make-docs behavior is declared once in the operation registry ([`src/operations/registry.ts`](./operations/registry.ts)) through a per-operation definition module under `src/operations/<domain>/ops/<verb>.ts`, then surfaced on `make-docs run`, the MCP tools, and Playbook `operation:` steps. Identifiers are stable, lowercase, dot-separated, and append-only. The registered domains are:
+New deterministic make-docs behavior is declared once in the operation registry ([`src/operations/registry.ts`](./operations/registry.ts)) through a per-operation definition module under `src/operations/<domain>/ops/<verb>.ts`, then surfaced in its CLI group, the MCP tools, and Playbook `operation:` steps. Identifiers are stable, lowercase, dot-separated, and append-only. The registered domains are:
 
 - `playbook`: validate, catalog, resolve, capabilities, and the run-state operations (start, invoke, status; next/advance/gate/resume/close are reserved pending the W18 R7 engine).
 - `package`: package-plan, surface-resolve, and write over the playbook-packaging implementations.

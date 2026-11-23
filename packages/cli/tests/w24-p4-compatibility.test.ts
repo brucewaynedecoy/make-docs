@@ -28,9 +28,9 @@ afterEach(() => {
 
 describe("W24 R0 P4 shared dispatch and access", () => {
   test.each([
-    ["config", ["core", "setup"], (root: string) => ({ targetDir: root })],
-    ["personas", ["core", "workflow"], (root: string) => ({ targetRoot: root })],
-    ["paths_validate", ["setup", "quality"], (root: string) => ({ targetRoot: root, scope: "content", paths: ["docs/note.md"] })],
+    ["setup_config_read", ["core", "setup"], (root: string) => ({ targetDir: root })],
+    ["project_persona_list", ["core", "workflow"], (root: string) => ({ targetRoot: root })],
+    ["project_paths_validate", ["setup", "quality"], (root: string) => ({ targetRoot: root, scope: "content", paths: ["docs/note.md"] })],
     ["backlog_snapshot", ["backlog"], (root: string) => ({ targetRoot: root })],
   ] as const)("%s gives the same Store-free result in each assigned profile", async (name, profiles, args) => {
     const root = fixture();
@@ -46,11 +46,11 @@ describe("W24 R0 P4 shared dispatch and access", () => {
     const definition = getOperation("project.path-hygiene.repair");
     const handler = vi.spyOn(definition, "handler");
     for (const profile of ["setup", "all"] as const) {
-      await expect(callMakeDocsMcpTool("paths_repair", args, { profile })).rejects.toBeInstanceOf(OperationWriteDeniedError);
+      await expect(callMakeDocsMcpTool("project_paths_repair", args, { profile })).rejects.toBeInstanceOf(OperationWriteDeniedError);
     }
     expect(handler).not.toHaveBeenCalled();
-    const allowed = await callMakeDocsMcpTool("paths_repair", { ...args, allowWrite: true }, { profile: "setup" });
-    expect(await callMakeDocsMcpTool("paths_repair", { ...args, allowWrite: true }, { profile: "all" })).toEqual(allowed);
+    const allowed = await callMakeDocsMcpTool("project_paths_repair", { ...args, allowWrite: true }, { profile: "setup" });
+    expect(await callMakeDocsMcpTool("project_paths_repair", { ...args, allowWrite: true }, { profile: "all" })).toEqual(allowed);
     expect(handler).toHaveBeenCalledTimes(2);
     expect(getOperation("project.path-hygiene.repair").handler).toBe(handler);
     expect(readFileSync(path.join(root, "docs/note.md"), "utf8")).toBe("Portable project knowledge.\n");
@@ -78,7 +78,7 @@ describe("W24 R0 P4 shared dispatch and access", () => {
       const snapshot = (await callMakeDocsMcpTool("backlog_snapshot", { targetRoot: root }, { profile })).result;
       const denials: unknown[] = [];
       for (const selected of [profile, "all"] as const) {
-        try { await callMakeDocsMcpTool("backlog_cache_read", { targetRoot: root, snapshot }, { profile: selected }); }
+        try { await callMakeDocsMcpTool("backlog_cache_lookup", { targetRoot: root, snapshot }, { profile: selected }); }
         catch (error) { denials.push(serializeOperationError(error)); }
       }
       expect(denials).toHaveLength(2);
@@ -88,7 +88,7 @@ describe("W24 R0 P4 shared dispatch and access", () => {
     expect(handler).not.toHaveBeenCalled();
     expect(existsSync(path.join(root, "unconfigured-store"))).toBe(false);
     // A Store denial stops that probe. Independent reads can still complete.
-    expect(await callMakeDocsMcpTool("personas", { targetRoot: root }, { profile: "core" })).toEqual(await callMakeDocsMcpTool("personas", { targetRoot: root }, { profile: "all" }));
+    expect(await callMakeDocsMcpTool("project_persona_list", { targetRoot: root }, { profile: "core" })).toEqual(await callMakeDocsMcpTool("project_persona_list", { targetRoot: root }, { profile: "all" }));
   });
 
   test("each shared descriptor still targets the same registered operation handler", () => {

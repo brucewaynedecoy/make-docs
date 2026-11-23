@@ -111,7 +111,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       "make-docs project surface ensure <archive|artifacts|assets>",
     );
     expect(operationCliCommand("uat.evidence-reference.validate")).toBe(
-      "make-docs run uat evidence-reference validate",
+      "make-docs check uat evidence",
     );
 
     const lineages = Object.fromEntries(
@@ -132,7 +132,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(LEGACY_COMPATIBILITY_OPERATION_IDS.some((id) => id.startsWith("protocol."))).toBe(false);
     for (const id of LEGACY_COMPATIBILITY_OPERATION_IDS) {
       expect(() => operationCliCommand(id)).toThrow("Unknown operation identifier");
-      expect(() => deriveMcpToolName(id)).toThrow("Missing MCP tool name for operation");
+      expect(() => deriveMcpToolName(id)).toThrow("Unknown operation identifier");
     }
   });
 
