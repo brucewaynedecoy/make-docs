@@ -991,7 +991,7 @@ describe("W19 R1 P4 projection and lifecycle", () => {
   it("activates the registry operation for CLI and derived MCP projection", () => {
     const operation = listAdmittedOperations().find((entry) => entry.id === "project.surface.ensure");
     expect(operation).toMatchObject({ status: "active", mutates: "write" });
-    expect(operation?.cli.command).toBe("make-docs project surface ensure <archive|artifacts|assets>");
+    expect(operation?.cli.command).toBe("make-docs project surface ensure <archive|artifacts|assets> [--dry-run] [--target-root <path>] [--json]");
   });
 
   it("renders the structured project surface result through the CLI adapter", async () => {
@@ -1016,9 +1016,10 @@ describe("W19 R1 P4 projection and lifecycle", () => {
       stdout.mockClear();
       await runCli(["project", "--help"]);
       const help = stdout.mock.calls.map(([chunk]) => String(chunk)).join("");
-      expect(help).toContain("The ensure command checks Store installation evidence and configured routers");
-      expect(help).toMatch(/applied or\s+unchanged state/);
-      expect(help).toContain("State status reads the Store and reports pending work without changing files.");
+      // W33 R0 P5 owner decision: short, plain group help, one line per command.
+      expect(help).toContain("  make-docs project surface ensure [write]\n      Make one project support folder and its instruction files.\n");
+      expect(help).toContain("  make-docs project state status\n      Show this project's install state from the Store and the next safe step. Changes nothing.\n");
+      expect(help).toContain("Install state is kept in the Make Docs Store.");
 
       stdout.mockClear();
       const unchanged = await invokeOperation(

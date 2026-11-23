@@ -126,8 +126,8 @@ describe("make-docs MCP runtime", () => {
 
     const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
     expect(output).toContain("make-docs mcp");
-    expect(output).toContain("TypeScript-owned make-docs MCP server");
-    expect(output).toContain("same operation registry and core as the CLI groups");
+    expect(output).toContain("Serve Make Docs tools to agents over MCP.");
+    expect(output).toContain("MCP tools run the same operations as the CLI groups.");
     expect(output).toContain("Each MCP tool name is its CLI path with underscores");
   });
 

@@ -281,8 +281,8 @@ describe("W32 R0 P5 Store wording", () => {
 
   it("explains --target-root and who runs the Store commands in help", () => {
     const list = cli(["project", "list", "--help"]).stdout;
-    expect(list).toContain("The list always shows every project in the Store");
-    expect(list).toContain("It does not filter the list.");
+    // W33 R0 P5 moved this note into the leaf help table.
+    expect(list).toContain("--target-root does not limit the list. Every project in the Store is listed.");
     const storeHelp = cli(["setup", "store", "--help"]).stdout;
     expect(storeHelp).toContain("Run these commands yourself in a terminal.");
     expect(storeHelp).toContain("setup_store_check");

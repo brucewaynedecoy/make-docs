@@ -3540,18 +3540,20 @@ Use --help or -h with a group to list its commands.
     const output = await captureCliOutput(["setup", "--help"]);
 
     expect(output).toContain("make-docs setup");
-    expect(output).toContain("Subcommands:");
-    expect(output).toContain(
-      "system       Configure reviewed machine-level harness support.",
-    );
-    expect(output).toContain(
-      "reconfigure  Change saved project selections for an existing install.",
-    );
-    expect(output).toContain("skills       Change, sync, or remove managed skills.");
-    expect(output).toContain("backup       Create a backup of managed files.");
-    expect(output).toContain(
-      "remove       Remove this project's managed files, with an optional backup first.",
-    );
+    // W33 R0 P5 owner decision: one plain-words line per command.
+    expect(output).toContain("Commands:");
+    for (const [command, summary] of [
+      ["system", "Set up Codex, Claude Code, and GitHub Copilot CLI support on this computer, after your review."],
+      ["reconfigure", "Change the saved project choices of an install."],
+      ["skills", "Sync, adopt, or remove the managed Skills."],
+      ["backup", "Back up this project's managed files."],
+      ["remove", "Remove this project's managed files, with an optional backup first."],
+    ]) {
+      expect(output).toContain(`  make-docs setup ${command} [write]\n      ${summary}\n`);
+    }
+    expect(output).toContain("  make-docs setup store check\n");
+    expect(output).toContain("  make-docs setup store clean [write]\n");
+    expect(output).toContain("Options for make-docs setup itself:");
   });
 
   test.each([

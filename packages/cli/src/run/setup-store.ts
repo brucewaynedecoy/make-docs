@@ -89,7 +89,8 @@ export function renderStoreClean(report: StoreCleanReport): string {
 /** `make-docs setup store check|clean` (PRD 39 R-STORE-CMD-3, R-STORE-CMD-4). */
 export async function runSetupStoreCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
   const [verb, ...args] = argv;
-  if (!verb || verb === "--help" || verb === "-h" || args.some((arg) => arg === "--help" || arg === "-h")) {
+  // `setup store check --help` and `setup store clean --help` are answered by the leaf help (W33 R0 P5).
+  if (!verb || verb === "--help" || verb === "-h") {
     output.write(SETUP_STORE_HELP);
     return;
   }

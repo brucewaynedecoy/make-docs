@@ -298,6 +298,45 @@ describe("tool self-management", () => {
         cleanupTempDir(parentDir);
       }
     });
+
+    test("W33 R0 P5: says the Store is preserved only when it is", async () => {
+      const parentDir = createTempDir("make-docs-self-store-notice-");
+      const exec = createExecMock();
+      const run = async (removeStore: boolean, argv1: string) => {
+        const storeRoot = path.join(parentDir, `store-${removeStore}-${argv1 === NPX_ARGV1 ? "npx" : "ambiguous"}`);
+        bootstrapGlobalStore({ storeRoot });
+        const { output, lines } = createOutputCollector();
+        const result = await runToolUninstallCommand({
+          yes: true,
+          removeStore,
+          storeRoot,
+          argv1,
+          execPath: FAKE_EXEC_PATH,
+          realpath: identityRealpath,
+          exec,
+          output,
+        });
+        return { storeRoot, result, text: lines.join("\n") };
+      };
+      try {
+        const removed = await run(true, NPX_ARGV1);
+        expect(removed.result.storeRemoval?.status).toBe("removed");
+        expect(existsSync(removed.storeRoot)).toBe(false);
+        expect(removed.text).not.toContain("The global Store is preserved");
+
+        const kept = await run(true, AMBIGUOUS_ARGV1);
+        expect(kept.result.storeRemoval).toBeNull();
+        expect(existsSync(kept.storeRoot)).toBe(true);
+        expect(kept.text).toContain(`Affected store path: ${kept.storeRoot}`);
+
+        const preserved = await run(false, NPX_ARGV1);
+        expect(existsSync(preserved.storeRoot)).toBe(true);
+        expect(preserved.text).toContain(`The global Store is preserved at ${preserved.storeRoot}.`);
+        expect(exec).not.toHaveBeenCalled();
+      } finally {
+        cleanupTempDir(parentDir);
+      }
+    });
   });
 
   describe("runToolUpdateCommand (R-SELF-2, R-SELF-3)", () => {

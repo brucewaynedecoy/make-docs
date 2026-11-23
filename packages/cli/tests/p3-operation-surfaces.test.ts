@@ -104,14 +104,21 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       expect(operationCliCommand(entry.id)).toBe(entry.cli.command);
     }
 
-    expect(operationCliCommand("resource.list")).toBe("make-docs resource list");
-    expect(operationCliCommand("resource.read")).toBe("make-docs resource read <uri>");
-    expect(operationCliCommand("resource.ensure")).toBe("make-docs resource ensure <uri>");
+    // W33 R0 P5: the usage line comes from each command's help entry.
+    expect(operationCliCommand("resource.list")).toBe(
+      "make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json] [--target <dir>]",
+    );
+    expect(operationCliCommand("resource.read")).toBe(
+      "make-docs resource read <uri> [--origin <effective|local|installed>] [--format raw|json] [--target <dir>]",
+    );
+    expect(operationCliCommand("resource.ensure")).toBe(
+      "make-docs resource ensure <uri> --allow-write --approve resource-projection-write [--dry-run] [--target <dir>]",
+    );
     expect(operationCliCommand("project.surface.ensure")).toBe(
-      "make-docs project surface ensure <archive|artifacts|assets>",
+      "make-docs project surface ensure <archive|artifacts|assets> [--dry-run] [--target-root <path>] [--json]",
     );
     expect(operationCliCommand("uat.evidence-reference.validate")).toBe(
-      "make-docs check uat evidence",
+      "make-docs check uat evidence [--payload-json <file-or-json>] [--target-root <project>] [--persona <slug>] [--json]",
     );
 
     const lineages = Object.fromEntries(

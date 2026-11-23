@@ -37,6 +37,7 @@ import {
 import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access";
 import { storeChangedOutsideNextAction } from "../store/database";
 import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
+import { leafHelpEntry } from "./leaf-help-table";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -244,41 +245,6 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "uat.result.validate": ["check", "uat result"],
 };
 
-const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
-  "backlog.review.open": "make-docs backlog review open --report-json <file-or-json> [--json]",
-  "backlog.review.refresh": "make-docs backlog review refresh --envelope-json <file-or-json> [--json]",
-  "work.backlog.snapshot":
-    "make-docs backlog snapshot --target-root <project> [--json]",
-  "work.backlog-cache.lookup":
-    "make-docs backlog cache lookup --target-root <project> --snapshot-json <file-or-json> [--json]",
-  "work.backlog-cache.write":
-    "make-docs backlog cache write --target-root <project> --snapshot-json <file-or-json> --records-json <file-or-json> [--json]",
-  "performance.evidence.validate":
-    "make-docs check performance-evidence [--target-root <project>] [--json]",
-  "project.persona.list": "make-docs project persona list [--target-root <path>] [--json]",
-  "project.register.list": "make-docs project list [--json]",
-  "project.layout.preview": "make-docs project layout preview [--map <source>=<destination>] [--target-root <path>] [--json]",
-  "project.layout.prepare": "make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--target-root <path>] [--json]",
-  "project.layout.apply": "make-docs project layout apply <operation-id> [--target-root <path>] [--json]",
-  "project.layout.verify": "make-docs project layout verify <operation-id> [--target-root <path>] [--json]",
-  "project.state.status": "make-docs project state status [--json]",
-  "project.state.recover": "make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--json]",
-  "project.checkout-move.preview": "make-docs project move preview [--source-checkout <id>] [--target-root <path>] [--json]",
-  "project.checkout-move.apply": "make-docs project move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
-  "project.checkout-register.preview": "make-docs project checkout preview [--target-root <path>] [--json]",
-  "project.checkout-register.apply": "make-docs project checkout apply --review <digest> [--target-root <path>] [--json]",
-  "resource.read": "make-docs resource read <uri>",
-  "resource.ensure": "make-docs resource ensure <uri>",
-  "project.surface.ensure":
-    "make-docs project surface ensure <archive|artifacts|assets>",
-  "project.path-hygiene.validate": "make-docs project paths validate",
-  "project.path-hygiene.repair": "make-docs project paths repair",
-  "project.doctor.check": "make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
-  "project.doctor.fix": "make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
-  "setup.store.check": "make-docs setup store check [--json]",
-  "setup.store.clean": "make-docs setup store clean [--yes] [--dry-run] [--json]",
-};
-
 export function operationDomain(id: string): string {
   return id.split(".", 1)[0]!;
 }
@@ -299,6 +265,11 @@ export function operationFullCliPath(id: string): string {
   return `${projection.root} ${projection.path}`;
 }
 
+function operationUsageLine(id: string, path: string): string {
+  const usage = leafHelpEntry(id).usage;
+  return usage ? `${path} ${usage}` : path;
+}
+
 export function operationCliProjection(id: string): OperationCliProjection {
   getOperation(id);
   const projection = ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS];
@@ -309,9 +280,9 @@ export function operationCliProjection(id: string): OperationCliProjection {
   return {
     root,
     path: cliPath,
-    command:
-      ADMITTED_CLI_USAGES[id as keyof typeof ADMITTED_CLI_USAGES] ??
-      `make-docs ${root} ${cliPath}`,
+    // W33 R0 P5: the usage line comes from the command's help entry, so
+    // `operationCliCommand`, group help, and `--help` name the same flags.
+    command: operationUsageLine(id, `make-docs ${root} ${cliPath}`),
   };
 }
 

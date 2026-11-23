@@ -1,7 +1,7 @@
 ---
 title: "W33 R0 Command Tree and Tool Names"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W33 R0"
 follow_on:
   route: "implementation-loop"

@@ -564,7 +564,7 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
       listOperations().find((operation) => operation.id === "lifecycle.checkpoint"),
     ).toMatchObject({
       status: "active",
-      cli: { command: "make-docs lifecycle checkpoint" },
+      cli: { command: "make-docs lifecycle checkpoint --run-id <id>|--last --expected-version <n> --checkpoint <name> [--stage <stage>] [--metadata-json <file-or-json>] [--repo-root <path>] [--store-root <path>] [--json]" },
     });
     expect(hasOperation("lifecycle.checkpoint")).toBe(true);
     expect(

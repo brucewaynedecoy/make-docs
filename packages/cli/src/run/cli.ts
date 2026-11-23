@@ -22,6 +22,7 @@ import {
 import { OperationError, type JsonValue } from "../operations/types";
 import { ensureParentDir, writeTextFile } from "../utils";
 import { renderRunOperationText, resolveRunRenderMode } from "./render";
+import { leafHelpEntry } from "../operations/leaf-help-table";
 import {
   listLifecycleRuns,
   resolveProjectIdentity,
@@ -396,6 +397,14 @@ export function listRunCliAdapters(): string[] {
   return Object.keys(RUN_CLI_ADAPTERS);
 }
 
+/**
+ * Test seam (W33 R0 P5): the argv adapter of one registry identifier, so a
+ * test can record which options it reads and compare them with its help.
+ */
+export function runCliAdapterForTests(id: string): ((options: OperationOptions) => unknown) | undefined {
+  return RUN_CLI_ADAPTERS[id];
+}
+
 /** Conformance seam for the spelling table: spelling path -> registry id. */
 export function listRunCliSpellings(): { spelling: string; operation: string }[] {
   return Object.entries(RUN_CLI_SPELLINGS).map(([spelling, entry]) => ({
@@ -459,12 +468,6 @@ export function resolveRunOperationPath(argv: string[]): { id: string; rest: str
   );
 }
 
-function summaryTail(summary: string): string {
-  // Registry summaries may lead with "Operation `id`:"; the path column
-  // already identifies the operation, so print only the tail.
-  return summary.replace(/^Operation `[^`]+`:\s*/, "");
-}
-
 /** Help for one group: its capability in plain words and each of its commands. */
 export function renderOperationGroupHelp(group: OperationGroup): string {
   const operations = groupOperations(group);
@@ -480,18 +483,7 @@ export function renderOperationGroupHelp(group: OperationGroup): string {
   if (operations.length === 0 && spellings.length === 0) {
     lines.push("This group has no commands yet.");
   } else {
-    lines.push("Commands:");
-    for (const operation of operations) {
-      const markers = [
-        ...(operation.mutates === "write" ? ["[write]"] : []),
-        ...(operation.status === "pending"
-          ? [`[pending: lands with ${operation.pendingLineage}]`]
-          : []),
-      ];
-      const marker = markers.length > 0 ? ` ${markers.join(" ")}` : "";
-      lines.push(`  ${operation.cli.command}${marker}`);
-      lines.push(`      ${summaryTail(operation.summary)}`);
-    }
+    lines.push("Commands:", ...renderCommandLines(operations));
     // Declared spellings render inside their group so the intent-named
     // grammar is discoverable from the derived help (R-GRAM-1).
     for (const [spelling, entry] of spellings) {
@@ -499,11 +491,39 @@ export function renderOperationGroupHelp(group: OperationGroup): string {
       lines.push(`      ${entry.summary}`);
     }
   }
+  lines.push(...renderCommandListFooter(operations));
+  return lines.join("\n");
+}
+
+/**
+ * One command per entry: its path with markers, then its plain-words summary
+ * from the leaf help table (W33 R0 P5). Every group's help uses this, so flags
+ * appear only in each command's own `--help`.
+ */
+export function renderCommandLines(operations: readonly OperationDescriptor[]): string[] {
+  return operations.flatMap((operation) => {
+    const markers = [
+      ...(operation.mutates === "write" ? ["[write]"] : []),
+      ...(operation.status === "pending"
+        ? [`[pending: lands with ${operation.pendingLineage}]`]
+        : []),
+    ];
+    const marker = markers.length > 0 ? ` ${markers.join(" ")}` : "";
+    return [`  make-docs ${operationPath(operation.id)}${marker}`, `      ${leafHelpEntry(operation.id).summary}`];
+  });
+}
+
+/** The lines after a command list: the write marker note and the `--help` hint. */
+export function renderCommandListFooter(operations: readonly OperationDescriptor[]): string[] {
+  const lines: string[] = [];
   if (operations.some((operation) => operation.mutates === "write")) {
     lines.push("", "[write] commands change files or Store records.");
   }
+  if (operations.length > 0) {
+    lines.push("", "Use --help or -h with a command to see its options.");
+  }
   lines.push("");
-  return lines.join("\n");
+  return lines;
 }
 
 /**

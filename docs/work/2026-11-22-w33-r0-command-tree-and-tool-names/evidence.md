@@ -505,3 +505,653 @@ The first bad commit is `4daaf18f`. Setup no longer finds a moved checkout in a 
 - The test reads Markdown only. Skill scripts and their help strings were searched by hand and name no old command.
 - The retired-operation check in `scripts/smoke-pack.mjs` does not match message text, because P3 changes the text, and P3 may add group hints for other `run` forms. It needs a nonzero exit, empty stdout, and stderr that parses as one JSON object with `ok: false` and `code: "operation-error"`, with no `renamedTo` key. The P3 reviewer confirmed that `run playbook status`, with or without `--json`, gives this result after P3 and for the whole migration window. These paths were removed, not renamed, so they never get an alias. The built CLI at this phase gives the same shape: exit 1, 0 bytes on stdout, and one stderr line.
 - Depends on P3: `docs/assets/user/cli-lifecycle-managing-installations.md` line 100 says that renamed commands and tools keep their old names as hidden aliases for two minor releases. That is true only after W33 R0 P3 adds the aliases. P3 lands before any release, so the line stays.
+
+## P5 Acceptance
+
+Covers A12 to A15 in [P5](05-acceptance.md). Evidence date: 2026-11-23. Base commit: `c2498d55` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`. Every CLI and test run used a temporary `MAKE_DOCS_HOME`. No run read or wrote the real Store. This section has three passes: the first build, the fixes from the independent review, and the owner's help decisions. All counts and captures below are from the last pass.
+
+### What Changed
+
+Leaf help fix:
+
+- `--help` on a leaf command failed. The cause: no code answered `--help` after a full command path. The argv reached the command's own option parser. The shared parser in `packages/cli/src/operations/cli-options.ts` reads any unknown `--name` as a flag that needs a value, so `make-docs work item resolve --help` and every other `work`, `backlog`, `lifecycle`, and `check` command failed with "`--help` requires a value." The `project` and `resource` routers failed in other ways: "Unexpected project move option: --help.", "Unknown option: --help", or "Unknown project paths option". `-h` was read as a target, for example "Could not parse target `-h`". The same failure is in released 2.0.9 and on every old alias path.
+- The fix: `runResolvedCli` in `packages/cli/src/cli.ts` calls `resolveLeafHelp` (`packages/cli/src/run/leaf-help.ts`) before any router runs. When argv holds `--help` or `-h` after a registry command path, the CLI prints that command's help and exits 0. Help runs no operation, reads no Store, and writes nothing. A `--help` or `-h` that is the value of a flag that takes a value, such as `--checkpoint -h`, is that value. The option list in the help table says which flags take a value. A path prefix inside a dispatcher group, such as `make-docs check uat --help`, lists the commands under it.
+- Through an old path in the window, the alias layer of P3 runs first. The leaf help prints for the new command, and the alias notice prints after it on stderr. After the window, an old path with `--help` returns `command-renamed`, as before.
+
+One source for help and usage:
+
+- New `packages/cli/src/operations/leaf-help-table.ts`: one entry for each of the 48 registry operations, with one plain-words summary, the usage line, the arguments, the options, and short notes.
+- `packages/cli/src/operations/registry.ts`: `ADMITTED_CLI_USAGES` is gone. `operationCliCommand` and each operation's `cli.command` now come from the help table, so the registry usage line, group help, and `--help` cannot disagree. The 11 commands where they disagreed now have one line: `project state status|recover` and `project list` gain their flags, `project move apply` gains `--dry-run`, `project surface ensure` gains `--dry-run --target-root --json`, and `resource read|ensure` gain all their flags. `--target-root <project>` stays the spelling for `check prd`, `check performance-evidence`, the `check uat` commands, and the `backlog` commands, as in PRD 39 R-PRD-AUTH-1, R-PERF-VALIDATE-1, PRD 51, and the shipped references. The `resource` flags use the PRD 39 spelling, such as `--type <contract|prompt|reference|template>`. No PRD row had to change.
+- The notes from the old command help moved into the table: `setup store clean` (the three newest backups, the backup folder, and how to restore one), `setup store check`, `project list` (what `--target-root` means), and `project state status|recover`. The dead command-level help branches for `project list`, `project state status|recover`, and `project doctor check|fix` in `packages/cli/src/run/root-operations.ts` are removed. Group help (`project state --help`, `project doctor --help`) stays.
+
+Owner help decisions, 2026-11-23:
+
+- Every group's help lists one path line and one plain-words summary line per command, with `[write]` on commands that change files or Store records. Flags are only in each command's own help. A shared `renderCommandLines` in `packages/cli/src/run/cli.ts` renders this for `work`, `backlog`, `lifecycle`, `check`, `project`, `resource`, and the `setup store` commands.
+- `make-docs project --help` is short and plain. It no longer has "plan dispositions", "receipt", or "Store installation evidence".
+- `make-docs setup --help` starts with plain words, lists each `setup` command with a summary, and has a `setup store` line: people run it in a terminal, and agents use the MCP tools `setup_store_check` and `setup_store_clean`. `setup` is a command as well as a group, so the options of `make-docs setup` itself follow the list under "Options for make-docs setup itself:".
+- `make-docs mcp --help` describes the `core` profile as "Install state, settings, system resources, and the list of tool areas."
+- Read-only commands end their summary with "Changes nothing." Leaf help no longer prints "This command reads only." Write commands still print "This command can change files or Store records."
+- PRD 39 R-TOP-4 stays. The owner confirmed it. Its text now also says one summary line per command in group help, flags only in command help, the registry usage line is the help usage line, and a help flag that is a flag value is that value.
+
+Other help and Store fixes:
+
+- `make-docs uninstall --help` now says: it never changes project files; with no terminal it stops and removes nothing unless `--yes`; when it cannot tell how make-docs was installed it removes nothing; the Store is in `MAKE_DOCS_HOME` when set, else `~/.make-docs/`; `--remove-store` deletes the Store only after the tool is removed, or when nothing is installed (npx and other runners), and keeps it when the tool removal fails or the install method is unknown; and the Store clean backups in `<store>/backup/` are always kept. The backup rule matches the parallel W32 R0 P5 change.
+- `packages/cli/src/self/uninstall-tool.ts`: one line. `uninstall --remove-store` printed "The global Store is preserved at ..." even when it removed the Store. That line now prints only without `--remove-store`. W32 R0 P5 changes the same area, so the edit is kept to that one condition.
+- `naive-uat-validation.md` states the current MCP name rule. Template first, then a byte-identical dogfood copy, then `node scripts/copy-template-to-cli.mjs`.
+
+### Leaf Help Tests
+
+`packages/cli/tests/w33-r0-p5-leaf-help.test.ts` has 287 tests. A recorder replaces `invokeOperation`, so a help call that reaches an operation fails the test.
+
+- The table has one entry for each registry operation and no other entry. For each operation, the usage line and the option list name the same flags, and the leading arguments match.
+- For each operation, `operationCliCommand` equals `make-docs <path> <usage>`, and the registry and help usage lines have the same flags and arguments in both directions.
+- Real options, dispatcher commands (26): each `work`, `backlog`, `lifecycle`, and `check` adapter runs on options whose values, booleans, and arrays are proxies that record each key it reads. The test starts with every key present, then makes each read key absent in turn, to reach `a ?? b` branches. The keys read, plus `--json`, which the dispatcher reads, must equal the flags in the help usage. A command reads positional arguments only when its help has arguments.
+- Real options, router commands (22): each `project`, `resource`, and `setup store` command runs through the CLI with its required options and then with each other option, each alternative of `--a|--b` alone. Each run must reach its operation. An unknown option would stop it first.
+- A mutation check proved both: removing `--store-root` from `lifecycle list` help and adding a fake `--bogus` to `project persona list` help each failed the test.
+- For each operation, with `--help` and with `-h` (96 tests), through the real entry point: exit code 0, empty stderr, no operation call, and stdout equal to the command's help.
+- Help after a target, a flag value, `--last`, `--rollback`, or `--apply` still prints help. `lifecycle checkpoint ... --checkpoint -h` runs the operation with checkpoint `-h` and prints no help. A `--help` after that value still asks for help. `-h` after `--last`, which takes no value, is help.
+- Help on all 48 commands leaves the temporary Store folder empty.
+- Every group (`setup`, `project`, `resource`, `work`, `backlog`, `lifecycle`, `check`) lists each command as one path line with its `[write]` marker and one summary line equal to its help summary. No command line names a flag.
+- Read-only summaries end with "Changes nothing." and no help says "This command reads only." Write commands say "This command can change files or Store records."
+- `setup --help` has the `setup store` line and the MCP tool names, and its text before the options does not say "target". `project --help` has no "plan dispositions", "receipt", or "installation evidence".
+- The `setup store clean`, `setup store check`, `project list`, and `project state` notes are in their help.
+- Each of the 32 old CLI paths with `--help`, in the window: exit code 0, the new command's help, then the alias notice. After the window: `command-renamed`.
+
+`packages/cli/tests/self-management.test.ts` has a new test: `--remove-store` through npx removes the Store and does not print "The global Store is preserved". With an unknown install method, the Store stays and the affected path prints. Without `--remove-store`, the preserved line prints.
+
+Tests whose expectations changed:
+
+- `w33-r0-p3-migration-aliases.test.ts`: the failing-alias test used `run work item resolve --help` as its failing call. Help now succeeds, so it uses `run work item resolve` with no target.
+- `w19-r5-state-help.test.ts`: no change. The first pass changed it, and the review pass restored it. The `project state` notes in the help table give the same text: both command names and "without reading the Store or changing files".
+- `mcp.test.ts`: the `mcp --help` text checks use the new plain words.
+- `p3-operation-surfaces.test.ts`, `p4-projection-lifecycle.test.ts`, `p5-migration-safety.test.ts`, `reorganization-verification.test.ts`: the pinned `operationCliCommand` strings now include each command's flags, from the help table.
+- `p4-projection-lifecycle.test.ts`: the `project --help` checks read the new short text. The test's write and Store checks did not change.
+- `cli.test.ts`: the `setup --help` test checks the new command list and the "Options for make-docs setup itself:" heading.
+
+### Test Counts (A12)
+
+From one JSON run after the last change:
+
+| Test set | Files | Tests | Passed | Failed |
+| --- | --- | --- | --- | --- |
+| Naming rule: `name-catalog.test.ts` | 1 | 43 | 43 | 0 |
+| Parity and profiles: `mcp-derivation`, `mcp-profiles`, `mcp-profile-discovery`, `mcp-profile-cli`, `mcp-resource-profiles`, `mcp.test.ts`, `reorganization-verification`, `run-cli` | 8 | 160 | 160 | 0 |
+| MCP Apps contract: `mcp-app-contract.test.ts` | 1 | 40 | 38 | 2 |
+| Aliases: `w33-r0-p3-migration-aliases`, `w33-r0-p3-native-rule-migration` | 2 | 181 | 181 | 0 |
+| Shipped text: `w33-r0-shipped-text-names.test.ts` | 1 | 11 | 11 | 0 |
+| Leaf help: `w33-r0-p5-leaf-help.test.ts`, `w19-r5-state-help.test.ts` | 2 | 293 | 293 | 0 |
+| CLI: `cli.test.ts` | 1 | 146 | 146 | 0 |
+| Tests whose expectations changed: `p3-operation-surfaces`, `p4-projection-lifecycle`, `p5-migration-safety`, `self-management` | 4 | 68 | 67 | 1 |
+| Command help neighbors: `w31-r0-p3-project-doctor`, `w32-r0-p4-store-maintenance` | 2 | 100 | 100 | 0 |
+
+22 files, 1042 tests: 1039 passed and 3 failed. The 3 failures are known and exist without this phase: the two `mcp-app-contract.test.ts` stdio tests, which fail on a Node `DEP0205` warning, and the sandbox-only fixture 11 in `p5-migration-safety.test.ts`.
+
+### Full Suite
+
+`npx vitest run --reporter=json --outputFile=<tmp>/full.json` in `packages/cli`, after the last change, counted from the JSON file: 136 test files, 2858 tests, 2848 passed, 4 failed, and 6 skipped. The 4 failures are known: the two `mcp-app-contract.test.ts` stdio tests, the sandbox-only fixture 11 in `p5-migration-safety.test.ts`, and one `cli.test.ts` test ("routes reconfigure skill scope and selected-name changes without changing Skills") that timed out at 15 seconds under load. That test passes alone. `w19-r5-skills-command.test.ts` did not fail.
+
+### Commands Run
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed. The root has no `tsconfig.json`, only `tsconfig.base.json`.
+- `npm run build -w packages/cli`: passed.
+- `npm run validate:defaults -w packages/cli`: 53 passed.
+- `bash scripts/check-instruction-routers.sh`: passed. It ran outside the sandbox because `mktemp -d` cannot write the system temp folder inside it.
+- `npm run smoke:pack:local` with `MAKE_DOCS_HOME` set to a temporary folder, outside the sandbox: passed. The W22 R1 package proof gives `status: "passed"`, released 2.0.5 to candidate 2.0.9, 2 receipts.
+- `node packages/cli/dist/index.js check prd --target-root . --json`: status `passed`.
+- `node packages/cli/dist/index.js project paths validate --format text`: 0 findings.
+- `node packages/cli/dist/index.js project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption --target-root .`: no problems in 379 files.
+- Template and dogfood parity: `cmp` passed for `naive-uat-validation.md`.
+
+### Help Review (A13)
+
+The agent captured the help below from the built CLI (`node packages/cli/dist/index.js`) with an empty temporary `MAKE_DOCS_HOME`. All 15 captures exit 0. The Store folder stayed empty. The agent checked them against the design's promises:
+
+- Capability words: each group line in `make-docs --help` says what the group does for you. Pass.
+- One capability per group: each group's commands serve the capability in its line. Pass.
+- Nothing names `run`: no capture names `make-docs run` or a `run` group path. Pass.
+- Every listed command exists: the 64 distinct `make-docs ...` command paths in these captures each answer `--help` with exit code 0. Pass.
+- Plain words: every group lists one summary line per command. Pass.
+
+Guided Progress Review: **passed on 2026-11-23**. The owner reviewed the help and accepted it with five changes: one summary line per command in every group, short plain `project` help, plain `setup` help with a `setup store` line, a plain `core` profile line in `mcp` help, and only "Changes nothing." on read-only commands. All five are made, and the captures below show them. The owner also confirmed PRD 39 R-TOP-4.
+
+Captured help:
+
+#### `make-docs --help`
+
+```text
+make-docs
+
+Set up Make Docs, work with your project's docs and backlog, and serve tools to agents.
+
+Usage:
+  make-docs
+  make-docs <group> <command> [options]
+  make-docs <group> --help
+
+Bare command:
+  Run make-docs with no command to see install status (when installed) or start
+  a guided setup (when not installed). Bare invocation never syncs.
+
+Global flags:
+  --version, -v   Print the installed make-docs version and exit.
+  --help, -h      Show help for a group or command.
+
+Groups:
+  setup        Install, sync, or remove Make Docs in this project. Set up this computer and check the Store.
+  project      See and repair this project: state, checkouts, Personas, layout, paths, and the doctor.
+  resource     List, read, or copy Make Docs system resources.
+  work         Find work items and record work evidence.
+  backlog      Read the backlog, use its review cache, and open the review app.
+  lifecycle    Start, track, and finish lifecycle runs.
+  factory      Run approved backlog work through workers and review. No commands yet.
+  check        Check PRDs, performance evidence, and user test records. Changes nothing.
+  mcp          Serve Make Docs tools to agents over MCP.
+  update       Update the installed make-docs tool.
+  uninstall    Remove make-docs from this computer.
+
+Examples:
+  make-docs
+  make-docs setup --yes
+  make-docs setup system --dry-run
+  make-docs project state status
+  make-docs resource list
+  make-docs work item resolve 'W18 R11 P2'
+  make-docs backlog snapshot --target-root .
+  make-docs lifecycle list
+  make-docs check prd
+  make-docs mcp
+
+Use --help or -h with a group to list its commands.
+```
+
+Exit code: 0.
+
+#### `make-docs setup --help`
+
+```text
+make-docs setup
+
+Install Make Docs in this project, or sync it with your saved choices.
+A new install in a terminal opens a guided wizard. A sync shows the planned changes first.
+
+Usage:
+  make-docs setup [options]
+  make-docs setup <command> [options]
+
+Commands:
+  make-docs setup [write]
+      Install Make Docs in this project, or sync it with your saved choices.
+  make-docs setup system [write]
+      Set up Codex, Claude Code, and GitHub Copilot CLI support on this computer, after your review.
+  make-docs setup reconfigure [write]
+      Change the saved project choices of an install.
+  make-docs setup skills [write]
+      Sync, adopt, or remove the managed Skills.
+  make-docs setup backup [write]
+      Back up this project's managed files.
+  make-docs setup remove [write]
+      Remove this project's managed files, with an optional backup first.
+  make-docs setup store check
+      Check the Make Docs Store: what clean would remove, what needs your choice, and what blocks this computer. Changes nothing.
+  make-docs setup store clean [write]
+      Back up the Make Docs Store, then remove only what the fixed rules prove is safe to remove.
+
+setup store checks and cleans the Make Docs Store. People run it in a terminal.
+Agents use the MCP tools setup_store_check and setup_store_clean.
+
+[write] commands change files or Store records.
+
+Use --help or -h with a command to see its options.
+
+Options for make-docs setup itself:
+
+General options:
+  --target <dir>                 Operate on a different make-docs install directory.
+  --dry-run                      Show planned changes without writing files.
+  --yes                          Approve a fully specified non-interactive plan.
+  --adopt                        Register a checkout with a saved projectId in this Store.
+  --conflicts <keep|overwrite>   Resolve changed managed files in this setup plan.
+  --recover <resume|restore>     Choose recovery for unfinished project work.
+  --json                         Emit only the canonical setup result JSON.
+  --help, -h                     Show help for this command.
+
+Harness options:
+  --codex-method <none|mcp|command-rules>
+  --claude-code-method <none|mcp|permission-rules>
+  --github-copilot-method <none|mcp>
+  --generic-mcp-client <label>  Add one bounded generic MCP client profile.
+  --generic-mcp-action <configure|rotate|repair|remove>
+                                Choose its repeat-safe lifecycle action.
+  --no-codex                     Skip the Codex harness.
+  --no-claude-code               Skip the Claude Code harness.
+  --no-github-copilot           Skip the GitHub Copilot CLI harness.
+  Deprecated aliases: --no-agents, --no-claude
+
+Skill options:
+  --no-skills                    Skip skill installation entirely.
+  --skill-manifest <file>       Use an explicit local skills manifest for this run.
+  --skill-scope project|global   Choose project or global agent locations.
+  --selected-skills <csv|all|none>
+                                  Replace the selected skill set.
+
+Resource options:
+  --project-resources <csv|all|none>
+                                  Copy only the selected system resource types into this project.
+
+Fresh projects always include Designs, Plans, PRD, and Work. Use setup
+reconfigure to review a later project-surface change.
+
+Examples:
+  make-docs setup
+  make-docs setup --yes
+  make-docs setup --adopt --yes
+  make-docs setup --adopt --yes --conflicts keep
+  make-docs setup --target ~/Projects/example --dry-run
+  make-docs setup reconfigure --yes --no-work
+  make-docs setup remove --backup
+```
+
+Exit code: 0.
+
+#### `make-docs project --help`
+
+```text
+make-docs project
+
+See and repair this project: its state, checkouts, Personas, layout,
+support folders, paths and links, and docs.
+
+Usage: make-docs project <command> [options]
+
+Commands:
+  make-docs project list
+      List every project that the Make Docs Store knows. Changes nothing.
+  make-docs project state status
+      Show this project's install state from the Store and the next safe step. Changes nothing.
+  make-docs project state recover [write]
+      Finish or undo one unfinished install operation.
+  make-docs project move preview
+      Show which saved checkout this moved folder can take over. Changes nothing.
+  make-docs project move apply [write]
+      Give this folder the saved checkout ID of its old folder. Project files stay the same.
+  make-docs project checkout preview
+      Show the new checkout ID this folder would get. Changes nothing.
+  make-docs project checkout apply [write]
+      Save this folder as a new checkout of its project.
+  make-docs project persona list
+      List this project's Personas. Needs no Store. Changes nothing.
+  make-docs project layout preview
+      Show where each old file would move, with its links and any blockers. Changes nothing.
+  make-docs project layout prepare [write]
+      Save a reviewed layout plan in the Store before any file moves.
+  make-docs project layout apply [write]
+      Move the files of one prepared cli layout plan, then check them.
+  make-docs project layout verify [write]
+      Check a manual layout plan after you moved the files, and record that it is done.
+  make-docs project surface ensure [write]
+      Make one project support folder and its instruction files.
+  make-docs project paths validate
+      Check this project's docs for unsafe paths and links. Changes nothing.
+  make-docs project paths repair [write]
+      Fix unsafe paths and links in this project's docs. Shows the changes first.
+  make-docs project doctor check
+      Check project files for known problems, show each exact fix, and give a review digest. Changes nothing.
+  make-docs project doctor fix [write]
+      Make only the fixes that a doctor check's review digest names, with a backup and a way to undo.
+
+Install state is kept in the Make Docs Store.
+
+[write] commands change files or Store records.
+
+Use --help or -h with a command to see its options.
+```
+
+Exit code: 0.
+
+#### `make-docs resource --help`
+
+```text
+make-docs resource
+
+List, read, or copy Make Docs system resources: contracts, prompts,
+references, and templates.
+
+Usage: make-docs resource <command> [options]
+
+Commands:
+  make-docs resource list
+      List the Make Docs system resources: contracts, prompts, references, and templates. Changes nothing.
+  make-docs resource read
+      Print one Make Docs system resource, byte for byte. Changes nothing.
+  make-docs resource ensure [write]
+      Copy one managed system resource into this project.
+
+[write] commands change files or Store records.
+
+Use --help or -h with a command to see its options.
+```
+
+Exit code: 0.
+
+#### `make-docs work --help`
+
+```text
+make-docs work
+
+Find work items and record work evidence.
+
+Usage: make-docs work <command> [options]
+
+Commands:
+  make-docs work item resolve
+      Find a work item from its coordinate or path, and show its project, wave, and phase file. Changes nothing.
+  make-docs work evidence record [write]
+      Save one piece of work evidence for a work item in the Make Docs Store.
+  make-docs work evidence read
+      Show the work evidence saved for a phase or a whole wave. Changes nothing.
+
+[write] commands change files or Store records.
+
+Use --help or -h with a command to see its options.
+```
+
+Exit code: 0.
+
+#### `make-docs backlog --help`
+
+```text
+make-docs backlog
+
+Read the backlog, use its review cache, and open the review app.
+
+Usage: make-docs backlog <command> [options]
+
+Commands:
+  make-docs backlog snapshot
+      Read every live and archived work record into one backlog snapshot. Changes nothing.
+  make-docs backlog cache lookup
+      Find saved backlog review notes that still match the current snapshot. Changes nothing.
+  make-docs backlog cache write [write]
+      Save backlog review notes in the Store cache, so the next review can reuse them.
+  make-docs backlog review open
+      Open a checked backlog report in the review app, with a short summary for chat. Changes nothing.
+  make-docs backlog review refresh
+      Read the current backlog facts again and keep the report you reviewed before. Changes nothing.
+
+[write] commands change files or Store records.
+
+Use --help or -h with a command to see its options.
+```
+
+Exit code: 0.
+
+#### `make-docs lifecycle --help`
+
+```text
+make-docs lifecycle
+
+Start, track, and finish lifecycle runs.
+
+Usage: make-docs lifecycle <command> [options]
+
+Commands:
+  make-docs lifecycle start [write]
+      Start a lifecycle run for this project in the Make Docs Store.
+  make-docs lifecycle show
+      Show one lifecycle run and its evidence. Changes nothing.
+  make-docs lifecycle list
+      List this project's lifecycle runs. Changes nothing.
+  make-docs lifecycle checkpoint [write]
+      Record a checkpoint in a lifecycle run.
+  make-docs lifecycle pause [write]
+      Pause an active lifecycle run.
+  make-docs lifecycle resume [write]
+      Resume a paused lifecycle run.
+  make-docs lifecycle attach-evidence [write]
+      Link one piece of evidence to a lifecycle run.
+  make-docs lifecycle complete [write]
+      Mark a lifecycle run as done.
+  make-docs lifecycle fail [write]
+      Mark a lifecycle run as failed.
+  make-docs lifecycle abandon [write]
+      Stop a lifecycle run that will not finish.
+
+[write] commands change files or Store records.
+
+Use --help or -h with a command to see its options.
+```
+
+Exit code: 0.
+
+#### `make-docs factory --help`
+
+```text
+make-docs factory
+
+Run approved backlog work through workers and review.
+
+Usage: make-docs factory <command> [options]
+
+This group has no commands yet.
+```
+
+Exit code: 0.
+
+#### `make-docs check --help`
+
+```text
+make-docs check
+
+Check PRDs, performance evidence, and user test records. Changes nothing.
+
+Usage: make-docs check <command> [options]
+
+Commands:
+  make-docs check prd
+      Check that the active PRDs describe the product, not edits to it. Changes nothing.
+  make-docs check performance-evidence
+      Check the shape and links of performance evidence records. Runs no benchmark. Changes nothing.
+  make-docs check uat scenario
+      Check one user test scenario record. Changes nothing.
+  make-docs check uat persona
+      Find the Persona for a user test and check it. Changes nothing.
+  make-docs check uat target
+      Check one user test target record. Changes nothing.
+  make-docs check uat evidence
+      Check one user test evidence link and its file digest. Changes nothing.
+  make-docs check uat finding
+      Check one user test finding record. Changes nothing.
+  make-docs check uat result
+      Check one user test result record. Changes nothing.
+
+Use --help or -h with a command to see its options.
+```
+
+Exit code: 0.
+
+#### `make-docs mcp --help`
+
+```text
+make-docs mcp
+
+Serve Make Docs tools to agents over MCP. The server talks over stdio.
+
+Usage:
+  make-docs mcp [--profile <name>] [--help]
+
+Options:
+  --profile <name>  Choose tools and native resources for one task. Default: all.
+  --help, -h       Show help for this command.
+
+Profiles:
+  core      Install state, settings, system resources, and the list of tool areas.
+  setup     Install plans, repair, compatibility, and layout.
+  workflow  Lifecycle, project context, and work evidence.
+  quality   Requirements, performance evidence, and user test checks.
+  backlog   Backlog snapshots and the review cache.
+  all       All ready tools and native resources.
+
+Behavior:
+  The default profile, all, gives every ready tool in one server.
+  Native resource lists and reads use the selected profile.
+  Tools read and plan first. A tool that writes needs allowWrite=true.
+  Each MCP tool name is its CLI path with underscores, such as work_item_resolve for `make-docs work item resolve`.
+  MCP tools run the same operations as the CLI groups.
+
+Examples:
+  make-docs mcp
+  make-docs mcp --profile backlog
+```
+
+Exit code: 0.
+
+#### `make-docs update --help`
+
+```text
+make-docs update
+
+Update the make-docs tool on this computer. This is a machine-level change.
+It finds the package manager that installed make-docs and asks it to update.
+When it cannot tell which one, it prints the exact command instead.
+With npx, pnpm dlx, or bunx, nothing is installed, so there is nothing to
+update. Each run also updates the Make Docs Store format when needed. When this
+folder has an install from before version 2, it first asks how to move it.
+
+Usage:
+  make-docs update [--target <dir>] [--yes] [--help]
+
+Options:
+  --target <dir>                   Check this project folder for an install from before version 2.
+  --yes                            Skip questions that are not about safety.
+  --help, -h                       Show help for this command.
+
+To change a project's install, use `make-docs setup` or `make-docs setup reconfigure`.
+```
+
+Exit code: 0.
+
+#### `make-docs uninstall --help`
+
+```text
+make-docs uninstall
+
+Remove the make-docs tool from this computer. This is a machine-level change.
+It never changes project files. It asks before it removes anything. With no
+terminal, it stops and removes nothing unless you add --yes.
+With npx, pnpm dlx, or bunx, nothing is installed, and it says so. When it
+cannot tell how make-docs was installed, it prints the exact command and
+removes nothing.
+
+It keeps the Make Docs Store unless you add --remove-store. The Store is in
+MAKE_DOCS_HOME when that is set, else in ~/.make-docs/. --remove-store deletes
+the Store only after the tool is removed, or when nothing is installed (npx and
+other runners). It keeps the Store when the tool removal fails or when it
+cannot tell how make-docs was installed. It always keeps the Store clean
+backups in <store>/backup/ and tells you how to delete them.
+
+Usage:
+  make-docs uninstall [--yes] [--remove-store] [--help]
+
+Options:
+  --yes                            Remove without a question.
+  --remove-store                   Also delete the Make Docs Store records. Backups in <store>/backup/ stay.
+  --help, -h                       Show help for this command.
+
+To remove make-docs from a project, use `make-docs setup remove`.
+```
+
+Exit code: 0.
+
+#### `make-docs work item resolve --help`
+
+```text
+make-docs work item resolve
+
+Find a work item from its coordinate or path, and show its project, wave, and phase file. Changes nothing.
+
+Usage:
+  make-docs work item resolve <coordinate-or-path> [--repo-root <path>] [--json]
+
+Arguments:
+  <coordinate-or-path>  A coordinate such as 'W33 R0 P5', or a path to a backlog or phase file.
+
+Options:
+  --repo-root <path>  The project folder. The default is found from this folder.
+  --json              Print the full result as JSON.
+  --help, -h          Show this help.
+```
+
+Exit code: 0.
+
+#### `make-docs check prd --help`
+
+```text
+make-docs check prd
+
+Check that the active PRDs describe the product, not edits to it. Changes nothing.
+
+Usage:
+  make-docs check prd [--target-root <project>] [--json]
+
+Options:
+  --target-root <project>  The project folder. The default is this folder.
+  --json                   Print the full result as JSON.
+  --help, -h               Show this help.
+```
+
+Exit code: 0.
+
+#### `make-docs project move preview --help`
+
+```text
+make-docs project move preview
+
+Show which saved checkout this moved folder can take over. Changes nothing.
+
+Usage:
+  make-docs project move preview [--source-checkout <id>] [--target-root <path>] [--json]
+
+Options:
+  --source-checkout <id>  Show only this saved checkout.
+  --target-root <path>    The project folder. The default is this folder.
+  --json                  Print the full result as JSON.
+  --help, -h              Show this help.
+```
+
+Exit code: 0.
+
+
+### Human Experience Review (A14)
+
+| Promise from the index | Result | Evidence | Limit |
+| --- | --- | --- | --- |
+| Every command for one capability starts with that capability's group. | Met | The naming-rule test (43) passes. Each group's help lists its commands, and all 64 listed command paths exist. | None. |
+| Each MCP tool name is the CLI path after `make-docs`, joined with underscores. | Met | `mcp-derivation`, `mcp-profiles`, and the name-catalog tests pass. `mcp --help` states the rule. The last shipped line with the older `make_docs_` rule is fixed. | The two known `mcp-app-contract` stdio failures are a Node warning, not a name failure. |
+| A current name keeps working for the window and names the new one. | Met | The 178 alias tests pass. `--help` on each of the 32 old CLI paths prints the new command's help, then the notice. | The window counts minor releases in one major version only (P3 limit). |
+| `make-docs --help` lists the groups by capability, in plain words. | Met | The captures above. The owner's Guided Progress Review passed on 2026-11-23 with five changes, all made. | None. |
+
+A person can now go from `make-docs --help` to a group, see one plain line for each command, and ask any command for its options with `--help`. Before this phase, help on one command failed.
+
+### Plan Validation Items (A14)
+
+- Naming-rule, parity, alias, and shipped-text tests: recorded under Test Counts.
+- Full suite and known failures: recorded under Full Suite.
+- Help reads by capability: the owner's review passed. Recorded under Help Review.
+- Release proof: `smoke:pack:local` passed.
+
+### Limits
+
+- The router drift test checks one direction only: each option in a router command's help is accepted. The 22 `project`, `resource`, and `setup store` routers parse argv by hand, so no proxy can record what they read. A flag that a router accepts but its help leaves out is not found by a test. The 26 dispatcher commands are checked in both directions.
+- Aliases that a router accepts are not in the help: `--target-root` for `--target` in `project paths` and `resource`. A `-h` right after such an alias is read as help.
+- `packages/cli/src/run/setup-store.ts` still has a branch that answers `--help` after `setup store check|clean`. The leaf help answers first, so the branch no longer runs. W32 R0 P5 changed that file at the same time, so the builder left it. It was removed at integration (see P5 Integration).
+- `setup` is a command and a group. Its own options stay in `make-docs setup --help`, after the command list.
+- Lifecycle commands outside the registry (`setup`, `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, `setup remove`, `mcp`, `update`, and `uninstall`) keep their own help. Each answers `--help` with exit code 0.
+- `runRunCommand` called directly, as some tests do, does not answer leaf help. Only the CLI entry does.
+- The `mcp-app-contract` stdio failures, the sandbox-only fixture 11, the `w19-r5-skills-command` flake, and the `cli.test.ts` timeout under load stay as known items.
+
+### P5 Integration
+
+- Merged on top of W32 R0 P5 (`309deec2`). The one conflict, in `packages/cli/src/run/root-operations.ts`, kept the leaf help for `project list --help`. W32 P5's note about `--target-root` is in the leaf help table entry.
+- Removed the dead `setup store check|clean --help` branch in `packages/cli/src/run/setup-store.ts`. The leaf help answers those paths, and `setup store --help` still prints the group help.
+- `tests/w32-r0-p5-store-wording.test.ts` now checks the `--target-root` note in its new leaf help wording.
+- Full suite after the merge, counted from the JSON reporter: 2870 tests, 2860 passed, 4 failed, 6 skipped. 3 failures are the known ones (`mcp-app-contract` 2, `w19-r5-skills-command` 1). The fourth was the W32 P5 wording test above, fixed and rerun with the leaf help and state help tests: 305 passed.

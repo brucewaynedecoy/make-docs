@@ -16,6 +16,8 @@ import type { ProjectSurfaceEnsureOutput } from "../operations/project/ops";
 import type { DoctorCheckResult, DoctorFixResult } from "../operations/project/doctor";
 import type { ProjectListResult } from "../store/project-register";
 import { readFileSync } from "node:fs";
+import { listOperations, operationCliPath, type OperationDescriptor } from "../operations/registry";
+import { renderCommandLines, renderCommandListFooter } from "./cli";
 
 type ResourceOrigin = "effective" | "local" | "installed";
 type ResourceFormat = "table" | "json" | "raw";
@@ -157,22 +159,7 @@ export async function runResourceCommand(
   launch: CliOperationLaunch = resolveCliOperationLaunch(),
 ): Promise<void> {
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
-    process.stdout.write(
-      [
-        "make-docs resource",
-        "",
-        "List, read, or copy Make Docs system resources: contracts, prompts,",
-        "references, and templates.",
-        "",
-        "Usage: make-docs resource <command> [options]",
-        "",
-        "Commands:",
-        "  make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json] [--target <dir>]",
-        "  make-docs resource read <uri> [--origin <effective|local|installed>] [--format raw|json] [--target <dir>]",
-        "  make-docs resource ensure <uri> --allow-write --approve resource-projection-write [--dry-run] [--target <dir>]",
-        "",
-      ].join("\n"),
-    );
+    process.stdout.write(renderResourceHelp());
     return;
   }
   const verb = argv[0];
@@ -229,6 +216,49 @@ export async function runResourceCommand(
   printJson(invocation.value);
 }
 
+/** Registry operations of one root, in the given path order, else registry order. */
+function rootOperations(root: string, order?: readonly string[]): OperationDescriptor[] {
+  const operations = listOperations().filter((operation) => operation.cli.root === root);
+  if (!order) return operations;
+  return [...operations].sort((left, right) => order.indexOf(operationCliPath(left.id)) - order.indexOf(operationCliPath(right.id)));
+}
+
+/** `make-docs resource --help`: one plain-words line per command (W33 R0 P5). */
+export function renderResourceHelp(): string {
+  const operations = rootOperations("resource");
+  return [
+    "make-docs resource",
+    "",
+    "List, read, or copy Make Docs system resources: contracts, prompts,",
+    "references, and templates.",
+    "",
+    "Usage: make-docs resource <command> [options]",
+    "",
+    "Commands:",
+    ...renderCommandLines(operations),
+    ...renderCommandListFooter(operations),
+  ].join("\n");
+}
+
+/** `make-docs project --help`: one plain-words line per command (W33 R0 P5). */
+export function renderProjectHelp(): string {
+  const operations = rootOperations("project", PROJECT_COMMANDS);
+  return [
+    "make-docs project",
+    "",
+    "See and repair this project: its state, checkouts, Personas, layout,",
+    "support folders, paths and links, and docs.",
+    "",
+    "Usage: make-docs project <command> [options]",
+    "",
+    "Commands:",
+    ...renderCommandLines(operations),
+    "",
+    "Install state is kept in the Make Docs Store.",
+    ...renderCommandListFooter(operations),
+  ].join("\n");
+}
+
 /** Every `make-docs project` command, for the unknown-command guidance. */
 export const PROJECT_COMMANDS = [
   "list",
@@ -279,61 +309,7 @@ export async function runProjectCommand(
     return;
   }
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
-    process.stdout.write(
-      [
-        "make-docs project",
-        "",
-        "See and repair this project: its Store state, checkouts, Personas, layout,",
-        "support folders, paths and links, and docs.",
-        "",
-        "Usage: make-docs project <command> [options]",
-        "",
-        "Projects:",
-        "  make-docs project list [--target-root <path>] [--json]",
-        "State:",
-        "  make-docs project state status [--target-root <path>] [--json]",
-        "  make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
-        "Checkouts:",
-        "  make-docs project move preview [--source-checkout <id>] [--target-root <path>] [--json]",
-        "  make-docs project move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
-        "  make-docs project checkout preview [--target-root <path>] [--json]",
-        "  make-docs project checkout apply --review <digest> [--target-root <path>] [--json]",
-        "Personas and layout:",
-        "  make-docs project persona list [--target-root <path>] [--json]",
-        "  make-docs project layout preview [--map <source>=<destination>] [--json]",
-        "  make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--json]",
-        "  make-docs project layout apply|verify <operation-id> [--target-root <path>] [--json]",
-        "Support folders:",
-        "  make-docs project surface ensure <archive|artifacts|assets>",
-        "Paths and links:",
-        "  make-docs project paths validate|repair [--target <dir>] [--scope content|managed] [--path <path> ...] [--format text|json]",
-        "Doctor:",
-        "  make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
-        "  make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
-        "",
-        "Installation state belongs to the global Make Docs Store.",
-        "The ensure command checks Store installation evidence and configured routers",
-        "before it creates the selected on-demand directory. It reports the applied or",
-        "unchanged state, plan dispositions, receipt, and next check.",
-        "",
-        "State status reads the Store and reports pending work without changing files.",
-        "State recover requires an operation ID and exactly one recovery mode.",
-        "Use --resume to apply the remaining verified steps of a complete saved plan.",
-        "Use --rollback to restore verified prior file state. Changed files block recovery.",
-        "Add --dry-run to inspect recovery without applying changes.",
-        "",
-        "Move gives this folder the saved checkout ID of an old folder. Checkout",
-        "registers this folder as a new checkout. Both preview first.",
-        "",
-        "Paths validate checks local docs for unsafe paths and links. Paths repair",
-        "previews by default. Add --apply to write, or --dry-run to preview.",
-        "",
-        "Doctor check reads project files, shows each problem and its exact change, and",
-        "changes nothing. Doctor fix changes only what the check's review digest names,",
-        "keeps a backup, and says how to undo the fix.",
-        "",
-      ].join("\n"),
-    );
+    process.stdout.write(renderProjectHelp());
     return;
   }
   const [noun, verb, surface, ...rest] = argv;
@@ -401,10 +377,7 @@ export async function runProjectCommand(
 }
 
 async function runProjectListCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
-  if (argv[0] === "--help" || argv[0] === "-h") {
-    process.stdout.write("Usage: make-docs project list [--target-root <path>] [--json]\nList every project that the Make Docs Store knows. It reads only and changes nothing.\nThe list always shows every project in the Store, whichever folder you run it from.\n--target-root <path>  The project folder whose harness access allows this Store read. It does not filter the list. It defaults to the current folder.\n");
-    return;
-  }
+  // `make-docs project list --help` is answered by the leaf help (W33 R0 P5).
   let json = false;
   let targetRoot: string | undefined;
   const seen = new Set<string>();
@@ -640,7 +613,8 @@ async function runProjectStateCommand(
   launch: CliOperationLaunch,
 ): Promise<void> {
   const [verb, ...args] = argv;
-  if (!verb || verb === "--help" || verb === "-h" || ((verb === "status" || verb === "recover") && args.some(arg => arg === "--help" || arg === "-h"))) {
+  // `status --help` and `recover --help` are answered by the leaf help (W33 R0 P5).
+  if (!verb || verb === "--help" || verb === "-h") {
     process.stdout.write([
       "Usage: make-docs project state status [--target-root <path>] [--json]",
       "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
@@ -741,7 +715,8 @@ const DOCTOR_HELP = [
 
 async function runProjectDoctorCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
   const [verb, ...args] = argv;
-  if (!verb || verb === "--help" || verb === "-h" || args.some((arg) => arg === "--help" || arg === "-h")) {
+  // `check --help` and `fix --help` are answered by the leaf help (W33 R0 P5).
+  if (!verb || verb === "--help" || verb === "-h") {
     process.stdout.write(DOCTOR_HELP);
     return;
   }

@@ -56,7 +56,8 @@ import {
   type McpServerProfile,
 } from "./operations/mcp-metadata";
 import { OperationError } from "./operations/types";
-import { OPERATION_GROUP_SUMMARIES, isOperationGroup, renderOperationGroupHelp, runRunCommand } from "./run/cli";
+import { OPERATION_GROUP_SUMMARIES, isOperationGroup, renderCommandLines, renderCommandListFooter, renderOperationGroupHelp, runRunCommand } from "./run/cli";
+import { resolveLeafHelp } from "./run/leaf-help";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
 import {
   cliAliasNotice,
@@ -408,6 +409,13 @@ async function runResolvedCli(
   const argv = resolvedLaunch.argv;
   if (argv[0] === "--version" || argv[0] === "-v") {
     output.write(`${readPackageMeta().version}\n`);
+    return;
+  }
+  // W33 R0 P5: `--help` or `-h` after any registry command prints that
+  // command's help before its own option parser runs. Help reads nothing.
+  const leafHelp = resolveLeafHelp(argv);
+  if (leafHelp !== null) {
+    output.write(leafHelp);
     return;
   }
   if (argv[0] === "setup" && argv[1] === "store") {
@@ -3606,6 +3614,43 @@ const COMMAND_SUMMARIES: Readonly<Record<Command, string>> = {
   uninstall: "Remove make-docs from this computer.",
 };
 
+/**
+ * `make-docs setup --help`: one plain-words line per command (W33 R0 P5).
+ * `setup` is also a command, so its own options follow this list.
+ */
+export function renderSetupHelp(): string {
+  const store = listOperations().filter((operation) => operation.cli.root === "setup");
+  return [
+    "make-docs setup",
+    "",
+    "Install Make Docs in this project, or sync it with your saved choices.",
+    "A new install in a terminal opens a guided wizard. A sync shows the planned changes first.",
+    "",
+    "Usage:",
+    "  make-docs setup [options]",
+    "  make-docs setup <command> [options]",
+    "",
+    "Commands:",
+    "  make-docs setup [write]",
+    "      Install Make Docs in this project, or sync it with your saved choices.",
+    "  make-docs setup system [write]",
+    "      Set up Codex, Claude Code, and GitHub Copilot CLI support on this computer, after your review.",
+    "  make-docs setup reconfigure [write]",
+    "      Change the saved project choices of an install.",
+    "  make-docs setup skills [write]",
+    "      Sync, adopt, or remove the managed Skills.",
+    "  make-docs setup backup [write]",
+    "      Back up this project's managed files.",
+    "  make-docs setup remove [write]",
+    "      Remove this project's managed files, with an optional backup first.",
+    ...renderCommandLines(store),
+    "",
+    "setup store checks and cleans the Make Docs Store. People run it in a terminal.",
+    "Agents use the MCP tools setup_store_check and setup_store_clean.",
+    ...renderCommandListFooter(store),
+  ].join("\n");
+}
+
 /** `make-docs --help`: the groups by capability, in plain words. */
 export function renderTopLevelHelp(): string {
   const empty = (command: Command) =>
@@ -3816,29 +3861,8 @@ Examples:
 `);
         return;
       default:
-        output.write(`make-docs setup
-
-Install make-docs into a new target or sync an existing install using saved selections.
-Interactive fresh installs open the selection wizard; syncs review planned changes first.
-
-Usage:
-  make-docs setup [options]
-  make-docs setup system [options]
-  make-docs setup reconfigure [options]
-  make-docs setup skills [options]
-  make-docs setup backup [options]
-  make-docs setup remove [options]
-  make-docs setup store check [--json]
-  make-docs setup store clean [--yes] [--dry-run] [--json]
-
-Subcommands:
-  system       Configure reviewed machine-level harness support.
-  reconfigure  Change saved project selections for an existing install.
-  skills       Change, sync, or remove managed skills.
-  backup       Create a backup of managed files.
-  remove       Remove this project's managed files, with an optional backup first.
-  store check  Check the Make Docs Store. Changes nothing.
-  store clean  Back up the Store and remove only what the fixed rules prove.
+        output.write(`${renderSetupHelp()}
+Options for make-docs setup itself:
 
 ${SETUP_SHARED_OPTIONS}
 
@@ -3864,7 +3888,7 @@ Examples:
     case "mcp":
       output.write(`make-docs mcp
 
-Run the TypeScript-owned make-docs MCP server over stdio.
+Serve Make Docs tools to agents over MCP. The server talks over stdio.
 
 Usage:
   make-docs mcp [--profile <name>] [--help]
@@ -3874,7 +3898,7 @@ Options:
   --help, -h       Show help for this command.
 
 Profiles:
-  core      Installed state, config, common resource tools, and operation domains.
+  core      Install state, settings, system resources, and the list of tool areas.
   setup     Install plans, repair, compatibility, and layout.
   workflow  Lifecycle, project context, and work evidence.
   quality   Requirements, performance evidence, and user test checks.
@@ -3882,11 +3906,11 @@ Profiles:
   all       All ready tools and native resources.
 
 Behavior:
-  The default all profile keeps the existing single-server connection working.
+  The default profile, all, gives every ready tool in one server.
   Native resource lists and reads use the selected profile.
-  The MCP server exposes read-first and plan-first tools for installed-state inspection, manifest/config reads, compatibility classification, dry-run install planning, and deterministic registry operations.
+  Tools read and plan first. A tool that writes needs allowWrite=true.
   Each MCP tool name is its CLI path with underscores, such as work_item_resolve for \`make-docs work item resolve\`.
-  MCP tools delegate to the same operation registry and core as the CLI groups; write operations require allowWrite=true, enforced uniformly by the operation core.
+  MCP tools run the same operations as the CLI groups.
 
 Examples:
   make-docs mcp
@@ -3896,21 +3920,19 @@ Examples:
     case "update":
       output.write(`make-docs update
 
-Update the installed make-docs tool itself (machine-level self-management).
-Detects the install manager that owns a persistent global install and
-delegates to it; when detection is ambiguous it prints the exact command
-instead of acting. For remote execution (npx, pnpm dlx, bunx) there is
-nothing persistent to update, since the runner fetches the requested
-version. Every run applies any pending global-store schema migration, and a
-pre-v2 project install in the working directory triggers the
-warning-and-choice migration flow before delegation.
+Update the make-docs tool on this computer. This is a machine-level change.
+It finds the package manager that installed make-docs and asks it to update.
+When it cannot tell which one, it prints the exact command instead.
+With npx, pnpm dlx, or bunx, nothing is installed, so there is nothing to
+update. Each run also updates the Make Docs Store format when needed. When this
+folder has an install from before version 2, it first asks how to move it.
 
 Usage:
   make-docs update [--target <dir>] [--yes] [--help]
 
 Options:
-  --target <dir>                   Check a different project directory for pre-v2 state.
-  --yes                            Skip interactive prompts where confirmation is not safety-critical.
+  --target <dir>                   Check this project folder for an install from before version 2.
+  --yes                            Skip questions that are not about safety.
   --help, -h                       Show help for this command.
 
 To change a project's install, use \`make-docs setup\` or \`make-docs setup reconfigure\`.
@@ -3919,17 +3941,26 @@ To change a project's install, use \`make-docs setup\` or \`make-docs setup reco
     case "uninstall":
       output.write(`make-docs uninstall
 
-Remove make-docs' machine-level footprint: the global store at ~/.make-docs/
-and the installed binary when one is present. It confirms before removing,
-reports that no binary is installed for remote-execution users, and never
-touches repository content. When the install method is ambiguous it prints
-the exact removal command instead of acting.
+Remove the make-docs tool from this computer. This is a machine-level change.
+It never changes project files. It asks before it removes anything. With no
+terminal, it stops and removes nothing unless you add --yes.
+With npx, pnpm dlx, or bunx, nothing is installed, and it says so. When it
+cannot tell how make-docs was installed, it prints the exact command and
+removes nothing.
+
+It keeps the Make Docs Store unless you add --remove-store. The Store is in
+MAKE_DOCS_HOME when that is set, else in ~/.make-docs/. --remove-store deletes
+the Store only after the tool is removed, or when nothing is installed (npx and
+other runners). It keeps the Store when the tool removal fails or when it
+cannot tell how make-docs was installed. It always keeps the Store clean
+backups in <store>/backup/ and tells you how to delete them.
 
 Usage:
   make-docs uninstall [--yes] [--remove-store] [--help]
 
 Options:
-  --yes                            Confirm removal without an interactive prompt.
+  --yes                            Remove without a question.
+  --remove-store                   Also delete the Make Docs Store records. Backups in <store>/backup/ stay.
   --help, -h                       Show help for this command.
 
 To remove make-docs from a project, use \`make-docs setup remove\`.

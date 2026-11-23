@@ -15,7 +15,7 @@ The stable paths are:
 - `make-docs check uat finding`
 - `make-docs check uat result`
 
-Each accepts `--payload-json <file-or-inline-JSON>` and `--json`. The payload is the same object as the derived MCP tool input. The Persona helper also accepts `--target-root <project>` and `--persona <configured-slug>`. Other helpers use the payload. All payloads can include `targetRoot` and `persona`. Omit `persona` to use canonical `user`. The MCP names replace punctuation in each stable operation ID with underscores and add `make_docs_`.
+Each accepts `--payload-json <file-or-inline-JSON>` and `--json`. The payload is the same object as the derived MCP tool input. The Persona helper also accepts `--target-root <project>` and `--persona <configured-slug>`. Other helpers use the payload. All payloads can include `targetRoot` and `persona`. Omit `persona` to use canonical `user`. Each MCP tool name is the CLI path after `make-docs`, joined with underscores, such as `check_uat_persona`.
 
 ## Reference Fields
 

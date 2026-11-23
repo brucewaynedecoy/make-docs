@@ -414,7 +414,7 @@ describe("W33 R0 P3 CLI aliases (T1, A7, A8)", () => {
 
   test("a failing alias call writes only one JSON error to stderr, with renamedTo", async () => {
     __setMigrationAliasVersionForTests(IN_WINDOW);
-    const run = await runEntryCaptured(["run", "work", "item", "resolve", "--help"]);
+    const run = await runEntryCaptured(["run", "work", "item", "resolve"]);
     expect(run.exitCode).toBe(1);
     expect(run.stdout).toBe("");
     expect(run.stderr).not.toContain("is now `make-docs");
@@ -422,7 +422,7 @@ describe("W33 R0 P3 CLI aliases (T1, A7, A8)", () => {
     expect(error).toMatchObject({
       ok: false,
       code: "operation-error",
-      message: "`--help` requires a value.",
+      message: "`work item resolve` requires a target argument.",
       renamedTo: "make-docs work item resolve",
     });
     // A succeeding alias call still prints the notice, after its output.
