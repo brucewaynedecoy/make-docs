@@ -125,7 +125,7 @@ Code anchors:
 - R-BACKLOG-SKILL-18 (MUST): when the Store is not configured, unavailable, unsafe, or denied, the Skill completes the full stateless review. It reports the cache limit to the human in natural language only when the limit matters to the request. Cache failure does not block independent repository facts or report creation.
 - R-BACKLOG-SKILL-19 (MUST): the cache uses the Global Store boundary in PRD 38. It creates no project-local operational file, hidden report copy, or required companion file. Cached values exclude repository document bodies, prompts, secrets, and absolute local paths.
 - R-BACKLOG-SKILL-20 (MUST): cache diagnostics report exact hits, misses, invalidations, rejected entries, and fallback use for validation. Normal human output stays concise and does not present cache mechanics as project status.
-- R-BACKLOG-SKILL-21 (MUST): the Skill builds project-lead context through one deterministic bounded collector. The collector prefers the project overview, then the root README, then a package description for purpose. It uses explicit current-status sections and purpose, objective, or overview sections from selected current-focus work records for current context. It returns repository-relative paths, headings, lines, bounded excerpts, and content hashes. The agent may summarize only those excerpts for the project lead.
+- R-BACKLOG-SKILL-21 (MUST): the Skill builds project-lead context through one deterministic bounded collector. The collector prefers the project overview, then the root README, then a package description for purpose. It uses explicit current-status sections and purpose, objective, or overview sections from selected current-focus work records for current context. It returns repository-relative paths, headings, lines, bounded excerpts, and content hashes. The agent may summarize only those excerpts for the project lead. The collector's logic and the report render wrapper's logic live in CLI source next to the backlog presentation code. The Skill ships each as a generated bundle whose bytes match a fresh build, under [PRD 08](08-skills-catalog-and-distribution.md) R-SKILL-BUNDLE-7. Each bundle runs with Node built-ins only, with no CLI, `node_modules`, Store, or network.
 - R-BACKLOG-SKILL-22 (MUST): every recommendation-order item is wave-specific. Its `recordPath` resolves to exactly one included report record. Every Attention item either has one `recordPath` that resolves to exactly one included report record or uses null to mean a backlog-wide finding. Report validation rejects a missing or dangling required reference.
 - R-BACKLOG-SKILL-23 (MUST): chat and HTML derive the visible wave coordinate for a Next or wave-specific Attention item from the matched report record. The agent does not need to repeat that coordinate inside claim prose. A null Attention reference uses the fixed label `Backlog finding`, not `Portfolio finding`.
 - R-BACKLOG-SKILL-24 (MUST): when the active host supports app-resource rendering, tool calls, and agent messages, the Skill selects live Backlog Review by default. It selects support through capabilities, not a host product name. A missing, false, or unknown required capability selects chat fallback. Task creation is outside the wave-action contract and cannot block either required wave action. Route selection does not prove that the host displayed the app.
@@ -561,6 +561,14 @@ Code anchors:
 - Replacement contract: they are `make-docs backlog snapshot`, `make-docs backlog cache lookup`, and `make-docs backlog cache write`, as R-BACKLOG-APP-1 already listed.
 - Rationale: W33 R0 P2 moved every backlog operation to the `backlog` group.
 - Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p4-shipped-text-and-skills).
+
+### 2026-11-23 — W34 R0
+
+- Affected requirement or section: R-BACKLOG-SKILL-21.
+- Previous contract: hand-written Skill scripts held the project-lead collector and the report render wrapper.
+- Replacement contract: CLI source holds both, and the Skill ships each as a generated bundle whose bytes match a fresh build. The bundles still run with Node built-ins only.
+- Rationale: design OD-1 option A gives the logic one home and keeps the portable path without the CLI (register D-064).
+- Source: [Skill scripts into the CLI design](../designs/2026-11-23-skill-scripts-into-the-cli.md) and [W34 R0 plan](../plans/2026-11-23-w34-r0-skill-scripts-into-the-cli/00-overview.md).
 
 ## Source Anchors
 

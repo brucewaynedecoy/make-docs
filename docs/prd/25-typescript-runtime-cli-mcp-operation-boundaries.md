@@ -173,6 +173,7 @@ Configuration supplies declarative identity, desired settings, audience mappings
 - R-SKILL-RUNTIME-4 (MUST): `factory` runs accepted project work within accepted project authority. It records setup, assignments, proofs, and backups only through the typed factory and work operations, which save them in the Store. It cannot replace PRDs or backlogs or authorize implementation by itself. Authority comes from the accepted backlog, the scope the person gives, and the person's Store-only grants. `factory-setup` saves setup only through the same operations. `human-experience` must preserve the difference between agent evidence review and lived human review. The `naive-uat` adapter keeps its stable name, shared workflow, and existing testing policy.
 - R-SKILL-RUNTIME-5 (MUST): reviewed adoption is an extension of `setup skills` through the existing installation and operation services. Ordinary `setup` offers bundled choices without adoption flags. PRD [39](39-cli-command-model-and-operation-registry.md) owns exact command validation; PRD [28](28-shared-agentics-installation-and-harness-exposure.md) owns eligibility and review. This change adds no independent Skill installer or MCP write authority.
 - R-SKILL-RUNTIME-6 (MUST): the work store readiness, claim, report, close, and sync rules and the factory readiness, escalation, and acceptance rules each have a CLI form and an agent form in a system resource. A change to one form requires a review of the other in the same change set. The work store agent form lets a project without the CLI keep using `docs/work/` as the authority. The factory has no agent form for saving: without the CLI and a usable Store, factory setup stops and says why.
+- R-SKILL-RUNTIME-7 (MUST): when a first-party Skill check has a Make Docs operation, the Skill text tells the agent to use the MCP tool when the session has it, otherwise the CLI command, otherwise the agent form in the Skill text by hand. A manual result says that it is a manual review, uses the proof state `agent-reviewed`, and does not claim that a Make Docs check ran. The agent installs nothing without the person's consent, and a manual repair needs the person's agreement first. Each operation and its agent form share one rule ID list, and a test fails when an ID exists on one side only. A change to a rule on one side needs a review of the other side in the same change set. [PRD 39](39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK owns the operations.
 
 These W19 R5 requirements record accepted direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
@@ -185,7 +186,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 #### Domain and Script Classification
 
 - A deterministic fact-of-record or a fiddly, genuinely reused canonical-identity or parse primitive belongs in a focused TypeScript operation behind the stable registry. Derivation, judgment, and generation that an agent can perform correctly from contracts, prompts, references, templates, and project files do not become registry operations.
-- Selected-skill prose, references, examples, metadata, and routing may remain skill assets, but they never become the sole owner of deterministic Make Docs behavior. Thin compatibility wrappers may remain only after an equivalent shared operation exists. Custom user scripts remain custom and outside this migration unless explicitly brought into scope by a later PRD.
+- Selected-skill prose, references, examples, metadata, and routing may remain skill assets, but they never become the sole owner of deterministic Make Docs behavior. A first-party Skill ships no Python and no hand-written script. A file in a Skill `scripts/` folder is a generated bundle of CLI source under [PRD 08](08-skills-catalog-and-distribution.md) R-SKILL-BUNDLE-7. The Skill text is the agent form of each Skill check under R-SKILL-RUNTIME-7. Custom user scripts remain custom and outside this migration unless explicitly brought into scope by a later PRD.
 - Each retained operation exposes deterministic inputs, outputs, read-only or dry-run behavior where applicable, provenance, and error semantics shared by CLI and MCP. Modules align with operation domains and remain testable without the CLI parser or MCP transport.
 
 #### Performance Evidence Validation Twin
@@ -472,6 +473,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: each tool name derives from its CLI path under PRD 39 R-NAME-3, operations project to their PRD 39 R-TOP-1 group, the UAT paths are `make-docs check uat ...`, and the name catalog test fails an R-MCP-PROFILE line that names a former tool name.
 - Rationale: W33 R0 P2 derived every name from the CLI path, so the old text named a map and paths that no longer exist.
 - Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p4-shipped-text-and-skills).
+
+### 2026-11-23 — W34 R0
+
+- Affected requirement or section: new R-SKILL-RUNTIME-7 and `Domain and Script Classification`.
+- Previous contract: Skills could ship helper scripts beside the CLI, and thin compatibility wrappers could stay after an equivalent shared operation existed. No rule set the order of the MCP tool, the CLI command, and the agent form for a Skill check.
+- Replacement contract: a first-party Skill ships no Python and no hand-written script. A Skill check uses the MCP tool, then the CLI command, then the agent form by hand, and a manual result says so and uses `agent-reviewed`. Each check and its agent form share one rule ID list, and a test fails on a one-sided ID. The MCP profile membership of the four new tools (R-MCP-PROFILE-11) follows the name catalog entries that W34 R0 P1 adds.
+- Rationale: one home for Skill check logic (register D-064).
+- Source: [Skill scripts into the CLI design](../designs/2026-11-23-skill-scripts-into-the-cli.md) and [W34 R0 plan](../plans/2026-11-23-w34-r0-skill-scripts-into-the-cli/00-overview.md).
 
 ## Source Anchors
 

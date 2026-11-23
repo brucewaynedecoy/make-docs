@@ -49,6 +49,7 @@ Code anchors:
 - R-SKILL-BUNDLE-4 (MUST): clean managed upgrades resolve proved first-party identities from the new package even when older ownership records name remote sources. A matching third-party name is not proof of first-party identity. Preserve edited-content conflicts; do not require the old remote source to remain reachable.
 - R-SKILL-BUNDLE-5 (MUST): `factory-setup` sets up a factory workflow: it finds the person's agent tools, reads their instructions, interviews the person, wires roles by capability, runs one test task, and saves the result through the factory operations. `factory` runs one saved workflow that has passed its test task. The `factory` Skill has no profiles and no zero-config mode. When no ready workflow exists, it stops and names `factory-setup` as the next step. [PRD 53](53-factory-setup-and-orchestration.md) owns their behavior.
 - R-SKILL-BUNDLE-6 (MUST): neither factory Skill names an app, harness, provider, or multiplexer as a default or requirement. Both describe tools by capability.
+- R-SKILL-BUNDLE-7 (MUST): no first-party Skill ships a `.py` file, a `.pyc` file, or a `__pycache__` folder, and the registry declares no `.py` file. Each file in a Skill `scripts/` folder is a generated bundle of CLI source, and its bytes match a fresh build. Deterministic logic for a Skill check lives in a CLI operation, and the Skill text is its agent form under [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) R-SKILL-RUNTIME-7. When a managed Skill file leaves the registry, an update or `setup skills` removes an unchanged installed copy and keeps a changed copy as a conflict for review.
 
 ### Explicit Selected-Skill Model
 
@@ -70,7 +71,7 @@ Code anchors:
 - Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
 - A trusted built-in first-party selection for the former `software-factory` name migrates to `factory`. The shared planner installs the new managed path and removes the old path only when its recorded ownership and live bytes still match. Alternate Skill manifests do not receive this name migration.
 - Proposed future harness adapters or model routes do not add current Skill install targets or change the `selectedSkills` contract. [PRD 28](./28-shared-agentics-installation-and-harness-exposure.md) owns static adapter declarations, and [PRD 50](./50-proportionate-testing-and-human-centered-validation.md) owns direct installed-product test selection.
-- Selected skills may install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source under [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md).
+- Selected skills may install prose, references, examples, and metadata, but deterministic make-docs logic must be available from the CLI package/shared-core boundary rather than depending on remote or skill-local script payloads as the only executable source under [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md). A skill-local `scripts/` file is only a generated bundle of CLI source under R-SKILL-BUNDLE-7.
 - The built-in registry is the default skills manifest, purpose ids are stable selection metadata, alternate manifests are explicit inputs, and `selectedSkills` plus `skillFiles` remain executable and ownership state.
 - The executable selected-skill set comes from `selectedSkills`, while ownership records connect that selection to canonical shared payloads, symlink exposures, managed copy mirrors, legacy generated stubs, source-manifest provenance, exposure mode, scope, and migrated duplicate-payload status under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
 - `--selected-skills all` and Skills UI flows select only entries in the effective Skills manifest. They never install plugins, hooks, extensions, workflow bundles, or another agentic artifact class; [30-plugin-substrate-and-workflow-bundles.md](./30-plugin-substrate-and-workflow-bundles.md) owns the current extensibility boundary.
@@ -229,6 +230,8 @@ Implementation must prove:
 - every Unassisted Goal Testing shim delegates to a typed CLI operation and contains no duplicated policy or business logic
 - full setup and `setup skills` produce the same interaction frames and key results for fresh, existing, empty, all-selected, partial, cancel, and changed-selection cases
 - an extracted CLI package produces the same Skills interaction as the source test path and can apply a valid reviewed Skill change from full setup
+- the packed CLI embeds no `.py` file, and a guard test fails on a `.py` file, a `.pyc` file, a `__pycache__` folder, a registry `.py` entry, or a Skill `scripts/` file that does not match a fresh build
+- an update removes each unchanged installed copy of a Skill file that left the registry and keeps a changed copy as a conflict
 
 ## Rebuild Notes
 
@@ -340,6 +343,14 @@ A rebuild must preserve explicit selected-Skill semantics, manifest provenance a
 - Replacement contract: The catalog contains nine first-party Skills. `factory-setup` sets up and proves a workflow. `factory` runs a saved, proved workflow. Both are explicit-invocation-only and tool-agnostic. Profiles are removed.
 - Rationale: The old Skill rarely worked in practice because it had no saved setup, queue, wake method, or human channel.
 - Source: [Factory design](../designs/2026-11-21-factory.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
+
+### 2026-11-23 — W34 R0
+
+- Affected requirement or section: new R-SKILL-BUNDLE-7; `Explicit Selected-Skill Model`; Validation Boundary.
+- Previous contract: three first-party Skills shipped seven Python files and one compiled `.pyc` file, and `backlog-review` shipped two hand-written scripts beside two generated bundles.
+- Replacement contract: no first-party Skill ships Python. A Skill `scripts/` file is a generated bundle of CLI source whose bytes match a fresh build. Validation proves that the packed CLI embeds no `.py` file and that an update removes unchanged old copies.
+- Rationale: the owner's rule of 2026-11-22 puts deterministic logic in the CLI, and design OD-1 option A gives the backlog-review scripts one home in CLI source (register D-064).
+- Source: [Skill scripts into the CLI design](../designs/2026-11-23-skill-scripts-into-the-cli.md) and [W34 R0 plan](../plans/2026-11-23-w34-r0-skill-scripts-into-the-cli/00-overview.md).
 
 ## Source Anchors
 
