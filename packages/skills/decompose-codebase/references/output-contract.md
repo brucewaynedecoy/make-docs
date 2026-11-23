@@ -173,3 +173,83 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Make sure every internal link resolves.
 - Use the PRD index and backlog index as navigation entry points.
 - Archived PRD docs do not need to satisfy the active PRD link contract.
+
+## Check Rules
+
+This list is the agent form of the Make Docs decomposition output check. The `check_decomposition` MCP tool and the `make-docs check decomposition` command check the same rules, and each finding names one of these rule IDs. When neither one is available, check each rule by hand, name the rule ID of each problem, and say that the result is a manual review with the proof state `agent-reviewed`. A change to a rule here needs the same change in the check, and the reverse.
+
+Notes for a manual review:
+
+- A PRD file is a reference document when its path holds `reference`, `api`, `schema`, `config`, `configuration`, `contracts`, or `data-model`. Any other numbered PRD file from `05` is a subsystem document. The five core files have their own sections. The section lists are in [Section Contracts](#section-contracts).
+- An anchor section is each required section except `## Purpose`. In `00-index.md` and `04-glossary.md`, only `## Source Anchors` is an anchor section.
+- A code anchor is inline code that holds a `/` or a `\`, or that ends in a file extension with an optional `:line`, such as `src/main.ts:42` or `package.json`.
+- Skip text inside code fences and inline code when you look for links. Skip a link that starts with `#` or `mailto:`, or that holds `://`. Drop a `#fragment` before you check that the file exists.
+- Skip `AGENTS.md`, `CLAUDE.md`, and names that start with a dot. Do not check archived PRD sets as active PRDs.
+
+PRD tree:
+
+| Rule ID | Rule |
+| --- | --- |
+| `decomposition.prd.root-missing` | The project has a docs/prd folder. |
+| `decomposition.prd.core-file-missing` | docs/prd holds the five core files 00-index.md to 04-glossary.md. |
+| `decomposition.prd.legacy-archive` | docs/prd has no archive folder. Archived PRD sets live in .make-docs/archive/prds/. |
+| `decomposition.prd.root-non-markdown` | Each file in the docs/prd root is a Markdown file. |
+| `decomposition.prd.file-name` | Each PRD file name is NN-slug.md. |
+| `decomposition.prd.duplicate-prefix` | No two top-level PRD files or folders share a number. |
+| `decomposition.prd.file-prefix-range` | A top-level PRD file number is 00 to 04, or 05 to 97. |
+| `decomposition.prd.backlog-in-prd` | Rebuild backlog files live under docs/work, not docs/prd. |
+| `decomposition.prd.folder-name` | Each PRD subfolder name is NN-slug. |
+| `decomposition.prd.folder-prefix-range` | A PRD subfolder number is 05 to 97. |
+| `decomposition.prd.nested-too-deep` | A PRD subfolder holds no folders. |
+| `decomposition.prd.nested-non-markdown` | A PRD subfolder holds only Markdown files. |
+| `decomposition.prd.nested-file-name` | Each file in a PRD subfolder is named NN-slug.md. |
+| `decomposition.prd.section-missing` | Each PRD document has the required `##` sections for its kind: core, subsystem, or reference. |
+| `decomposition.prd.anchor-missing` | Each anchor section of a PRD document holds a code anchor, such as a backticked path. |
+
+PRD archive:
+
+| Rule ID | Rule |
+| --- | --- |
+| `decomposition.archive.not-directory` | .make-docs/archive/prds is a folder. |
+| `decomposition.archive.loose-file` | .make-docs/archive/prds holds only dated folders, not files. |
+| `decomposition.archive.unexpected-entry` | .make-docs/archive/prds holds only folders. |
+| `decomposition.archive.folder-name` | Each archive folder name is YYYY-MM-DD or YYYY-MM-DD-XX. |
+
+Work backlog:
+
+| Rule ID | Rule |
+| --- | --- |
+| `decomposition.work.root-missing` | The project has a docs/work folder. |
+| `decomposition.work.no-backlog` | docs/work holds at least one backlog folder. |
+| `decomposition.work.loose-file` | Each backlog in docs/work is a folder, not a file. |
+| `decomposition.work.folder-name` | Each backlog folder name is YYYY-MM-DD-wW-rR-slug. |
+| `decomposition.work.index-missing` | Each backlog folder holds 00-index.md. |
+| `decomposition.work.section-missing` | A backlog index has Purpose, Phase Map, and Usage Notes. A phase file has Purpose, Overview, and Source PRD Docs. |
+| `decomposition.work.nested-folder` | A backlog folder holds no folders. |
+| `decomposition.work.non-markdown` | A backlog folder holds only Markdown files. |
+| `decomposition.work.phase-file-name` | Each phase file name is NN-slug.md, from 01. |
+| `decomposition.work.no-phase-file` | Each backlog folder holds at least one phase file. |
+| `decomposition.work.no-valid-backlog` | docs/work holds at least one backlog folder with a valid name. |
+| `decomposition.work.unexpected-entry` | docs/work holds only backlog folders. |
+| `decomposition.work.stage-missing` | Each phase file has at least one `## Stage` section. |
+| `decomposition.work.stage-subsection-missing` | Each stage has Tasks, Acceptance criteria, and Dependencies subsections. |
+
+Tasks and acceptance criteria:
+
+| Rule ID | Rule |
+| --- | --- |
+| `decomposition.task-id.no-task` | Each stage lists at least one task. |
+| `decomposition.task-id.line-format` | Each task line is `- [ ] TN: ...` or `- [x] TN: ...`. The task ID letter may be t or T. |
+| `decomposition.task-id.duplicate` | No two tasks in a phase share a task ID. The case of the task ID letter does not matter. |
+| `decomposition.task-id.sequence` | Task IDs count up from T1 across all stages of a phase, with no gap or reset. |
+| `decomposition.acceptance.empty` | Each stage lists at least one acceptance criterion. |
+| `decomposition.acceptance.checkbox` | Acceptance criteria are plain bullets, not checkboxes. |
+| `decomposition.acceptance.task-id` | Acceptance criteria do not start with a task ID. |
+| `decomposition.acceptance.bullet` | Each acceptance criterion is a plain `- ...` bullet. |
+
+Links:
+
+| Rule ID | Rule |
+| --- | --- |
+| `decomposition.link.escapes-root` | A relative link in docs/prd or docs/work stays inside the project. |
+| `decomposition.link.broken` | A relative link in docs/prd or docs/work points to a file or folder that exists. |

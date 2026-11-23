@@ -179,9 +179,9 @@ describe("skill catalog", () => {
     expect(archiveSharedPayload?.content).toContain(
       "./references/archive-workflow.md",
     );
-    expect(archiveSharedPayload?.content).toContain(
-      "./scripts/trace_relationships.py",
-    );
+    // W34 R0 P2: the Skill text names the relations command, not a script.
+    expect(archiveSharedPayload?.content).not.toContain("scripts/");
+    expect(archiveSharedPayload?.content).toContain("project_relations_list");
     expect(archiveSkillForClaude?.kind).toBe("skill-exposure");
     expect(archiveSkillForClaude?.skillExposure).toMatchObject({
       harness: "claude-code",

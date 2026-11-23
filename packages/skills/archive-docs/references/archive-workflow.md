@@ -19,25 +19,36 @@ Tracing supplies evidence; it does not approve a move or expand the requested sc
 
 ## Relationship Tracing
 
+The steps in this section are the agent form of the Make Docs relationship trace. The `project_relations_list` MCP tool and the `make-docs project relations list` command find the same relations and name each one by the same kind ID. Use the tool or the command when you can. Follow these steps by hand only when neither one is available, and then say that the result is a manual review with the proof state `agent-reviewed`. A change to a kind here needs the same change in the trace, and the reverse.
+
+| Kind ID | Relation |
+| --- | --- |
+| `relations.markdown-link` | A Markdown link in one artifact to another: work to plan, plan to design, and back. |
+| `relations.related-front-matter` | An entry in the `related:` list of a guide's front matter. |
+| `relations.history-coordinate` | A history record and a plan or work backlog with the same W/R coordinate. |
+| `relations.same-slug` | Two artifacts whose names have the same slug after the date and W/R parts. It is a guess, not a link. |
+
+The artifacts are designs in `docs/designs/`, plans in `docs/plans/`, work backlogs in `docs/work/`, history records in `.make-docs/archive/history/`, and guides in each effective `docs/assets/<persona-slug>/`. Read only the guide folders of configured Personas. Do not read a reserved folder such as `project`. Name each other folder that you skip. Drop a `#fragment` from a link before you match it.
+
 ### Upstream Tracing
 
-- **Work backlog** — scan `00-index.md` and phase files for links into `docs/plans/`.
-- **Plan** — scan `00-overview.md` for links into `docs/designs/`.
-- **History record** — read `coordinate` frontmatter; find the matching plan and work directory sharing the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
+- **Work backlog** (`relations.markdown-link`) — scan `00-index.md` and phase files for links into `docs/plans/`.
+- **Plan** (`relations.markdown-link`) — scan `00-overview.md` for links into `docs/designs/`.
+- **History record** (`relations.history-coordinate`) — read `coordinate` frontmatter; find the matching plan and work directory sharing the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing. Match the whole number: `w2-r1` does not match `w2-r10`.
 
 ### Downstream Tracing
 
-- **Design** — scan `docs/plans/` for overview files linking back to the design.
-- **Plan** — scan `docs/work/` for index files linking back to the plan.
-- **Plan/Work** — scan `.make-docs/archive/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
+- **Design** (`relations.markdown-link`) — scan `docs/plans/` for overview files linking back to the design.
+- **Plan** (`relations.markdown-link`) — scan `docs/work/` for index files linking back to the plan.
+- **Plan/Work** (`relations.history-coordinate`) — scan `.make-docs/archive/history/` for history records whose `coordinate` matches the same wave/revision. If older moved records do not have `coordinate`, fall back to W/R/P filename parsing.
 
 ### Lateral Tracing
 
-- **Any artifact** — scan each effective `docs/assets/<persona-slug>/` for guides with `related` frontmatter pointing to the artifact.
+- **Any artifact** (`relations.related-front-matter`) — scan each effective `docs/assets/<persona-slug>/` for guides with `related` frontmatter pointing to the artifact.
 
 ### Slug-Based Heuristic
 
-When link-based tracing produces no results, fall back to slug matching. A plan with slug `guide-structure-contract` is likely related to a design with the same slug. Use slug matches as candidates, not certainties — always present them for confirmation.
+`relations.same-slug`: when two artifacts share a slug and no traced relation already joins them, record a slug match. A plan with slug `guide-structure-contract` is likely related to a design with the same slug. Use slug matches as candidates, not certainties — always present them for confirmation.
 
 ## Interview Flow
 

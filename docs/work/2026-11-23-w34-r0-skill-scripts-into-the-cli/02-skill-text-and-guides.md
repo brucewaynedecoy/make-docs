@@ -54,11 +54,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T1: `decompose-codebase`: replace `scripts/validate_output.py` with `check_decomposition` or `make-docs check decomposition`. Keep `references/output-contract.md` as the agent form and give each rule its P1 ID. Remove every step that runs `probe_environment.py`. Tell the agent to list the MCP tools and the subagent or parallel agent tools that its session gives it, and to write them in the plan. Under PD-1 option A, describe tools by capability, such as "a document index tool" and "a code index tool", and remove the MCP server names from `mcp-playbook.md`, `planning-workflow.md`, `execution-workflow.md`, and `harness-capability-matrix.md`.
-- [ ] T2: `archive-docs`: replace the optional `trace_relationships.py` helper with `project_relations_list` or `make-docs project relations list`. Keep the manual tracing steps in `references/archive-workflow.md` as the agent form, with the P1 relation kind IDs.
-- [ ] T3: `cleanup-docs`: keep the flow of check, review a sample, then repair only when the sample is clean. Use `project_markdown_validate` and `project_markdown_repair`, or their CLI commands. Keep the formatting rules in `SKILL.md` as the agent form, with the P1 rule IDs.
-- [ ] T4: In all three Skills, write the no-CLI path: the agent says that the result is a manual review, uses the proof state `agent-reviewed`, and does not claim that a Make Docs check ran. It installs nothing without consent. A manual repair needs the person's agreement first.
-- [ ] T5: Add a twin test that reads each operation's rule list and the Skill text, and fails when a rule ID exists on one side only.
+- [x] T1: `decompose-codebase`: replace `scripts/validate_output.py` with `check_decomposition` or `make-docs check decomposition`. Keep `references/output-contract.md` as the agent form and give each rule its P1 ID. Remove every step that runs `probe_environment.py`. Tell the agent to list the MCP tools and the subagent or parallel agent tools that its session gives it, and to write them in the plan. Under PD-1 option A, describe tools by capability, such as "a document index tool" and "a code index tool", and remove the MCP server names from `mcp-playbook.md`, `planning-workflow.md`, `execution-workflow.md`, and `harness-capability-matrix.md`.
+- [x] T2: `archive-docs`: replace the optional `trace_relationships.py` helper with `project_relations_list` or `make-docs project relations list`. Keep the manual tracing steps in `references/archive-workflow.md` as the agent form, with the P1 relation kind IDs.
+- [x] T3: `cleanup-docs`: keep the flow of check, review a sample, then repair only when the sample is clean. Use `project_markdown_validate` and `project_markdown_repair`, or their CLI commands. Keep the formatting rules in `SKILL.md` as the agent form, with the P1 rule IDs.
+- [x] T4: In all three Skills, write the no-CLI path: the agent says that the result is a manual review, uses the proof state `agent-reviewed`, and does not claim that a Make Docs check ran. It installs nothing without consent. A manual repair needs the person's agreement first.
+- [x] T5: Add a twin test that reads each operation's rule list and the Skill text, and fails when a rule ID exists on one side only.
 
 Edit only `packages/skills/`. Do not edit any `scripts/` folder in this phase. This repository has no installed copy of these three Skills, so no dogfood Skill copy changes.
 
@@ -76,8 +76,8 @@ Edit only `packages/skills/`. Do not edit any `scripts/` folder in this phase. T
 
 ### Tasks
 
-- [ ] T6: Change the shipped guides that name Skill helper scripts, under PRD 39 R-NAME-6: `docs/assets/maintainer/skills-catalog-and-distribution-model.md` and `docs/assets/user/skills-decomposing-an-existing-codebase.md`. Check the other Skill guides under `docs/assets/user/` and `docs/assets/maintainer/` too.
-- [ ] T7: Check that each Skill still works alone under PRD 08 R-SKILL-BUNDLE-2.
+- [x] T6: Change the shipped guides that name Skill helper scripts, under PRD 39 R-NAME-6: `docs/assets/maintainer/skills-catalog-and-distribution-model.md` and `docs/assets/user/skills-decomposing-an-existing-codebase.md`. Check the other Skill guides under `docs/assets/user/` and `docs/assets/maintainer/` too.
+- [x] T7: Check that each Skill still works alone under PRD 08 R-SKILL-BUNDLE-2.
 
 No template change: no file in `packages/docs/template/` names these scripts. If a task changes a shipped system resource after all, write it first in `packages/docs/template/`, then copy it byte for byte to this repository's `.make-docs/` or `docs/`.
 
@@ -91,10 +91,12 @@ No template change: no file in `packages/docs/template/` names these scripts. If
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing `selected` and done: `packages/cli/tests/w34-r0-p2-skill-check-twins.test.ts` (15 tests) checks the shared rule IDs of each Skill and its operation, the MCP tool, CLI command, manual review order, the manual-review wording, no script path in the three Skills, and no MCP server name in `decompose-codebase`. Its fixture cases fail on an ID in the operation only and on an ID in the Skill text only. The shipped-text test, the Skill registry, catalog, embedded, byte, and install tests pass. Performance Testing `not-needed-now`: text changes only. Guided Progress Review `not-needed-now`: P5 reviews the Skill text. Unassisted Goal Testing `not-needed-now`.
+- Performance evidence: none needed. No measurement was taken.
+- Human Experience Review: not done in this phase. P5 reviews the Skill text in its Human Experience Review.
+- Owner decision PD-1 option A: done. The `decompose-codebase` text names tools by capability ("a document index tool", "a code index tool") and names no MCP server. The same wording replaced the two server names in `archive-docs/SKILL.md`, because the design says that the Skill text names no MCP server.
+- Recorded change outside the task text: two older tests (`install.test.ts`, `skill-catalog.test.ts`) expected the `archive-docs` `SKILL.md` to link its script. They now expect no `scripts/` path and the relations command or tool.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: none in this phase. P5 holds the Wave gate.
+- Evidence report: [P2 Skill Text and Guides](evidence.md#p2-skill-text-and-guides).
+- Phase / capability status: implementation complete and uncommitted, on `83073f13`. A9 to A12 have automated evidence. P4 removes the Python files and the registry entries.

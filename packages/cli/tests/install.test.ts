@@ -1124,12 +1124,14 @@ describe("installer integration", () => {
 
         for (const relativeLink of [
           "./references/archive-workflow.md",
-          "./scripts/trace_relationships.py",
           "./agents/openai.yaml",
         ]) {
           expect(contents).toContain(`(${relativeLink})`);
           expect(existsSync(path.join(path.dirname(skillPath), relativeLink))).toBe(true);
         }
+        // W34 R0 P2: the Skill text names the relations command, not a script.
+        expect(contents).not.toContain("scripts/");
+        expect(contents).toContain("make-docs project relations list");
       }
 
       // The four D-020 lifecycle skills are withdrawn from the shipped

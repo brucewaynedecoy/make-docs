@@ -6,11 +6,10 @@ Use this workflow to produce a reviewable decomposition plan before generating d
 
 ## Preflight
 
-1. Run `scripts/probe_environment.py --format json`.
+1. List the tools that this session gives you: the MCP tools, such as a document index tool, a code index tool, and the Make Docs tools, and the subagent or parallel agent tools. Config files do not prove that the session has a tool.
 2. Inspect the repo root, current doc folders, any existing decomposition artifacts, and whether `docs/prd/` already contains active root entries. Archived PRD sets live under `.make-docs/archive/prds/YYYY-MM-DD/`.
 3. If an active PRD set exists, determine whether the request is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Do not infer replacement authority from the presence of existing PRDs.
-4. Confirm whether live session MCP access is actually available.
-5. If `jdocmunch` or `jcodemunch` are visible in the session, index docs and code before planning the catalog.
+4. If the session has a document index tool or a code index tool, index docs and code before planning the catalog.
 
 ## Planning Goals
 
@@ -24,7 +23,7 @@ Produce a plan that makes the execution step decision-complete. The plan should 
 - the delegation tier and workstream split for execution
 - the coordinator role and write scope
 - the backlog placement under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`
-- the validation pass and any follow-up review
+- the output check and any follow-up review
 
 ## User Preference Questions
 
@@ -48,8 +47,8 @@ Start from `assets/templates/decomposition-plan.md` and use it as the overview c
 - coordinator policy and delegation tier
 - adaptive document catalog
 - worker ownership, write scopes, and dependencies
-- MCP strategy and fallback strategy
-- validation and review steps
+- the session tool list, the index tool strategy, and the fallback strategy
+- the output check and review steps
 
 ## File Writing Rule
 
@@ -101,10 +100,10 @@ Before leaving planning mode, make the execution prerequisites explicit:
 
 - approved plan exists
 - the user has not necessarily approved execution yet
-- MCP availability has been confirmed or fallback is accepted
+- the session tool list is in the plan, and a missing index tool is accepted
 - target output paths are fixed
 - execution should use the delegation ladder by default: parallel agents, then subagents, then single-agent fallback
 - if delegation is available, the coordinator write scope is `none`
 - if `docs/prd/` already has active root entries, archival approval is required before execution can write the new PRD set
 - workstreams are disjoint
-- validation step is mandatory
+- the output check is mandatory: the `check_decomposition` MCP tool, else `make-docs check decomposition`, else a manual review of the `## Check Rules` in `references/output-contract.md`

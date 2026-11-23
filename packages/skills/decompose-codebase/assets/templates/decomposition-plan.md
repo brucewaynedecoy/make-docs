@@ -65,11 +65,12 @@ List the delegated workers, their scopes, write scopes, dependencies, and delive
 - Include a dedicated validation/fix worker when the harness can support it.
 - The coordinator should not appear as the owner of any document-writing task when delegation is available.
 
-## MCP Strategy
+## Session Tools
 
-- Preferred servers available: {{MCP_STATUS}}
-- Fallback plan if unavailable: {{FALLBACK_PLAN}}
+- MCP tools that this session lists, by capability (document index, code index, Make Docs): {{SESSION_MCP_TOOLS}}
+- Agent tools that this session lists (parallel agents, subagents, or none): {{SESSION_AGENT_TOOLS}}
+- Fallback plan for a missing tool: {{FALLBACK_PLAN}}
 
-## Validation
+## Output Check
 
-Explain how the execution step will validate the generated outputs and which review pass happens at the end.
+Explain how the execution step will check the generated outputs: the `check_decomposition` MCP tool, else `make-docs check decomposition`, else a manual review of the `## Check Rules` in the output contract, labeled as a manual review with the proof state `agent-reviewed`. Name the review pass at the end.

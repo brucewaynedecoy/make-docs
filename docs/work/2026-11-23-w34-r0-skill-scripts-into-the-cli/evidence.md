@@ -414,7 +414,61 @@ All commands ran in `packages/cli` or the repository root with a temporary `MAKE
 
 ## P2 Skill Text and Guides
 
-Covers A9 to A12 in [P2](02-skill-text-and-guides.md). Not started.
+Covers A9 to A12 in [P2](02-skill-text-and-guides.md). Evidence date: 2026-11-23. Base commit: `83073f13` on `docs/w29-w30-work-store-and-factory`. The work is uncommitted.
+
+### What Changed
+
+| Skill | Files | Change |
+| --- | --- | --- |
+| `decompose-codebase` | `SKILL.md`, `references/output-contract.md`, `references/planning-workflow.md`, `references/execution-workflow.md`, `references/mcp-playbook.md`, `references/harness-capability-matrix.md`, `assets/README.md`, `assets/templates/decomposition-plan.md` | The output check uses `check_decomposition`, then `make-docs check decomposition`, then a manual review of a new `## Check Rules` list in the output contract with all 43 `decomposition.` rule IDs. The probe step is gone: the agent lists the MCP tools and agent tools of its own session and writes them in the plan (OD-2). The plan template has `## Session Tools` and `## Output Check` in place of `## MCP Strategy` and `## Validation`. Tools are named by capability, and no MCP server is named (PD-1). |
+| `archive-docs` | `SKILL.md`, `references/archive-workflow.md` | A new `## Relationship Tracing` section uses `project_relations_list`, then `make-docs project relations list`, then the manual steps. The manual steps carry the four `relations.` kind IDs, a kind table, the Persona folder skip, the `#fragment` rule, and whole-number W/R matching. The two index server names became capability words. |
+| `cleanup-docs` | `SKILL.md` | A new `## Check and Repair` section uses `project_markdown_validate` and `project_markdown_repair`, then the `make-docs project markdown validate` and `repair` commands, then a manual review. The flow stays: check, review a sample, then repair only when the sample is clean, with a preview before `--apply`. A `## Formatting Rules` table holds the three `markdown-style.` rule IDs. A manual repair needs the person's agreement. The text names the router and managed-block skips. |
+
+Each of the three manual paths says that the result is a manual review, uses the proof state `agent-reviewed`, does not say that a Make Docs check ran, and installs nothing without the person's consent. A sample, from `decompose-codebase/SKILL.md`:
+
+> 1. MCP tool: when the session has the Make Docs `check_decomposition` tool, call it for the repository root.
+> 2. CLI: otherwise run `make-docs check decomposition --target-root <repo-root>`.
+> 3. Manual review: otherwise check each rule in the `## Check Rules` section of [references/output-contract.md](./references/output-contract.md) by hand. Name the rule ID of each problem that you find.
+>
+> A manual result says that it is a manual review and uses the proof state `agent-reviewed`. It does not say that a Make Docs check ran. Do not install the CLI or any other tool without the person's consent.
+
+Guides (T6): `docs/assets/maintainer/skills-catalog-and-distribution-model.md` no longer lists helper scripts. It names the MCP, CLI, and manual order and the twin rule. `docs/assets/user/skills-decomposing-an-existing-codebase.md` names index tools by capability and has a new `## Output check` section. No other guide under `docs/assets/user/` or `docs/assets/maintainer/` names a removed script. Files under `docs/assets/project/` that name the scripts are project content, not shipped guides: dated records (an audit, design prompts, a migration inventory, and retired local state) and one planned-restructure note (`evolution-direction-structure.md`). They keep the names they recorded. No file in `packages/docs/template/` changed. This repository has no installed copy of the three Skills.
+
+### Twin Test (A10, A11)
+
+`packages/cli/tests/w34-r0-p2-skill-check-twins.test.ts` imports `DECOMPOSITION_RULE_IDS`, `RELATION_KIND_IDS`, and `MARKDOWN_STYLE_RULE_IDS` and reads every Markdown file of each Skill outside `scripts/`. It collects the inline-code IDs with the operation's prefix and fails when an ID exists on one side only. For each Skill it also checks:
+
+- `SKILL.md` names the MCP tool, then the CLI command, then a `Manual review:` step, in that order, with each tool and command of the pair.
+- `SKILL.md` says that a manual result is a manual review, names `agent-reviewed`, says that it does not claim a Make Docs check ran, and installs nothing without consent.
+- No Markdown or YAML file of the Skill outside `scripts/` holds a `.py` name or a `scripts/` path (A9).
+- `decompose-codebase` names no `jdocmunch`, `jcodemunch`, or `probe_environment` (PD-1).
+
+Fixture cases prove the comparison: it passes on equal sides, reports `fixture.beta` on a fixture with that ID in the operation only, reports `fixture.gamma` on a fixture with that ID in the Skill text only, and reads only inline code with the prefix. A live break also fails it: renaming `markdown-style.list-continuation-wrap` in `cleanup-docs/SKILL.md` gave `operationOnly: ["markdown-style.list-continuation-wrap"]` and `skillOnly: ["markdown-style.list-wrap"]`, and the file was restored.
+
+### Standalone Check (T7)
+
+A link scan of the three Skills found no relative link that leaves the Skill folder, points to a missing file, or points to a file that `packages/cli/skill-registry.json` does not declare. The new text names only CLI commands and MCP tools, which need no maintainer checkout, and the manual paths need no tool.
+
+### Commands and Results
+
+All commands ran in `packages/cli` or the repository root with a temporary `MAKE_DOCS_HOME`. No run read or wrote the real Store.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npm run build`: passed.
+- `npx vitest run tests/w34-r0-p2-skill-check-twins.test.ts`: 15 tests passed.
+- `npx vitest run` on the twin, shipped-text, Skill registry, catalog, embedded, byte, layout, install, consistency, name catalog, and P1 test files: 12 files and 330 tests passed, after one fix. The first run failed one consistency case, because the copied `decomposition.task-id.duplicate` text held a lowercase task ID. The Skill text now says that the letter case does not matter.
+- `npm run validate:defaults -w packages/cli`: 3 files and 53 tests passed.
+- Full suite, `npx vitest run --reporter=json`, counted from the JSON: 3030 tests: 3019 passed, 5 failed, 6 skipped. The 5 failures are known or load-related: `mcp-app-contract` (2, a Node deprecation warning on stderr), `p5-migration-safety` fixture 11 (sandbox only), and two 15-second timeouts under load, one in `cli.test.ts` and one in `backup.test.ts`. Each of the two timed-out cases passed when run alone.
+- `make-docs project paths validate --target .`: valid, 0 failing findings.
+- `make-docs check prd --target-root .`: 0 diagnostics.
+- `bash scripts/check-instruction-routers.sh`: passed, outside the sandbox.
+- `make-docs project markdown validate` on the three Skills and the two guides: 5 findings in 4 files. The same 5 findings are in the `83073f13` copies of the same files, so P2 adds none. The new `cleanup-docs` text does not quote the managed-block marker, so the check does not skip that file.
+
+### Limits
+
+- `packages/skills/README.md` step 3 still says that deterministic helpers go in `scripts/`. P4 changes it, as the design's migration step 6 says.
+- The Python files, their registry entries, and the closeout `python3` commands stay until P4.
+- The twin test checks rule IDs, not rule wording. The `relations.` rule text in the Skill matches the operation descriptions word for word, and the `decomposition.` text does too except `decomposition.task-id.duplicate`, which avoids a lowercase task ID that the consistency test bans. The `markdown-style.` text is close but not equal.
 
 ## P3 Backlog-Review Bundles
 
@@ -504,3 +558,12 @@ Covers A20 to A22 in [P5](05-acceptance.md). Not started.
   - `.gitattributes` pins `packages/skills/backlog-review/scripts/*.mjs` to LF, so a Windows checkout keeps the bytes that the byte-match test expects.
 - Open: T7 and A15, the installed copy under `.agents/skills/backlog-review/`. It still has the two older hand-written scripts, which behave the same as the generated ones (124 builder cases and 30 reviewer cases matched). Running `setup skills` now would either install the released 2.0.9 Skill or move the maintainer Store to the unreleased schema v8, so the owner decides how and when it is refreshed.
 - Follow-up: `esbuild` is held only by the lockfile (through `tsup` and `tsx`). A new patch version can change bundle bytes until someone rebuilds with `node packages/cli/scripts/build-backlog-presentation.mjs --all`.
+
+### P2 Integration
+
+- Review result: needs one medium fix, made at integration with five low fixes.
+  - `cleanup-docs` now says that a planned MCP repair needs `allowWrite: true` without `apply`, and that a write adds `apply: true`. The registry refuses a write operation without `allowWrite: true`, even for a preview.
+  - `archive-docs` no longer names vendor delegation tools. `decompose-codebase` no longer gives `rg` as an example. The `archive-docs` workflow says to read only configured Persona guide folders and never a reserved folder such as `project`.
+  - The twin test's no-server guard now covers all three Skills and also refuses `spawn_agent`.
+  - The guides note above now names the planned-restructure note under `docs/assets/project/`.
+- Accepted as is: `decompose-codebase/references/harness-capability-matrix.md` names harnesses in its rows. It sets no default, so it stays.

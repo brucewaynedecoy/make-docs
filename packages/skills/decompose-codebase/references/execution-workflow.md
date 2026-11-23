@@ -15,13 +15,12 @@ If neither exists, switch back to planning mode.
 
 ## Preflight
 
-1. Re-run `scripts/probe_environment.py --format json`.
-2. Confirm live MCP access for the current session.
-3. If available, index docs with `jdocmunch` and code with `jcodemunch`.
-4. Determine the highest usable delegation tier for the current session: parallel agents, then subagents, then single-agent fallback.
-5. Re-check existing docs so you avoid duplicating or clobbering useful material.
-6. Inspect `docs/prd/` and determine whether active root entries already exist. Archived PRD sets live under `.make-docs/archive/prds/`.
-7. Confirm whether the approved task is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Ordinary maintenance preserves the active set and updates the owning authority in place.
+1. List the tools that this session gives you again: the MCP tools, such as a document index tool, a code index tool, and the Make Docs tools, and the subagent or parallel agent tools.
+2. If the session has them, index docs with the document index tool and code with the code index tool.
+3. Determine the highest usable delegation tier for the current session: parallel agents, then subagents, then single-agent fallback.
+4. Re-check existing docs so you avoid duplicating or clobbering useful material.
+5. Inspect `docs/prd/` and determine whether active root entries already exist. Archived PRD sets live under `.make-docs/archive/prds/`.
+6. Confirm whether the approved task is an explicit full-set decomposition/re-baseline or ordinary PRD maintenance. Ordinary maintenance preserves the active set and updates the owning authority in place.
 
 ## Delegation Ladder
 
@@ -53,7 +52,7 @@ If delegation is available, the coordinator must not:
 - author backlog docs
 - own shared-doc assembly
 - merge glossary or risk-register content itself
-- run validator-driven document fixes itself
+- run document fixes from output check findings itself
 - perform broad deep-dive reads that belong to a worker's authoring scope
 
 ## Full-Set Replacement Gate
@@ -88,14 +87,14 @@ If the harness supports delegated workers, do not postpone delegation until the 
 - Split work by subsystem or document family.
 - Keep write scopes disjoint.
 - Reserve final assembly, cross-linking, and validation for delegated workers, not the coordinator.
-- Tell each spawned agent to build its own MCP indexes in its own session before deep analysis.
+- Tell each spawned agent to list its own session tools and build its own indexes before deep analysis.
 
-## MCP Rules
+## Index Tool Rules
 
-- Use indexed retrieval instead of repeated raw-file reads when MCP tools are available.
+- Use indexed retrieval instead of repeated raw-file reads when the session has an index tool.
 - Index once per session, not once per question.
 - Re-index if the repo changes materially during a long execution.
-- If only one of `jdocmunch` or `jcodemunch` is available, still use it and fall back for the missing half.
+- If the session has only a document index tool or only a code index tool, still use it and fall back for the missing half.
 
 ## Existing Documentation Rule
 
@@ -128,11 +127,18 @@ If a fallback source is used, record which fallback was used and why.
 - In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] T1: ...`, `- [x] T1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
 - Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 
-## Final Validation
+## Final Output Check
 
-Before closing the task:
+Before closing the task, check the output. Use the first way that works:
 
-1. Run `scripts/validate_output.py --repo-root <repo-root>`.
-2. Resolve broken links, missing core docs, missing required headings, or misplaced backlog files.
-3. Confirm the PRD index reflects the final catalog.
-4. Confirm the backlog links to the relevant PRD docs.
+1. MCP tool: when the session has the Make Docs `check_decomposition` tool, call it for the repository root.
+2. CLI: otherwise run `make-docs check decomposition --target-root <repo-root>`.
+3. Manual review: otherwise check each rule in the `## Check Rules` section of `references/output-contract.md` by hand.
+
+A manual result says that it is a manual review and uses the proof state `agent-reviewed`. It does not say that a Make Docs check ran. Do not install the CLI or any other tool without the person's consent.
+
+Then:
+
+1. Fix each finding by its rule ID: broken links, missing core docs, missing required headings, misplaced backlog files, and task or acceptance shape. Check again until no finding is left.
+2. Confirm the PRD index reflects the final catalog.
+3. Confirm the backlog links to the relevant PRD docs.
