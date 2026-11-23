@@ -159,6 +159,7 @@ describe("W29 R0 P2 schema v8 migration (A5)", () => {
       work_claims: ["bounded"],
       work_sync_ledger: ["keep"],
       work_sync_conflicts: ["bounded"],
+      work_sync_checkouts: ["bounded"],
     });
   });
 

@@ -131,3 +131,25 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `none` — P4 decides the claim ID rule with the owner before any PRD change.
 - Owner approval: the review findings that the owner sent on 2026-11-23.
 - Source: [W29 R0 P2 evidence](evidence.md#p2-store-schema-and-records)
+
+### 2026-11-23 — W29 R0 P4
+
+- Kind: `edit`
+- Affected scope: P4 new T15, T16, T17, T18, and T19.
+- Previous scope: P4 had no task for the settle flags that the conflict report names, for store edits that the writer cannot write, for wave readiness, for a file edit that closes a claimed unit, or for the source of the sync write hold list.
+- Replacement scope: P4 builds the `work sync --settle` flags, decides the file form of refused store edits, gives wave units a readiness rule, decides with the owner how an imported close meets a live claim (P3 stops it as a conflict until then), and decides where the write hold list comes from.
+- Rationale: W29 R0 P3 built sync and the conflict report, and it and its independent review found these five open points.
+- PRD decision: `none` — P4 decides each point before any PRD change.
+- Owner approval: the owner's decisions on 2026-11-23 on the W29 R0 P3 evidence. T18 stays open: until then, a file edit that closes a claimed unit stops as a conflict.
+- Source: [W29 R0 P3 evidence](evidence.md#p3-parser-import-and-sync)
+
+### 2026-11-23 — W29 R0 P5
+
+- Kind: `edit`
+- Affected scope: P5 new T9.
+- Previous scope: the P5 agent form and rule catalog covered the PRD 52 sync rules up to R-WORK-SYNC-13.
+- Replacement scope: P5 adds R-WORK-SYNC-14 to R-WORK-SYNC-16 and the first-sync, copies-off, and phase-title edits to the rule catalog and the agent form, with parity fixtures.
+- Rationale: W29 R0 P3 added these rules to PRD 52 after the owner approved them, and the CLI form and the agent form must give the same answer.
+- PRD decision: `update-existing` — PRD 52 R-WORK-STORE-10, R-WORK-SYNC-9, R-WORK-SYNC-13, and new R-WORK-SYNC-14 to R-WORK-SYNC-16.
+- Owner approval: the owner's decisions on 2026-11-23.
+- Source: [W29 R0 P3 evidence](evidence.md#p3-parser-import-and-sync)

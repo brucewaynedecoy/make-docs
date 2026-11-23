@@ -61,6 +61,7 @@ export const STORE_TABLE_NAMES = [
   "work_claims",
   "work_sync_ledger",
   "work_sync_conflicts",
+  "work_sync_checkouts",
 ] as const;
 export type StoreTableName = (typeof STORE_TABLE_NAMES)[number];
 
@@ -701,6 +702,26 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     retention: "Delete when settled; rebuilt by the next sync.",
     decisionItems: [],
     humanMeaning: "Work files where both the file and the work store changed. They wait for you to pick a side.",
+  },
+  {
+    table: "work_sync_checkouts",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "first_synced_at"],
+    purpose: "Marks each checkout whose first work sync is done, so only that first sync imports without writing a file (R-WORK-SYNC-9).",
+    writers: ["work-store.ts markWorkSyncCheckout, at the end of a checkout's first work store sync"],
+    readers: ["work-store.ts readWorkSyncCheckout, for work store sync"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: "Work sync checkouts", classCell: "Store-cached and rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each checkout, enforced by the primary key. Removing a checkout removes its row. A lost row only makes the next sync of that checkout import without writing, and that sync writes the row again.",
+    }],
+    retention: "Retain while the checkout is bound; removing a checkout removes it.",
+    decisionItems: [],
+    humanMeaning: "Which folders have had their first work sync. A folder's first sync only reads its work files; later syncs write them.",
   },
 ]);
 

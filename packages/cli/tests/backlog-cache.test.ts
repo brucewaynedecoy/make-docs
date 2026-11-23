@@ -248,7 +248,7 @@ describe("backlog review cache", () => {
     }
     db.exec("DROP TABLE backlog_review_cache");
     db.exec("DROP TABLE IF EXISTS project_register");
-    for (const table of ["work_claims", "work_dependencies", "work_links", "work_sync_conflicts", "work_sync_ledger", "work_units"]) {
+    for (const table of ["work_claims", "work_dependencies", "work_links", "work_sync_checkouts", "work_sync_conflicts", "work_sync_ledger", "work_units"]) {
       db.exec(`DROP TABLE IF EXISTS ${table}`);
     }
     db.exec("DELETE FROM store_schema_journal WHERE schema_version>=6");

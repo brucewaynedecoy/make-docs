@@ -54,7 +54,7 @@ Code anchors:
 - R-WORK-STORE-7 (MUST): the repo copy follows the resource projection pattern in [PRD 06](06-template-contracts-and-generated-assets.md#resource-projection-ownership). The `work.projection` setting in project config holds the desired setting. Its default is `on`. The Store holds the last applied digest of each copied file.
 - R-WORK-STORE-8 (MUST): the repo copy uses the current `docs/work/` format, file names, and templates. A teammate without a Store, and an older Make Docs version, can read and edit the same files.
 - R-WORK-STORE-9 (MUST): Make Docs removes a repo copy only when its bytes still match the last applied digest. A changed copy is kept and reported.
-- R-WORK-STORE-10 (MUST): with `work.projection: off`, the store is the only record of that work in the checkout. `work status` says so plainly. `work export` writes the files on request.
+- R-WORK-STORE-10 (MUST): with `work.projection: off`, the store is the only record of that work in the checkout. `work status` says so plainly. `work export` writes the files on request. A copy that changed is imported, kept in that sync, and reported. Its last applied digest then matches it, so a later sync removes it, and the report says so.
 
 ### Two-way sync
 
@@ -68,11 +68,14 @@ Code anchors:
 - R-WORK-SYNC-8 (MUST): sync runs at the start of each work operation and work MCP tool. A person can also run `work sync`. Each result includes the sync outcome.
 - R-WORK-SYNC-11 (MUST): when a person deletes a repo copy that the store still holds, sync stops for that file and reports a conflict. Make Docs neither recreates the file nor drops its work silently. The settle choices are to restore the file from the store or to accept the deletion. An accepted deletion closes the file's units as superseded and marks their repo copy as removed. Every checkout then removes its unchanged copy and stops asking. A copy that a person changed is kept and reported.
 - R-WORK-SYNC-12 (MUST): a new work file with no store record is imported. A new store record with no file is written when the repo copy is on. When the store no longer has the work of a file that still exists, sync stops for that file, and Make Docs never deletes the file on its own. A state that normal sync cannot produce is reported as a conflict, so a person decides. Each conflict kind has its own two settle choices.
-- R-WORK-SYNC-13 (MUST): a dependency bullet that names coordinates becomes one dependency for each named unit. "P" or "Phase" with a number resolves inside the bullet's revision, and a bare stage or task resolves inside the bullet's phase. Ranges with "to", "through", or a dash, and lists joined by commas or "and", name each unit. Status words such as "complete", "accepted", or "unlocked" do not change the match. A coordinate that matches no unit is an unresolved dependency. "None", or "parallel with" a unit, means no dependency. A bullet that is only a file path or code span is a reference. A bullet that names no coordinate, or that names coordinates with a further condition, such as an owner approval, is a gate, and it holds its unit until the condition is recorded as met. A `### Dependencies` section belongs to the stage whose heading it sits under, or to the phase when it sits before the first stage.
+- R-WORK-SYNC-13 (MUST): a dependency bullet that names coordinates becomes one dependency for each named unit. "P" or "Phase" with a number resolves inside the bullet's revision, and a bare stage or task resolves inside the bullet's phase. Ranges with "to", "through", or a dash, and lists joined by commas or "and", name each unit. Status words such as "complete", "accepted", or "unlocked" do not change the match. A coordinate that matches no unit is an unresolved dependency. "None", or "parallel with" a unit, means no dependency. A bullet that is only a file path or code span is a reference. A bullet that names no coordinate, or that names coordinates with a further condition, such as an owner approval, is a gate, and it holds its unit until the condition is recorded as met. A bullet that names one unit and adds only that unit's own title, such as "Phase 1 trace and scope." for a phase titled "Phase 1: Trace and Scope", is a dependency: the title names the unit and adds no condition. A `### Dependencies` section belongs to the stage whose heading it sits under, or to the phase when it sits before the first stage.
+- R-WORK-SYNC-14 (MUST): when a state that the sync table reports as a conflict meets a file whose bytes equal what the store renders for it, nothing can be lost. Sync records the file as synced and reports no conflict. This also settles a recorded conflict once both sides hold the same work.
+- R-WORK-SYNC-15 (MUST): a work file that disappears from one backlog folder and appears in another with the same coordinate in the same sync, while the store has not changed its work, is a move, such as an archive move. Its units keep their store IDs, sync reports the move, and no deleted-file conflict is raised.
+- R-WORK-SYNC-16 (MUST): a unit that leaves its work file is deleted from the store only when it has no live claim and the store holds nothing about it that the file cannot show, such as a status other than its line shows (for example in progress), a met gate, or links from other documents. Each sync result names every deleted unit. Otherwise sync stops for that file as a conflict that names each unit and why. A file edit never closes a unit that has a live claim: sync stops that file as a conflict that names the unit, its claimant, and the claim's end time, and never shows the claim ID. Sync never changes the units of a file that waits for a person.
 
 ### First import
 
-- R-WORK-SYNC-9 (MUST): the first work operation on a checkout bound to a usable Store imports every existing backlog under `docs/work/` and `.make-docs/archive/work/`. Import writes no project file.
+- R-WORK-SYNC-9 (MUST): the first work operation on a checkout bound to a usable Store imports every existing backlog under `docs/work/` and `.make-docs/archive/work/`. Import writes no project file. The first sync of a checkout only imports: it writes and removes no project file, even when the store holds work that the checkout's files do not show. It reports each file that the next sync will write or remove. The Store records when a checkout's first sync is done, so every later sync of that checkout writes and removes files under the sync table, also for a checkout with no work file at all. Every later sync result names each file that it writes or removes.
 - R-WORK-SYNC-10 (MUST): import reports each imported record, each dependency bullet resolved to a unit, and each bullet it could not resolve. An unresolved bullet stays as text on its unit and keeps that unit out of the ready list until it is resolved.
 
 ### Work identity and units
@@ -149,6 +152,24 @@ The work store records units, dependencies, links, claims, the sync ledger, and 
 - Do not let a parse failure turn into a write. A file the parser cannot read stays as it is.
 - Claims are a safety guard, not a lock that lasts forever. An expired claim must not let a second agent send work that the first agent already sent.
 - The no-Store path must stay identical to today's behavior. It is the default for teammates without a Store.
+
+## Requirement History
+
+### 2026-11-23 — W29 R0 P3
+
+- Affected requirement or section: R-WORK-STORE-10, R-WORK-SYNC-9, R-WORK-SYNC-13, and new R-WORK-SYNC-14, R-WORK-SYNC-15, and R-WORK-SYNC-16.
+- Previous contract: first import wrote no project file, but a later first sync of another checkout could write files. Sync did not say what it does when both sides already hold the same bytes, when a backlog moves to the archive, or when a unit leaves its file. With copies off, a changed copy was kept and reported, with no word on what happens next. Any words beyond status words in a dependency bullet made it a gate, also a phase's own title.
+- Replacement contract: the first sync of a checkout only imports and reports what the next sync writes or removes, and every result names each file written or removed. Identical sides are recorded with no conflict. A move keeps store IDs. A unit that leaves its file is deleted and named only when it holds no live claim and nothing the file cannot show; otherwise its file stops as a conflict. A file edit never closes a claimed unit. A changed copy with copies off is imported, kept in that sync, and removed by a later sync, and the report says so. A bullet that adds only the named unit's own title is a dependency.
+- Rationale: an independent review of W29 R0 P3 found that a typo could silently delete a task in progress, that an import could act for a claim holder, and that a second checkout's first sync wrote a file while saying none changed. The owner approved each rule on 2026-11-23.
+- Source: [W29 R0 P3 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p3-parser-import-and-sync)
+
+### 2026-11-23 — W29 R0 P3 re-check
+
+- Affected requirement or section: R-WORK-SYNC-9.
+- Previous contract: the first sync of a checkout only imported, and the next sync wrote. Nothing recorded that a first sync was done, so it was read from an empty ledger.
+- Replacement contract: the Store records when a checkout's first sync is done, in `work_sync_checkouts` under [PRD 38](38-global-store-and-project-state.md), so every later sync writes and removes files under the sync table, also for a checkout with no work file at all.
+- Rationale: a re-check review found that a checkout with no work file, or whose copies were removed with copies off, never left its first sync, so its files were never written and each sync said the next one would write them. The owner chose the record on 2026-11-23.
+- Source: [W29 R0 P3 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p3-parser-import-and-sync)
 
 ## Source Anchors
 

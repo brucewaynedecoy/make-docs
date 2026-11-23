@@ -19,7 +19,7 @@ The Store root is `~/.make-docs/`, overridable via the `MAKE_DOCS_HOME` environm
 
 ## Table catalog
 
-`table-catalog.ts` (`make-docs.store-table-catalog.v1`) names every Store table, its writers and readers, its maintenance class, and the fixed rule or limit for each row class. A drift test (`tests/store-table-catalog.test.ts`) fails when a physical table, a writer, or a rule leaves the catalog. Schema 8 has 24 physical tables: `projects`, `playbook_runs`, `work_evidence`, `runs`, `run_evidence`, `store_checkpoint_journal`, `installation_checkouts`, `installation_ledgers`, `installation_operations`, `installation_steps`, `installation_locks`, `installation_migration_records`, `installation_transfers`, `tool_operations`, `store_schema_journal`, `store_migration_receipts`, `backlog_review_cache`, `project_register`, and the six work store tables `work_units`, `work_dependencies`, `work_links`, `work_claims`, `work_sync_ledger`, and `work_sync_conflicts`. `projects` and `playbook_runs` are legacy: no current command writes them.
+`table-catalog.ts` (`make-docs.store-table-catalog.v1`) names every Store table, its writers and readers, its maintenance class, and the fixed rule or limit for each row class. A drift test (`tests/store-table-catalog.test.ts`) fails when a physical table, a writer, or a rule leaves the catalog. Schema 8 has 25 physical tables: `projects`, `playbook_runs`, `work_evidence`, `runs`, `run_evidence`, `store_checkpoint_journal`, `installation_checkouts`, `installation_ledgers`, `installation_operations`, `installation_steps`, `installation_locks`, `installation_migration_records`, `installation_transfers`, `tool_operations`, `store_schema_journal`, `store_migration_receipts`, `backlog_review_cache`, `project_register`, and the seven work store tables `work_units`, `work_dependencies`, `work_links`, `work_claims`, `work_sync_ledger`, `work_sync_conflicts`, and `work_sync_checkouts`. `projects` and `playbook_runs` are legacy: no current command writes them.
 
 ## D10 Implementer Decisions
 
@@ -63,11 +63,11 @@ DDL lives in `STORE_MIGRATIONS` (`database.ts`); `PRAGMA user_version` records t
 
 ### Work store (schema 8, W29 R0 P2)
 
-`work-store-schema.ts` holds the six work store tables and the map from each column to its PRD 38 R-MIN field (`WORK_STORE_COLUMN_REGISTER`). `work-store.ts` is the only code that reads and writes them. This phase adds no public operation; the `work` operations in W29 R0 P4 call the service.
+`work-store-schema.ts` holds the seven work store tables and the map from each column to its PRD 38 R-MIN field (`WORK_STORE_COLUMN_REGISTER`). `work-store.ts` is the only code that reads and writes them. This phase adds no public operation; the `work` operations in W29 R0 P4 call the service.
 
 - `work_units` holds each wave, revision, phase, stage, task, and quick item of a project, with its stable store ID, coordinate, parent, status, gates, blockers, and record revision. `work_dependencies` and `work_links` hold the unit's lists in order. Units, dependencies, and links are shared by every checkout of the project, and maintenance never removes them (`keep`).
 - `work_claims` has one row for each unit, live or expired: `unit_store_id` is `UNIQUE`, so a second claim fails in the schema. An expired claim keeps its row until a takeover after a handle check or a release; no fixed rule removes it (`bounded`).
-- `work_sync_ledger` (`keep`) and `work_sync_conflicts` (`bounded`) belong to one checkout and go when the checkout row goes.
+- `work_sync_ledger` (`keep`), `work_sync_conflicts` (`bounded`), and `work_sync_checkouts` (`bounded`, one row for each checkout whose first sync is done, added in W29 R0 P3) belong to one checkout and go when the checkout row goes.
 - Every write carries an expected version: the record revision for units and claims, and the entry version for ledger and conflict rows. A wrong version is refused with `WorkStoreRefusalError` (`version-conflict`), and nothing changes. `writeWorkStore` records the project's `project_register` row in the same transaction. `readWorkStore` and `writeWorkStore` never create or migrate a Store: an absent or older Store is `store-unavailable` with one next action, and an unsafe or newer one is `store-unsafe`.
 - `tests/w29-r0-p2-store-schema-and-records.test.ts` holds the R-MIN parity test (`workStoreSchemaDrift`), which fails when a column, a register entry, or an R-MIN field is on one side only.
 

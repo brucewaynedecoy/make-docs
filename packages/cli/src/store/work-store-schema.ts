@@ -22,6 +22,7 @@ export const WORK_STORE_TABLE_NAMES = [
   "work_claims",
   "work_sync_ledger",
   "work_sync_conflicts",
+  "work_sync_checkouts",
 ] as const;
 export type WorkStoreTableName = (typeof WORK_STORE_TABLE_NAMES)[number];
 
@@ -136,6 +137,11 @@ export const WORK_STORE_V8_STATEMENTS: readonly string[] = Object.freeze([
     CHECK ((kind = 'store-missing') = (store_revision IS NULL)),
     CHECK (kind = 'store-missing' OR json_array_length(affected_unit_store_ids_json) >= 1)
   )`,
+  // One row for each checkout whose first sync is done (W29 R0 P3, PRD 52 R-WORK-SYNC-9).
+  `CREATE TABLE work_sync_checkouts (
+    checkout_id TEXT PRIMARY KEY REFERENCES installation_checkouts (checkout_id) ON DELETE CASCADE,
+    first_synced_at TEXT NOT NULL CHECK (${utcTime("first_synced_at")})
+  )`,
 ]);
 
 /** The four PRD 38 R-MIN rows that govern the work store tables, by their row label start. */
@@ -144,6 +150,7 @@ export const WORK_STORE_RMIN_ROWS = Object.freeze({
   ledger: "Work sync ledger",
   conflicts: "Work sync conflicts",
   claims: "Work claims",
+  checkouts: "Work sync checkouts",
 } as const);
 export type WorkStoreRMinRowKey = keyof typeof WORK_STORE_RMIN_ROWS;
 
@@ -228,6 +235,10 @@ export const WORK_STORE_COLUMN_REGISTER: Readonly<Record<WorkStoreTableName, Rea
     affected_unit_store_ids_json: { row: "conflicts", phrase: "affected units" },
     detected_at: { row: "conflicts", phrase: "detection time" },
     entry_version: { row: "conflicts", phrase: "entry version" },
+  },
+  work_sync_checkouts: {
+    checkout_id: { row: "checkouts", phrase: "checkout ID" },
+    first_synced_at: { row: "checkouts", phrase: "first sync time" },
   },
 });
 

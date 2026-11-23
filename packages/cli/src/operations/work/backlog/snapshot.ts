@@ -5,6 +5,7 @@ import path from "node:path";
 import { parseDocument } from "yaml";
 
 import { OperationError } from "../../types.js";
+import { readTaskLine } from "../task-line.js";
 import { BACKLOG_RULES } from "./catalog.js";
 import {
   BACKLOG_SNAPSHOT_SCHEMA_VERSION,
@@ -29,8 +30,6 @@ import {
 
 const RECORD_DIRECTORY = /^(\d{4}-\d{2}-\d{2})-w([1-9]\d*)-r(0|[1-9]\d*)(?:-|$)/i;
 const PHASE_FILE = /^(0[1-9]|[1-9]\d)-.+\.md$/;
-/** A task line. The ID letter may be `t` or `T`; the result uses `T` (PRD 51 R-BACKLOG-SNAPSHOT-33). */
-const TASK = /^- \[([ xX])\]\s+(?:([tT][1-9]\d*):\s*)?(.+?)\s*$/;
 const MARKDOWN_LINK = /\[[^\]]+\]\(([^)]+)\)/g;
 const COMPLETE_STATUS = /^(?:complete|completed|closed)$/i;
 const CHANGE_HISTORY_HEADING = /^(\d{4}-\d{2}-\d{2}) — (W[1-9]\d* R(?:0|[1-9]\d*))(?: P[1-9]\d*)?$/;
@@ -427,14 +426,15 @@ function parseSourceLink(
 function parseTasks(body: string, phasePath: string): WorkTaskFact[] {
   const tasks: WorkTaskFact[] = [];
   for (const [index, line] of body.split("\n").entries()) {
-    const match = TASK.exec(line);
-    if (!match) continue;
+    // The shared task line reader: `t` and `T` name the same task, and the result uses `T` (PRD 51 R-BACKLOG-SNAPSHOT-33).
+    const task = readTaskLine(line);
+    if (!task) continue;
     const taskEvidence = evidence(phasePath, "task", index + 1);
-    const completed = match[1]!.toLowerCase() === "x";
+    const completed = task.checked;
     tasks.push({
-      id: nullableString(match[2]?.toUpperCase() ?? null, match[2] ? taskEvidence : undefined),
+      id: nullableString(task.id, task.id ? taskEvidence : undefined),
       phasePath,
-      text: { value: match[3]!.trim(), evidence: [taskEvidence] },
+      text: { value: task.text, evidence: [taskEvidence] },
       completed: nullableBoolean(completed, [taskEvidence]),
       recordedStatus: nullableString(completed ? "complete" : "open", taskEvidence),
     });

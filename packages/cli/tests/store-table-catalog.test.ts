@@ -77,7 +77,7 @@ describe("W32 R0 P1 table catalog (A1)", () => {
     expect(STORE_TABLE_CATALOG.map((entry) => entry.table)).toEqual([...STORE_TABLE_NAMES]);
     // Schema v7 (W32 R0 P2) made project_register physical, and schema v8 (W29 R0 P2) added six
     // work store tables, so every catalog table is physical now.
-    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "physical")).toHaveLength(24);
+    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "physical")).toHaveLength(25);
     expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "planned").map((entry) => entry.table)).toEqual([]);
   });
 

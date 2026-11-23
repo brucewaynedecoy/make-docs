@@ -64,6 +64,8 @@ export const WORK_STORE_REFUSALS = [
   "project-mismatch",
   "not-claim-holder",
   "claim-expired",
+  "unit-in-use",
+  "checkout-not-bound",
 ] as const;
 export type WorkStoreRefusal = (typeof WORK_STORE_REFUSALS)[number];
 
@@ -474,6 +476,35 @@ export function putWorkUnit(
   });
 }
 
+/**
+ * Delete one unit that left its work file (W29 R0 P3 sync). The unit must be
+ * at `expectedVersion`, have no child, and be no other unit's dependency, so
+ * nothing points at a missing unit. Its dependencies, links, and claim go
+ * with it. Inside {@link writeWorkStore}, it must belong to the opened project.
+ */
+export function deleteWorkUnit(db: StoreDatabase, storeId: string, options: { expectedVersion: number }): void {
+  atomic(db, () => {
+    const current = unitRow(db, storeId);
+    if (!current) refuse("unit-not-found", `Work unit ${storeId} does not exist.`, RE_READ, { storeId });
+    assertOpenedProject(db, current.project_id);
+    if (Number(current.revision) !== options.expectedVersion) {
+      refuse("version-conflict", `Work unit ${storeId} is at revision ${Number(current.revision)}, not ${options.expectedVersion}.`, RE_READ, { storeId, currentVersion: Number(current.revision) });
+    }
+    const child = db.prepare("SELECT store_id FROM work_units WHERE parent_store_id = ? LIMIT 1").get(storeId) as { store_id: string } | undefined;
+    const dependent = db.prepare("SELECT unit_store_id FROM work_dependencies WHERE depends_on_store_id = ? LIMIT 1").get(storeId) as { unit_store_id: string } | undefined;
+    if (child || dependent) {
+      refuse(
+        "unit-in-use",
+        `Work unit ${storeId} still has ${child ? `a child, ${child.store_id}` : `a dependent unit, ${dependent!.unit_store_id}`}.`,
+        "Move or delete the child, or change the dependency, first.",
+        { storeId },
+      );
+    }
+    db.prepare("DELETE FROM work_claims WHERE unit_store_id = ?").run(storeId);
+    db.prepare("DELETE FROM work_units WHERE store_id = ? AND revision = ?").run(storeId, options.expectedVersion);
+  });
+}
+
 /** A new stable store ID (R-WORK-QUEUE-1). */
 export function newWorkUnitStoreId(): string {
   return `wu-${randomUUID().replaceAll("-", "")}`;
@@ -851,6 +882,25 @@ export function putSyncConflict(db: StoreDatabase, conflict: WorkSyncConflictRec
       JSON.stringify(value.affectedUnitStoreIds), new Date(value.detectedAt).toISOString(), entryVersion,
     );
     return toConflict(conflictRow(db, value.checkoutId, value.targetPath)!);
+  });
+}
+
+/** When this checkout's first work sync finished, or null before it (PRD 52 R-WORK-SYNC-9). */
+export function readWorkSyncCheckout(db: StoreDatabase, checkoutId: string): string | null {
+  const row = db.prepare("SELECT first_synced_at FROM work_sync_checkouts WHERE checkout_id = ?").get(checkoutId) as { first_synced_at: string } | undefined;
+  return row?.first_synced_at ?? null;
+}
+
+/**
+ * Mark this checkout's first work sync as done. Only a checkout's first sync
+ * imports without writing a file. A second mark keeps the first time.
+ */
+export function markWorkSyncCheckout(db: StoreDatabase, checkoutId: string, options: { now?: Date } = {}): string {
+  return atomic(db, () => {
+    assertOpenedProject(db, checkoutProject(db, checkoutId));
+    db.prepare("INSERT INTO work_sync_checkouts (checkout_id, first_synced_at) VALUES (?, ?) ON CONFLICT (checkout_id) DO NOTHING")
+      .run(checkoutId, (options.now ?? new Date()).toISOString());
+    return readWorkSyncCheckout(db, checkoutId)!;
   });
 }
 
