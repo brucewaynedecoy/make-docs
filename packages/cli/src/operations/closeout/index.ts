@@ -219,7 +219,8 @@ function parseStatusShort(output: string): Array<{ path: string; index: string; 
 }
 
 function classifyPath(filePath: string): string {
-  if (/\.(test|spec)\.ts$/.test(filePath) || filePath.endsWith("_test.py") || filePath.endsWith("test_validate_output.py")) {
+  // A name rule only: a project may hold Python tests. Make Docs runs no Python.
+  if (/\.(test|spec)\.ts$/.test(filePath) || filePath.endsWith("_test.py")) {
     return "tests";
   }
   if (filePath.startsWith("packages/cli/src/") || filePath.startsWith("packages/cli/bin/")) {
@@ -386,17 +387,22 @@ function validationHints(files: CloseoutFile[], repoRoot: string): string[] {
   const paths = files.map((file) => file.path);
   const categories = new Set(files.map((file) => file.category));
   const commands: string[] = [];
-  if (paths.some((filePath) => filePath.startsWith("packages/skills/decompose-codebase/scripts/"))) {
-    commands.push("python3 -B packages/skills/decompose-codebase/scripts/test_validate_output.py");
-  }
-  if (paths.some((filePath) => filePath.startsWith("packages/skills/closeout-commit/scripts/"))) {
-    commands.push("python3 -B packages/skills/closeout-commit/scripts/test_closeout_helpers.py");
-  }
-  if (paths.some((filePath) => filePath.startsWith("packages/skills/closeout-phase/scripts/"))) {
-    commands.push("python3 -B packages/skills/closeout-phase/scripts/test_closeout_helpers.py");
-  }
-  if ((categories.has("code") || categories.has("tests") || categories.has("skill") || categories.has("config")) && isMakeDocsNodeWorkspace(repoRoot, paths)) {
+  const makeDocsWorkspace = isMakeDocsNodeWorkspace(repoRoot, paths);
+  if ((categories.has("code") || categories.has("tests") || categories.has("skill") || categories.has("config")) && makeDocsWorkspace) {
     commands.push("npm test -w packages/cli -- consistency install skill-catalog skill-registry");
+  }
+  // First-party Skills ship no Python. Their checks are CLI operations with
+  // vitest suites, and backlog-review ships generated bundles (W34 R0). These
+  // suites exist only in the Make Docs CLI package, so another project that
+  // has a `packages/skills/` folder gets no such hint.
+  if (
+    makeDocsWorkspace &&
+    isMakeDocsCliPackage(repoRoot) &&
+    paths.some((filePath) => filePath.startsWith("packages/skills/") || filePath === "packages/cli/skill-registry.json")
+  ) {
+    commands.push(
+      "npm test -w packages/cli -- w34-r0-p4-skill-scripts-guard w34-r0-p1-ported-skill-checks w34-r0-p2-skill-check-twins backlog-review-skill-bundles w34-r0-p4-removed-skill-scripts",
+    );
   }
   if (paths.some((filePath) => filePath.startsWith("packages/cli/src/") || filePath.startsWith("packages/cli/tests/"))) {
     commands.push("npm run build -w packages/cli");
@@ -406,6 +412,16 @@ function validationHints(files: CloseoutFile[], repoRoot: string): string[] {
   }
   commands.push("git diff --check");
   return [...new Set(commands)];
+}
+
+function isMakeDocsCliPackage(repoRoot: string): boolean {
+  const packageJson = path.join(repoRoot, "packages/cli/package.json");
+  if (!existsSync(packageJson)) return false;
+  try {
+    return (JSON.parse(safeRead(packageJson)) as { name?: unknown }).name === "@brucewaynedecoy/make-docs";
+  } catch {
+    return false;
+  }
 }
 
 function isMakeDocsNodeWorkspace(repoRoot: string, paths: string[]): boolean {

@@ -244,6 +244,10 @@ Use `make-docs setup skills --remove`.
 
 That means Make Docs found files from the older per-harness skill layout. Clean Store-owned files can migrate to the standard scope/harness paths; edited or ambiguous files are preserved or routed to review instead of being removed by path name alone.
 
+### My plan removes old Python files from a Skill
+
+First-party Skills no longer ship Python. Their checks are Make Docs CLI commands and MCP tools. When an older install has `scripts/*.py` files in `archive-docs`, `cleanup-docs`, or `decompose-codebase`, `make-docs setup` shows them in its plan and leaves them to `make-docs setup skills`. `make-docs setup skills` removes each file that Make Docs wrote and that nobody changed. It keeps a file that you changed and shows it as `skip` in the plan. After the run, it lists the file under "Changed files kept for your review:" with the reason "You changed this file, so Make Docs kept it. Review it, then delete it or keep it." A dry run lists the same files under "Changed files that setup would keep for your review:". When Make Docs also stages new bytes for a changed file, that file is listed only under "Conflicts were staged for manual review:". Review a kept file, then delete it yourself when you no longer need it.
+
 ## Retired Private-Layout Upgrade
 
 Wrong-private-layout cutover is forward-resume-only: review must state before apply that rollback would recreate the forbidden private layer and is not offered. Ordinary adoption already using standard locations keeps normal resume/rollback. Older saved operations that would write a retired private root refuse safely; never execute them to restore that layer. This correction adds no new URL-backed installation mode.

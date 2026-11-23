@@ -521,6 +521,60 @@ describe("make-docs shared operations", () => {
     );
   });
 
+  test("closeout hints for a Skill change name vitest suites and no python3 command", () => {
+    const root = createTempDir("make-docs-closeout-skill-hints-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    writeFile(root, "package.json", JSON.stringify({ name: "make-docs" }));
+    writeFile(root, "packages/cli/package.json", JSON.stringify({ name: "@brucewaynedecoy/make-docs" }));
+    writeFile(root, "packages/skills/decompose-codebase/SKILL.md", "# Skill\n");
+    execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
+    execFileSync(
+      "git",
+      ["-c", "user.email=test@example.com", "-c", "user.name=Test", "commit", "-m", "baseline"],
+      { cwd: root, stdio: "ignore" },
+    );
+    writeFile(root, "packages/skills/decompose-codebase/SKILL.md", "# Skill\n\nChanged.\n");
+    writeFile(root, "packages/skills/decompose-codebase/scripts/check.mjs", "export {}\n");
+
+    const probe = buildCloseoutProbe({ repoRoot: root, scope: "full" });
+    const hints = probe.validationHints as string[];
+
+    expect(hints).toEqual(
+      expect.arrayContaining([
+        "npm test -w packages/cli -- consistency install skill-catalog skill-registry",
+        "npm test -w packages/cli -- w34-r0-p4-skill-scripts-guard w34-r0-p1-ported-skill-checks w34-r0-p2-skill-check-twins backlog-review-skill-bundles w34-r0-p4-removed-skill-scripts",
+      ]),
+    );
+    expect(hints.join("\n")).not.toMatch(/python|\.py\b/);
+  });
+
+  test("closeout gives no Make Docs suite hint to another project, and still names a Python test file as a test", () => {
+    const root = createTempDir("make-docs-closeout-other-project-");
+    tempRoots.push(root);
+    execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
+    writeFile(root, "package.json", JSON.stringify({ name: "other-app" }));
+    writeFile(root, "packages/skills/review/SKILL.md", "# Skill\n");
+    writeFile(root, "app/parser_test.py", "def test_parse():\n    pass\n");
+    execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
+    execFileSync(
+      "git",
+      ["-c", "user.email=test@example.com", "-c", "user.name=Test", "commit", "-m", "baseline"],
+      { cwd: root, stdio: "ignore" },
+    );
+    writeFile(root, "packages/skills/review/SKILL.md", "# Skill\n\nChanged.\n");
+    writeFile(root, "app/parser_test.py", "def test_parse():\n    assert True\n");
+
+    const probe = buildCloseoutProbe({ repoRoot: root, scope: "full" });
+    const hints = probe.validationHints as string[];
+
+    expect(probe.files).toEqual(
+      expect.arrayContaining([expect.objectContaining({ path: "app/parser_test.py", category: "tests" })]),
+    );
+    expect(hints.some((hint) => hint.includes("w34-r0-"))).toBe(false);
+    expect(hints.join("\n")).not.toMatch(/python/);
+  });
+
   test("buildWaveStatus reports structured wave state directly", () => {
     const fixture = createWaveFixture();
     tempRoots.push(fixture.root);

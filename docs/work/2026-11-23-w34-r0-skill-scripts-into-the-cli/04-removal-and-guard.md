@@ -52,9 +52,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T1: Remove the `.py` entries from `packages/cli/skill-registry.json`.
-- [ ] T2: Update `skill-registry.test.ts`, `install.test.ts`, `skill-catalog.test.ts`, and the legacy path list in `scripts/smoke-pack.mjs`.
-- [ ] T3: Add a test for each removed file: `make-docs update` and `make-docs setup skills` remove an unchanged installed copy through `planStaleSkillFile` in `packages/cli/src/planner.ts`, and keep a changed copy as a conflict for review.
+- [x] T1: Remove the `.py` entries from `packages/cli/skill-registry.json`.
+- [x] T2: Update `skill-registry.test.ts`, `install.test.ts`, `skill-catalog.test.ts`, and the legacy path list in `scripts/smoke-pack.mjs`.
+- [x] T3: Add a test for each removed file: `make-docs update` and `make-docs setup skills` remove an unchanged installed copy through `planStaleSkillFile` in `packages/cli/src/planner.ts`, and keep a changed copy as a conflict for review. Note: `make-docs update` updates only the CLI. The project path is `make-docs setup`, which plans the removal and routes it to `make-docs setup skills`, which applies it.
 
 ### Acceptance criteria
 
@@ -70,10 +70,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T4: In `packages/cli/src/operations/closeout/index.ts`, remove the `python3` commands, the `test_validate_output.py` special case, and the two stale `closeout-commit` and `closeout-phase` commands. Name the new vitest files in its test command.
-- [ ] T5: Delete the seven Python files and the tracked `packages/skills/decompose-codebase/scripts/__pycache__/validate_output.cpython-314.pyc`.
-- [ ] T6: Change step 3 of "Adding a Skill" in `packages/skills/README.md`: deterministic logic goes in a CLI operation, and `scripts/` holds only generated bundles.
-- [ ] T7: Add the guard test. It walks `packages/skills/` and fails on a `.py` file, a `.pyc` file, or a `__pycache__` folder. It fails when the registry declares a `.py` file. It fails on any file in a Skill `scripts/` folder that is not a generated bundle that matches a fresh build, and it reuses the P3 byte-match check. The `platform-safety` workflow already runs the full `packages/cli` vitest suite, so it needs no change.
+- [x] T4: In `packages/cli/src/operations/closeout/index.ts`, remove the `python3` commands, the `test_validate_output.py` special case, and the two stale `closeout-commit` and `closeout-phase` commands. Name the new vitest files in its test command.
+- [x] T5: Delete the seven Python files and the tracked `packages/skills/decompose-codebase/scripts/__pycache__/validate_output.cpython-314.pyc`.
+- [x] T6: Change step 3 of "Adding a Skill" in `packages/skills/README.md`: deterministic logic goes in a CLI operation, and `scripts/` holds only generated bundles.
+- [x] T7: Add the guard test. It walks `packages/skills/` and fails on a `.py` file, a `.pyc` file, or a `__pycache__` folder. It fails when the registry declares a `.py` file. It fails on any file in a Skill `scripts/` folder that is not a generated bundle that matches a fresh build, and it reuses the P3 byte-match check. The `platform-safety` workflow already runs the full `packages/cli` vitest suite, so it needs no change.
 
 Do not change history records, archives, or closed evidence that name the old scripts.
 
@@ -89,10 +89,10 @@ Do not change history records, archives, or closed evidence that name the old sc
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing `selected` and done. `w34-r0-p4-removed-skill-scripts.test.ts` (23 tests) proves, for each of the four installed scripts, that `make-docs setup` plans removal of an unchanged copy and a kept conflict for a changed copy and routes both to `setup skills`, and that `make-docs setup skills` removes the unchanged copy and keeps and reports the changed one. It also covers an unrecorded copy (left alone), `setup skills --remove`, a Claude-only install under `.claude/skills/`, and the R-SKILL-SETUP-8 plain reason, dry-run heading, and one-list rule. `w34-r0-p4-skill-scripts-guard.test.ts` (11 tests) proves the guard on the real tree and on each planted case. The registry, catalog, install, closeout, and smoke pack checks now expect no Python. Performance Testing `not-needed-now`: removing files does not change run time. Guided Progress Review and Unassisted Goal Testing `not-needed-now`: the tests check the exact plan and result text.
+- Performance evidence: none needed. No measurement was taken.
+- Human Experience Review: `direct` impact, reviewed. A person who runs `make-docs setup skills` sees each old file as `remove` or `skip` in the plan. A changed file stays, byte for byte, and the output names it with a plain reason: "You changed this file, so Make Docs kept it. Review it, then delete it or keep it." A dry run says which files setup would keep. A file with a staged conflict copy appears only in the staged list. The owner chose this on 2026-11-23 (option A), and PRD 08 R-SKILL-SETUP-8 now holds it. `make-docs setup` shows the same files and routes them to `setup skills`. `make-docs update` updates only the CLI, so the project update is `setup`, then `setup skills`. The user guide has a troubleshooting entry for this.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: none for this phase. P3 T7 and A15 stay open for the owner after the release.
+- Evidence report: [P4 Removal and Guard](evidence.md#p4-removal-and-guard).
+- Phase / capability status: complete and uncommitted, on `83ee1f5f`. A16, A17, A18, and A19 pass. Merge risk with W30 R0 stays for `skill-registry.json` and `packages/skills/README.md`.

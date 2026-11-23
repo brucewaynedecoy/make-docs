@@ -2,8 +2,8 @@
  * W34 R0 P1: Markdown source style check and repair (PRD 39 R-SKILL-CHECK-4,
  * R-SKILL-CHECK-5, R-SKILL-CHECK-7).
  *
- * This is the TypeScript form of the logic that lived in
- * `packages/skills/cleanup-docs/scripts/check_markdown_style.py`. The block
+ * This is the TypeScript form of the logic that lived in the Python style
+ * check of the cleanup-docs Skill (removed in W34 R0 P4). The block
  * parser, the three rules, and the two fixes follow that script line for line,
  * so the same file gives the same findings. The cleanup-docs Skill text is the
  * agent form of these rules and uses the same rule IDs (PRD 25

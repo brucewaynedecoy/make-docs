@@ -911,7 +911,7 @@ describe("installer integration", () => {
       );
       expect(existsSync(path.join(sharedSkillRoot, "SKILL.md"))).toBe(true);
       expect(existsSync(path.join(sharedSkillRoot, "references/mcp-playbook.md"))).toBe(true);
-      expect(existsSync(path.join(sharedSkillRoot, "scripts/validate_output.py"))).toBe(true);
+      expect(existsSync(path.join(sharedSkillRoot, "scripts"))).toBe(false);
       expect(
         existsSync(path.join(sharedSkillRoot, "assets/templates/decomposition-plan.md")),
       ).toBe(true);

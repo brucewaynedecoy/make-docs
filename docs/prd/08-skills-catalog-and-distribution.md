@@ -66,6 +66,7 @@ Code anchors:
 - R-SKILL-SETUP-5 (MUST): full setup and `setup skills` use one source-owned Skills interaction model and renderer. For the same effective manifest, saved selection, scope, harness support, and trust data, both paths show the same list order, active row, detail panel, selected summary, instructions, labels, navigation keys, empty state, cancellation result, and saved selection. The focused command may limit its final plan to Skill changes. It must not keep a second prompt grammar or selection implementation.
 - R-SKILL-SETUP-6 (MUST): full setup validates whether an existing install can apply a changed Skill selection before final grouped review. When the change belongs to `setup skills`, full setup can retain the valid saved selection and continue independent machine, project, or resource work, or stop only the Skill subplan with that exact route. It must not discard a verified independent subplan.
 - R-SKILL-SETUP-7 (MUST): repeat setup reuses the saved Skill selection when its manifest, source, scope, harness support, ownership, and live bytes remain valid. It does not ask the user to repeat that selection only because another setup subplan failed.
+- R-SKILL-SETUP-8 (MUST): `setup skills` names each changed file that it keeps instead of removing or replacing, with a plain reason that tells the person what to do: "You changed this file, so Make Docs kept it. Review it, then delete it or keep it." The plan line for that file still says `skip`. A dry run uses the heading "Changed files that setup would keep for your review:", and an applied run uses "Changed files kept for your review:". When the run stages a conflict copy of the file's new bytes, the file appears only under "Conflicts were staged for manual review:", not in both lists.
 
 - Skills remain explicitly selected agentic assets with their own delivery and trust decisions; they are not folded into the `full-snapshot`, `provider-backed`, or `hybrid-pinned-cache` system asset modes defined by [17-system-asset-materialization-and-local-bootstrap.md](./17-system-asset-materialization-and-local-bootstrap.md).
 - Migration may preserve prior selected skills only when manifest and file evidence are trustworthy, and it must not silently expand `selectedSkills` or install skill files by default under [18-compatibility-classification-and-migration-safety.md](./18-compatibility-classification-and-migration-safety.md).
@@ -351,6 +352,14 @@ A rebuild must preserve explicit selected-Skill semantics, manifest provenance a
 - Replacement contract: no first-party Skill ships Python. A Skill `scripts/` file is a generated bundle of CLI source whose bytes match a fresh build. Validation proves that the packed CLI embeds no `.py` file and that an update removes unchanged old copies.
 - Rationale: the owner's rule of 2026-11-22 puts deterministic logic in the CLI, and design OD-1 option A gives the backlog-review scripts one home in CLI source (register D-064).
 - Source: [Skill scripts into the CLI design](../designs/2026-11-23-skill-scripts-into-the-cli.md) and [W34 R0 plan](../plans/2026-11-23-w34-r0-skill-scripts-into-the-cli/00-overview.md).
+
+### 2026-11-23 — W34 R0 P4
+
+- Affected requirement or section: new R-SKILL-SETUP-8.
+- Previous contract: `setup skills` showed a changed file that it kept only as `skip` in the plan, with no reason, unless it staged a conflict copy.
+- Replacement contract: `setup skills` names each kept changed file with a plain reason in its output. A dry run says what would happen. A file with a staged conflict copy appears only in the staged list.
+- Rationale: the W34 R0 P4 Human Experience Outcome says that a changed old Skill file shows as a conflict for review. The owner chose option A on 2026-11-23 after an independent review: keep the list, with plain words and one list per file.
+- Source: [W34 R0 P4](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/04-removal-and-guard.md) and its [evidence](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#p4-removal-and-guard).
 
 ## Source Anchors
 

@@ -141,10 +141,6 @@ describe("skill registry", () => {
 
     expect(cleanupSkill?.assets).toEqual([
       { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      {
-        source: "scripts/check_markdown_style.py",
-        installPath: "scripts/check_markdown_style.py",
-      },
     ]);
   });
 
@@ -154,8 +150,6 @@ describe("skill registry", () => {
 
     expect(decomposeSkill?.assets).toEqual([
       { source: "agents/openai.yaml", installPath: "agents/openai.yaml" },
-      { source: "scripts/probe_environment.py", installPath: "scripts/probe_environment.py" },
-      { source: "scripts/validate_output.py", installPath: "scripts/validate_output.py" },
       {
         source: "references/planning-workflow.md",
         installPath: "references/planning-workflow.md",

@@ -260,6 +260,11 @@ const LEGACY_SKILL_PATHS = [
   ".claude/skill-assets/archive-docs/scripts/trace_relationships.py",
   ".agents/skill-assets/archive-docs/references/archive-workflow.md",
   ".agents/skill-assets/archive-docs/scripts/trace_relationships.py",
+  // W34 R0 P4: the Python helpers that releases before W34 R0 installed.
+  ".agents/skills/archive-docs/scripts/trace_relationships.py",
+  ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
+  ".agents/skills/decompose-codebase/scripts/probe_environment.py",
+  ".agents/skills/decompose-codebase/scripts/validate_output.py",
 ];
 
 function npmEnv() {
@@ -664,6 +669,9 @@ function runLocalPackedSmoke() {
       path.join(targetDir, relativePath),
       `Smoke pack install left legacy skill artifact ${relativePath}.`,
     );
+  }
+  for (const skillsRoot of [".agents/skills", ".claude/skills"]) {
+    assertNoPythonUnder(path.join(targetDir, skillsRoot), "Smoke pack install wrote a Python file into a Skill");
   }
 
   const customFilePath = path.join(targetDir, ".make-docs/system/templates/custom-smoke.md");
@@ -1674,6 +1682,9 @@ function readPackedSkillExpectations(packageRoot, scope = "project", tools = "bo
   for (const skill of registry.skills) {
     if (skill.source !== `embedded:${skill.name}`) throw new Error(`First-party Skill must use embedded bytes: ${skill.name}`);
     const declared = [{source: skill.entryPoint, installPath: "SKILL.md"}, ...(skill.assets ?? [])];
+    // W34 R0 P4 (PRD 08 R-SKILL-BUNDLE-7): the packed CLI embeds no Python file.
+    const python = declared.find(item => /\.pyc?$/i.test(item.source) || /\.pyc?$/i.test(item.installPath));
+    if (python) throw new Error(`Packed first-party Skill declares a Python file: ${skill.name}/${python.installPath}`);
     const seen = new Set();
     for (const item of declared) {
       for (const value of [item.source, item.installPath]) {
@@ -1693,6 +1704,16 @@ function readPackedSkillExpectations(packageRoot, scope = "project", tools = "bo
 function assertExists(filePath, message) {
   if (!existsSync(filePath)) {
     throw new Error(message);
+  }
+}
+
+/** W34 R0 P4: fail on any `.py` file, `.pyc` file, or `__pycache__` folder under a directory. */
+function assertNoPythonUnder(directory, message) {
+  if (!existsSync(directory)) return;
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const current = path.join(directory, entry.name);
+    if (entry.name === "__pycache__" || /\.pyc?$/i.test(entry.name)) throw new Error(`${message}: ${current}`);
+    if (entry.isDirectory() && !entry.isSymbolicLink()) assertNoPythonUnder(current, message);
   }
 }
 

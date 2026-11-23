@@ -1,8 +1,8 @@
 /**
  * W34 R0 P1: decomposition output check (PRD 39 R-SKILL-CHECK-2, R-SKILL-CHECK-7).
  *
- * This is the TypeScript form of the logic that lived in
- * `packages/skills/decompose-codebase/scripts/validate_output.py`. Each script
+ * This is the TypeScript form of the logic that lived in the Python output
+ * check of the decompose-codebase Skill (removed in W34 R0 P4). Each script
  * rule has one stable rule ID here. The finding messages keep the script's
  * words, so the same project gives the same findings. The decompose-codebase
  * Skill text is the agent form of these rules and uses the same rule IDs

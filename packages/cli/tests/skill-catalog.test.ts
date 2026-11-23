@@ -142,7 +142,7 @@ describe("skill catalog", () => {
         assets,
         ".agents/skills/archive-docs/scripts/trace_relationships.py",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       hasAsset(
         assets,
@@ -155,19 +155,15 @@ describe("skill catalog", () => {
         assets,
         ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       hasAsset(
         assets,
         ".claude/skills/archive-docs/references/archive-workflow.md",
       ),
     ).toBe(false);
-    expect(
-      hasAsset(
-        assets,
-        ".agents/skills/archive-docs/scripts/trace_relationships.py",
-      ),
-    ).toBe(true);
+    // W34 R0 P4: no first-party Skill ships a Python file.
+    expect(assets.filter((asset) => /\.py$|\.pyc$|__pycache__/.test(asset.relativePath))).toEqual([]);
     for (const withdrawnSkill of WITHDRAWN_SKILL_NAMES) {
       expect(
         assets.some((asset) =>

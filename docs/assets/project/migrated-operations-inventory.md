@@ -76,7 +76,7 @@ Intent: produce a closeout history record and commit-message scaffold. It does: 
 
 ## Remaining Python Scripts
 
-The Python counterparts for all ten operations remain on disk. `work-on-wave/scripts/` and `work-on-phase/scripts/` each hold a near-identical set covering the wave and lifecycle operations, and `closeout-phase/scripts/` holds the closeout operations plus a second copy of `work_phase_state.py`. Roughly three dozen `.py` files exist in the repo overall. Scripts outside this cluster, such as `decompose-codebase/scripts/validate_output.py`, `cleanup-docs/scripts/check_markdown_style.py`, and `.make-docs/scripts/check_path_hygiene.py`, are different domains and were not part of this migration.
+The Python counterparts for all ten operations remain on disk. `work-on-wave/scripts/` and `work-on-phase/scripts/` each hold a near-identical set covering the wave and lifecycle operations, and `closeout-phase/scripts/` holds the closeout operations plus a second copy of `work_phase_state.py`. Roughly three dozen `.py` files exist in the repo overall. Scripts outside this cluster, such as `decompose-codebase/scripts/validate_output.py`, `cleanup-docs/scripts/check_markdown_style.py`, and `.make-docs/scripts/check_path_hygiene.py`, were different domains and were not part of this migration; W34 R0 P4 later removed the two Skill scripts.
 
 ## Cross-Cutting Pruning Signals
 

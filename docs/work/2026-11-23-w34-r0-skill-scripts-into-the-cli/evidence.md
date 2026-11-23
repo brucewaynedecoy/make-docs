@@ -544,7 +544,101 @@ All commands ran in `packages/cli` or the repository root with a temporary `MAKE
 
 ## P4 Removal and Guard
 
-Covers A16 to A19 in [P4](04-removal-and-guard.md). Not started.
+Covers A16 to A19 in [P4](04-removal-and-guard.md). Evidence date: 2026-11-23. Base commit: `83ee1f5f` on `docs/w29-w30-work-store-and-factory`. The work is uncommitted.
+
+### What Changed
+
+| Area | Change |
+| --- | --- |
+| Skill source | Deleted the seven Python files and the tracked `decompose-codebase/scripts/__pycache__/validate_output.cpython-314.pyc`. Only `backlog-review/scripts/` remains, with its four generated bundles. |
+| Registry | `packages/cli/skill-registry.json` drops the four `.py` entries: `archive-docs/scripts/trace_relationships.py`, `cleanup-docs/scripts/check_markdown_style.py`, `decompose-codebase/scripts/probe_environment.py`, and `decompose-codebase/scripts/validate_output.py`. The three test files were never registered. |
+| Closeout code | `packages/cli/src/operations/closeout/index.ts` drops the three `python3` hints, two of which named the `closeout-commit` and `closeout-phase` Skills that D-020 deleted, and the `test_validate_output.py` case in `classifyPath`. `classifyPath` keeps the `_test.py` name rule, because a project may hold Python tests; it runs no Python. A change under `packages/skills/` or to `packages/cli/skill-registry.json` gives `npm test -w packages/cli -- w34-r0-p4-skill-scripts-guard w34-r0-p1-ported-skill-checks w34-r0-p2-skill-check-twins backlog-review-skill-bundles w34-r0-p4-removed-skill-scripts`, but only in the Make Docs repository: the closeout workspace check must pass and `packages/cli/package.json` must name `@brucewaynedecoy/make-docs`. Another project gets no W34 hint. |
+| `setup skills` output | New (PRD 08 R-SKILL-SETUP-8): `make-docs setup skills` names each changed file that it keeps, with the plain reason "You changed this file, so Make Docs kept it. Review it, then delete it or keep it." An applied run prints "Changed files kept for your review:" after its result. A dry run prints "Changed files that setup would keep for your review:" after its plan. When an applied run stages a conflict copy of a file's new bytes, the file appears only under "Conflicts were staged for manual review:". The plan line for a kept file still says `skip`, as `cli.test.ts` requires. |
+| Source comments | The three P1 operation files name the retired script by Skill and kind, not by file name (A19). |
+| Tests | `skill-registry.test.ts`, `skill-catalog.test.ts`, `install.test.ts`, and `operations.test.ts` now expect no Python. Two new files: `w34-r0-p4-removed-skill-scripts.test.ts` and `w34-r0-p4-skill-scripts-guard.test.ts`. |
+| Smoke pack | `scripts/smoke-pack.mjs` refuses a packed registry with a `.py` or `.pyc` entry, adds the four installed `.agents/skills/.../*.py` paths to `LEGACY_SKILL_PATHS`, and refuses any `.py`, `.pyc`, or `__pycache__` under the installed `.agents/skills/` and `.claude/skills/`. |
+| Docs | `packages/skills/README.md` step 3 and Validation now give the CLI-operation and generated-bundle rule (T6). The user guide [Installing and Managing Skills](../../assets/user/skills-installing-and-managing-skills.md) has a troubleshooting entry for the removal. One sentence in the project note [migrated-operations-inventory.md](../../assets/project/migrated-operations-inventory.md) now says that W34 R0 P4 removed the two Skill scripts. |
+
+### Managed Removal (A17)
+
+`packages/cli/tests/w34-r0-p4-removed-skill-scripts.test.ts` (23 tests) runs with the temporary `MAKE_DOCS_HOME` from `tests/setup.ts`. Each case installs the three Skills into a temporary project, then turns it into an older install: it writes each removed script where an older release put it and records it in the Store manifest with the hash that the older release wrote. For each of the four files:
+
+- `make-docs setup` (existing install): the plan has `remove-managed` for an unchanged copy and `skip-conflict` with the reason "Existing managed file differs from the recorded manifest and will not be removed automatically." for a changed copy. Both are in `skillChangesLeftForSkillsSetup`, so setup shows them and routes them to `make-docs setup skills` (PRD 08 R-SKILL-SETUP-6).
+- `make-docs setup skills --yes` (the real `runSkillsCommand`): an unchanged copy shows as `- remove: Skill files: <path>`, is deleted, and leaves the Store manifest. A changed copy shows as `- skip: Skill files: <path>` and under "Changed files kept for your review:" with the plain reason. Its bytes stay the same, and it stays in the manifest. The other three unchanged files are removed in the same run.
+
+Three more cases:
+
+- An old script with no Store record (a copy that Make Docs never recorded) is not in the `setup` plan or the `setup skills` output, and it stays as it was. The planner reads only the Store's Skill file list, so it never removes a file that it did not record.
+- `make-docs setup skills --remove` removes the three unchanged old scripts with the current Skill files, and keeps and lists the changed one with its reason.
+- A Claude-only project install puts the Skill payload in `.claude/skills/` with no `.agents/skills/`. There, `setup skills` removes the unchanged old scripts and keeps and lists the changed one.
+
+Three cases for R-SKILL-SETUP-8:
+
+- The kept list gives the plain reason and never the planner's internal reason ("... recorded manifest ...").
+- A dry run prints "Changed files that setup would keep for your review:" with the changed file, never the applied heading, and changes no file and no Store record.
+- A changed current `cleanup-docs/SKILL.md` gets a staged conflict copy under `.make-docs/conflicts/<run>/`. It appears under "Conflicts were staged for manual review:" and not in the kept list, which still names a changed old script.
+
+Mutation check: when `planStaleSkillFile` treats every recorded file as unchanged, the four `setup skills` changed-copy cases fail. The planner was restored. `setup` plans these files with the planner's general managed-file rule, because the recorded entries have no Skill exposure. `setup skills` uses `planStaleSkillFile`.
+
+`make-docs update` updates only the CLI itself and changes no project file, so the phase's "`make-docs update`" means the project update that follows it: `make-docs setup`, then `make-docs setup skills`.
+
+### Guard Test (A18)
+
+`packages/cli/tests/w34-r0-p4-skill-scripts-guard.test.ts` (11 tests) walks `packages/skills/` and the Skill registry. It reports a `.py` file (`python-file`), a `.pyc` file (`python-bytecode`), a `__pycache__` folder (`pycache-folder`), a registry `.py` or `.pyc` entry (`registry-python-entry`), and a file in a Skill `scripts/` folder with no generator (`not-generated`). For `backlog-review/scripts/` it calls the P3 `checkPortableBacklogSkillScripts()`, pointed at the tree under test, which reports `bytes-differ`, `missing`, and `not-generated`. Hidden files such as `.DS_Store` are ignored, as in P3. `.agents/skills/` is out of scope: it is installed dogfood output, and P3 T7 and A15 keep its older scripts until the owner refreshes it after the release.
+
+Each planted case runs on a temporary copy of `packages/skills/`, and a clean copy passes first. Planted cases and their exact findings:
+
+| Planted case | Finding |
+| --- | --- |
+| `decompose-codebase/references/helper.py` | `python-file` |
+| `cleanup-docs/scripts/check.py` | `python-file` and `not-generated` |
+| `archive-docs/references/trace.cpython-314.pyc` | `python-bytecode` |
+| empty `preflight/__pycache__/` | `pycache-folder` |
+| registry entry `archive-docs/scripts/trace_relationships.py` | `registry-python-entry` (source and install path) |
+| `decompose-codebase/scripts/check-output.mjs` | `not-generated` |
+| `backlog-review/scripts/helper.mjs` | `not-generated` |
+| one appended line in `backlog-review/scripts/render-report.mjs` | `bytes-differ` |
+
+A live break also fails it: with `check_markdown_style.py` put back into the real `packages/skills/cleanup-docs/scripts/`, all 11 tests failed, because each case reads the real tree or a copy of it. The file was removed again.
+
+### Search (A19)
+
+`git grep -E 'python3|trace_relationships|check_markdown_style|probe_environment|validate_output|closeout-commit/scripts|closeout-phase/scripts' -- packages ':!packages/cli/tests'` finds nothing. In `packages/cli/tests/`, the names stay only in tests that check the removal (`install.test.ts`, `skill-catalog.test.ts`, `operations.test.ts`, `w34-r0-p2-skill-check-twins.test.ts`, and the two new files) and in `w34-r0-p1-ported-skill-checks.test.ts`, whose `describe` names trace each ported case to its source test. The built `dist/virtual_make-docs-first-party-skills-*.js` holds no `.py"` path.
+
+### Owner Decision (Finding 1)
+
+On 2026-11-23 an independent review raised finding 1: the new "Changed files kept for your review:" list in `packages/cli/src/skills-command.ts` was new behavior with no PRD line. The owner chose option A: keep the list, and:
+
+- PRD 08 gains R-SKILL-SETUP-8 with a Requirement History entry, and the code comment cites it.
+- The reason uses plain words: "You changed this file, so Make Docs kept it. Review it, then delete it or keep it."
+- Each file appears in only one list. A file with a staged conflict copy is listed only under "Conflicts were staged for manual review:".
+- A dry run says what would happen: "Changed files that setup would keep for your review:".
+
+All four points are done and tested (see Managed Removal above). The same review's low findings 2 to 7 are also fixed: the `_test.py` name rule is back in `classifyPath`; the W34 closeout hint appears only in the Make Docs repository; the removal test covers an unrecorded copy, `setup skills --remove`, and a Claude-only install; the smoke pack checks `.claude/skills/`; one sentence in `docs/assets/project/migrated-operations-inventory.md` names the removal; and the T3 task line notes the `setup` then `setup skills` path.
+
+### Commands and Results
+
+All commands ran in `packages/cli` or the repository root with a temporary `MAKE_DOCS_HOME`. No run read or wrote the real Store.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npm run build`: passed.
+- `npx vitest run` on the guard, managed-removal, Skill registry, embedded, install, Skill catalog, operations (closeout), consistency, the three W34 P1 and P2 files, the bundle, `skills-ui`, `w19-r5-skills-command`, `w33-r0-shipped-text-names`, and `audit` test files: 16 files and 353 tests passed.
+- `npx vitest run` on `uninstall`, `self-management`, `p8-retirement-migration`, and `skills-adoption-cli`: 4 files and 57 tests passed.
+- `npm run validate:defaults`: 3 files and 53 tests passed.
+- `bash scripts/check-instruction-routers.sh`: passed, outside the sandbox, because the sandbox blocks its `mktemp` folder.
+- `make-docs project paths validate --target .`: valid, 0 failing findings.
+- `make-docs check prd --target-root .`: 0 diagnostics.
+- `npm run smoke:pack:local`, outside the sandbox for the npm registry: passed (A16). It ran the new packed-registry and installed-tree Python checks with all eight Skills installed.
+- Full suite, `npx vitest run --reporter=json`, counted from the JSON: 145 files and 3163 tests: 3154 passed, 3 failed, 6 skipped. The 3 failures are known: `mcp-app-contract` (2, a Node deprecation warning on stderr) and `p5-migration-safety` fixture 11 (sandbox only). This run was before the review fixes.
+- After the independent review fixes: `npx tsc --noEmit -p .` and `npm run build` passed. The focused files above, plus `uninstall`, `self-management`, `p8-retirement-migration`, `skills-adoption-cli`, and `cli`: 21 files and 560 tests passed. `npm run validate:defaults`: 3 files and 53 tests passed. The smoke pack change (`.claude/skills/` check) passed `node --check`; the smoke pack was not run again.
+- After the owner decision on finding 1: `npx tsc --noEmit -p .` and `npm run build` passed. The same 21 focused files: 563 tests passed, including all 23 managed-removal tests and `w19-r5-skills-command`. `npm run validate:defaults`: 53 passed. `make-docs check prd --target-root .`: 0 diagnostics. `make-docs project paths validate --target .`: valid, 0 failing findings. `bash scripts/check-instruction-routers.sh`: passed, outside the sandbox. `make-docs project markdown validate` on PRD 08, the user guide, and the P4 phase file: no findings. Full suite, `npx vitest run --reporter=json`, counted from the JSON: 145 files and 3170 tests: 3161 passed, 3 failed, 6 skipped. The 3 failures are the known `mcp-app-contract` (2) and `p5-migration-safety` fixture 11.
+
+### Limits
+
+- The kept list is new output. The owner chose option A on 2026-11-23 (see Owner Decision below). The plan line for a kept file still says `skip`, because `cli.test.ts` requires plan lines without parentheses or `skip-conflict`. Full `make-docs setup` shows the file in its plan and routes it to `setup skills`; it does not print the list. A dry run lists a file even when the applied run would stage a conflict copy for it, because a dry run prints no staged list.
+- The removal tests build the older install by writing the old files and their Store records, not by running an older released CLI. The bytes are a stand-in; the planner compares only hashes.
+- `.agents/skills/` in this repository is outside the guard. It holds no Python, but its `backlog-review/scripts/` still has the two older hand-written scripts until P3 T7 and A15 close after the release.
+- `w34-r0-p1-ported-skill-checks.test.ts` keeps the removed test file names in its `describe` names, so each ported case traces to its source.
 
 ## P5 Acceptance
 

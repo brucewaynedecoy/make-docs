@@ -1,8 +1,8 @@
 /**
  * W34 R0 P1: document relations (PRD 39 R-SKILL-CHECK-3, R-SKILL-CHECK-7).
  *
- * This is the TypeScript form of the logic that lived in
- * `packages/skills/archive-docs/scripts/trace_relationships.py`. It finds
+ * This is the TypeScript form of the logic that lived in the Python relation
+ * tracer of the archive-docs Skill (removed in W34 R0 P4). It finds
  * designs, plans, work backlogs, history records, and guides, and the four
  * kinds of relation between them. Each relation names its kind and the file
  * that holds it. The archive-docs Skill text is the agent form and uses the
