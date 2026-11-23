@@ -5,6 +5,7 @@ import {
   statSync,
 } from "node:fs";
 import path from "node:path";
+import { TASK_ID_SOURCE } from "./task-line.js";
 import {
   listWaveEvidence,
   readWorkItemEvidence,
@@ -105,8 +106,11 @@ export interface WorkItemIdentityResolution {
 const WR_COORD_RE = /\bw\s*(\d+)\s*r\s*(\d+)(?:\s*p\s*(\d+))?\b/i;
 const WR_DIR_RE = /w(\d+)-r(\d+)/i;
 const PHASE_FILE_RE = /^(0[1-9]|[1-9]\d)-(.+)\.md$/;
-/** A task line. The ID letter may be `t` or `T`; both name the same task (PRD 14 R-COORD-22). */
-const TASK_RE = /^- \[([ xX])\] ([tT][1-9]\d*):\s*(.+)$/;
+/**
+ * A task line. The ID letter may be `t` or `T`; both name the same task (PRD 14 R-COORD-22).
+ * The ID rule comes from `TASK_ID_SOURCE`, its one home. Exported for its pattern test.
+ */
+export const TASK_RE = new RegExp(`^- \\[([ xX])\\] (${TASK_ID_SOURCE}):\\s*(.+)$`);
 const ACCEPTANCE_CHECKBOX_RE = /^- \[[ xX]\]\s+/;
 const BACKTICK_RE = /`([^`]+)`/g;
 const HEADING_RE = /^(#{1,6})\s+(.+?)\s*$/;

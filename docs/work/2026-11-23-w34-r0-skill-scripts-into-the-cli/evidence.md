@@ -105,7 +105,7 @@ P2 uses these IDs in the Skill text. Each finding names one of them.
 | `decomposition.work.stage-subsection-missing` | Each stage has Tasks, Acceptance criteria, and Dependencies subsections. |
 | `decomposition.task-id.no-task` | Each stage lists at least one task. |
 | `decomposition.task-id.line-format` | Each task line is `- [ ] TN: ...` or `- [x] TN: ...`. The task ID letter may be t or T. |
-| `decomposition.task-id.duplicate` | No two tasks in a phase share a task ID. t1 and T1 are the same ID. |
+| `decomposition.task-id.duplicate` | No two tasks in a phase share a task ID. The case of the task ID letter does not matter. |
 | `decomposition.task-id.sequence` | Task IDs count up from T1 across all stages of a phase, with no gap or reset. |
 | `decomposition.acceptance.empty` | Each stage lists at least one acceptance criterion. |
 | `decomposition.acceptance.checkbox` | Acceptance criteria are plain bullets, not checkboxes. |
@@ -642,7 +642,108 @@ All commands ran in `packages/cli` or the repository root with a temporary `MAKE
 
 ## P5 Acceptance
 
-Covers A20 to A22 in [P5](05-acceptance.md). Not started.
+Covers A20 to A22 in [P5](05-acceptance.md). Evidence date: 2026-11-23. Base commit: `43d5eb18` on `docs/w29-w30-work-store-and-factory`, which holds W29 R0 P3 and W34 R0 P1 to P4. The work is uncommitted.
+
+### Shared Task Label Reader (T8)
+
+W29 R0 P3 landed `readTaskLine` in `packages/cli/src/operations/work/task-line.ts`. It reads a task line, which has a checkbox (`- [ ] T1: ...`). The acceptance check looks for a task ID label in a plain bullet with no checkbox (`- T1: ...`), so `readTaskLine` cannot read that form. The change gives the task ID rule one home in `task-line.ts`:
+
+- `TASK_ID_SOURCE`, now exported, holds the ID rule: `t` or `T`, then a whole number from 1 with no leading zero.
+- `TASK_LINE_PATTERN` is now built from `TASK_ID_SOURCE`. Its source and flags are the same as before, so `readTaskLine` callers (the backlog snapshot and the work file parser) see no change. A test compares it with the W29 R0 P3 pattern.
+- New `TASK_LABEL_PATTERN` and `readTaskLabel(line)` read `- T3: ...` and `- t3: ...` and give the canonical ID `T3` and the ID as written. A checkbox line, a nested bullet, `T0`, `T01`, and a label without a colon give null.
+- `packages/cli/src/operations/decomposition/output.ts` drops `TASK_LABEL_IN_ACCEPTANCE_RE` and calls `readTaskLabel` for `decomposition.acceptance.task-id`.
+- Review fix: the work phase reader's `TASK_RE` in `packages/cli/src/operations/work/index.ts` is now built from `TASK_ID_SOURCE` too, and exported for its test. Its source and flags are the same as before. `check decomposition` reads task lines through `parseWorkPhase`, so after this fix every task ID pattern in the CLI that decides what a task is builds on the one rule.
+
+`packages/cli/tests/w34-r0-p5-acceptance-task-label.test.ts` (10 tests) checks that `TASK_LINE_PATTERN` and the work phase reader's `TASK_RE` have the same source and flags as before, that all three task ID patterns hold `TASK_ID_SOURCE`, the label reader on matches and near misses, the same result as the old pattern on 14 sample lines, and the same canonical ID as `readTaskLine`. Three cases run `check decomposition` on a fixture: an upper-case and a lower-case label each give `decomposition.acceptance.task-id`, a checkbox gives `decomposition.acceptance.checkbox` only, and `- A1: ...`, `- T0: ...`, and `- T1 without a colon` give no finding.
+
+Side-by-side run after T8: the old `validate_output.py` from `83073f13`, run with Python 3 on temporary fixtures only, against the built `check decomposition`. The fixtures are new for P5, because the P1 fixtures lived outside the repository: `clean` (minimal output with upper- and lower-case task IDs), `mixed` (17 acceptance lines in two stages: upper- and lower-case labels, `T10`, `T1:` with no text, `T0`, `T01`, two checkboxes, a nested label, `A21`, a label without a colon, a plain line, `tt1`, a large number, a lower-case label in the second stage, and `T7 :` with a space before the colon, plus the D1 and D2 task lines), and `repo-copy` (this repository's `docs/` and `.make-docs/`, 866 Markdown files under `docs/`).
+
+| Fixture | Script | Command | Acceptance task ID findings | Differences |
+| --- | --- | --- | --- | --- |
+| `clean` | 0, exit 0 | 0, exit 0 | 0 and 0 | None |
+| `mixed` | 14, exit 1 | 14, exit 1 | 7 and 7, the same lines | 3 each side, all from the task lines D1 and D2 that P1 recorded |
+| `repo-copy` | 712, exit 1 | 712, exit 1 | 0 and 0 | None, same order |
+
+The ported tests (58) pass after the switch. T8 adds no new difference.
+
+### Final Operations Against the P1 Evidence (T3)
+
+The other two old scripts from `83073f13` ran again against the final commands on the `repo-copy` fixture. Every difference has one of the P1 reasons:
+
+| Check | Script | Command | Differences |
+| --- | --- | --- | --- |
+| `check_markdown_style.py` / `project markdown validate` | 269 findings | 235 findings, same order for the shared ones | 34 script-only findings, all in the 15 files that the command skips (D7). No command-only finding. |
+| `check_markdown_style.py --fix` / `project markdown repair --apply` | 53 files changed | 40 files changed | 13 files: the 12 routers and `docs/prd/39-cli-command-model-and-operation-registry.md`, all skipped by the command (D7). Every other file has the same bytes. |
+| `trace_relationships.py` / `project relations list` | 1,241 artifacts, 11,206 relation entries | 1,241 artifacts, 11,168 relation entries | 88 script-only entries, all a W/R number inside a longer number (D6). 50 command-only entries, all from a link with a `#fragment` (D5). 14 shared entries are same-slug guesses in the script and links in the command (D5). |
+
+Since P1, the command skips two more files because they name the managed-block marker in prose: PRD 39 and this evidence report. The skip reason says "holds a make-docs managed block" for them too. See Limits.
+
+### Validation Items (A20)
+
+| Plan validation item | Evidence | Limit |
+| --- | --- | --- |
+| Validate the design, plan, PRD, work, path, link, and metadata contracts, and run `make-docs check prd`. | `make-docs check prd --target-root .`: 0 diagnostics. `make-docs project paths validate --target .`: valid, 0 failing findings. `make-docs project doctor check`: 0 findings after the P5 fix below. Router check passed. | None. |
+| Each new name passes R-NAME-1 to R-NAME-4 and fits 26 characters. | `name-catalog.test.ts`: 46 tests passed. | None. |
+| CLI and MCP parity for the four operations, in plain and JSON output. | `w34-r0-p1-skill-check-surfaces.test.ts`: 27 tests passed. | The MCP server of this session runs the released 2.0.9 CLI, which does not have the four tools. MCP parity rests on the tests. |
+| Every Python test case passes as a vitest case, and the side-by-side run lists each difference. | `w34-r0-p1-ported-skill-checks.test.ts`: 58 tests passed. P1 side-by-side run, and the P5 runs above. | The P1 fixtures are not in the repository. P5 used new fixtures. |
+| The twin rule ID test passes and fails on a one-sided fixture. | `w34-r0-p2-skill-check-twins.test.ts`: 15 tests passed. | It checks rule IDs, not wording. |
+| Each backlog-review script matches a fresh build byte for byte. | `backlog-review-skill-bundles.test.ts`: 14 tests passed. | The installed copy in `.agents/skills/` does not match yet (P3 T7 and A15). |
+| The guard test passes and fails on planted files. | `w34-r0-p4-skill-scripts-guard.test.ts`: 11 tests passed. | `.agents/skills/` is outside the guard. `find` found no Python there. |
+| An update removes each unchanged installed Python file and keeps a changed one. | `w34-r0-p4-removed-skill-scripts.test.ts`: 23 tests passed. | The older install is a stand-in, not a run of an older released CLI. |
+| `npm run smoke:pack` passes and the packed CLI embeds no `.py` file. | `npm run smoke:pack:local`: passed, with the P4 packed-registry and installed-tree Python checks. | It ran with a temporary `MAKE_DOCS_HOME`. |
+| No shipped text names a removed script, apart from history sections. | `git grep` for `python3` and the four script names in `packages/`, `docs/assets/user/`, and `docs/assets/maintainer/`, outside `packages/cli/tests/`: no match. | Dated project records keep the names they recorded. |
+| Run the full suite and record known failures. | See Commands and Results. | Known failures only. |
+| Complete a Human Experience Review for each promise. | See below (A21). | See each row. |
+
+### Human Experience Review (A21)
+
+Reviewed on the real Skill text in `packages/skills/` and the real plain output of each command on this repository, run from the built CLI with a temporary `MAKE_DOCS_HOME`. This is an agent review. It does not claim how a person feels about the result.
+
+| Promise | Observation | Conclusion | Limit | Next action |
+| --- | --- | --- | --- | --- |
+| `direct`: each check is one Make Docs command and one MCP tool with a name from the W33 rules. | Each command answers `--help` with its usage and options. The three commands that report findings also say when they exit 1. The catalog holds the four entries as `current`, and the name catalog test passes. Each command ran on this repository by its one name. | `satisfied` | The live MCP tools were not called: this session's MCP server is the released CLI. The tests prove the tool names and profiles. | None. |
+| `direct`: a check gives the same findings through the CLI and MCP, in plain words first, with a JSON form for agents. | `check decomposition` on a terminal: "Decomposition output check: failed. Found 629 findings in 207 files or folders. Changed nothing.", then the count by rule ID, then the findings grouped by file, each with its rule ID, then a `Next:` line. `markdown validate`: "Checked 851 Markdown files. Found 235 findings in 43 files: 178 repair can fix, 57 to review by hand. Skipped 15 files or folders that Make Docs owns or protects. Changes nothing.", with one `Skipped:` line and reason for each file. `markdown repair` without `--apply`: each file as "Would change: <path> (<lines before> lines -> <lines after> lines)", the exact lines removed and added, "Changed nothing.", and a `Next:` line that names `--apply`. No file changed. `relations list --path` on the W34 plan: one summary line, the Persona guide folders, and 7 relations, each with its direction, kind ID, and source file. The owner accepted this output shape in the P1 Guided Progress Review (A7). The parity tests pass. | `satisfied` | This repository is a Make Docs project, not a decomposition output, so `check decomposition` reports 629 findings here. The help says that the check is for a decompose-codebase result, but the plain output does not repeat it. `check decomposition` prints JSON to a pipe, as every `check` command does (R-RENDER). A file that names the managed-block marker in prose is skipped as if it holds a managed block (see Limits). | Both limits are register [D-067](../../prd/03-open-questions-and-risk-register.md), open: the owner chooses the marker rule, and a later Wave or quick item builds the fix. |
+| `direct`: without the CLI, the Skill tells the agent how to do the same check by hand, and the agent says that the result is a manual review. | Each of the three `SKILL.md` files lists the MCP tool, then the CLI command, then `Manual review:`, and says that a manual result is a manual review with the proof state `agent-reviewed`, that it does not claim a Make Docs check ran, and that no tool is installed without the person's consent. The manual steps point to `## Check Rules` in the `decompose-codebase` output contract (43 rule IDs), to `## Formatting Rules` in `cleanup-docs`, and to the tracing steps in the `archive-docs` workflow. `cleanup-docs` asks for the person's agreement before a manual repair. The twin test passes. | `satisfied` | No agent ran a Skill without the CLI for this review. The review covers the text. The twin test checks rule IDs, not wording. | None. |
+| `direct`: an update removes the old Python files from an installed Skill when Make Docs wrote them, and keeps any file that a person changed. | The managed-removal tests pass for all four files, for `setup` and `setup skills`, a dry run, `--remove`, and a Claude-only install. A kept file is named with "You changed this file, so Make Docs kept it. Review it, then delete it or keep it." (R-SKILL-SETUP-8). `smoke:pack` refuses an installed Python file. | `satisfied` | The older install is a test stand-in. No real older install was updated in this review. | None. |
+| `indirect`: a rule change in the CLI fails a test until the Skill text changes with it, and the other way around. | The twin test passes on the real Skills and fails on a fixture with an ID on one side only, either side. P2 recorded a live break that failed it. | `satisfied` | It checks rule IDs, not rule wording. | None. |
+
+### Register (A22)
+
+- [D-064](../../prd/03-open-questions-and-risk-register.md) is `Closed`. Each "To close" item holds: the seven files are removed (none is kept, so no reason to stay is needed); the Skill text, the Skill registry, and the closeout check name no removed file; and no logic is in both a script and the CLI, because the three checks live only in CLI operations and the `backlog-review` scripts are generated from CLI source with a byte-match test.
+- R-008 records that the helper-script part is closed. Its whole close bar is not met, so it stays `Open`: purpose metadata, MCP write and permission expansion, plugin and shared-agentics parity, and delivery-model work are still open.
+- New register entry [D-067](../../prd/03-open-questions-and-risk-register.md), `Open`, holds the two output limits that this review found: the managed-block marker skip and its wrong reason (owner decision needed), and the missing hint when `check decomposition` runs on a project that is not a decomposition output. It names its owner and route, as a bounded caveat must. It does not block D-064 or this Wave.
+- The one remaining W34 item is outside D-064: P3 T7 and A15, the installed copy in `.agents/skills/backlog-review/`. Its `render-report.mjs` and `collect-project-lead-context.mjs` still differ in bytes from the source. `report-contract.mjs` and `agent-contract.mjs` match. It waits for the release, as the owner chose on 2026-11-23.
+
+### Other Fix
+
+`make-docs project doctor check` found one lower-case task ID in prose in this report: the P1 rule ID table quoted the `decomposition.task-id.duplicate` description with a lower-case example ID. The doctor's suggested fix would read "T1 and T1 are the same ID", so the row now uses the `decompose-codebase` Skill wording: "The case of the task ID letter does not matter." The operation description in `output.ts` did not change.
+
+### Commands and Results
+
+All commands ran in `packages/cli` or the repository root with a temporary `MAKE_DOCS_HOME`. No run read or wrote the real Store. Python ran only for the side-by-side runs, on temporary copies.
+
+- `npm ci` and `node scripts/copy-template-to-cli.mjs`: done.
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npm run build`: passed.
+- `npx vitest run` on all six `w34-r0-*` files, `backlog-review-skill-bundles`, `name-catalog`, `consistency`, `w33-r0-shipped-text-names`, `skill-registry`, `skill-catalog`, `install`, `operations`, and `w29-r0-p3-parser-import-and-sync`: 15 files and 437 tests passed.
+- `npm run validate:defaults -w packages/cli`: 3 files and 53 tests passed.
+- `bash scripts/check-instruction-routers.sh`: passed, outside the sandbox, because the sandbox blocks its `mktemp` folder.
+- `make-docs check prd --target-root .`: 0 diagnostics.
+- `make-docs project paths validate --target .`: valid, 0 failing findings.
+- `make-docs project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: 1 prose finding before the fix above, 0 after.
+- `npm run smoke:pack:local`, outside the sandbox for the npm registry: passed.
+- Full suite, `npx vitest run --reporter=json`, counted from the JSON: 146 files and 3178 tests: 3169 passed, 3 failed, 6 skipped. The 3 failures are known: `mcp-app-contract` (2, a Node deprecation warning on stderr) and `p5-migration-safety` fixture 11 (sandbox only). No `w19-r5-skills-command` failure and no timeout this run.
+- After the register and evidence edits: `consistency`, `name-catalog`, `w33-r0-shipped-text-names`, `w34-r0-p2-skill-check-twins`, and `w34-r0-p5-acceptance-task-label`: 5 files and 118 tests passed. `make-docs check prd`, `project paths validate`, and `project doctor check` gave the same clean results again.
+- `make-docs project markdown validate` on the W34 backlog folder and the register: 9 `paragraph-wrap` findings, all in the register and all in the `43d5eb18` copy of it too, so P5 adds none. The command skips this report (see Limits). The old Python style check, run only for this check, finds no problem in this report or the P5 history record.
+
+- Independent review fixes (one MEDIUM, one LOW-MEDIUM, one NIT): `TASK_RE` now builds on `TASK_ID_SOURCE`; new register entry D-067; the D-064 Follow-Up cell starts with "None that blocks this entry." After the fixes: `npx tsc --noEmit -p .` and `npm run build` passed. All six `w34-r0-*` files, `w29-r0-p3-parser-import-and-sync`, `backlog-snapshot`, `backlog-snapshot-schema-version`, and `consistency`: 10 files and 293 tests passed, including the 10 tests of `w34-r0-p5-acceptance-task-label`. `consistency`, `name-catalog`, and `w33-r0-shipped-text-names` after the register edit: 3 files and 95 tests passed. `npm run validate:defaults -w packages/cli`: 53 passed. `make-docs check prd`: 0 diagnostics. `make-docs project paths validate`: valid, 0 failing findings. `make-docs project doctor check`: no problems. The side-by-side run on the rebuilt CLI gave the same counts as above: `clean` 0 and 0, `mixed` 14 and 14 with 7 and 7 acceptance task ID findings, `repo-copy` 712 and 712 in the same order. `project markdown validate` on the register still finds the same 9 older findings; D-067 adds none.
+- Register number: the new entry was first D-066. The parallel W29 R0 P4 work takes D-066, so this entry is D-067. On this branch alone, `consistency.test.ts` ("active risk register uses section-prefixed item IDs") fails, because it needs D numbers with no gap and D-066 is not here yet. It passes when W29 R0 P4's D-066 is merged in. `name-catalog` and `w33-r0-shipped-text-names` pass, and `make-docs check prd`, `project paths validate`, and `project doctor check` stay clean after the rename.
+
+### Limits
+
+- `parseWorkPhase` in `packages/cli/src/operations/work/index.ts` keeps its own task line pattern (`TASK_RE`), but builds its task ID part from `TASK_ID_SOURCE`. Only the full swap of `parseWorkPhase` to `readTaskLine` is out of scope: it would change what the backlog tools read, because `readTaskLine` also reads a task line with no ID. That swap belongs to the work reader's owner, not to this Wave.
+- The managed-block skip is by text. PRD 39, this evidence report, and one W19 plan file name the marker in prose, so `project markdown validate` and `repair` skip them and say "holds a make-docs managed block". The P1 owner choice took the safer skip. A finer match needs a new owner decision. Register [D-067](../../prd/03-open-questions-and-risk-register.md) holds this and the `check decomposition` hint as open follow-up work. No code changed for it in P5.
+- The side-by-side fixtures and scripts live outside the repository. The method above repeats the run.
 
 ### P3 Integration
 
@@ -661,3 +762,8 @@ Covers A20 to A22 in [P5](05-acceptance.md). Not started.
   - The twin test's no-server guard now covers all three Skills and also refuses `spawn_agent`.
   - The guides note above now names the planned-restructure note under `docs/assets/project/`.
 - Accepted as is: `decompose-codebase/references/harness-capability-matrix.md` names harnesses in its rows. It sets no default, so it stays.
+
+### P5 Integration
+
+- Merged on top of W29 R0 P4 (`56628de9`), which added register entry D-066. The register conflict kept both entries, D-066 then D-067, so the `consistency.test.ts` check for section-prefixed item IDs with no gap passes again.
+- Full suite after the merge, counted from the JSON reporter: 3314 tests, 3305 passed, 3 failed, 6 skipped. The 3 failures are the known ones (`mcp-app-contract` 2, `w19-r5-skills-command` 1). `validate:defaults` (53), the router check, `check prd` (0 diagnostics), and `project paths validate` (0 failing findings) pass.

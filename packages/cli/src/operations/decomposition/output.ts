@@ -9,11 +9,15 @@
  * (PRD 25 R-SKILL-RUNTIME-7).
  *
  * Task lines and task IDs come from the shared work phase reader
- * (`parseWorkPhase`, PRD 14 R-COORD-22), so a task ID rule change is made once.
+ * (`parseWorkPhase`, PRD 14 R-COORD-22). A task ID label in an acceptance line
+ * comes from the shared task line reader (`readTaskLabel`, W34 R0 P5 T8). Both
+ * build on `TASK_ID_SOURCE` in `../work/task-line.ts`, so a task ID rule
+ * change is made once.
  */
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { parseWorkPhase, type PhaseTask } from "../work";
+import { readTaskLabel } from "../work/task-line.js";
 
 export interface DecompositionRule {
   id: DecompositionRuleId;
@@ -107,7 +111,6 @@ const FENCE_RE = /^(`{3,}|~{3,})/;
 const INLINE_CODE_RE = /(`{1,2})(?!`)(.+?)(?<!`)\1(?!`)/g;
 const UNESCAPED_SPACE_RE = /(?<!\\) /;
 const ACCEPTANCE_CHECKBOX_RE = /^- \[[ xX]\]\s+/;
-const TASK_LABEL_IN_ACCEPTANCE_RE = /^- [tT][1-9]\d*:/;
 const INSTRUCTION_FILES = new Set(["AGENTS.md", "CLAUDE.md"]);
 
 interface DocRule {
@@ -543,7 +546,7 @@ function validateWorkPhaseDoc(file: string, text: string, sections: Map<string, 
       for (const item of items) {
         if (ACCEPTANCE_CHECKBOX_RE.test(item)) {
           out.add("decomposition.acceptance.checkbox", file, `acceptance criteria in '## ${stageTitle}' must be plain bullets, not checkboxes: ${item}`);
-        } else if (TASK_LABEL_IN_ACCEPTANCE_RE.test(item)) {
+        } else if (readTaskLabel(item) !== null) {
           out.add("decomposition.acceptance.task-id", file, `acceptance criteria in '## ${stageTitle}' must not use task ids: ${item}`);
         } else if (!item.startsWith("- ")) {
           out.add("decomposition.acceptance.bullet", file, `acceptance criteria in '## ${stageTitle}' must use plain '- ...' bullets: ${item}`);

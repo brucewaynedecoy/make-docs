@@ -53,7 +53,7 @@ Out of scope:
 
 - Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, with [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md) P1 beside them; then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 and P3 beside W33 R0 P2 to P5; then W29 R0 P4 to P6; then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md). This Wave runs beside W29 R0 and W30 R0.
 - Waits for: nothing. P1 and P3 can start now.
-- Runs beside: W29 R0 and W30 R0. No Wave depends on this one, and this Wave depends on none of them. Until P5 closes, the D-064 hold stays: no new Python file and no new logic in these scripts.
+- Runs beside: W29 R0 and W30 R0. No Wave depends on this one, and this Wave depends on none of them. P5 closed D-064 on 2026-11-23, so its hold has ended. The P4 guard test keeps first-party Skills free of Python.
 - Next: no Wave waits for this one.
 - Recommended order: start P1 and P3 now. Merge whichever of this Wave's P1 and W29 R0 P4 is ready first. The other one rebases.
 
@@ -80,9 +80,11 @@ W30 R0 also changes `packages/cli/skill-registry.json` and `packages/skills/READ
 - Template-first rule: no file in `packages/docs/template/` names these scripts, and the agent forms stay in the Skills. If a task adds or changes a shipped system resource, write it first in `packages/docs/template/`, then copy it byte for byte to this repository's `.make-docs/` or `docs/`. The Skills keep `packages/skills/` as their only authoring source.
 - Evidence: [W34 R0 Evidence Report](evidence.md).
 - Source register entries: [D-064 and R-008](../../prd/03-open-questions-and-risk-register.md). No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
+- Status: `active` on 2026-11-23. All five phases are built, and D-064 is closed ([P5 evidence](evidence.md#p5-acceptance)). One task stays open: P3 T7 and A15, the refresh of the installed `backlog-review` copy in `.agents/skills/`, which the owner does with `make-docs update` after the release. The index stays `active` until that task is done, because no completed backlog keeps an open task.
 
 ## Change History
 
+- 2026-11-23, W34 R0 P5: T8 adds `readTaskLabel` to `packages/cli/src/operations/work/task-line.ts`, because `readTaskLine` reads only a task line with a checkbox and the acceptance check looks for a task ID label without one. Both readers share one task ID rule, `TASK_ID_SOURCE`, and the work phase reader's `TASK_RE` builds on it too. `TASK_LINE_PATTERN` and `TASK_RE` do not change. PRD decision: `none`.
 - 2026-11-23, W34 R0 P1 review: P5 gains T8. After W29 R0 P3 lands its shared task line reader, the acceptance task ID check of `check decomposition` switches to it, and the P1 side-by-side run is repeated. PRD 39 R-SKILL-CHECK-2 now records that `check decomposition` reads PRD sections with its own reader, a departure from the plan.
 
 ## Intended Follow-On

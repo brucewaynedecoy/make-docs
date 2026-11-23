@@ -8,14 +8,29 @@
  * older files: `- [x] Write the parser.`
  *
  * The backlog snapshot and the work store parser use this one reader, so they
- * always agree on what a task line is. The W34 decomposition check still has
- * its own `TASK_LABEL_IN_ACCEPTANCE_RE` for task labels in acceptance lines;
- * W34 R0 P5 T8 moves it to this reader. The project doctor's lower-case finder is a separate text
- * scan on purpose: it reports text, and never decides what a file means.
+ * always agree on what a task line is. The task ID rule has one home:
+ * `TASK_ID_SOURCE`. This file builds `TASK_LINE_PATTERN` and
+ * `TASK_LABEL_PATTERN` from it, and the work phase reader (`parseWorkPhase`
+ * in `./index.ts`) builds its task line pattern from it. The W34
+ * decomposition check reads task lines through `parseWorkPhase` and task
+ * labels in acceptance lines through `readTaskLabel` (W34 R0 P5 T8). The
+ * project doctor's lower-case finder is a separate text scan on purpose: it
+ * reports text, and never decides what a file means.
  */
 
+/** The task ID rule: `t` or `T`, then a whole number from 1 with no leading zero. A regular expression source with no group. */
+export const TASK_ID_SOURCE = "[tT][1-9]\\d*";
+
 /** `- [ ] T3: text`, `- [x] t3: text`, or `- [X] text`. Group 1: mark. Group 2: ID. Group 3: text. */
-export const TASK_LINE_PATTERN = /^- \[([ xX])\]\s+(?:([tT][1-9]\d*):\s*)?(.+?)\s*$/;
+export const TASK_LINE_PATTERN = new RegExp(`^- \\[([ xX])\\]\\s+(?:(${TASK_ID_SOURCE}):\\s*)?(.+?)\\s*$`);
+
+/**
+ * `- T3: text` or `- t3: text`: a plain bullet that starts with a task ID label
+ * and has no checkbox. Group 1: ID. A task line (with a checkbox) does not
+ * match. The decomposition check uses it to find a task ID in an acceptance
+ * criterion (`decomposition.acceptance.task-id`).
+ */
+export const TASK_LABEL_PATTERN = new RegExp(`^- (${TASK_ID_SOURCE}):`);
 
 export interface TaskLine {
   /** The mark character as written: a space, `x`, or `X`. */
@@ -65,4 +80,23 @@ export function readTaskLine(line: string): TaskLine | null {
 /** `t3` and `T3` are the same task ID. The canonical form uses `T`. */
 export function canonicalTaskId(id: string): string {
   return `T${id.slice(1)}`;
+}
+
+export interface TaskLabel {
+  /** The canonical task ID with an upper-case `T`, such as `T3`. */
+  id: string;
+  /** The ID exactly as written, such as `t3`. */
+  idAsWritten: string;
+}
+
+/**
+ * Read the task ID label at the start of a plain bullet, such as `- T3: text`,
+ * or return null. A task line with a checkbox returns null; use `readTaskLine`
+ * for it. Reading never changes the text.
+ */
+export function readTaskLabel(line: string): TaskLabel | null {
+  const match = TASK_LABEL_PATTERN.exec(line);
+  if (!match) return null;
+  const idAsWritten = match[1]!;
+  return { id: canonicalTaskId(idAsWritten), idAsWritten };
 }

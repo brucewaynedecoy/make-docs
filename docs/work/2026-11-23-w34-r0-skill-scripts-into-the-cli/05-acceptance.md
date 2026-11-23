@@ -55,11 +55,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T1: Run the name catalog, parity, ported, twin, byte-match, guard, managed-removal, and shipped-text tests.
-- [ ] T2: Run `npm run smoke:pack` and the full test suite. Record known failures.
-- [ ] T3: Check the P1 side-by-side evidence against the final operations.
-- [ ] T4: Complete a Human Experience Review for each promise in the index trace. Review the real text of the three Skills and the real plain output of each command.
-- [ ] T5: Give the owner a short optional experience handoff: run each command on this repository and notice the plain result.
+- [x] T1: Run the name catalog, parity, ported, twin, byte-match, guard, managed-removal, and shipped-text tests.
+- [x] T2: Run `npm run smoke:pack` and the full test suite. Record known failures.
+- [x] T3: Check the P1 side-by-side evidence against the final operations.
+- [x] T4: Complete a Human Experience Review for each promise in the index trace. Review the real text of the three Skills and the real plain output of each command.
+- [x] T5: Give the owner a short optional experience handoff: run each command on this repository and notice the plain result.
 
 ### Acceptance criteria
 
@@ -74,9 +74,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T6: Update D-064 to `Closed` with the evidence. Update R-008 for the helper-script part. Check whether R-008's whole close bar is now met, and close it only if it is.
-- [ ] T7: Record the evidence in [evidence.md](evidence.md).
-- [ ] T8: When W29 R0 P3 has landed its shared task line reader (`readTaskLine`), switch the acceptance task ID check in `packages/cli/src/operations/decomposition/output.ts` (`TASK_LABEL_IN_ACCEPTANCE_RE`) to that reader. Then rerun the ported tests and the P1 side-by-side run, and record any new difference in [evidence.md](evidence.md). If W29 R0 P3 has not landed, record that this task waits for it.
+- [x] T6: Update D-064 to `Closed` with the evidence. Update R-008 for the helper-script part. Check whether R-008's whole close bar is now met, and close it only if it is.
+- [x] T7: Record the evidence in [evidence.md](evidence.md).
+- [x] T8: When W29 R0 P3 has landed its shared task line reader (`readTaskLine`), switch the acceptance task ID check in `packages/cli/src/operations/decomposition/output.ts` (`TASK_LABEL_IN_ACCEPTANCE_RE`) to that reader. Then rerun the ported tests and the P1 side-by-side run, and record any new difference in [evidence.md](evidence.md). If W29 R0 P3 has not landed, record that this task waits for it.
 
 ### Acceptance criteria
 
@@ -88,10 +88,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing `selected` and done. The 15 focused files (all six `w34-r0-*` files, the bundle, name catalog, consistency, shipped-text, Skill registry, Skill catalog, install, operations, and W29 R0 P3 parser tests) pass with 437 tests, `npm run smoke:pack:local` passes, and the full suite has only known failures (see the evidence). T8 adds `w34-r0-p5-acceptance-task-label.test.ts` (10 tests). After the independent review fixes, the six `w34-r0-*` files, the W29 R0 P3 parser, the two backlog snapshot files, and consistency pass with 293 tests. Performance Testing `not-needed-now`: no performance candidate exists. Guided Progress Review `selected`: the owner sees the Human Experience Review result below and in the evidence. Unassisted Goal Testing `not-needed-now`: no current decision needs an unassisted human run.
+- Performance evidence: none needed. No measurement was taken.
+- Human Experience Review: done for all five promises in the [index trace](00-index.md#human-experience-trace), on the real text of the three Skills and the real plain output of the four commands on this repository. All five are `satisfied` within their limits. The main limits: the live MCP tools were not called, because this session's MCP server is the released CLI; no agent ran a Skill without the CLI; the twin test checks rule IDs, not wording; `check decomposition` reports 629 findings on this repository because it is not a decomposition output, and the plain output does not say what kind of project the check is for; and a file that names the managed-block marker in prose is skipped as if it holds a managed block. The last two limits are open register entry D-067, with the owner's choice of the marker rule as its next step. See [Human Experience Review (A21)](evidence.md#human-experience-review-a21).
+- Optional experience handoff: run `make-docs project markdown validate --path docs/designs` and notice that the first line gives the totals, what repair can fix, and what needs a person. Then run `make-docs project markdown repair --path docs/designs` and notice that it shows each exact line change and says "Changed nothing." Then run `make-docs project relations list --path docs/plans/2026-11-23-w34-r0-skill-scripts-into-the-cli` and notice that each relation names its kind and its source file. Feedback is welcome and optional.
+- Explicit human acceptance gate: none for this phase. P3 T7 and A15 stay open: the owner refreshes the installed `backlog-review` copy with `make-docs update` after the release.
+- Evidence report: [P5 Acceptance](evidence.md#p5-acceptance).
+- Phase / capability status: complete and uncommitted, on `43d5eb18`. A20, A21, and A22 pass. T8 is done: the acceptance task ID check uses `readTaskLabel` from the shared task line reader, the work phase reader's `TASK_RE` builds on the same `TASK_ID_SOURCE`, and the side-by-side run shows no new difference. D-064 is closed. R-008 records the helper-script result and stays open for its other parts. New D-067 is open for the two output limits. The Wave has one open task, P3 T7 and A15, which waits for the release.
