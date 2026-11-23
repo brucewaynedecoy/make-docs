@@ -63,6 +63,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - [ ] T9: Build `add` for quick items with the next plain quick item number of the project.
 - [ ] T10: Accept `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/tasks/<n>` in the shared resource resolver, CLI `resource read`, the `resource_read` tool, and native MCP resource reads. Resolve the project by name or project ID only. Open a read-only Store session only for project URIs.
 - [ ] T11: Accept `make-docs://project/<project>/backlog/` and its coordinate paths down to a stage or task, with each unit's readiness, wait reasons, claim, links, and child list.
+- [ ] T12: Build a scoped cleanup of one project's work rows (units, dependencies, links, and claims) that runs only after `work export` has written that project's work, for a project that a prune removed from the project register. A project prune keeps these rows today (W29 R0 P2 review).
+- [ ] T13: Before building `claim` and `release`, decide with the owner whether to hide claim IDs from callers that do not hold the claim, or to make a release also check the claimant. Today the P2 Store service releases a claim for any caller that names its claim ID, and `readWorkClaim` shows the claim ID to any caller.
+- [ ] T14: Ask the owner whether to add a report-only Store decision item for work claims that expired more than a set number of days ago. It stays a proposal, with no fixed rule that deletes an expired claim, until the owner decides (W29 R0 P2 evidence).
 
 ### Acceptance criteria
 

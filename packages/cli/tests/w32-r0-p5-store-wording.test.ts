@@ -156,7 +156,7 @@ describe("W32 R0 P5 Store wording", () => {
     expect(text).not.toContain("Store check:");
     expect(count(text, "Next: ")).toBe(1);
     expect(count(text, "Store: ")).toBe(1);
-    expect(text).toContain("(schema 7,");
+    expect(text).toContain("(schema 8,");
     expect(text).toContain("Fixed rules:");
   });
 

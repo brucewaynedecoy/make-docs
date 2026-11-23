@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { WORK_STORE_RMIN_ROWS } from "./work-store-schema";
 
 /**
  * W32 R0 P1 Store table catalog and fixed maintenance rules (PRD 38 R-MAINT).
@@ -17,7 +18,7 @@ export const STORE_TABLE_CATALOG_ID = "make-docs.store-table-catalog.v1";
 export const STORE_TABLE_CATALOG_VERSION = 1;
 
 /** The physical schema version that this catalog describes. */
-export const STORE_TABLE_CATALOG_PHYSICAL_SCHEMA_VERSION = 7;
+export const STORE_TABLE_CATALOG_PHYSICAL_SCHEMA_VERSION = 8;
 
 /** PRD 38 R-MIN-1 record classes, in PRD order. */
 export const STORE_RECORD_CLASSES = [
@@ -54,6 +55,12 @@ export const STORE_TABLE_NAMES = [
   "store_migration_receipts",
   "backlog_review_cache",
   "project_register",
+  "work_units",
+  "work_dependencies",
+  "work_links",
+  "work_claims",
+  "work_sync_ledger",
+  "work_sync_conflicts",
 ] as const;
 export type StoreTableName = (typeof STORE_TABLE_NAMES)[number];
 
@@ -592,6 +599,109 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     decisionItems: [],
     humanMeaning: "The list of your projects, with their short names.",
   },
+  {
+    table: "work_units",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: [
+      "project_id", "store_id", "kind", "coordinate", "parent_store_id", "title", "body", "recorded_status", "status",
+      "close_outcome", "unresolved_dependencies_json", "gates_json", "blockers_json", "source_path", "copy_state", "revision",
+    ],
+    purpose: "One row for each work unit of a project: wave, revision, phase, stage, task, or quick item, with its status, gates, blockers, and record revision (PRD 52).",
+    writers: ["work-store.ts putWorkUnit and createQuickItem, with an expected version on every write, in the same transaction as the project's register row"],
+    readers: ["work-store.ts readWorkUnit, findWorkUnitByCoordinate, and listWorkUnits, for the work operations, the backlog snapshot, the factory, status, and export"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work store records (schema v8)", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row while the project is bound. Quick items have no repo copy, so their rows are the only record of them.")],
+    retention: "Retain while the project is bound. Remove only under explicit scoped project-state cleanup after export. No fixed rule removes a unit.",
+    decisionItems: [],
+    humanMeaning: "Your work items: backlog units and quick items. Maintenance never removes them.",
+  },
+  {
+    table: "work_dependencies",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["project_id", "unit_store_id", "ordinal", "depends_on_store_id", "source_text", "source_path", "source_line"],
+    purpose: "The dependencies of each work unit: the unit it waits for, by store ID in the same project, and the bullet text it came from.",
+    writers: ["work-store.ts putWorkUnit, which replaces a unit's dependency list with the unit in one write"],
+    readers: ["work-store.ts readWorkUnit and listWorkUnits, for readiness, the ready order, and wait reasons"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work store records (schema v8)", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row while its unit exists. Deleting a unit deletes its dependency rows.")],
+    retention: "Retain with the unit. A unit that another unit depends on cannot be deleted first.",
+    decisionItems: [],
+    humanMeaning: "Which work waits for which. Maintenance never removes it.",
+  },
+  {
+    table: "work_links",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["unit_store_id", "ordinal", "direction", "kind", "path", "anchor"],
+    purpose: "The links of each work unit to its design, plan, PRD sections, evidence, request, and work file, in both directions (R-WORK-STORE-5).",
+    writers: ["work-store.ts putWorkUnit, which replaces a unit's link list with the unit in one write"],
+    readers: ["work-store.ts readWorkUnit and listWorkUnits, for project resource URIs, status, and export"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work store records (schema v8)", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row while its unit exists. Deleting a unit deletes its link rows.")],
+    retention: "Retain with the unit.",
+    decisionItems: [],
+    humanMeaning: "Where each work item points in your documents. Maintenance never removes it.",
+  },
+  {
+    table: "work_claims",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["claim_id", "project_id", "unit_store_id", "claimant", "task_handle", "claimed_at", "renewed_at", "expires_at", "takeover_observation"],
+    purpose: "The claim on a work unit: who holds it, the task handle, and when it ends. The UNIQUE unit_store_id column allows one claim row for each unit, live or expired (R-WORK-QUEUE-6).",
+    writers: ["work-store.ts claimWorkUnit (claim, renewal, and takeover after a handle check), releaseWorkClaim, and the close write, each with the unit's expected version"],
+    readers: ["work-store.ts readWorkClaim and checkWorkUnitWriteClaim, for readiness, the factory, and status"],
+    recordClass: "short-lived mutation guard",
+    rMinRows: [{ row: "Work claims", classCell: "Short-lived mutation guard" }],
+    rowClasses: [{
+      rows: "Every row, live or expired.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each work unit, enforced by the schema. Release, close, and takeover delete or replace it, and deleting a unit deletes its claim. No fixed rule removes an expired claim: an expired claim holds its unit until a takeover after a handle check or a release (PRD 52 R-WORK-QUEUE-4, R-WORK-QUEUE-7).",
+    }],
+    retention: "Delete on release, close, or expiry takeover. Never retained as history.",
+    decisionItems: [],
+    humanMeaning: "Who is working on what right now. A claim that ran out stays until someone checks the old task and takes over, or releases it.",
+  },
+  {
+    table: "work_sync_ledger",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "target_path", "unit_store_ids_json", "digest_algorithm", "last_applied_digest", "store_revision", "synced_at", "entry_version"],
+    purpose: "The last applied digest of each repo copy file in one checkout, so sync can tell a person's edit from its own write (R-WORK-STORE-7, R-WORK-SYNC-1).",
+    writers: ["work-store.ts putSyncLedgerEntry and deleteSyncLedgerEntry, with an expected entry version, for work store sync"],
+    readers: ["work-store.ts readSyncLedgerEntry and listSyncLedger, for sync, status, export, and repo copy removal"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work sync ledger", classCell: "Store-canonical and non-rebuildable minimum last-applied state" }],
+    rowClasses: [keepRows("Every row while its repo copy exists. Removing a checkout removes its rows.")],
+    retention: "Retain while the repo copy exists. The sync writer removes a row after a verified copy removal or with the repo copy off. No fixed rule removes it, because a lost row makes sync stop the file as a conflict.",
+    decisionItems: [],
+    humanMeaning: "What Make Docs last wrote to each work file in this folder. It stays while the file is a copy of the work store.",
+  },
+  {
+    table: "work_sync_conflicts",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "target_path", "kind", "file_digest", "ledger_digest", "store_revision", "affected_unit_store_ids_json", "detected_at", "entry_version"],
+    purpose: "An unsettled sync conflict for one repo copy file in one checkout, with the units it blocks (R-WORK-SYNC-4, R-WORK-SYNC-5).",
+    writers: ["work-store.ts putSyncConflict and deleteSyncConflict, with an expected entry version, for work store sync and settle"],
+    readers: ["work-store.ts listSyncConflicts, for sync, status, readiness, and settle"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: "Work sync conflicts", classCell: "Store-cached and rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each repo copy file in each checkout, enforced by the primary key. Settle deletes it, the next sync rebuilds it, and removing a checkout removes its rows.",
+    }],
+    retention: "Delete when settled; rebuilt by the next sync.",
+    decisionItems: [],
+    humanMeaning: "Work files where both the file and the work store changed. They wait for you to pick a side.",
+  },
 ]);
 
 /**
@@ -604,10 +714,6 @@ export const STORE_NON_TABLE_RMIN_ROWS: readonly (StoreRMinRowClaim & { location
   { row: "Global config machine preferences", classCell: "Store-canonical and non-rebuildable", location: "Store file `config.json`, not a table." },
   { row: "Global manifest minimum", classCell: "Store-canonical and non-rebuildable", location: "Store file for the global manifest, not a table." },
   { row: "Project config `work` and `factory` blocks", classCell: "Repository-canonical and portable", location: "Repository file `.make-docs/config.yaml`." },
-  { row: "Work store records (schema v8)", classCell: "Store-canonical and non-rebuildable", location: "Planned schema v8 table, added by W29 R0 P2." },
-  { row: "Work sync ledger", classCell: "Store-canonical and non-rebuildable minimum last-applied state", location: "Planned schema v8 table, added by W29 R0 P2." },
-  { row: "Work sync conflicts", classCell: "Store-cached and rebuildable", location: "Planned schema v8 table, added by W29 R0 P2." },
-  { row: "Work claims", classCell: "Short-lived mutation guard", location: "Planned schema v8 table, added by W29 R0 P2." },
   { row: "Factory machine tools", classCell: "Store-cached and rebuildable", location: "Planned factory table, added by W30 R0." },
   { row: "Factory workflow bindings", classCell: "Store-canonical and non-rebuildable", location: "Planned factory table, added by W30 R0." },
   { row: "Factory grants", classCell: "Store-canonical and non-rebuildable", location: "Planned factory table, added by W30 R0." },
@@ -1598,6 +1704,17 @@ interface StoreCatalogDriftInput {
   kinds: readonly string[];
 }
 
+/**
+ * PRD 38 R-MIN rows that more than one table may claim, with the only tables
+ * that may share each one. R-MIN-2 lets a physical schema group fields
+ * differently; this list names each grouping on purpose. Today only the work
+ * store records row is shared: units, dependencies, and links (W29 R0 P2).
+ * Any other row claimed by two catalog entries is drift.
+ */
+export const STORE_SHARED_RMIN_ROWS: Readonly<Record<string, readonly StoreTableName[]>> = Object.freeze({
+  [WORK_STORE_RMIN_ROWS.units]: ["work_units", "work_dependencies", "work_links"],
+});
+
 /** Read table names, columns, and record kinds. Reads only `sqlite_master` and `PRAGMA table_info`. */
 export function readPhysicalStoreSchema(db: {
   prepare(sql: string): { all(...args: unknown[]): unknown[] };
@@ -1691,7 +1808,12 @@ export function storeCatalogDrift(
   for (const row of rMinRows) {
     const owners = claims.filter((claim) => row.label.startsWith(claim.rMinRow));
     if (owners.length === 0) drift.push(`R-MIN row "${row.label.slice(0, 60)}" has no catalog entry.`);
-    if (owners.length > 1) drift.push(`R-MIN row "${row.label.slice(0, 60)}" has ${owners.length} catalog entries.`);
+    // A row may govern several tables only when STORE_SHARED_RMIN_ROWS names it,
+    // every owner is one of its named tables, and they all give it one class.
+    const sharedTables = Object.entries(STORE_SHARED_RMIN_ROWS).find(([label]) => row.label.startsWith(label))?.[1];
+    const sharedByTables = owners.length > 1 && sharedTables !== undefined &&
+      owners.every((owner) => (sharedTables as readonly string[]).includes(owner.owner) && owner.classCell === owners[0]!.classCell);
+    if (owners.length > 1 && !sharedByTables) drift.push(`R-MIN row "${row.label.slice(0, 60)}" has ${owners.length} catalog entries.`);
   }
   return drift;
 }

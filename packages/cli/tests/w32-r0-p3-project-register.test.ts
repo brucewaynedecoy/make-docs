@@ -266,7 +266,7 @@ describe("W32 R0 P3 row events (A11)", () => {
     const parent = base();
     const store = path.join(parent, "store");
     const { rows } = event(store, () => withStoreDatabase(store, () => undefined));
-    expect(rows).toEqual({ store_schema_journal: { created: 5 } });
+    expect(rows).toEqual({ store_schema_journal: { created: 6 } });
     expect(register(store)).toEqual([]);
   });
 

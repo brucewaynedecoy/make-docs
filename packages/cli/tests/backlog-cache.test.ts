@@ -237,9 +237,10 @@ describe("backlog review cache", () => {
 
   /**
    * Make a Store that looks as Make Docs left it at schema 5: no cache table, no
-   * schema 6 or later journal rows, and none of the schema 7 objects (guard
-   * triggers and `project_register`). A Store set back with those still present
-   * is refused as changed outside Make Docs (R-WRITE-GUARD-4).
+   * schema 6 or later journal rows, none of the schema 7 objects (guard
+   * triggers and `project_register`), and none of the schema 8 work store
+   * tables. A Store set back with those still present is refused as changed
+   * outside Make Docs (R-WRITE-GUARD-4).
    */
   function setStoreBackToSchema5(db: Parameters<Parameters<typeof withStoreDatabase>[1]>[0]): void {
     for (const { name } of db.prepare("SELECT name FROM sqlite_schema WHERE type = 'trigger'").all() as Array<{ name: string }>) {
@@ -247,6 +248,9 @@ describe("backlog review cache", () => {
     }
     db.exec("DROP TABLE backlog_review_cache");
     db.exec("DROP TABLE IF EXISTS project_register");
+    for (const table of ["work_claims", "work_dependencies", "work_links", "work_sync_conflicts", "work_sync_ledger", "work_units"]) {
+      db.exec(`DROP TABLE IF EXISTS ${table}`);
+    }
     db.exec("DELETE FROM store_schema_journal WHERE schema_version>=6");
     db.exec("PRAGMA user_version=5");
   }

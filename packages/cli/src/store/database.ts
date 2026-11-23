@@ -22,6 +22,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { platform } from "../platform";
 import { getStoreDatabasePath } from "./paths";
+import { WORK_STORE_SINCE_SCHEMA, WORK_STORE_TABLE_NAMES, WORK_STORE_V8_STATEMENTS } from "./work-store-schema";
 
 /**
  * SQLite operational database for the global store (R-DB-1 through R-DB-4).
@@ -42,7 +43,7 @@ import { getStoreDatabasePath } from "./paths";
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 7;
+export const CURRENT_STORE_SCHEMA_VERSION = 8;
 
 /**
  * Store write guard (PRD 38 R-WRITE-GUARD). Every Store table has
@@ -186,29 +187,59 @@ export function inspectStoreWriteGuard(db: StoreDatabase): string[] {
 }
 
 /**
- * Find schema 7 objects in a Store that reports an older schema (R-WRITE-GUARD-4).
- * A Store that Make Docs left at schema 6 or older never has a write guard trigger,
- * a `project_register` table, or a schema journal row newer than its
- * `user_version`. When one of them is present, the version was set back outside
- * Make Docs, and the guard check that starts at schema 7 must not be skipped.
+ * Tables that a schema from the write guard on creates, with that schema.
+ * A Store that reports an older `user_version` never has one of them.
+ */
+const STORE_ROLLBACK_MARKER_TABLES: ReadonlyArray<{ table: string; sinceSchema: number }> = Object.freeze([
+  { table: "project_register", sinceSchema: STORE_WRITE_GUARD_SINCE_SCHEMA },
+  ...WORK_STORE_TABLE_NAMES.map((table) => ({ table, sinceSchema: WORK_STORE_SINCE_SCHEMA })),
+]);
+
+/**
+ * Find objects of a newer schema in a Store that reports an older one
+ * (R-WRITE-GUARD-4). A Store that Make Docs left at a schema never has a write
+ * guard trigger from schema 7 when it reports schema 6 or older, a table that
+ * a later schema creates (such as `project_register` from schema 7 or the
+ * work store tables from schema 8), or a schema journal row newer than its
+ * `user_version`. When one of them is present, the version was set back
+ * outside Make Docs: the guard check that starts at schema 7 must not be
+ * skipped, and a migration must not run again over the newer objects.
  * Returns one plain sentence for each finding. Reads only `sqlite_schema` and
  * the journal. An empty list means no rollback marker was found.
  */
 export function inspectStoreVersionRollback(db: StoreDatabase): string[] {
   const version = readUserVersion(db);
-  if (version >= STORE_WRITE_GUARD_SINCE_SCHEMA) return [];
+  if (version >= CURRENT_STORE_SCHEMA_VERSION) return [];
   const problems: string[] = [];
-  const guardTriggers = db.prepare(
-    "SELECT count(*) AS n FROM sqlite_schema WHERE type = 'trigger' AND sql LIKE ?",
-  ).get(`%${STORE_WRITE_GUARD_FUNCTION}%`) as { n: number | bigint };
-  if (Number(guardTriggers.n) > 0) problems.push(`The Store reports schema ${version} but has write guard triggers from schema ${STORE_WRITE_GUARD_SINCE_SCHEMA}.`);
+  if (version < STORE_WRITE_GUARD_SINCE_SCHEMA) {
+    const guardTriggers = db.prepare(
+      "SELECT count(*) AS n FROM sqlite_schema WHERE type = 'trigger' AND sql LIKE ?",
+    ).get(`%${STORE_WRITE_GUARD_FUNCTION}%`) as { n: number | bigint };
+    if (Number(guardTriggers.n) > 0) problems.push(`The Store reports schema ${version} but has write guard triggers from schema ${STORE_WRITE_GUARD_SINCE_SCHEMA}.`);
+  }
   const tables = new Set((db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>).map((row) => row.name));
-  if (tables.has("project_register")) problems.push(`The Store reports schema ${version} but has the project_register table from schema ${STORE_WRITE_GUARD_SINCE_SCHEMA}.`);
+  for (const marker of STORE_ROLLBACK_MARKER_TABLES) {
+    if (marker.sinceSchema > version && tables.has(marker.table)) {
+      problems.push(`The Store reports schema ${version} but has the ${marker.table} table from schema ${marker.sinceSchema}.`);
+    }
+  }
   if (tables.has("store_schema_journal")) {
     const newest = db.prepare("SELECT max(schema_version) AS v FROM store_schema_journal").get() as { v: number | bigint | null };
     if (newest.v !== null && Number(newest.v) > version) problems.push(`The Store reports schema ${version} but its schema journal records schema ${Number(newest.v)}.`);
   }
   return problems;
+}
+
+/**
+ * Every write guard and rollback problem of an open Store: from schema 7 the
+ * guard triggers of every table (inspectStoreWriteGuard), and for any schema
+ * older than the current one the objects of a newer schema
+ * (inspectStoreVersionRollback). An empty list means the Store is as Make
+ * Docs left it.
+ */
+export function inspectStoreGuardAndVersion(db: StoreDatabase): string[] {
+  const guard = readUserVersion(db) >= STORE_WRITE_GUARD_SINCE_SCHEMA ? inspectStoreWriteGuard(db) : [];
+  return [...guard, ...inspectStoreVersionRollback(db)];
 }
 
 /** The name of a finished `setup store clean` backup in `<store>/backup/` (W32 R0 P4). */
@@ -237,7 +268,7 @@ export function isVerifiedStoreBackupFile(file: string): boolean {
     db = openSqliteWithRetry(driver.sqlite, file, { readOnly: true }, "verify Store backup", undefined, false);
     const check = db.prepare("PRAGMA quick_check").get() as { quick_check?: string } | undefined;
     const version = readUserVersion(db);
-    return check?.quick_check === "ok" && version >= 1 && (version < STORE_WRITE_GUARD_SINCE_SCHEMA ? inspectStoreVersionRollback(db) : inspectStoreWriteGuard(db)).length === 0;
+    return check?.quick_check === "ok" && version >= 1 && inspectStoreGuardAndVersion(db).length === 0;
   } catch {
     return false;
   } finally {
@@ -705,6 +736,21 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
       ]),
     ],
   },
+  {
+    version: 8,
+    description:
+      "W29 R0 P2: work store tables for units, dependencies, links, claims, the per-checkout sync ledger, and sync conflicts, each with the Store write guard.",
+    statements: [
+      ...WORK_STORE_V8_STATEMENTS,
+      `INSERT INTO store_schema_journal VALUES (
+        8,
+        'W29 R0 P2 work store tables',
+        strftime('%Y-%m-%dT%H:%M:%fZ','now')
+      )`,
+      // Each migration installs the guard triggers of the tables it creates (R-WRITE-GUARD-3).
+      ...storeWriteGuardStatements(WORK_STORE_TABLE_NAMES),
+    ],
+  },
 ];
 
 /** The v7 statement after which the terminal operation receipt columns are backfilled. */
@@ -885,8 +931,8 @@ export class StoreMigrationRequiredError extends Error {
 
 export type StoreCheckpoint9Classification =
   | { state: "absent"; databasePath: string; schemaVersion: null }
-  | { state: "supported-current"; databasePath: string; schemaVersion: 7 }
-  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 8 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 }
   | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
   | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string; issue?: StoreIssue }
   | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
@@ -1599,6 +1645,7 @@ const VERSION_FOUR_TABLES = VERSION_THREE_TABLES;
 const VERSION_FIVE_TABLES = [...VERSION_FOUR_TABLES, "store_migration_receipts"] as const;
 const VERSION_SIX_TABLES = [...VERSION_FIVE_TABLES, "backlog_review_cache"] as const;
 const VERSION_SEVEN_TABLES = [...VERSION_SIX_TABLES, "project_register"] as const;
+const VERSION_EIGHT_TABLES = [...VERSION_SEVEN_TABLES, ...WORK_STORE_TABLE_NAMES] as const;
 
 /** Tables that a supported schema version must have, or null for an unsupported version. */
 function expectedTablesForVersion(version: number): readonly string[] | null {
@@ -1610,6 +1657,7 @@ function expectedTablesForVersion(version: number): readonly string[] | null {
     case 5: return VERSION_FIVE_TABLES;
     case 6: return VERSION_SIX_TABLES;
     case 7: return VERSION_SEVEN_TABLES;
+    case 8: return VERSION_EIGHT_TABLES;
     default: return null;
   }
 }
@@ -1717,9 +1765,7 @@ export function classifyStoreCheckpoint9State(
       };
     }
     {
-      const guardProblems = schemaVersion >= STORE_WRITE_GUARD_SINCE_SCHEMA
-        ? inspectStoreWriteGuard(db)
-        : inspectStoreVersionRollback(db);
+      const guardProblems = inspectStoreGuardAndVersion(db);
       if (guardProblems.length > 0) {
         const reason = guardProblems.join(" ");
         return {
@@ -1732,8 +1778,8 @@ export function classifyStoreCheckpoint9State(
       }
     }
     return schemaVersion < CURRENT_STORE_SCHEMA_VERSION
-      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 | 5 | 6 }
-      : { state: "supported-current", databasePath, schemaVersion: 7 };
+      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 | 5 | 6 | 7 }
+      : { state: "supported-current", databasePath, schemaVersion: 8 };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const corrupt = isCorruptDatabaseMessage(reason);
@@ -2224,9 +2270,7 @@ function openSqliteWithRetry(
       db.exec("PRAGMA trusted_schema = ON");
       initialize?.(db);
       if (checkGuard) {
-        const problems = readUserVersion(db) >= STORE_WRITE_GUARD_SINCE_SCHEMA
-          ? inspectStoreWriteGuard(db)
-          : inspectStoreVersionRollback(db);
+        const problems = inspectStoreGuardAndVersion(db);
         if (problems.length > 0) {
           throw new StoreUnavailableError({ code: "changed-outside", path: databasePath, operation: "check Store write guard", retryable: false, attempts: 1, waitedMs: 0, cause: problems.join(" ") });
         }
@@ -2263,7 +2307,7 @@ export function openStoreForReview(databasePath: string, operation = "review Sto
     connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
   }, false);
   try {
-    const guardProblems = readUserVersion(db) >= STORE_WRITE_GUARD_SINCE_SCHEMA ? inspectStoreWriteGuard(db) : [];
+    const guardProblems = inspectStoreGuardAndVersion(db);
     return { db, guardProblems };
   } catch (error) {
     closeQuietly(db);

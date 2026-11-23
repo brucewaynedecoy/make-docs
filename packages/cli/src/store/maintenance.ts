@@ -777,7 +777,7 @@ function assertMaintainableStore(storeRoot: string, mode: "check" | "clean"): { 
     throw new StoreMaintenanceStateError("store-absent", `The Store at ${databasePath} does not exist. Nothing was ${mode === "check" ? "checked" : "changed"}.`, "Run make-docs setup first.");
   }
   if (classification.state === "supported-legacy") {
-    throw new StoreMaintenanceStateError("store-legacy", `The Store at ${databasePath} uses schema ${classification.schemaVersion}. Store maintenance needs schema 7. Nothing was changed.`, "Run make-docs setup to convert the Store, then run this command again.", { schemaVersion: classification.schemaVersion });
+    throw new StoreMaintenanceStateError("store-legacy", `The Store at ${databasePath} uses schema ${classification.schemaVersion}. Store maintenance needs schema ${CURRENT_STORE_SCHEMA_VERSION}. Nothing was changed.`, "Run make-docs setup to convert the Store, then run this command again.", { schemaVersion: classification.schemaVersion });
   }
   if (classification.state === "unknown" && classification.issue?.code === "changed-outside") {
     if (mode === "check") return { changedOutside: classification.reason };

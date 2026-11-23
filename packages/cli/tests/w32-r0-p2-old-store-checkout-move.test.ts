@@ -149,7 +149,7 @@ describe('W32 R0 P2 follow-up: checkout move with an older Store schema', () => 
     expect(durable(f.store)).toEqual(before);
   });
 
-  it('applies the reviewed move to a schema 6 Store without a schema change, and a later reviewed setup still converts it to v7', async () => {
+  it('applies the reviewed move to a schema 6 Store without a schema change, and a later reviewed setup still converts it to the current schema', async () => {
     const f = fixture();
     downgradeStore(f.store, 6);
     const moved = path.join(f.parent, 'moved');
@@ -180,9 +180,9 @@ describe('W32 R0 P2 follow-up: checkout move with an older Store schema', () => 
     expect(registerSeparateInstallationCheckout(copy, separate.separateReviewDigest!, f.store).status).toBe('registered');
     expect(userVersion(f.store)).toBe(6);
 
-    // The reviewed setup bridge converts the Store to v7 with its write guard, and the moved binding stays.
+    // The reviewed setup bridge converts the Store to the current schema (v8 since W29 R0 P2) with its write guard, and the moved binding stays.
     withReviewedStoreCompatibilityBridge(() => withInstallationDatabase(moved, () => undefined, { storeRoot: f.store }));
-    expect(classifyStoreCheckpoint9State(f.store)).toMatchObject({ state: 'supported-current', schemaVersion: 7 });
+    expect(classifyStoreCheckpoint9State(f.store)).toMatchObject({ state: 'supported-current', schemaVersion: 8 });
     const db = openStoreSqliteConnection(path.join(f.store, 'store.db'), { readOnly: true });
     try {
       expect(inspectStoreWriteGuard(db)).toEqual([]);
@@ -213,7 +213,7 @@ describe('W32 R0 P2 follow-up: checkout move with an older Store schema', () => 
   it.each([
     { marker: 'guard triggers', strip: [] as string[], message: /reports schema 6 but has write guard triggers/ },
     { marker: 'the project register table', strip: ['triggers'], message: /reports schema 6 but has the project_register table/ },
-    { marker: 'a newer schema journal row', strip: ['triggers', 'project_register'], message: /reports schema 6 but its schema journal records schema 7/ },
+    { marker: 'a newer schema journal row', strip: ['triggers', 'project_register'], message: /reports schema 6 but its schema journal records schema 8/ },
   ])('refuses a v7 Store set back to schema 6 when it still has $marker (R-WRITE-GUARD-4)', ({ strip, message }) => {
     const f = fixture();
     const moved = path.join(f.parent, 'moved');

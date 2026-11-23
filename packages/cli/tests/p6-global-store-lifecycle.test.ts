@@ -161,7 +161,13 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "store_migration_receipts",
         "store_schema_journal",
         "tool_operations",
+        "work_claims",
+        "work_dependencies",
         "work_evidence",
+        "work_links",
+        "work_sync_conflicts",
+        "work_sync_ledger",
+        "work_units",
       ]);
     } finally {
       open.db.close();
@@ -213,6 +219,16 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "idx_store_migration_receipts_project",
         // Schema v7 (W32 R0 P2): the project register and the write guard triggers.
         "project_register",
+        // Schema v8 (W29 R0 P2): the work store tables and their indexes.
+        "work_units",
+        "idx_work_units_parent",
+        "work_dependencies",
+        "idx_work_dependencies_depends_on",
+        "work_links",
+        "work_claims",
+        "idx_work_claims_project",
+        "work_sync_ledger",
+        "work_sync_conflicts",
       ]);
       const preservedSchema = (db.prepare(
         "SELECT type, name, tbl_name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",

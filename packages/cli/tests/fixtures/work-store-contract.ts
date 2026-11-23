@@ -54,7 +54,8 @@ const WORK_FILE = "docs/work/2042-06-01-w1-r0-aurora/00-index.md";
 /** A stable, readable store ID derived from a coordinate. */
 export function storeIdFor(coordinate: string): string {
   const compact = coordinate.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return `wu-${compact.padEnd(8, "0")}`;
+  // Pad with a letter, so W1 R0 P1 and W1 R0 P10 keep different IDs.
+  return `wu-${compact.padEnd(8, "x")}`;
 }
 
 export function claimIdFor(name: string): string {

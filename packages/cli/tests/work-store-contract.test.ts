@@ -344,7 +344,9 @@ describe("W29 R0 P1 fixture matrix", () => {
   });
 
   it("derives readable, valid store IDs from coordinates", () => {
-    expect(storeIdFor("W1 R0 P2")).toBe("wu-w1r0p200");
+    expect(storeIdFor("W1 R0 P2")).toBe("wu-w1r0p2xx");
+    // W29 R0 P2 found that zero padding gave W1 R0 P1 and W1 R0 P10 the same ID.
+    expect(storeIdFor("W1 R0 P1")).not.toBe(storeIdFor("W1 R0 P10"));
     expect(() => WorkSyncLedgerEntrySchema.parse({
       targetPath: "docs/work/a/01.md",
       unitStoreIds: [storeIdFor("W1 R0 P2")],

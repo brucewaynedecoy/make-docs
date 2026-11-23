@@ -68,6 +68,8 @@ export {
   STORE_WRITE_GUARD_FUNCTION,
   STORE_WRITE_GUARD_SINCE_SCHEMA,
   findNewestStoreBackup,
+  inspectStoreGuardAndVersion,
+  inspectStoreVersionRollback,
   inspectStoreWriteGuard,
   registerStoreWriteGuard,
   storeWriteGuardTriggerName,

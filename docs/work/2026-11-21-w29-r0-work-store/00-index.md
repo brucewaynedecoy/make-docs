@@ -119,3 +119,14 @@ This handoff is advisory-default-but-overridable.
 - PRD decision: `update-existing` — PRD 39 and PRD 52.
 - Owner approval: the owner's command tree choices on 2026-11-22.
 - Source: [W33 R0 plan](../../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md)
+
+### 2026-11-23 — W29 R0 P4
+
+- Kind: `edit`
+- Affected scope: P4 new T12, T13, and T14.
+- Previous scope: P4 had no task for the work rows of a pruned project, for who may release a claim, or for a report on long-expired claims.
+- Replacement scope: P4 builds a scoped work-row cleanup after export, decides with the owner how claim IDs are shown or checked before it builds `claim` and `release`, and asks the owner about a report-only decision item for long-expired claims.
+- Rationale: the independent review of W29 R0 P2 found that a project prune keeps work rows that nothing can reach by name, that a release needs only a claim ID that any caller can read, and that the expired-claim report is still an owner choice.
+- PRD decision: `none` — P4 decides the claim ID rule with the owner before any PRD change.
+- Owner approval: the review findings that the owner sent on 2026-11-23.
+- Source: [W29 R0 P2 evidence](evidence.md#p2-store-schema-and-records)

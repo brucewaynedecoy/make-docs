@@ -53,10 +53,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T1: Add the PRD 38 R-MIN rows from P1 before any table exists.
-- [ ] T2: Add the v8 migration entry, its journal row, and the v8 expected-table list. Install the Store write guard triggers on each new table, and add each table to the Store table catalog (PRD 38 R-WRITE-GUARD-3, R-MAINT-1).
-- [ ] T3: Use the reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
-- [ ] T4: Keep writer refusal on v6 and reader refusal on any newer schema.
+- [x] T1: Add the PRD 38 R-MIN rows from P1 before any table exists.
+- [x] T2: Add the v8 migration entry, its journal row, and the v8 expected-table list. Install the Store write guard triggers on each new table, and add each table to the Store table catalog (PRD 38 R-WRITE-GUARD-3, R-MAINT-1).
+- [x] T3: Use the reviewed path: back up, migrate in one transaction, and bump `user_version` in the same transaction.
+- [x] T4: Keep writer refusal on v6 and reader refusal on any newer schema.
 
 ### Acceptance criteria
 
@@ -67,11 +67,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T5: Add a Store service for units, dependencies, links, claims, the sync ledger, and conflicts, with `expectedVersion` on every write.
-- [ ] T6: Enforce one live claim per unit in the schema.
-- [ ] T7: Expire claims by time, as short-lived mutation guards.
-- [ ] T8: Add a test that fails when the R-MIN register and the physical schema drift.
-- [ ] T9: Resolve project names and IDs only through `project_register` from W32 R0 (PRD 38 R-REGISTER-2). Add no second project name record.
+- [x] T5: Add a Store service for units, dependencies, links, claims, the sync ledger, and conflicts, with `expectedVersion` on every write.
+- [x] T6: Enforce one live claim per unit in the schema.
+- [x] T7: Expire claims by time, as short-lived mutation guards.
+- [x] T8: Add a test that fails when the R-MIN register and the physical schema drift.
+- [x] T9: Resolve project names and IDs only through `project_register` from W32 R0 (PRD 38 R-REGISTER-2). Add no second project name record.
 
 ### Acceptance criteria
 
@@ -87,10 +87,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing selected and passed: 36 new tests in `packages/cli/tests/w29-r0-p2-store-schema-and-records.test.ts` cover v7 to v8, a failed migration that rolls back, a newer-schema refusal, a Store set back to v7, the write guard on the new tables, the typed Store results, one claim row for each unit, expiry and takeover, the P1 claim fixtures, the R-MIN parity test, project resolution through `project_register`, and the seven independent review fixes (the named shared R-MIN row, the claim rule on close, the project check of a write session, renewal after the clock goes back, and `..` refused in the table `CHECK`). The Store tests, the type check, the build, `validate:defaults`, the instruction router check, and `smoke:pack:local` pass. Performance Testing, Guided Progress Review, and Unassisted Goal Testing are `not-needed-now`, as decided above.
+- Performance evidence: none. Table writes are not the characterized path. `PERF-004` runs in P6.
+- Human Experience Review: indirect impact. An upgrade makes one verified backup and moves the Store in one transaction, and a failed migration leaves the v7 Store as it was and usable. An absent or older Store gives `store-unavailable` with one next action, and an unsafe, changed, or newer Store gives `store-unsafe`, through the existing typed results. No new human surface.
+- Optional experience handoff: not applicable. P2 adds no public operation.
+- Explicit human acceptance gate: the owner reviews the catalog classes. The owner approved the entry version added to two R-MIN rows on 2026-11-23. The report-only item for long-expired claims stays a proposal in [P4](04-work-queue-operations.md) T14, the claim ID rule waits in P4 T13, and the work rows of a pruned project wait for P4 T12. See the [evidence report](evidence.md#p2-store-schema-and-records).
+- Evidence report: [P2 Store Schema and Records](evidence.md#p2-store-schema-and-records).
+- Phase / capability status: Phase complete on commit and owner acceptance. Capability partial: the parser and sync (P3), the work operations (P4), the agent twin (P5), and acceptance (P6) remain.

@@ -232,9 +232,9 @@ try {
   const oldReader = spawnSync(process.execPath, [oldBin, 'project', 'surface', 'ensure', 'artifacts'], {
     cwd: movedAgain, env: {...process.env, MAKE_DOCS_HOME: store}, encoding: 'utf8', timeout: 120000,
   });
-  assert.notEqual(oldReader.status, 0, 'Released 2.0.5 accepted a v7 Store');
-  // After setup upgrades the Store to schema v7 (W32 R0 P2), released 2.0.5 refuses the newer schema before it reads any evidence.
-  assert.match(`${oldReader.stdout}\n${oldReader.stderr}`, /schema version 7 is newer than supported version 6/i);
+  assert.notEqual(oldReader.status, 0, 'Released 2.0.5 accepted a v8 Store');
+  // After setup upgrades the Store to schema v8 (W32 R0 P2 took v7; W29 R0 P2 took v8), released 2.0.5 refuses the newer schema before it reads any evidence.
+  assert.match(`${oldReader.stdout}\n${oldReader.stderr}`, /schema version 8 is newer than supported version 6/i);
   assert.deepEqual(durable(store), beforeOldReader, 'Old reader changed durable Store state');
   console.log(JSON.stringify({status: 'passed', source: RELEASED_205_URL, released205: {integrity: `sha512-${RELEASED_205_SHA512}`, sha256: RELEASED_205_SHA256}, candidate: {version: expectedVersion, sha256: digest(candidateTarball, 'sha256')}, runtime: {node: process.version, npm: npmVersion(), os: process.platform}, rootCheckoutId: rootId.checkout_id, kitCheckoutId: kitId.checkout_id, receiptCount: 2}));
 } finally {

@@ -607,7 +607,8 @@ export async function invokeOperation(
   };
 }
 
-function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: string): unknown {
+/** Map a Store failure to its typed, operation-scoped Store result (exported for tests). */
+export function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: string): unknown {
   if (error instanceof StoreAccessStateError) return error;
   const record = error && typeof error === "object" ? error as Record<string, unknown> : {};
   const code = typeof record.code === "string" ? record.code : "";

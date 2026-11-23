@@ -117,20 +117,21 @@ function replace(relative: string, content: string): void {
 
 describe("W32 R0 P2 schema v7 migration (A5, A25)", () => {
   it("moves v6 to v7 in one transaction, keeps every row and reference, and backfills terminal receipts", () => {
-    expect(CURRENT_STORE_SCHEMA_VERSION).toBe(7);
+    // W29 R0 P2 made schema v8 current, so a v6 Store moves through v7 to v8, each in its own transaction.
+    expect(CURRENT_STORE_SCHEMA_VERSION).toBe(8);
     const db = seedV6(store);
     seedV6Rows(db);
     expect(previewStoreCompatibilityBridge(store).records).toEqual(expect.arrayContaining([
       expect.objectContaining({ bridgeId: "w32-r0-p2-store-schema-v7", disposition: "convert" }),
     ]));
-    expect(applyStoreMigrations(db, 6)).toBe(7);
-    expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: 7 });
+    expect(applyStoreMigrations(db, 6)).toBe(CURRENT_STORE_SCHEMA_VERSION);
+    expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: CURRENT_STORE_SCHEMA_VERSION });
     expect(db.prepare("PRAGMA foreign_keys").get()).toEqual({ foreign_keys: 1 });
     expect(db.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
     expect(columns(db, "project_register")).toEqual(["project_id", "project_name", "first_seen_at", "last_seen_at"]);
     expect(columns(db, "installation_operations")).toEqual(STORE_TABLE_CATALOG.find((entry) => entry.table === "installation_operations")!.columns);
     const journal = readStoreSchemaJournal(db as never);
-    expect(journal.journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7]);
+    expect(journal.journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8]);
     expect(journal.missingVersions).toEqual([]);
 
     const rows = db.prepare("SELECT operation_id,status,before_ledger_digest,after_ledger_digest,step_count,applied_step_count,failure_code FROM installation_operations ORDER BY operation_id").all();
@@ -154,7 +155,7 @@ describe("W32 R0 P2 schema v7 migration (A5, A25)", () => {
 
     const backups = readdirSync(store).filter((name) => name.endsWith(".backup"));
     expect(backups).toHaveLength(1);
-    expect(backups[0]).toContain("bridge-v6-to-v7");
+    expect(backups[0]).toContain(`bridge-v6-to-v${CURRENT_STORE_SCHEMA_VERSION}`);
     if (POSIX) {
       expect(statSync(path.join(store, "store.db")).mode & 0o777).toBe(0o600);
       expect(statSync(path.join(store, backups[0]!)).mode & 0o777).toBe(0o600);
@@ -189,11 +190,11 @@ describe("W32 R0 P2 schema v7 migration (A5, A25)", () => {
   it("refuses a newer schema without reading or changing its bytes", () => {
     openStoreDatabase(store).db.close();
     const raw = new DatabaseSync(path.join(store, "store.db"));
-    raw.exec("PRAGMA user_version=8");
+    raw.exec("PRAGMA user_version=9");
     raw.close();
     const bytes = readFileSync(path.join(store, "store.db"));
     expect(() => openStoreDatabase(store)).toThrow(StoreSchemaNewerError);
-    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "newer-unknown", schemaVersion: 8 });
+    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "newer-unknown", schemaVersion: 9 });
     expect(readFileSync(path.join(store, "store.db"))).toEqual(bytes);
   });
 
@@ -202,7 +203,7 @@ describe("W32 R0 P2 schema v7 migration (A5, A25)", () => {
       expect(inspectStoreWriteGuard(db)).toEqual([]);
       const triggers = db.prepare("SELECT COUNT(*) AS count FROM sqlite_schema WHERE type='trigger'").get() as { count: number };
       expect(triggers.count).toBe(V7_TABLES.length * STORE_WRITE_GUARD_EVENTS.length);
-      expect(readStoreSchemaJournal(db).journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7]);
+      expect(readStoreSchemaJournal(db).journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8]);
     });
     if (POSIX) expect(statSync(path.join(store, "store.db")).mode & 0o777).toBe(0o600);
   });
@@ -244,7 +245,7 @@ describe("W32 R0 P2 write guard (A6, A7, A8)", () => {
     expect(migrateStoreDatabaseAtCheckpoint9(store, journalEntry("current")).migrated).toBe(false);
     // 5. applyStoreMigrations registers the guard on the connection it is given.
     const raw = new DatabaseSync(path.join(store, "store.db"));
-    expect(applyStoreMigrations(raw, 7)).toBe(7);
+    expect(applyStoreMigrations(raw, CURRENT_STORE_SCHEMA_VERSION)).toBe(CURRENT_STORE_SCHEMA_VERSION);
     raw.prepare("UPDATE work_evidence SET evidence_kind='two'").run();
     raw.close();
     withStoreDatabase(store, (db) => {
@@ -322,19 +323,19 @@ describe("W32 R0 P2 defect fixes (A9, A10)", () => {
     db.close();
     const entry = journalEntry("v6");
     const result = migrateStoreDatabaseAtCheckpoint9(store, entry);
-    expect(result).toMatchObject({ migrated: true, previousSchemaVersion: 6, schemaVersion: 7 });
-    expect(result.backupPath).toContain("bridge-v6-to-v7");
+    expect(result).toMatchObject({ migrated: true, previousSchemaVersion: 6, schemaVersion: CURRENT_STORE_SCHEMA_VERSION });
+    expect(result.backupPath).toContain(`bridge-v6-to-v${CURRENT_STORE_SCHEMA_VERSION}`);
     withStoreDatabase(store, (opened) => {
-      expect(opened.prepare("SELECT source_schema_version,target_schema_version FROM store_migration_receipts WHERE receipt_id=?").get(entry.receiptId)).toEqual({ source_schema_version: 6, target_schema_version: 7 });
+      expect(opened.prepare("SELECT source_schema_version,target_schema_version FROM store_migration_receipts WHERE receipt_id=?").get(entry.receiptId)).toEqual({ source_schema_version: 6, target_schema_version: CURRENT_STORE_SCHEMA_VERSION });
       expect(inspectStoreWriteGuard(opened)).toEqual([]);
     });
   });
 
   it("writes the checkpoint-9 receipt for a new Store from source 0", () => {
     const entry = journalEntry("fresh");
-    expect(migrateStoreDatabaseAtCheckpoint9(store, entry)).toMatchObject({ migrated: true, previousSchemaVersion: null, schemaVersion: 7 });
+    expect(migrateStoreDatabaseAtCheckpoint9(store, entry)).toMatchObject({ migrated: true, previousSchemaVersion: null, schemaVersion: CURRENT_STORE_SCHEMA_VERSION });
     withStoreDatabase(store, (db) => {
-      expect(db.prepare("SELECT source_schema_version,target_schema_version FROM store_migration_receipts").all()).toEqual([{ source_schema_version: 0, target_schema_version: 7 }]);
+      expect(db.prepare("SELECT source_schema_version,target_schema_version FROM store_migration_receipts").all()).toEqual([{ source_schema_version: 0, target_schema_version: CURRENT_STORE_SCHEMA_VERSION }]);
     });
   });
 
@@ -406,10 +407,10 @@ describe("W32 R0 P2 defect fixes (A9, A10)", () => {
 
   it("reads store_schema_journal in Store status and reports a missing version", () => {
     operation(() => replace("note.md", "text"));
-    expect(readInstallationStatus(project, store)).toMatchObject({ storeSchema: { schemaVersion: 7, journalVersions: [3, 4, 5, 6, 7], missingVersions: [], warning: null } });
+    expect(readInstallationStatus(project, store)).toMatchObject({ storeSchema: { schemaVersion: CURRENT_STORE_SCHEMA_VERSION, journalVersions: [3, 4, 5, 6, 7, 8], missingVersions: [], warning: null } });
     withInstallationDatabase(project, (db) => db.prepare("DELETE FROM store_schema_journal WHERE schema_version=5").run(), { storeRoot: store });
     expect(readInstallationStatus(project, store)).toMatchObject({
-      storeSchema: { journalVersions: [3, 4, 6, 7], missingVersions: [5], warning: expect.stringContaining("no row for version 5") },
+      storeSchema: { journalVersions: [3, 4, 6, 7, 8], missingVersions: [5], warning: expect.stringContaining("no row for version 5") },
     });
   });
 });
@@ -491,7 +492,7 @@ describe("W32 R0 P2 review fixes", () => {
       count: 1,
       reason: expect.stringContaining("make-docs setup store check"),
     })]));
-    expect(migrateStoreDatabaseAtCheckpoint9(store, journalEntry("orphan"))).toMatchObject({ migrated: true, schemaVersion: 7 });
+    expect(migrateStoreDatabaseAtCheckpoint9(store, journalEntry("orphan"))).toMatchObject({ migrated: true, schemaVersion: CURRENT_STORE_SCHEMA_VERSION });
     withStoreDatabase(store, (opened) => {
       expect(inspectStoreBrokenReferences(opened)).toEqual([{ table: "installation_steps", parent: "installation_operations", count: 1 }]);
       expect(opened.prepare("SELECT relative_path FROM installation_steps WHERE operation_id='op-gone'").get()).toEqual({ relative_path: "orphan.md" });
@@ -532,7 +533,7 @@ describe("W32 R0 P2 review fixes", () => {
   it("skips and reports a virtual table that an older program added, instead of failing", () => {
     const db = seedV6(store);
     db.exec("CREATE VIRTUAL TABLE notes USING fts5(body)");
-    expect(applyStoreMigrations(db, 6)).toBe(7);
+    expect(applyStoreMigrations(db, 6)).toBe(CURRENT_STORE_SCHEMA_VERSION);
     expect(inspectStoreWriteGuard(db as never)).toEqual([]);
     expect(listUnguardableStoreTables(db as never)).toEqual([
       { table: "notes", kind: "virtual" },
