@@ -16,6 +16,8 @@ follow_on:
 
 Make the global Store easy to trust. Every table has one clear purpose, a known writer, known readers, and a rule for how long its rows stay. One project register lists every project that the Store knows. A maintenance command finds bad or stale rows. It removes the ones that a fixed rule proves are safe to remove, after a backup, and it lists the rest for a person to decide.
 
+Only Make Docs writes the Store: the CLI and the MCP server today, and a Make Docs server API if Make Docs later runs as a shared server. Any other program, including an agent's shell, can read the Store but cannot change it by accident.
+
 This design closes register [D-062](../prd/03-open-questions-and-risk-register.md). It must close before [W29 R0 P2](../work/2026-11-21-w29-r0-work-store/02-store-schema-and-records.md) adds the work store tables.
 
 ## Context
@@ -61,6 +63,8 @@ Defects and drift:
 - `installation_migration_records` has no list of kinds with a class and retention, although PRD 38 says each kind declares one.
 - Code comments and the Store README describe callers, backup names, and recovery paths that no longer exist.
 
+Nothing in the Store file stops a direct write. `store.db` is an ordinary SQLite file, mode `0644`, owned by the person's account. Any program that runs as that person, including an agent with a shell and the `sqlite3` tool, can change rows. Only the shipped instructions forbid it: `.make-docs/CLAUDE.md` says to never write directly to the Store. The per-harness access limit in `~/.make-docs/config.json` controls Make Docs commands and MCP tools only, not the file. A harness sandbox may block writes to `~/.make-docs/`, but that protection belongs to the harness, not to Make Docs.
+
 The work store (W29) and the factory (W30) add more tables. The owner chose on 2026-11-22 to finish this whole review first, so those tables build on a Store with clear rules.
 
 ## Human Experience Intent
@@ -77,6 +81,7 @@ Experience promises:
 - `make-docs setup store check` explains in plain words what is safe to remove, what needs a decision, and how much space a cleanup frees. It changes nothing.
 - `make-docs setup store clean` removes only rows that a fixed rule proves safe, after it backs up the Store. It reports what it removed, how much space it freed, and how to restore the backup.
 - A crash never leaves a lock or a pending row that blocks the machine forever. The check names it, and the clean clears it when the rule proves the owner is dead.
+- A program that is not Make Docs cannot change the Store by accident. Its write fails with a clear error, and its reads still work. If someone removes the guard, Make Docs says so and names the next step.
 
 Complexity kept out of the human path:
 
@@ -155,6 +160,17 @@ Each event that creates, updates, or removes rows has a named row list and a tes
 - `clean` never removes a keep-class row, a decision item, or project content. A rule that cannot prove its condition, such as a liveness check that cannot run, skips the row and reports why.
 - Both commands need the Store write permission for `clean` and the read permission for `check`, and they return the existing typed Store outcomes.
 
+### Only Make Docs writes the Store
+
+- Every Store table gets `BEFORE INSERT`, `BEFORE UPDATE`, and `BEFORE DELETE` triggers that call a SQL function named `make_docs_write_guard()`.
+- Make Docs registers that function on every connection that it opens. Today that means the CLI and the MCP server. A later Make Docs server API uses the same connection code.
+- A connection that Make Docs did not open, such as the `sqlite3` shell or another program, does not have the function. Its write fails with `no such function: make_docs_write_guard` and changes nothing. Its reads still work. A test on Node 24 `node:sqlite` on 2026-11-22 confirmed this behavior.
+- Each migration installs the triggers for the tables it creates. A test fails when any table lacks its triggers. The W29 and W30 tables include them.
+- When Make Docs opens the Store, it checks that every table still has its triggers with the expected SQL. A missing or changed trigger makes the Store `store-unsafe` with the reason "changed outside Make Docs". The next action names `make-docs setup store check` and the newest backup.
+- `store.db` and the Store backups use file mode `0600`.
+- Limit: this guard stops accidental and casual direct writes. It does not stop a program that runs as the same person and sets out to drop the triggers or register the same function. That program is detected at the next open, not blocked. Full isolation needs a separate system account or a server process that owns the file. A later shared-server design can add that.
+- The shipped instructions keep the rule: agents write the Store only through `make-docs` commands or MCP tools.
+
 ### Documentation and drift
 
 - The Store README and the code comments describe only callers, names, and paths that exist.
@@ -175,6 +191,9 @@ W32 R0 runs beside W31 R0. W29 R0 P2 waits for all of W32 R0.
 - **Review every removal by hand.** Rejected. The owner wants cleanup with little or no human review. Fixed rules reviewed once in PRD 38 give the same safety.
 - **Delete stale rows with no backup.** Rejected. A backup costs little and gives a restore path.
 - **Run cleanup automatically after every update.** Not chosen now. A later design can add it once the rules have run on real Stores. Check output says when a clean would help.
+- **File permissions alone.** Rejected. A program that runs as the same person passes any permission check.
+- **A signed digest of the whole Store after each write.** Not chosen. It detects a change but does not block it, and it costs a full read on each write.
+- **A separate system account or a Store server process now.** Not chosen. It gives full isolation, but it is a large install change. A later shared-server design can add it.
 - **A new top-level `store` command.** Not chosen. The CLI keeps seven top-level commands, and machine-level Store work fits under `setup`.
 
 ## Consequences
@@ -185,6 +204,8 @@ W32 R0 runs beside W31 R0. W29 R0 P2 waits for all of W32 R0.
 - PRD 38 changes in many rows: R-MIN rows, R-LIFE-6, R-MIN-3, R-MIN-4, R-ID-8, and the retention of saved bytes. PRD 39 and PRD 25 gain three operations and their MCP tools. The register closes D-062.
 - W29 R0 moves its tables from schema v7 to v8 and waits longer to start P2.
 - Risk: a wrong fixed rule removes needed rows. The rules are narrow, each has a test, `check` shows the effect first, and `clean` backs up the Store first.
+- Direct edits with the `sqlite3` tool no longer work. Repair always goes through Make Docs commands. A person who must inspect the Store can still read it.
+- Risk: a Make Docs code path that opens the Store without the shared connection code cannot write. Tests cover every open path.
 - Risk: dropping saved bytes and full ledgers ends some recovery paths for old operations. The rules apply only after a terminal state and the retention window.
 
 ## Design Lineage

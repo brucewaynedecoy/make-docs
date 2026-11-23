@@ -22,6 +22,7 @@ The Store README and comments describe only what exists. Check and clean work on
 
 - Correct the Store README and code comments: callers, backup names, recovery paths, and the table count in each comment.
 - Copy the maintainer machine's Store to a temporary folder. Run `setup store check` and `setup store clean` on the copy with `MAKE_DOCS_HOME` pointed at it. Record the findings, the rows removed, and the space before and after. Never run `clean` on the real Store in this phase.
+- On the copy, confirm that a `sqlite3` write fails after the migration, and that Make Docs reports a removed trigger as `store-unsafe`.
 - Run `PERF-005`: characterize `clean` with the vacuum on the copy. Keep the result informational.
 - Run the full test suite and record known failures.
 - Complete a Human Experience Review for each promise in the plan overview, with the owner's review of `project list`, `check`, and `clean` wording.

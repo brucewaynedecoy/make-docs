@@ -17,7 +17,7 @@ source:
 
 ## Purpose
 
-Plan the [Store review and maintenance design](../../designs/2026-11-22-store-review-and-maintenance.md). Every Store table gets one purpose, known writers and readers, a record class, and a retention rule. One project register lists every project. `make-docs setup store check` and `make-docs setup store clean` find and remove rows that a fixed rule proves safe to remove, after a backup. Only Make Docs code paths can write the Store: the CLI and the MCP server today, and a Make Docs server API later. The Wave closes register D-062 and must close before W29 R0 P2.
+Plan the [Store review and maintenance design](../../designs/2026-11-22-store-review-and-maintenance.md). Every Store table gets one purpose, known writers and readers, a record class, and a retention rule. One project register lists every project. Only Make Docs can write the Store: a write guard makes other programs' writes fail. `make-docs setup store check` and `make-docs setup store clean` find and remove rows that a fixed rule proves safe to remove, after a backup. Only Make Docs code paths can write the Store: the CLI and the MCP server today, and a Make Docs server API later. The Wave closes register D-062 and must close before W29 R0 P2.
 
 This plan, its PRD changes, and its work backlog are review material. They do not authorize CLI, MCP, Store, template, installation, commit, push, or release changes. Implementation needs separate owner authority. The Wave must not touch W22 R2 files, branches, or worktrees.
 
@@ -27,6 +27,7 @@ Completion requires:
 
 - one table and record-kind catalog in code that names each table's purpose, writers, readers, record class, maintenance class (keep, bounded, or disposable), and retention, with a test that fails when the catalog, the schema, and the PRD 38 R-MIN rows drift;
 - one append-only migration to schema v7 that adds `project_register`, adds a `failed` status and the R-LIFE-6 failure fields to `installation_operations`, and widens the `store_migration_receipts` CHECK;
+- a Store write guard: triggers on every table that call `make_docs_write_guard()`, a function that only Make Docs connections register, an open-time trigger check that marks a changed Store `store-unsafe`, and file mode `0600` for the Store and its backups;
 - fixes for the checkpoint-9 receipt insert, the `root_path` rewrite on every commit, the unbounded `work_evidence` payload, and `pruneProjectFromStore`;
 - a test for each row event that names the rows it creates, updates, or removes;
 - `make-docs project list` with CLI and MCP parity;
@@ -46,6 +47,7 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 | `make-docs setup store check` explains what is safe to remove, what needs a decision, and how much space a clean frees, and changes nothing. | PRD 38, PRD 39 | `setup store check` CLI and `setup_store_check` MCP output | [P4](04-maintenance-commands.md) | No-write test, parity, Guided Progress Review | None |
 | `make-docs setup store clean` removes only rows that a fixed rule proves safe, after a backup, and reports what it removed and how to restore. | PRD 38, PRD 39 | `setup store clean` output, the backup file | [P4](04-maintenance-commands.md), [P5](05-real-store-proof-and-acceptance.md) | Rule tests, backup and restore test, a run on a copy of a real Store | None |
 | A program that is not Make Docs cannot change the Store by accident, and Make Docs reports a removed guard. | PRD 38 | Direct `sqlite3` or other program writes; Store open | [P2](02-schema-v7-and-defect-fixes.md) | Direct-write refusal test, removed-trigger detection test, a test that every table has its triggers | None |
+| A program that is not Make Docs cannot change the Store by accident. Its write fails with a clear error, and its reads still work. If someone removes the guard, Make Docs says so and names the next step. | PRD 38 | Direct `sqlite3` or other program writes; Store open status | [P2](02-schema-v7-and-defect-fixes.md), [P5](05-real-store-proof-and-acceptance.md) | Guard tests on every Store open path, a direct-write refusal test, a removed-trigger detection test | None |
 | A crash never leaves a lock or a pending row that blocks the machine forever. | PRD 38 | Tool update, uninstall, and Store removal | [P2](02-schema-v7-and-defect-fixes.md), [P4](04-maintenance-commands.md) | Crash-leftover fixtures for each blocking row | None |
 
 ## Performance Evidence Plan
@@ -78,6 +80,7 @@ The characterization is informational. It decides whether the vacuum stays insid
 | --- | --- | --- | --- |
 | Table and record-kind catalog, maintenance classes, retention rules, fixed removal rules, and R-MIN rows that match code | `update-existing` | [PRD 38](../../prd/38-global-store-and-project-state.md) | PRD 38 owns every Store field, class, and retention rule. |
 | `project_register`, schema v7, failure fields, receipt CHECK, path-update rule, `work_evidence` size limit, and the prune rules | `update-existing` | PRD 38 | Same owner. |
+| Store write guard: triggers on every table, the guard function on Make Docs connections only, the open-time trigger check, `store-unsafe` with reason, and file mode `0600` | `update-existing` | PRD 38 | PRD 38 owns Store access and safety. Every later migration, including W29 and W30, must install the triggers. |
 | Only Make Docs code paths write the Store: write-guard triggers, guard check on open, file mode `0600`, and the stated limit | `update-existing` | PRD 38 | PRD 38 owns Store access and safety. Today the rule exists only in shipped instructions. |
 | R-MIN-3 ledger form, R-MIN-4 reviewed scope for fixed rules, R-LIFE-6 failure fields, and the R-DB-7 version for work tables (v8) | `update-existing` | PRD 38 | Same owner. These rules change meaning. |
 | `project list`, `setup store check`, and `setup store clean` command paths and behavior | `update-existing` | [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) | PRD 39 owns admitted CLI paths. |
@@ -93,6 +96,7 @@ The characterization is informational. It decides whether the vacuum stays insid
 | Owning PRD | Date / coordinate | Affected requirement or section | Previous contract | Replacement contract | Rationale | Source |
 | --- | --- | --- | --- | --- | --- | --- |
 | PRD 38 | 2026-11-22 / W32 R0 | R-MIN rows, R-MIN-3, R-MIN-4, R-LIFE-6, R-DB-7, and new maintenance rules | Rows without retention; no project register; a separate target ledger that was never built; work tables at v7. | Every table has a class and retention; `project_register`; fixed removal rules reviewed in the PRD; the ledger is the current ownership record; failure fields; write-guard triggers so only Make Docs writes; work tables at v8. | The Store must be easy to trust before W29 and W30 add tables. | [Design](../../designs/2026-11-22-store-review-and-maintenance.md) |
+| PRD 38 | 2026-11-22 / W32 R0 | Store write access | Only shipped instructions forbade direct Store writes. | A trigger guard makes writes from other programs fail, and Make Docs detects a removed guard at open. | Make Docs must be the only writer of the Store. | Same |
 | PRD 39 | 2026-11-22 / W32 R0 | Project and setup commands | No project list or Store maintenance command. | `project list`, `setup store check`, and `setup store clean`. | A person can see and maintain the Store. | Same |
 | PRD 25 | 2026-11-22 / W32 R0 | MCP profiles | No tools for these operations. | Three tools in `core`, `setup`, and `all`. | Agents need the same commands. | Same |
 | PRD 52 | 2026-11-22 / W32 R0 | Work store schema version and URI resolution | Work tables at v7; project names resolved from an unnamed register. | Work tables at v8; names resolve through `project_register`. | W32 takes v7. | Same |
@@ -102,7 +106,7 @@ The characterization is informational. It decides whether the vacuum stays insid
 | File | Purpose |
 | --- | --- |
 | [01-table-catalog-and-fixed-rules.md](01-table-catalog-and-fixed-rules.md) | Settle the table and record-kind catalog, the maintenance classes, the fixed rules, and the fixtures. |
-| [02-schema-v7-and-defect-fixes.md](02-schema-v7-and-defect-fixes.md) | Add schema v7 and fix the known Store defects. |
+| [02-schema-v7-and-defect-fixes.md](02-schema-v7-and-defect-fixes.md) | Add schema v7 with the Store write guard, and fix the known Store defects. |
 | [03-project-register-and-row-events.md](03-project-register-and-row-events.md) | Fill the project register from every row event, prove each event, and add `project list`. |
 | [04-maintenance-commands.md](04-maintenance-commands.md) | Build `setup store check` and `setup store clean`. |
 | [05-real-store-proof-and-acceptance.md](05-real-store-proof-and-acceptance.md) | Fix documentation drift, run on a copy of a real Store, and prove the Wave. |
@@ -135,7 +139,7 @@ Use disjoint write scopes when implementation is authorized.
 | Worker role | Responsibility | Primary write scope | Dependencies | Deliverable |
 | --- | --- | --- | --- | --- |
 | Contract owner | Table and record-kind catalog, maintenance classes, fixed rules, fixtures | New Store catalog module and fixture paths | Accepted PRD changes | P1 contract |
-| Schema owner | v7 migration and defect fixes | `packages/cli/src/store/database.ts`, `installation-state.ts`, related tests | P1 | P2 schema |
+| Schema owner | v7 migration, write guard, and defect fixes | `packages/cli/src/store/database.ts`, `installation-state.ts`, the shared connection code, related tests | P1 | P2 schema |
 | Register owner | Project register writes, row-event tests, prune rewrite, `project list` | `packages/cli/src/store/` register and lifecycle paths, project operations, tests | P2 | P3 register |
 | Maintenance owner | `setup store check` and `clean`, backup, vacuum, fixed rules | New maintenance module, setup operations, tests | P1, P2 | P4 commands |
 | Validation owner | Drift fixes, real-Store copy run, `PERF-005`, Human Experience Review | Store README, comments, evidence file, bounded fixes returned to owners | P3, P4 | P5 evidence |
@@ -150,6 +154,7 @@ Use jdocmunch for project documents and jcodemunch for code during implementatio
 - Run PRD authority validation before the work backlog is treated as implementation authority.
 - Prove the catalog, the schema, and the PRD 38 R-MIN rows match, and that the test fails when one side drifts.
 - Prove the v6 to v7 migration, a failed migration that rolls back, and a newer-schema refusal.
+- Prove that a write from a connection without the guard function fails and changes nothing, that reads still work, that every Store open path in Make Docs can write, that every table has its triggers, and that a removed or changed trigger makes the Store `store-unsafe` with its reason.
 - Prove each row event touches only its named rows.
 - Prove `project list`, `setup store check`, and `setup store clean` CLI and MCP parity.
 - Prove `check` writes nothing.
@@ -171,3 +176,17 @@ This handoff is advisory-default-but-overridable.
 - Next step: Update PRDs 03, 04, 25, 38, 39, and 52 from this plan, then amend the W29 R0 plan and backlog for schema v8.
 - Why: The plan should become the product contract before the work backlog is written.
 - Coordinate Handoff: Carry W32 R0 into the requirement-history entries and docs/work/2026-11-22-w32-r0-store-review-and-maintenance/.
+
+## Change History
+
+### 2026-11-22 — W32 R0
+
+- Kind: `edit`
+- Affected scope: Objective, Human Experience Propagation, Product Authority Decision, Requirement History Entries, P2 scope and acceptance, P5 scope, Worker Ownership, and Validation.
+- Previous scope: Store maintenance and the project register, with direct Store writes forbidden only by shipped instructions.
+- Replacement scope: adds a Store write guard. Triggers on every table call `make_docs_write_guard()`, which only Make Docs connections register. Make Docs checks the triggers at open and marks a changed Store `store-unsafe`. The Store and its backups use file mode `0600`.
+- Rationale: the owner asked for the guard in the design, so that only Make Docs can write the Store.
+- PRD decision: `update-existing` — PRD 38 gains the write guard rules.
+- Owner approval: the owner kept the design change on 2026-11-22.
+- Source: [Store review and maintenance design](../../designs/2026-11-22-store-review-and-maintenance.md)
+
