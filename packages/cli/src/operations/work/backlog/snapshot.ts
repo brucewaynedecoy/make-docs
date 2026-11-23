@@ -29,7 +29,8 @@ import {
 
 const RECORD_DIRECTORY = /^(\d{4}-\d{2}-\d{2})-w([1-9]\d*)-r(0|[1-9]\d*)(?:-|$)/i;
 const PHASE_FILE = /^(0[1-9]|[1-9]\d)-.+\.md$/;
-const TASK = /^- \[([ xX])\]\s+(?:(t[1-9]\d*):\s*)?(.+?)\s*$/;
+/** A task line. The ID letter may be `t` or `T`; the result uses `T` (PRD 51 R-BACKLOG-SNAPSHOT-33). */
+const TASK = /^- \[([ xX])\]\s+(?:([tT][1-9]\d*):\s*)?(.+?)\s*$/;
 const MARKDOWN_LINK = /\[[^\]]+\]\(([^)]+)\)/g;
 const COMPLETE_STATUS = /^(?:complete|completed|closed)$/i;
 const CHANGE_HISTORY_HEADING = /^(\d{4}-\d{2}-\d{2}) — (W[1-9]\d* R(?:0|[1-9]\d*))(?: P[1-9]\d*)?$/;

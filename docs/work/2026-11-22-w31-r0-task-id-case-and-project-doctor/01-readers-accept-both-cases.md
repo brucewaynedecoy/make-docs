@@ -53,11 +53,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] t1: Make the task line pattern in `packages/cli/src/operations/work/index.ts` accept `t` and `T`.
-- [ ] t2: Make the phase task check compare task IDs without regard to case, so a file with `T1`, `T2` passes.
-- [ ] t3: Make the task pattern in `packages/cli/src/operations/work/backlog/snapshot.ts` accept `T`, so `- [ ] T1: ...` is a task with ID `T1`. Keep the upper-case result.
-- [ ] t4: Accept both cases in task coordinate input for commands, and keep it aligned with the W29 R0 P1 project URI grammar.
-- [ ] t5: Add lower-case, upper-case, and mixed fixtures, and prove the same facts for each.
+- [x] t1: Make the task line pattern in `packages/cli/src/operations/work/index.ts` accept `t` and `T`.
+- [x] t2: Make the phase task check compare task IDs without regard to case, so a file with `T1`, `T2` passes.
+- [x] t3: Make the task pattern in `packages/cli/src/operations/work/backlog/snapshot.ts` accept `T`, so `- [ ] T1: ...` is a task with ID `T1`. Keep the upper-case result.
+- [x] t4: Accept both cases in task coordinate input for commands, and keep it aligned with the W29 R0 P1 project URI grammar.
+- [x] t5: Add lower-case, upper-case, and mixed fixtures, and prove the same facts for each.
 
 ### Acceptance criteria
 
@@ -71,10 +71,10 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing selected and passed: 8 new reader tests, 2 new validator tests, the type check, and the full suite with only the 3 known failures ([evidence](evidence.md#p1-readers-accept-both-cases)). Performance Testing `not-needed-now`: the pattern change does not change read cost. Guided Progress Review `not-needed-now`: no human-facing wording changed. Unassisted Goal Testing `not-needed-now`: no current decision needs an unassisted human run.
+- Performance evidence: none. Performance Testing is `not-needed-now`.
+- Human Experience Review: a person can still type `t3`, and an old file with `t3` still works. A new file with `T3` now works too. The backlog snapshot used to read `- [ ] T1: ...` as a task with no ID. Now it reads the ID `T1`. A phase file with only `T` now passes the phase check with no warning. No result text changed. Warnings still say `t`, and P2 changes them.
+- Optional experience handoff: not applicable. No human-facing wording changed.
+- Explicit human acceptance gate: none beyond review of this phase.
+- Evidence report: [P1 Readers Accept Both Cases](evidence.md#p1-readers-accept-both-cases).
+- Phase / capability status: Phase complete on commit and review. Capability partial: writers (P2), the doctor (P3), and the one-time rewrite (P4) remain.

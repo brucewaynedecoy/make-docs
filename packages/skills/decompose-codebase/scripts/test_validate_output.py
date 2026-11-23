@@ -353,6 +353,47 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
         result = build_result(self.tmpdir)
         self.assertTrue(result["ok"], f"Unexpected validation errors: {result['errors']}")
 
+    def test_build_result_accepts_upper_and_mixed_case_task_ids(self):
+        # W31 R0 P1: t and T name the same task ID (PRD 14 R-COORD-22).
+        self._write_minimal_prd_set()
+        for first, second, third in (("T", "T", "T"), ("T", "t", "T"), ("t", "T", "t")):
+            with self.subTest(case=first + second + third):
+                work_backlog = self.work_dir / "2024-01-01-w5-r4-sample-backlog"
+                if work_backlog.exists():
+                    shutil.rmtree(work_backlog)
+                work_backlog = self._write_minimal_work_directory()
+                (work_backlog / "01-foundation.md").write_text(
+                    "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+                    "- [PRD Index](../../prd/00-index.md)\n"
+                    "## Stage 1 - Foundation\n"
+                    f"### Tasks\n- [ ] {first}1: First task.\n- [x] {second}2: Second task.\n"
+                    "### Acceptance criteria\n- First acceptance.\n"
+                    "### Dependencies\n- None.\n"
+                    "## Stage 2 - Follow-up\n"
+                    f"### Tasks\n- [ ] {third}3: Third task.\n"
+                    "### Acceptance criteria\n- Third acceptance.\n"
+                    "### Dependencies\n- Stage 1.\n"
+                )
+
+                result = build_result(self.tmpdir)
+                self.assertTrue(result["ok"], f"Unexpected validation errors: {result['errors']}")
+
+    def test_build_result_rejects_duplicate_task_ids_across_case(self):
+        self._write_minimal_prd_set()
+        work_backlog = self._write_minimal_work_directory()
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n- [ ] t1: First task.\n- [ ] T1: Same task again.\n"
+            "### Acceptance criteria\n- A.\n"
+            "### Dependencies\n- None.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("duplicate task id t1" in error for error in result["errors"]), result["errors"])
+
     def test_build_result_rejects_numbered_task_items(self):
         self._write_minimal_prd_set()
         work_backlog = self._write_minimal_work_directory()
@@ -407,6 +448,25 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertTrue(
             any("must be plain bullets, not checkboxes" in error for error in result["errors"]),
+            result["errors"],
+        )
+
+    def test_build_result_rejects_upper_case_task_id_in_acceptance(self):
+        self._write_minimal_prd_set()
+        work_backlog = self._write_minimal_work_directory()
+        (work_backlog / "01-foundation.md").write_text(
+            "## Purpose\nP.\n## Overview\nO.\n## Source PRD Docs\n"
+            "- [PRD Index](../../prd/00-index.md)\n"
+            "## Stage 1 - Foundation\n"
+            "### Tasks\n- [ ] T1: T.\n"
+            "### Acceptance criteria\n- T1: A.\n"
+            "### Dependencies\n- None.\n"
+        )
+
+        result = build_result(self.tmpdir)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("must not use task ids" in error for error in result["errors"]),
             result["errors"],
         )
 

@@ -20,9 +20,10 @@ LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 FENCE_RE = re.compile(r"^(`{3,}|~{3,})")
 INLINE_CODE_RE = re.compile(r"(`{1,2})(?!`)(.+?)(?<!`)\1(?!`)")
 UNESCAPED_SPACE_RE = re.compile(r"(?<!\\) ")
-TASK_ITEM_RE = re.compile(r"^- \[[ xX]\] t([1-9]\d*):\s+\S")
+# The task ID letter may be t or T; both name the same task.
+TASK_ITEM_RE = re.compile(r"^- \[[ xX]\] [tT]([1-9]\d*):\s+\S")
 ACCEPTANCE_CHECKBOX_RE = re.compile(r"^- \[[ xX]\]\s+")
-TASK_LABEL_IN_ACCEPTANCE_RE = re.compile(r"^- t[1-9]\d*:")
+TASK_LABEL_IN_ACCEPTANCE_RE = re.compile(r"^- [tT][1-9]\d*:")
 INSTRUCTION_FILES = {"AGENTS.md", "CLAUDE.md"}
 
 CORE_DOC_RULES = {

@@ -54,7 +54,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 - [ ] t1: Change `.make-docs/system/templates/work-phase.md`, `.make-docs/system/contracts/output-contract.md`, `.make-docs/system/references/execution-workflow.md`, and `.make-docs/system/references/wave-model.md` in `packages/docs/template/` to write `T`.
 - [ ] t2: Change `docs/AGENTS.md`, `docs/CLAUDE.md`, `docs/AGENTS.codex-only.md`, `docs/CLAUDE.claude-only.md`, `docs/work/AGENTS.md`, and `docs/work/CLAUDE.md` in `packages/docs/template/` to write `T`.
-- [ ] t3: Change CLI text that names task IDs, such as the phase check warning in `packages/cli/src/operations/work/index.ts`.
+- [ ] t3: Change CLI text and results that name task IDs to `T`: the phase check warning and the task `id` in `run` results from `packages/cli/src/operations/work/index.ts`.
 - [ ] t4: Search the shipped Skills and generated bundles for lower-case task IDs, and update any hit.
 - [ ] t5: Reseed each changed template-owned file into this repository, refresh the bundled template, and update `docs/assets/project/migrated-operations-inventory.md` if it names the task form.
 

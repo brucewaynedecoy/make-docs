@@ -105,7 +105,8 @@ export interface WorkItemIdentityResolution {
 const WR_COORD_RE = /\bw\s*(\d+)\s*r\s*(\d+)(?:\s*p\s*(\d+))?\b/i;
 const WR_DIR_RE = /w(\d+)-r(\d+)/i;
 const PHASE_FILE_RE = /^(0[1-9]|[1-9]\d)-(.+)\.md$/;
-const TASK_RE = /^- \[([ xX])\] (t[1-9]\d*):\s*(.+)$/;
+/** A task line. The ID letter may be `t` or `T`; both name the same task (PRD 14 R-COORD-22). */
+const TASK_RE = /^- \[([ xX])\] ([tT][1-9]\d*):\s*(.+)$/;
 const ACCEPTANCE_CHECKBOX_RE = /^- \[[ xX]\]\s+/;
 const BACKTICK_RE = /`([^`]+)`/g;
 const HEADING_RE = /^(#{1,6})\s+(.+?)\s*$/;
@@ -826,11 +827,13 @@ function phaseWarnings(
   const seen = new Set<string>();
   let expected = 1;
   for (const task of tasks) {
-    if (seen.has(task.id)) {
+    // Task IDs compare without regard to case: `t1` and `T1` are the same task (PRD 14 R-COORD-22).
+    const key = task.id.toLowerCase();
+    if (seen.has(key)) {
       warnings.push(`duplicate task id ${task.id}`);
     }
-    seen.add(task.id);
-    if (task.id !== `t${expected}`) {
+    seen.add(key);
+    if (key !== `t${expected}`) {
       warnings.push(`expected task id t${expected}, found ${task.id}`);
     }
     expected += 1;

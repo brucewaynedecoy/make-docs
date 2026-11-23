@@ -62,7 +62,7 @@ Out of scope:
 - Read phases in order. P3 can run beside P2 after P1.
 - Every phase file includes `## Source PRD Docs`.
 - Acceptance case IDs run from A1 to A16 across this backlog.
-- Create `evidence.md` when the first phase retains evidence, and link it here.
+- Acceptance evidence is in the [W31 R0 Evidence Report](evidence.md).
 - No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
 
 ## Intended Follow-On
@@ -73,3 +73,16 @@ This handoff is advisory-default-but-overridable.
 - Next step: When the owner gives phase-start authority, start P1 and continue phase by phase.
 - Why: The backlog turns the approved plan and the PRD 14 and PRD 39 rules into implementation work.
 - Coordinate Handoff: Carry W31 R0 into phase history records and commits, adding the active P number.
+
+## Change History
+
+### 2026-11-22 — W31 R0 P2
+
+- Kind: `edit`
+- Affected scope: P2 t3.
+- Previous scope: P2 t3 changed CLI text that names task IDs, such as the phase check warning.
+- Replacement scope: P2 t3 also changes the task `id` in `run` results to `T`.
+- Rationale: the P1 review found that no phase owned the task `id` in parser results, which PRD 14 R-COORD-22 says use `T`.
+- PRD decision: `none` — PRD 14 R-COORD-22 already requires `T` in results.
+- Owner approval: not required. The edit fits the plan.
+- Source: [P1 evidence](evidence.md#p1-readers-accept-both-cases)
