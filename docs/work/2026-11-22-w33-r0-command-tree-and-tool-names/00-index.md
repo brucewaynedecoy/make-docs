@@ -47,7 +47,7 @@ Out of scope:
 
 ## Wave Sequence
 
-- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, with this Wave's P1 beside them; then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 and P3 beside this Wave's P2 to P5; then W29 R0 P4 to P6; then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md).
+- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, with this Wave's P1 beside them; then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 and P3 beside this Wave's P2 to P5; then W29 R0 P4 to P6; then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md). [W34 R0](../2026-11-23-w34-r0-skill-scripts-into-the-cli/00-index.md) runs beside W29 R0 and W30 R0.
 - Waits for: nothing before P1. P2 waits for W31 R0 P3 and W32 R0 P4.
 - Runs beside: W31 R0, W32 R0, and W29 R0 P2 and P3.
 - Next: W29 R0 P4 and W30 R0 P3 wait for all of this Wave.

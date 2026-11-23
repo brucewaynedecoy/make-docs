@@ -52,8 +52,9 @@ Out of scope:
 
 ## Wave Sequence
 
-- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, with [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md) P1 beside them; then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 and P3 beside [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md) P2 to P5; then W29 R0 P4 to P6; then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md).
-- Done: P1.
+- Full order: [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) and [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) side by side, with [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md) P1 beside them; then [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md) P2 and P3 beside [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md) P2 to P5; then W29 R0 P4 to P6; then [W30 R0](../2026-11-21-w30-r0-factory/00-index.md). [W34 R0](../2026-11-23-w34-r0-skill-scripts-into-the-cli/00-index.md) runs beside W29 R0 and W30 R0.
+- Done: P1 and P2.
+- Runs beside: [W34 R0](../2026-11-23-w34-r0-skill-scripts-into-the-cli/00-index.md). Neither Wave waits for the other. Its index lists the shared files and how to merge them.
 - Waits for: all of [W32 R0](../2026-11-22-w32-r0-store-review-and-maintenance/00-index.md) before P2, all of [W31 R0](../2026-11-22-w31-r0-task-id-case-and-project-doctor/00-index.md) before P3, and all of [W33 R0](../2026-11-22-w33-r0-command-tree-and-tool-names/00-index.md), the command tree review (register D-065), before P4.
 - Next: [W30 R0](../2026-11-21-w30-r0-factory/00-index.md) P2 waits for all of this Wave. W30 R0 P1 can start any time.
 
