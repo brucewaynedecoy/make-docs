@@ -177,6 +177,32 @@ export function inspectStoreWriteGuard(db: StoreDatabase): string[] {
   return problems;
 }
 
+/**
+ * Find schema 7 objects in a Store that reports an older schema (R-WRITE-GUARD-4).
+ * A Store that Make Docs left at schema 6 or older never has a write guard trigger,
+ * a `project_register` table, or a schema journal row newer than its
+ * `user_version`. When one of them is present, the version was set back outside
+ * Make Docs, and the guard check that starts at schema 7 must not be skipped.
+ * Returns one plain sentence for each finding. Reads only `sqlite_schema` and
+ * the journal. An empty list means no rollback marker was found.
+ */
+export function inspectStoreVersionRollback(db: StoreDatabase): string[] {
+  const version = readUserVersion(db);
+  if (version >= STORE_WRITE_GUARD_SINCE_SCHEMA) return [];
+  const problems: string[] = [];
+  const guardTriggers = db.prepare(
+    "SELECT count(*) AS n FROM sqlite_schema WHERE type = 'trigger' AND sql LIKE ?",
+  ).get(`%${STORE_WRITE_GUARD_FUNCTION}%`) as { n: number | bigint };
+  if (Number(guardTriggers.n) > 0) problems.push(`The Store reports schema ${version} but has write guard triggers from schema ${STORE_WRITE_GUARD_SINCE_SCHEMA}.`);
+  const tables = new Set((db.prepare("SELECT name FROM sqlite_schema WHERE type = 'table'").all() as Array<{ name: string }>).map((row) => row.name));
+  if (tables.has("project_register")) problems.push(`The Store reports schema ${version} but has the project_register table from schema ${STORE_WRITE_GUARD_SINCE_SCHEMA}.`);
+  if (tables.has("store_schema_journal")) {
+    const newest = db.prepare("SELECT max(schema_version) AS v FROM store_schema_journal").get() as { v: number | bigint | null };
+    if (newest.v !== null && Number(newest.v) > version) problems.push(`The Store reports schema ${version} but its schema journal records schema ${Number(newest.v)}.`);
+  }
+  return problems;
+}
+
 /** The name of a finished `setup store clean` backup in `<store>/backup/` (W32 R0 P4). */
 export const STORE_CLEAN_BACKUP_PATTERN = /^store-clean-\d{8}T\d{9}Z-[0-9a-f]{8}\.db$/;
 
@@ -201,7 +227,7 @@ export function isVerifiedStoreBackupFile(file: string): boolean {
     db = openSqliteWithRetry(driver.sqlite, file, { readOnly: true }, "verify Store backup", undefined, false);
     const check = db.prepare("PRAGMA quick_check").get() as { quick_check?: string } | undefined;
     const version = readUserVersion(db);
-    return check?.quick_check === "ok" && version >= 1 && (version < STORE_WRITE_GUARD_SINCE_SCHEMA || inspectStoreWriteGuard(db).length === 0);
+    return check?.quick_check === "ok" && version >= 1 && (version < STORE_WRITE_GUARD_SINCE_SCHEMA ? inspectStoreVersionRollback(db) : inspectStoreWriteGuard(db)).length === 0;
   } catch {
     return false;
   } finally {
@@ -1676,8 +1702,10 @@ export function classifyStoreCheckpoint9State(
         issue: { code: "schema-unknown", path: databasePath, operation: "read schema", retryable: false, attempts: 1, waitedMs: 0, cause: reason },
       };
     }
-    if (schemaVersion >= STORE_WRITE_GUARD_SINCE_SCHEMA) {
-      const guardProblems = inspectStoreWriteGuard(db);
+    {
+      const guardProblems = schemaVersion >= STORE_WRITE_GUARD_SINCE_SCHEMA
+        ? inspectStoreWriteGuard(db)
+        : inspectStoreVersionRollback(db);
       if (guardProblems.length > 0) {
         const reason = guardProblems.join(" ");
         return {
@@ -2181,8 +2209,10 @@ function openSqliteWithRetry(
       // Triggers call the guard function, so the schema must be trusted to call it.
       db.exec("PRAGMA trusted_schema = ON");
       initialize?.(db);
-      if (checkGuard && readUserVersion(db) >= STORE_WRITE_GUARD_SINCE_SCHEMA) {
-        const problems = inspectStoreWriteGuard(db);
+      if (checkGuard) {
+        const problems = readUserVersion(db) >= STORE_WRITE_GUARD_SINCE_SCHEMA
+          ? inspectStoreWriteGuard(db)
+          : inspectStoreVersionRollback(db);
         if (problems.length > 0) {
           throw new StoreUnavailableError({ code: "changed-outside", path: databasePath, operation: "check Store write guard", retryable: false, attempts: 1, waitedMs: 0, cause: problems.join(" ") });
         }

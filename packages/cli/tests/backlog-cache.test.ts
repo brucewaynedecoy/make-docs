@@ -235,13 +235,27 @@ describe("backlog review cache", () => {
     });
   });
 
+  /**
+   * Make a Store that looks as Make Docs left it at schema 5: no cache table, no
+   * schema 6 or later journal rows, and none of the schema 7 objects (guard
+   * triggers and `project_register`). A Store set back with those still present
+   * is refused as changed outside Make Docs (R-WRITE-GUARD-4).
+   */
+  function setStoreBackToSchema5(db: Parameters<Parameters<typeof withStoreDatabase>[1]>[0]): void {
+    for (const { name } of db.prepare("SELECT name FROM sqlite_schema WHERE type = 'trigger'").all() as Array<{ name: string }>) {
+      db.exec(`DROP TRIGGER "${name}"`);
+    }
+    db.exec("DROP TABLE backlog_review_cache");
+    db.exec("DROP TABLE IF EXISTS project_register");
+    db.exec("DELETE FROM store_schema_journal WHERE schema_version>=6");
+    db.exec("PRAGMA user_version=5");
+  }
+
   test("does not create or migrate cache schema during lookup", () => {
     const { projectRoot, storeRoot } = projectFixture(1);
     const snapshot = buildBacklogSnapshot(projectRoot);
     withStoreDatabase(storeRoot, (db) => {
-      db.exec("DROP TABLE backlog_review_cache");
-      db.exec("DELETE FROM store_schema_journal WHERE schema_version=6");
-      db.exec("PRAGMA user_version=5");
+      setStoreBackToSchema5(db);
     });
 
     expect(() => lookupBacklogReviewCache(projectRoot, snapshot, storeRoot)).toThrow(
@@ -260,9 +274,7 @@ describe("backlog review cache", () => {
     const snapshot = buildBacklogSnapshot(projectRoot);
     const fragments = reviewFragments(snapshot);
     withStoreDatabase(storeRoot, (db) => {
-      db.exec("DROP TABLE backlog_review_cache");
-      db.exec("DELETE FROM store_schema_journal WHERE schema_version=6");
-      db.exec("PRAGMA user_version=5");
+      setStoreBackToSchema5(db);
     });
 
     expect(() => writeBacklogReviewCache(projectRoot, snapshot, fragments, storeRoot)).toThrow(

@@ -539,3 +539,46 @@ The fixture Store is small, so the vacuum frees no pages. `PERF-005` measures sp
 - Process liveness and the process list are injected in the fixture tests. The built CLI and real setup tests use the real checks.
 - The P2 follow-up about exact `root_path` comparisons in other queries (`installation-state.ts` pending path claims, `harness-system-operations.ts`, lock lookups) is not changed here. Rule 001 already compares the key.
 - `name-catalog.ts` and its test counts also change in P3 (`project.register.list`). The merge keeps both.
+
+## P2 Follow-Up: Checkout Move With an Older Store Schema
+
+This follow-up fixes a regression that P2 made. The W22 R1 package proof (`scripts/w22-r1-package-proof.mjs`, run by `npm run smoke:pack:local` and by `platform-safety.yml`) failed at its setup review check, `setupReview.checkoutMove.status` was `null`.
+
+### Cause
+
+The proof seeds a project and Store with Make Docs 2.0.5 (Store schema 6), moves the project folder, and runs the candidate's `setup` review. `previewInstallationCheckoutMove`, `applyInstallationCheckoutMove`, and `registerSeparateInstallationCheckout` in `packages/cli/src/store/installation-state.ts` accept only a `supported-current` Store. Before P2, schema 6 was current. After P2, schema 6 is `supported-legacy`, so the preview returned `blocked` with no candidates, and setup review then dropped `checkoutMove`. `project move preview` said "The Store must use the current schema before checkout move."
+
+### Fix
+
+- One shared check, `checkoutBindingStore`, accepts a `supported-current` Store and a `supported-legacy` Store at schema 6 or later. It refuses every other state. A v7 Store whose write guard changed is `unknown` to the classifier, so it stays refused, and the next action names the guard problem. The reviewer found that a v7 Store with its guard triggers dropped and `user_version` set back to 6 passed as schema 6 and took a move. The new `inspectStoreVersionRollback` in `packages/cli/src/store/database.ts` closes this: a Store below schema 7 that has a guard trigger, a `project_register` table, or a schema journal row newer than its `user_version` is `changed-outside`. The classifier, the guarded Store open, and the backup check all use it, so such a Store is refused like a v7 Store with a changed guard (R-WRITE-GUARD-4). A Store at schema 5 or older stays blocked and says to run `make-docs setup` first.
+- Preview reads a schema 6 Store on a read-only connection, as 2.0.9 did. It makes no durable write.
+- Apply and separate registration change a schema 6 Store as it is and do not migrate it. They write `project_register` only when the Store has it (schema 7 and later). The schema is read inside the write transaction.
+- The v7 write guard and its open check are unchanged.
+
+### Decision
+
+The brief for this fix asked that `project move apply` migrate the Store to v7 first. This fix does not do that, for three reasons:
+
+- [PRD 38 R-CHECKOUT-8](../../prd/38-global-store-and-project-state.md) says apply never "migrates the Store schema", and R-CHECKOUT-9 asks for an existing supported Store. No other ordinary write migrates the Store. Only a reviewed `make-docs setup` runs the compatibility bridge (P2 decision above).
+- The proof compares the `installation_operations` rows before and after the move. The v7 migration rebuilds that table with eight new columns, so a migrating apply would fail the proof.
+- Setup review stops on a moved checkout before it offers the Store conversion, so a refusing apply would leave no way forward.
+
+Schema 6 has every column that the move reads and writes, the same as 2.0.9. Schema 5 has the same installation tables, but 2.0.9 refused it too, so it stays blocked. No requirement text changed.
+
+### Tests
+
+- New `tests/w32-r0-p2-old-store-checkout-move.test.ts` (8 tests). Three of them set a v7 Store back to schema 6 with each rollback marker left in place (guard triggers, the `project_register` table, a newer journal row), and prove that the classifier says `changed-outside`, that preview is blocked, that apply throws, and that no row changes. It builds a real checkout with the current code and copies its installation rows into a raw schema 6 or schema 5 Store, as an older Make Docs left it. It proves that setup review, `project move preview`, and the shared core show the moved checkout as `ready` with no change to the Store bytes, rows, or files. It proves that `project move apply` completes on schema 6 with no schema change, adds one receipt, keeps ledger, operation, and step rows, and retries as `already-completed`. It proves that separate registration works on schema 6, and that a later reviewed setup bridge still converts the Store to v7 with an intact guard and the moved binding. It proves that an intact v7 Store records the project in `project_register`, and that a v7 Store with a dropped guard trigger and a schema 5 Store stay blocked and unchanged. Without the fix, 4 of the 5 tests fail.
+- Two `tests/backlog-cache.test.ts` tests made a schema 5 Store by setting a v7 Store back to version 5 with its guard triggers still in place. The rollback check now refuses that Store, so they failed. Their fixture now also drops the guard triggers, `project_register`, and journal rows from schema 6 on, like a Store that Make Docs left at schema 5. They again prove that cache lookup and write never migrate the Store.
+- No old 2.0.5 Store fixture exists in the tests, so the real 2.0.5 Store is proved only by the package proof.
+
+### Validation
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- The new test and 15 Store, database, and checkout test files (`installation-state`, `p6-global-store-lifecycle`, `store-lifecycle`, `store-table-catalog`, `store-verification`, `store`, `w22-r0-p5-compatibility-bridge`, `w22-r0-p7-authentic-upgrade`, `w22-r0-p7-legacy-identity`, `w22-r1-ownership`, `w22-r2-portable-adoption`, `w32-r0-p2-schema-v7`, `w32-r0-p3-project-register`, `w32-r0-p3-recover-lock-doubt`, `w32-r0-p4-store-maintenance`): 302 passed, 0 failed, 1 skipped.
+- The package proof, run directly against a packed candidate with its `project checkout-move` calls changed for this run only to `project move`: every check through the moves, the upgrades, and the repeat setup passes. It then fails at its last check, line 225. That check expects the released 2.0.5 reader to say "does not have verified installation evidence in the Store". After the candidate's setup upgrade, the Store is v7, so 2.0.5 refuses it earlier with "schema version 7 is newer than supported version 6". It still exits non-zero and changes nothing. No CLI change can bring back the old message, so the proof check needs an update (for example, also accept `newer schema`).
+- `npm run smoke:pack:local`, on the builder base: failed before the package proof, because the retired `run` check still expected the old text. W33 R0 P4 then moved the proof to `project move` and changed that check to a typed `operation-error`.
+- Integration on `docs/w29-w30-work-store-and-factory` after W33 R0 P4: moves now keep the Store at schema 6, so the proof runs the released 2.0.5 reader twice. Right after the moves, on schema 6, 2.0.5 refuses a copy at an unregistered path with "does not have verified installation evidence in the Store", as the original check meant. At the end, after the candidate setup made the Store v7, 2.0.5 refuses with the exact text `schema version 7 is newer than supported version 6`. Both runs exit non-zero and change no durable Store state. `npm run smoke:pack:local` then passed (local mode, 22.0s), including the full package proof.
+
+### Limits
+
+- W33 R0 P4 made the `project move` and smoke changes. The 2.0.5 reader message check changed with this fix, at integration.

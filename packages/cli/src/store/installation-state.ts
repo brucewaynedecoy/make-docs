@@ -871,15 +871,46 @@ interface CheckoutMoveReceipt {
     appliedAt: string;
 }
 
-/** Read only. It never creates a checkout, a lease, or a review row. */
+/**
+ * The oldest Store schema that checkout move review, checkout move, and separate checkout
+ * registration use as it is (PRD 38 R-CHECKOUT-8, R-CHECKOUT-9). Schema 6 is the schema
+ * that Make Docs 2.0.5 to 2.0.9 wrote. Its checkout, ledger, operation, lock, and migration
+ * record tables have every column that these actions read and write, so they do not
+ * migrate the Store. A setup review shows the Store conversion separately, and only a
+ * reviewed setup applies it. Schema 7 adds `project_register`, which these actions write
+ * only when it exists.
+ */
+const CHECKOUT_BINDING_MIN_STORE_SCHEMA = 6;
+/** Classify the Store for checkout binding actions. Unsafe Stores, including a v7 Store whose write guard changed, stay refused. */
+function checkoutBindingStore(store: string): { usable: true; schemaVersion: number } | { usable: false; reason: string } {
+    const c = classifyStoreCheckpoint9State(store);
+    if (c.state === 'supported-current') return { usable: true, schemaVersion: c.schemaVersion };
+    if (c.state === 'supported-legacy' && c.schemaVersion >= CHECKOUT_BINDING_MIN_STORE_SCHEMA) return { usable: true, schemaVersion: c.schemaVersion };
+    if (c.state === 'supported-legacy') return { usable: false, reason: `The Store uses schema ${c.schemaVersion}. Run make-docs setup to review the Store conversion first.` };
+    if (c.state === 'absent') return { usable: false, reason: 'The Store is absent.' };
+    return { usable: false, reason: `The Store is ${c.state}: ${c.reason}` };
+}
+/** Write the project register only when this Store schema has it (schema 7 and later). */
+function recordProjectInRegisterWhenPresent(db: StoreDatabase, input: { projectId: string; projectRoot: string }): void {
+    if (readStoreUserVersion(db) >= 7) recordProjectInRegister(db, input);
+}
+function readStoreUserVersion(db: StoreDatabase): number {
+    return Number((db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version);
+}
+
+/**
+ * Read only. It never creates a checkout, a lease, or a review row. It reads a schema 6
+ * Store as it is and never migrates it (W32 R0 P2 follow-up).
+ */
 export function previewInstallationCheckoutMove(projectRoot: string, sourceCheckoutId?: string, storeRoot?: string): CheckoutMovePreview {
     const root = canonicalInstallationPath(projectRoot);
     const id = readDeclarativeProjectId(root);
     const base = { schemaVersion: 1 as const, projectId: id, targetRoot: root };
     if (!id) return { ...base, status: 'none', candidates: [], nextAction: 'A valid projectId in .make-docs/config.yaml is required before checkout move.' };
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
-    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
-        return { ...base, status: 'blocked', candidates: [], nextAction: 'The Store must use the current schema before checkout move.' };
+    const usable = checkoutBindingStore(store);
+    if (!usable.usable)
+        return { ...base, status: 'blocked', candidates: [], nextAction: `${usable.reason} Checkout move needs a usable Store.` };
     return withInstallationDatabase(root, db => previewInstallationCheckoutMoveInDatabase(db, root, id, sourceCheckoutId), {storeRoot: store, readOnly: true});
 }
 
@@ -962,8 +993,9 @@ function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: stri
 export function registerSeparateInstallationCheckout(projectRoot: string, reviewDigest: string, storeRoot?: string) {
     const root = canonicalInstallationPath(projectRoot);
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
-    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
-        fail('store-unavailable', 'Separate checkout registration requires a current Store.');
+    const usable = checkoutBindingStore(store);
+    if (!usable.usable)
+        fail('store-unavailable', `${usable.reason} Separate checkout registration needs a usable Store. No Store state changed.`);
     return withInstallationDatabase(root, db => transaction(db, () => {
         const id = readDeclarativeProjectId(root);
         if (!id) fail('ownership-unverified', 'A valid config projectId is required.');
@@ -973,7 +1005,7 @@ export function registerSeparateInstallationCheckout(projectRoot: string, review
         const checkoutId = randomUUID();
         db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?)')
             .run(checkoutId, id, root, now(), platform.comparisonKey(root), null, null);
-        recordProjectInRegister(db, { projectId: id, projectRoot: root });
+        recordProjectInRegisterWhenPresent(db, { projectId: id, projectRoot: root });
         return { status: 'registered' as const, projectId: id, checkoutId, targetRoot: root,
             effect: 'new-checkout-binding' as const, projectFilesChanged: false,
             nextAction: 'Run setup for this target to review its own installation state.' };
@@ -984,8 +1016,10 @@ export function registerSeparateInstallationCheckout(projectRoot: string, review
 export function applyInstallationCheckoutMove(projectRoot: string, sourceCheckoutId: string, sourceRoot: string, reviewDigest: string, storeRoot?: string) {
     const root = canonicalInstallationPath(projectRoot);
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
-    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
-        fail('store-unavailable', 'Checkout move requires a current Store. No Store state changed.');
+    // Apply never migrates the Store schema (R-CHECKOUT-8). A schema 6 Store is changed as it is.
+    const usable = checkoutBindingStore(store);
+    if (!usable.usable)
+        fail('store-unavailable', `${usable.reason} Checkout move needs a usable Store. No Store state changed.`);
     return withInstallationDatabase(root, db => transaction(db, () => {
         const alreadyBound = checkout(db, root);
         if (alreadyBound?.checkout_id === sourceCheckoutId && canonicalInstallationPath(sourceRoot) !== root) {
@@ -1016,7 +1050,7 @@ export function applyInstallationCheckoutMove(projectRoot: string, sourceCheckou
         const receipt = { schemaVersion: 1, operation: 'project.checkout-move.apply', projectId: row.project_id, checkoutId: sourceCheckoutId, sourceRoot: row.root_path, targetRoot: root, reviewDigest, ledgerDigest: sha(ledger), evidenceDigest: sha(verificationJson), appliedAt: verifiedAt };
         db.prepare("INSERT INTO installation_migration_records (checkout_id,kind,record_id,record_json) VALUES (?,'receipt',?,?)")
             .run(sourceCheckoutId, `checkout-move:${randomUUID()}`, JSON.stringify(receipt));
-        recordProjectInRegister(db, { projectId: row.project_id, projectRoot: root });
+        recordProjectInRegisterWhenPresent(db, { projectId: row.project_id, projectRoot: root });
         return { status: 'completed' as const, ...receipt,
             effect: 'checkout-binding-moved' as const, projectFilesChanged: false,
             nextAction: 'Continue setup for this target.' };

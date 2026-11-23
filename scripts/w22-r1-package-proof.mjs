@@ -192,6 +192,17 @@ try {
   assert.equal(afterKit.installation_migration_records.length, before.installation_migration_records.length + 2);
   assert.deepEqual(instructionBytes(moved), rootBytes);
   assert.deepEqual(instructionBytes(movedKit), kitBytes);
+  // Moves keep the Store at schema 6, so released 2.0.5 still reads it here. A copy at an unregistered path has no evidence it can verify.
+  const movedCopy = path.join(temp, 'make-kit-copy');
+  cpSync(moved, movedCopy, {recursive: true});
+  const beforeSchema6Reader = durable(store);
+  const schema6Reader = spawnSync(process.execPath, [oldBin, 'project', 'surface', 'ensure', 'artifacts'], {
+    cwd: movedCopy, env: {...process.env, MAKE_DOCS_HOME: store}, encoding: 'utf8', timeout: 120000,
+  });
+  assert.notEqual(schema6Reader.status, 0, 'Released 2.0.5 accepted unfamiliar move evidence');
+  assert.match(`${schema6Reader.stdout}\n${schema6Reader.stderr}`, /does not have verified installation evidence in the Store/i);
+  assert.deepEqual(durable(store), beforeSchema6Reader, 'Old reader changed durable Store state');
+  rmSync(movedCopy, {recursive: true, force: true});
   for (const root of [moved, movedKit]) {
     const upgrade = run(candidateBin, ['setup', '--target', root, ...SETUP_FLAGS], store);
     assert.equal(upgrade.status, 'complete');
@@ -221,8 +232,9 @@ try {
   const oldReader = spawnSync(process.execPath, [oldBin, 'project', 'surface', 'ensure', 'artifacts'], {
     cwd: movedAgain, env: {...process.env, MAKE_DOCS_HOME: store}, encoding: 'utf8', timeout: 120000,
   });
-  assert.notEqual(oldReader.status, 0, 'Released 2.0.5 accepted unfamiliar move evidence');
-  assert.match(`${oldReader.stdout}\n${oldReader.stderr}`, /does not have verified installation evidence in the Store/i);
+  assert.notEqual(oldReader.status, 0, 'Released 2.0.5 accepted a v7 Store');
+  // After setup upgrades the Store to schema v7 (W32 R0 P2), released 2.0.5 refuses the newer schema before it reads any evidence.
+  assert.match(`${oldReader.stdout}\n${oldReader.stderr}`, /schema version 7 is newer than supported version 6/i);
   assert.deepEqual(durable(store), beforeOldReader, 'Old reader changed durable Store state');
   console.log(JSON.stringify({status: 'passed', source: RELEASED_205_URL, released205: {integrity: `sha512-${RELEASED_205_SHA512}`, sha256: RELEASED_205_SHA256}, candidate: {version: expectedVersion, sha256: digest(candidateTarball, 'sha256')}, runtime: {node: process.version, npm: npmVersion(), os: process.platform}, rootCheckoutId: rootId.checkout_id, kitCheckoutId: kitId.checkout_id, receiptCount: 2}));
 } finally {
