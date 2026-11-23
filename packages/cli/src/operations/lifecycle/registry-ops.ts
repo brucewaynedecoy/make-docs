@@ -204,6 +204,7 @@ export function buildLifecycleOperations(
               checkpoint: resolved.checkpoint,
               metadata: resolved.metadata,
               committedAt: context.now(),
+              projectRoot: identity.repoRoot,
             }),
           ),
         );
@@ -321,6 +322,7 @@ export function buildLifecycleOperations(
               reference: reference.value,
               digest: resolved.digest,
               committedAt: context.now(),
+              projectRoot: identity.repoRoot,
             });
           }),
         );
@@ -425,6 +427,7 @@ function transitionHandler(
         expectedVersion: input.expectedVersion,
         ...change,
         committedAt: context.now(),
+        projectRoot: identity.repoRoot,
       });
     }),
   );

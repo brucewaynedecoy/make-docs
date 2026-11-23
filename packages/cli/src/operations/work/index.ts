@@ -383,12 +383,24 @@ export function buildWorkEvidenceRecord(input: {
   return withStoreDatabase(
     validateInstallationStoreRoot(resolution.repoRoot, resolveStoreRoot(input.storeRoot ? { storeRoot: input.storeRoot } : {})),
     (db) => {
-      recordWorkEvidence(db, {
-        projectId,
-        identity,
-        evidenceKind: input.evidenceKind,
-        payload: input.payload,
-      });
+      // The register row and the evidence row commit together (R-REGISTER-1).
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        recordWorkEvidence(db, {
+          projectId,
+          identity,
+          evidenceKind: input.evidenceKind,
+          payload: input.payload,
+        });
+        db.exec("COMMIT");
+      } catch (error) {
+        try {
+          db.exec("ROLLBACK");
+        } catch {
+          // SQLite can roll back the transaction before this handler runs.
+        }
+        throw error;
+      }
       // Mirror what the store row captured (recordedAt is minted by the store).
       const row = readWorkItemEvidence(db, { projectId, identity }).find(
         (item) => item.evidenceKind === input.evidenceKind,

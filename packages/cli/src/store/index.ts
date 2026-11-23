@@ -109,6 +109,7 @@ export {
   upsertWorkEvidence,
   WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES,
   WorkEvidencePayloadTooLargeError,
+  type DeleteProjectRowsResult,
   type PlaybookRunRow,
   type ProjectRegistryEntry,
   type WorkEvidenceRow,
@@ -214,3 +215,19 @@ export {
   type StoreRecordClass,
   type StoreTableCatalogEntry,
 } from "./table-catalog";
+
+export {
+  PROJECT_NAME_MAX_LENGTH,
+  ProjectNameInvalidError,
+  ProjectNameTakenError,
+  countRegisteredProjects,
+  listRegisteredProjects,
+  projectNameProblem,
+  readDeclaredProjectName,
+  readProjectRegisterRow,
+  recordProjectInRegister,
+  type DeclaredProjectName,
+  type ProjectListEntry,
+  type ProjectListResult,
+  type ProjectRegisterRow,
+} from "./project-register";

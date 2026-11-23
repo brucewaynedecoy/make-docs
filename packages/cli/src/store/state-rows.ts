@@ -1,5 +1,6 @@
 import { OperationError, type JsonValue } from "../operations/types";
 import type { StoreDatabase } from "./database";
+import { countRegisteredProjects } from "./project-register";
 
 /**
  * The largest `work_evidence` payload, in bytes of its UTF-8 JSON text
@@ -320,20 +321,48 @@ export function listWorkEvidence(
   }));
 }
 
+/** What {@link deleteProjectRows} removed and kept. */
+export interface DeleteProjectRowsResult {
+  /** Rows removed, by table. */
+  removed: { run_evidence: number; runs: number; work_evidence: number; project_register: number };
+  /**
+   * True when the project's `project_register` row stays, because a checkout
+   * of the project is still bound (PRD 38 R-MIN `project_register` retention).
+   */
+  registerRowKept: boolean;
+  /** Projects left in `project_register`, without this project (R-REGISTER-4). */
+  remainingProjects: number;
+}
+
 /**
- * Removes current rows keyed by the given project identifier inside one
- * transaction. Opaque legacy `playbook_runs` rows are deliberately excluded
- * from this current-state pruning seam (PRD 38 R-PS-6 / R-LIFE-2).
+ * Removes one project's current rows inside one transaction (PRD 38 R-LIFE-2,
+ * R-REGISTER-4): `run_evidence`, `runs`, and `work_evidence`, and its
+ * `project_register` row once no checkout of the project is bound. It keeps
+ * opaque legacy `playbook_runs` rows (R-PS-6), the read-only legacy `projects`
+ * table, every installation table, and every other project's rows. It counts
+ * the remaining projects from `project_register`.
  */
-export function deleteProjectRows(db: StoreDatabase, projectId: string): void {
+export function deleteProjectRows(db: StoreDatabase, projectId: string): DeleteProjectRowsResult {
   db.exec("BEGIN IMMEDIATE");
   try {
-    db.prepare("DELETE FROM run_evidence WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM runs WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM work_evidence WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM playbook_runs WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM projects WHERE project_id = ?").run(projectId);
+    const changes = (sql: string, ...params: string[]) => Number(db.prepare(sql).run(...params).changes);
+    const removed = {
+      run_evidence: changes("DELETE FROM run_evidence WHERE project_id = ?", projectId),
+      runs: changes("DELETE FROM runs WHERE project_id = ?", projectId),
+      work_evidence: changes("DELETE FROM work_evidence WHERE project_id = ?", projectId),
+      project_register: changes(
+        `DELETE FROM project_register WHERE project_id = ?
+           AND NOT EXISTS (SELECT 1 FROM installation_checkouts WHERE project_id = ?)`,
+        projectId,
+        projectId,
+      ),
+    };
+    const registerRowKept = Boolean(
+      db.prepare("SELECT 1 FROM project_register WHERE project_id = ?").get(projectId),
+    );
+    const remainingProjects = countRegisteredProjects(db, projectId);
     db.exec("COMMIT");
+    return { removed, registerRowKept, remainingProjects };
   } catch (error) {
     try {
       db.exec("ROLLBACK");

@@ -151,6 +151,7 @@ export const ADMITTED_OPERATION_IDS = [
   "project.checkout-register.preview",
   "project.checkout-register.apply",
   "project.persona.list",
+  "project.register.list",
   "project.layout.preview",
   "project.layout.prepare",
   "project.layout.apply",
@@ -201,6 +202,7 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "project.checkout-register.preview": ["project", "checkout-register preview"],
   "project.checkout-register.apply": ["project", "checkout-register apply"],
   "project.persona.list": ["project", "persona list"],
+  "project.register.list": ["project", "list"],
   "project.layout.preview": ["project", "layout preview"],
   "project.layout.prepare": ["project", "layout prepare"],
   "project.layout.apply": ["project", "layout apply"],
@@ -242,6 +244,7 @@ const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number
   "performance.evidence.validate":
     "make-docs run performance evidence validate [--target-root <project>] [--json]",
   "project.persona.list": "make-docs project persona list [--target-root <path>] [--json]",
+  "project.register.list": "make-docs project list [--json]",
   "project.layout.preview": "make-docs project layout preview [--map <source>=<destination>] [--target-root <path>] [--json]",
   "project.layout.prepare": "make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--target-root <path>] [--json]",
   "project.layout.apply": "make-docs project layout apply <operation-id> [--target-root <path>] [--json]",

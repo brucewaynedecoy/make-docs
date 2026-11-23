@@ -10,7 +10,7 @@ import {
   type ResolveStoreRootOptions,
 } from "./paths";
 import { resolveProjectIdentity } from "./project-identity";
-import { deleteProjectRows, listProjectRegistryEntries } from "./state-rows";
+import { deleteProjectRows, type DeleteProjectRowsResult } from "./state-rows";
 
 /**
  * Store lifecycle behavior (W18 R10 P4; PRD 38 R-LIFE-1, R-LIFE-2).
@@ -18,10 +18,9 @@ import { deleteProjectRows, listProjectRegistryEntries } from "./state-rows";
  * Two seams live here:
  *
  * - {@link pruneProjectFromStore} — project removal. Deletes exactly one
- *   project's rows, keyed by the manifest-minted project identifier, leaving
- *   every other project's rows untouched (R-LIFE-2). Today's repo-level
- *   `make-docs setup remove` calls it; the W18 R11 CLI reorganization's
- *   `setup remove` surfaces the same function.
+ *   project's current rows, keyed by the manifest-minted project identifier,
+ *   leaving every other project's rows untouched (R-LIFE-2). No command calls
+ *   it today; `setup remove` does not prune Store rows.
  *
  * - {@link removeGlobalStore} — machine-level store removal. The behavior the
  *   tool-level `uninstall` self-management command (W18 R11 lineage) calls
@@ -54,8 +53,12 @@ export type PruneProjectFromStoreResult =
       status: "pruned";
       storeRoot: string;
       projectId: string;
-      /** Registry-mirror rows left for other projects after the prune. */
+      /** Projects left in `project_register` after the prune, without this project (R-REGISTER-4). */
       remainingProjects: number;
+      /** Rows removed, by table. `playbook_runs` and `projects` are never removed. */
+      removed: DeleteProjectRowsResult["removed"];
+      /** True when the register row stays because a checkout of the project is still bound. */
+      registerRowKept: boolean;
     }
   | { status: "no-store"; storeRoot: string }
   | {
@@ -67,10 +70,12 @@ export type PruneProjectFromStoreResult =
 
 /**
  * Prunes one project's rows from the global store, keyed by the
- * manifest-minted project identifier (R-LIFE-2). All three project-scoped
- * tables are cleared in one transaction via {@link deleteProjectRows}; rows
- * of every other project are untouched. Never creates a store database and
- * never throws.
+ * manifest-minted project identifier (R-LIFE-2, R-REGISTER-4). The rows that
+ * {@link deleteProjectRows} names are removed in one transaction; legacy
+ * `playbook_runs` and `projects` rows and every other project's rows are
+ * untouched. The remaining projects are counted from `project_register`.
+ * Never creates a store database and never throws. It has no caller: a
+ * reviewed command in a later design adds one (W32 R0 design, "Row events").
  */
 export function pruneProjectFromStore(
   options: PruneProjectFromStoreOptions,
@@ -93,12 +98,14 @@ export function pruneProjectFromStore(
 
   try {
     return withStoreDatabase(storeRoot, (db) => {
-      deleteProjectRows(db, resolvedProjectId);
+      const result = deleteProjectRows(db, resolvedProjectId);
       return {
         status: "pruned" as const,
         storeRoot,
         projectId: resolvedProjectId,
-        remainingProjects: listProjectRegistryEntries(db).length,
+        remainingProjects: result.remainingProjects,
+        removed: result.removed,
+        registerRowKept: result.registerRowKept,
       };
     });
   } catch (error) {

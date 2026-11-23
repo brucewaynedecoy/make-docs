@@ -55,6 +55,7 @@ describe("operation domain modules", () => {
       "project.checkout-move.preview",
       "project.checkout-move.apply",
       "project.state.status",
+      "project.register.list",
       "project.state.recover",
       "project.surface.ensure",
       "project.path-hygiene.validate",

@@ -10,6 +10,7 @@ import {
 } from "./harness-access";
 import { NO_ACCESS, type OperationAccess } from "./operations/access";
 import { PROJECT_RESOURCE_TYPES, type ProjectResourceType } from "./types";
+import { projectNameProblem } from "./store/project-register";
 
 export const PERSONA_PRIMITIVES = ["user", "maintainer"] as const;
 export const RESERVED_PERSONA_SLUGS = new Set(["project", "archive", "artifacts", "library", "playbooks"]);
@@ -122,6 +123,7 @@ export interface MakeDocsConfigDiagnostic {
     | "reserved-persona-slug"
     | "fixed-persona-primitive"
     | "invalid-type"
+    | "invalid-project-name"
     | "missing-required-key"
     | "parse-error"
     | "structural-rename-attempt"
@@ -155,6 +157,7 @@ export interface ConfigRenderingLabels {
 
 const TOP_LEVEL_KEYS = new Set([
   "projectId",
+  "projectName",
   "labels",
   "personas",
   "generatedProse",
@@ -379,6 +382,13 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
     keyPath: "",
     value: parsed,
   });
+  if (parsed.projectName !== undefined) {
+    // R-CONFIG-STATE-9: the form follows PRD 38 R-ID-8.
+    const problem = projectNameProblem(parsed.projectName);
+    if (problem) {
+      diagnostics.push({ code: "invalid-project-name", filePath: configPath, keyPath: "projectName", message: `Invalid make-docs config at ${configPath} (projectName): ${problem}` });
+    }
+  }
   applyLabels(parsed.labels, config, configPath, diagnostics);
   applyGeneratedProse(parsed.generatedProse, config, configPath, diagnostics);
   applyPersonas(parsed.personas, config, configPath, diagnostics);

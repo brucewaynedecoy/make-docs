@@ -75,6 +75,7 @@ import {
   reviewCompletedRemovalHandoff,
   type CompletedRemovalHandoffReview,
 } from "./store/installation-state";
+import { storedRootMatches } from "./store/root-path-match";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { inferLocalResourceProjection } from "./project-projection";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
@@ -337,7 +338,11 @@ function previewPostBridgeInstallationManifest(
        FROM installation_checkouts
        JOIN installation_ledgers USING (checkout_id)`,
     ).all() as Array<{ root_path: string; manifest_json: string }>;
-    const row = rows.find((candidate) => path.resolve(candidate.root_path) === targetRoot);
+    // Compare with the platform key, as checkout lookup does. Schema 3 has no root_path_key
+    // column, so the key comes from the path. More than one match is doubt, so no ledger is
+    // predicted (W32 R0 P3).
+    const matches = rows.filter((candidate) => storedRootMatches(candidate.root_path, targetRoot));
+    const row = matches.length === 1 ? matches[0] : undefined;
     if (!row) return null;
     return validateAndMigrateManifest(
       JSON.parse(row.manifest_json),
@@ -3739,6 +3744,7 @@ Examples:
 Manage project support surfaces and installation state in the global Make Docs Store.
 
 Usage:
+  make-docs project list [--target-root <path>] [--json]
   make-docs project surface ensure <archive|artifacts|assets>
   make-docs project state status [--target-root <path>] [--json]
   make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
@@ -3750,6 +3756,10 @@ Usage:
 The ensure command checks Store installation evidence and configured routers
 before it creates the selected on-demand directory. It reports the applied or
 unchanged state, plan dispositions, receipt, and next check.
+
+Project list shows every project that the Store knows: its name, ID,
+checkouts, last seen time, and each checkout folder that is missing. It
+reads only.
 
 State status reads the Store and reports pending work without changing files.
 State recover requires an operation ID and exactly one recovery mode.

@@ -350,7 +350,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     }
   });
 
-  test("6: current listings exclude legacy rows and project pruning keeps its prior contract", () => {
+  test("6: current listings exclude legacy rows and project pruning keeps legacy Playbook rows", () => {
     const root = storeRoot();
     withStoreDatabase(root, (db) => {
       db.prepare(
@@ -366,10 +366,11 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       expect(listLifecycleRuns(db, "project-1").map((run) => run.runId)).toEqual(["current-1"]);
       deleteProjectRows(db, "project-1");
       expect(listLifecycleRuns(db, "project-1")).toEqual([]);
+      // W32 R0 P3: prune keeps opaque legacy playbook_runs rows (PRD 38 R-LIFE-2, R-PS-6).
       expect(
         db.prepare("SELECT record FROM playbook_runs WHERE project_id = ? AND run_id = ?")
           .get("project-1", "legacy-1"),
-      ).toBeUndefined();
+      ).toEqual({ record: "{}" });
     });
     expect(MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === 9)?.state).toBe("implemented");
     expect(MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === 10)?.state).toBe("implemented");

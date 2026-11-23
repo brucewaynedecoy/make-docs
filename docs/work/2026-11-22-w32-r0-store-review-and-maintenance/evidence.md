@@ -262,6 +262,132 @@ The MCP server has no separate Store open. It calls the same operations, so it u
 - P5 wording review: the `store-unsafe` message repeats its next action, once in the issue text and once as the scoped next action.
 - P5: on its copy of a real Store, check the largest `work_evidence` payload against the 64 KiB limit.
 
+## P3 Project Register and Row Events
+
+Covers A11 to A14 in [P3](03-project-register-and-row-events.md). Evidence date: 2026-11-22. Branch: `t3/w32-p3-project-register-row-events`, from `docs/w29-w30-work-store-and-factory` at `4daaf18f`. Node `v26.13.1`. CLI package version `2.0.9`. No test opened the real Store: every test uses a temporary `MAKE_DOCS_HOME`, and the P3 test file points `MAKE_DOCS_HOME` at a temporary guard folder before each test.
+
+### What Was Built
+
+- `packages/cli/src/store/project-register.ts` holds `recordProjectInRegister`. Each Store write for a project calls it inside the write's own transaction. It reads `projectName` from `.make-docs/config.yaml` and creates or updates the project's `project_register` row. It has two modes:
+  - `refuse`, at the start of a write: it refuses a name in the wrong form, a name that another project holds, a name that is another project's ID, and a project ID that is another project's name. A refusal throws before the write's own rows, so the transaction leaves no row.
+  - `keep`, at an operation commit and at the end of a recovery: it never refuses. On a name problem it keeps the stored name, records the row, and returns the problem. A recovery puts it in its result as `projectNameConflict`, and `make-docs project state recover` prints it. A commit inside a running operation keeps the stored name, and the next operation start refuses the name with the full message. So a rollback or a resume always finishes once it has put files back.
+- The register writers: the start and the commit of every installation operation (`withInstallationOperation` and `commitOperation`, so setup, install apply, adoption, `setup remove`, and recover), detached operation preparation (layout prepare and Skill adoption), a new checkout binding (`getInstallationCheckoutId`), migration records (`recordMigrationState`, which now binds, registers, and writes in one transaction), legacy import, checkout register, checkout move, backlog cache write, work evidence record (`recordWorkEvidence`, which also serves lifecycle checkpoint evidence), and every lifecycle write: `lifecycle.start`, each state change, and `lifecycle.attach-evidence`. The lifecycle operations pass the project folder from `lifecycleIdentity`, and `createLifecycleRun`, `transitionLifecycleRun`, and `attachLifecycleEvidence` record the register row in their own transaction. `buildWorkEvidenceRecord` now writes its register row and evidence row in one transaction.
+- Legacy identity adoption deletes the temporary project ID's register row when no checkout names that ID any more. Without this, the temporary row would list a project with no checkout and could hold the config name, so the import would refuse its own name.
+- `projectName` form (PRD 38 R-ID-8, PRD 24 R-CONFIG-STATE-9): 1 to 64 characters, lower-case letters, digits, and hyphens, starting with a letter, and not in the form of a minted project ID (a UUID). Config validation reports a wrong form as `invalid-project-name`. A Store write refuses it with `ProjectNameInvalidError` (`project-name-invalid`).
+- Name refusal: `ProjectNameTakenError` (`project-name-taken`). Its message names the other project's ID and its checkout paths, says that Make Docs refused the Store write, and asks for another `projectName`. Its `details` carry the name, both project IDs, and the other project's checkouts. A project ID that is another project's name is refused with `ProjectIdIsOtherNameError` (`project-id-is-other-name`), which names that project and asks to change its `projectName`.
+- Name changes: a changed `projectName` replaces the name at the next Store write, and the old name is free at once. A config with no `projectName` clears the name. A missing config file keeps the recorded name, because the name is unknown then.
+- Project prune (`deleteProjectRows` through `pruneProjectFromStore`) removes only `run_evidence`, `runs`, and `work_evidence` rows of the project, and its `project_register` row once no checkout of the project is bound. It keeps `playbook_runs`, the read-only legacy `projects` table, every installation table, and every other project's rows. It counts the remaining projects from `project_register` and reports the removed rows by table. It still has no caller.
+- `project.register.list` (`make-docs project list`, MCP `project_list`, profiles `core` and `all`) reads `project_register` and `installation_checkouts` only. It shows each project by name first, then its ID, last seen time, and checkouts, and names each missing checkout folder in plain words. A checkout that names a project with no register row yet is listed as not recorded. The name catalog marks it current. The `project` help lists it.
+- The `root_path` follow-up from P2: `packages/cli/src/store/root-path-match.ts` compares a stored checkout or lock path with the platform comparison key, as checkout lookup does. A match is `same`, `different`, or `unknown`; `unknown` means a path could not be resolved and the lower-case paths are equal. A caller that blocks work treats `unknown` as the same folder. Recovery is the only caller that removes a row: it deletes a dead lock only on `same` and stops on `unknown`, keeping the lock.
+
+### Row Events (A11)
+
+Each test takes every row of every catalog table before and after the event, keyed by primary key, and checks the exact tables and the number of rows that the event created, updated, or removed. All are in `packages/cli/tests/w32-r0-p3-project-register.test.ts`.
+
+| Row event | Rows it touches |
+| --- | --- |
+| Store create | `store_schema_journal`: 5 created. Register empty. |
+| Setup and install apply (`make-docs setup`) | `installation_checkouts` 1 created, `installation_ledgers` 1 created, `installation_operations`, `installation_steps`, and `installation_migration_records` created, `project_register` 1 created. A later setup with a new `projectName` updates the register row and adds no checkout. |
+| Adoption (`make-docs setup --adopt` in a second Store) | `installation_checkouts` 1 created, `installation_ledgers` 1 created, `installation_operations` created, `project_register` 1 created. No table outside the installation tables and the register. |
+| Legacy import | `installation_checkouts` 1, `installation_migration_records` 2, `installation_operations` 1 (pending `legacy.recovery`), `project_register` 1, all created. |
+| Checkout register | `installation_checkouts` 1 created, `project_register` 1 updated. |
+| Checkout move | `installation_checkouts` 1 updated, `installation_migration_records` 1 created (move receipt), `project_register` 1 updated. |
+| `setup remove` | `installation_ledgers` 1 removed, `installation_operations` 1 created, `project_register` 1 updated. The checkout stays. |
+| Project prune, checkout bound | `run_evidence`, `runs`, and `work_evidence` 1 removed each. `playbook_runs`, `projects`, the register row, and the other project's rows stay. Remaining projects: 1. |
+| Project prune, no checkout bound | `work_evidence` 1 removed, `project_register` 1 removed. Remaining projects: 0. |
+| Tool update and tool uninstall | `tool_operations` 1 created each. No project row. |
+| Machine harness setup | `tool_operations` 1 created. No project row. |
+| Project recover (rollback of a failed operation) | `installation_ledgers` 1 updated, `installation_operations` 1 updated, `project_register` 1 updated. |
+| Lifecycle start, change, and evidence (through the operations) | `runs` 1 created and `project_register` 1 created; `runs` 1 updated and `project_register` 1 updated; `run_evidence` 1 created, `runs` 1 updated, and `project_register` 1 updated. A taken name stops `lifecycle.start` with `project-name-taken` and no row changes. |
+| Lifecycle Store functions with no project folder | Only `runs` and `run_evidence`, as before. Every current operation passes the folder. |
+| Work evidence record | `work_evidence` 1 created, `project_register` 1 created. |
+| Backlog cache write | `installation_checkouts` 1 created (first binding), `backlog_review_cache` 1 created, `project_register` 1 created. |
+| Maintenance clean | P4 builds `setup store clean` and its row tests. |
+
+### Project Names (A12)
+
+- A second project with the same `projectName` is refused at the start of its installation operation, before any project file changes. The error is `project-name-taken`, its message names the other project's ID and its checkout path, and the Store rows are unchanged. Work evidence record and backlog cache write refuse the same name and leave no row.
+- After the first project changes its name, its next write records the new name, and the second project can take the old one. Removing `projectName` clears the name.
+- Wrong forms (`Docs`, `2docs`, `docs_site`, 65 characters, a UUID) are refused by config validation and by the Store write. A name that is another project's ID is refused. A write whose project ID is another project's name is refused with `project-id-is-other-name`, the other project's ID and checkout, and no row change. A project may use its own ID as its name.
+- Recovery and commit never stop on a name. A failed operation whose project's config name now clashes finishes with `--rollback` (the new file is removed, status `rolled-back`) and with `--resume` (status `completed`). Each result reports `projectNameConflict` with `project-name-taken`, the other project's ID, and the kept name, and the register keeps the stored name. A name changed to a taken one during a running operation does not block its commit; the next operation start refuses it.
+- Through `make-docs setup` on a fixture Store, the refusal is the `failedCondition`: "The project name "handbook" belongs to another project in this Store: project c3610116-…. Its checkout: …/handbook. Make Docs refused this Store write. Choose another projectName in .make-docs/config.yaml, then run the command again." The project kept only its config file.
+
+### Project Prune (A13)
+
+The prune tests above show that `playbook_runs` and the legacy `projects` rows stay and that `remainingProjects` comes from `project_register`. The older prune tests in `store.test.ts`, `store-lifecycle.test.ts`, `store-verification.test.ts`, and `p6-global-store-lifecycle.test.ts` expected `playbook_runs` and `projects` rows to be deleted, against R-LIFE-2 and R-PS-6. They now expect those rows to stay.
+
+### Project List (A14)
+
+- A fixture Store set up through the built CLI with a generic MCP client: `make-docs project list --json` (a separate process) and the MCP `project_list` call give the same result, and no Store row changes.
+- The typed Store outcomes (R-STORE-CMD-5). A missing Store gives a different code on each surface: the CLI `make-docs project list --json` exits 1 with `store-unavailable` ("The Store is absent"), and the MCP `project_list` call gives `store-denied`. The CLI runs on the direct route, reaches the Store open, and finds the Store absent. MCP must first prove its connection against the harness settings saved with the Store, and a missing Store has none, so the harness policy denies it. This is the existing behavior for every Store operation. The test asserts each exact code, and neither creates the Store. A Store with `user_version` 999 gives `store-unsafe` through MCP, and a project without harness access gives `store-not-configured`.
+- `--target-root` names the project whose harness access admits the Store read; it defaults to the current folder. The `project` help and the `project list` help show it. The registry usage string stays `make-docs project list [--json]`, the canonical form in the PRD 39 R-STORE-CMD table, as `project state status` does.
+- Sample text output on a fixture Store with two projects, one renamed `handbook` and one whose folder was moved away:
+
+```text
+The Store knows 2 projects with 2 checkouts. 1 checkout folder is missing.
+
+handbook
+  Project ID: c3610116-c85f-4eb5-9d33-f71527722307
+  Last seen: 2026-11-23T04:54:35.643Z
+  Checkout:
+    /private/tmp/claude-501/p3-sample/handbook
+
+(no project name)
+  Project ID: 7fef8031-dfef-4a95-97ad-477e2947a188
+  Last seen: 2026-11-23T04:54:27.525Z
+  Checkout:
+    /private/tmp/claude-501/p3-sample/old-site
+      The folder is missing. It was moved or deleted.
+```
+
+### `root_path` Comparison (P2 Follow-Up)
+
+- `assertNoOtherPendingPathClaims` (the pending path claims in `installation-state.ts`) now leaves out this checkout's own operations by checkout ID, not by exact path text. Before, a checkout renamed only by letter case took its own pending operation for another checkout's claim and blocked itself.
+- Every `installation_locks` lookup (acquire, active check, release, status, move preview, recover) uses `findInstallationLocks`, which matches a lock saved under any spelling of the folder. A dead lock under the old spelling still guards the folder. Recovery deletes a dead lock only when its path matches by the platform key. A lock whose path cannot be resolved and that matches only by lower case stays, and recovery stops with "Make Docs cannot resolve that path" (`tests/w32-r0-p3-recover-lock-doubt.test.ts`, which makes one path unresolvable through a mocked platform key).
+- `assertNoOtherStoreWork` in `harness-system-operations.ts` matches pending checkout work and locks by the platform key, so a pending or failed operation on the old spelling still blocks machine setup.
+- The setup ledger prediction in `cli.ts` compares by the platform key, and more than one match predicts nothing. Schema 3 has no `root_path_key` column, so it uses the path only.
+- The test renames a checkout folder by case on this machine's case-insensitive volume. It skips on a case-sensitive volume. A mutation that turns the key match off makes the old-spelling lock check fail, and a mutation that restores the exact-path exclusion makes the test's own ledger write fail with "Pending operation … reserves …". A mutation that lets recovery delete an `unknown` lock fails the doubt test, and a mutation that makes the commit refuse a taken name fails the rollback, resume, and running-operation tests.
+
+### Test Expectations Changed
+
+- `tests/name-catalog.test.ts`: 46 current operations and 21 planned ones (W32 planned 2).
+- `tests/mcp.test.ts`, `tests/mcp-profiles.test.ts`, `tests/mcp-profile-discovery.test.ts`, `tests/mcp-derivation.test.ts`, `tests/operation-domains.test.ts`, `tests/registry-contract.test.ts`, `tests/p3-operation-surfaces.test.ts`, `tests/reorganization-verification.test.ts`: the new `project_list` tool and `project.register.list` operation (core 9 tools, all 52). The first P3 report missed the last two. Its text summary of the full suite counted 2273 tests, while a JSON report of the same suite counts 2296 and shows these two failures. The cause of that gap is not known, so this report uses the JSON count.
+- `tests/store.test.ts`, `tests/store-lifecycle.test.ts`, `tests/store-verification.test.ts`, `tests/p6-global-store-lifecycle.test.ts`: prune keeps `playbook_runs` and `projects` and reports the register count.
+
+### Validation
+
+- `npx tsc --noEmit -p .` in `packages/cli`: passed.
+- `npx vitest run tests/w32-r0-p3-project-register.test.ts tests/w32-r0-p3-recover-lock-doubt.test.ts`: 30 passed (29 and 1).
+- The P3 tests with the catalog, name-catalog, MCP, registry, Store, prune, harness, ownership, schema v7, backlog cache, and project state tests (19 files): 309 passed, 1 skipped.
+- Full suite after `npm run build`, counted by `npx vitest run --reporter=json`: 2286 passed, 4 failed, 6 skipped (2296 tests in 129 files). Three failures exist without this change: 2 in `tests/mcp-app-contract.test.ts` and fixture 11 in `tests/p5-migration-safety.test.ts`, which fails only in the sandbox. The fourth, `cli interactive flows > routes reconfigure skill scope and selected-name changes without changing Skills` in `tests/cli.test.ts`, timed out at 15 seconds under full-suite load in two runs and passes alone. An earlier run had the same kind of timeout in `tests/backup.test.ts`, which also passes alone. An earlier full run found one real defect, a setup query that read `root_path_key` from a schema 3 Store, which has no such column. It is fixed.
+- Catalog digest: `sha256:1f7d44ed03d87044bc01dc35cc12b2776fb0da15cb9d78ceb09229ee009507e6`.
+
+### Decisions For The Owner
+
+- A name problem at a commit or at the end of a recovery is reported, not refused. A recovery reports it in its result. A commit inside a running operation does not report it at once; the next operation start refuses the name with the full message.
+- The v7 Store starts with an empty register, and no backfill fills it. `project list` still shows every checkout's project and marks one with no register row as not recorded yet. Its next Store write records it. A backfill would change the committed v7 migration.
+- A missing config file keeps the recorded name. A config with no `projectName` clears it.
+- A name equal to another project's ID is refused, so `make-docs://project/<project>/` cannot mean two projects. A project's own ID is allowed as its name.
+- Prune keeps the legacy `projects` table, because it is a read-only legacy input. It removes the register row only when no checkout of the project is bound, under the R-MIN retention.
+- Legacy identity adoption removes the temporary ID's register row. This is a removal inside a row event, not maintenance.
+- On doubt, the path match says "same folder". Each caller uses it only to block work. A path that cannot be resolved falls back to a lower-case comparison, which matches more paths, never fewer.
+- `project list` uses Store read and project read access, like `project state status`, because it checks each checkout folder.
+- `project list` keeps `--target-root`, because harness access is checked for one project. The registry usage string follows the PRD 39 table, so changing it to show the option would need a PRD 39 change.
+
+### Limits
+
+- Guided Progress Review is pending: the owner runs `make-docs project list` on this machine's projects. The builder ran it only on fixture Stores.
+- Without a backfill, a project's config name is not in the register until that project's next Store write. Until then, another project can record the same name, and the first project's next write is refused.
+- Setup does not yet propose the checkout folder name as `projectName`, which PRD 38 R-ID-8 requires (MUST). [W29 R0 P5](../2026-11-21-w29-r0-work-store/05-agent-twin-and-config.md) T8 owns it ("have setup propose the checkout folder name"). The other half of T8, config validation of `projectName`, landed in this phase.
+- In `setup`, a name refusal is the `failedCondition`, but the general `nextAction` still says "Correct the reported Store prerequisite". P5 reviews the wording.
+- The case-rename test runs only on a case-insensitive volume.
+
+### Follow-Ups For Later Phases
+
+- P4: `setup store check` and `clean` use `findInstallationLocks` and `storedRootMatches` for rule 001, as the catalog asks.
+- P5: the setup `nextAction` for a name refusal, and the Store README, which still describes older schemas in places.
+- W29 R0 P5 T8: setup proposes the checkout folder name as `projectName`.
+
 ## P4 Maintenance Commands
 
 Covers A15 to A18 in [P4](04-maintenance-commands.md). Evidence date: 2026-11-22. Branch: `t3/w32-store-maintenance-commands`, from `docs/w29-w30-work-store-and-factory` at `4daaf18f`. Node `v26.13.1`. CLI package version `2.0.9`. No test opened the real Store. Every test Store is a temporary folder that the test names in `MAKE_DOCS_HOME`.

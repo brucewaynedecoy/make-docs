@@ -4,6 +4,7 @@ import {
   CURRENT_STORE_SCHEMA_VERSION,
   type StoreDatabase,
 } from "./database";
+import { recordProjectInRegister } from "./project-register";
 
 export const LIFECYCLE_RUN_TYPES = ["lifecycle"] as const;
 export type LifecycleRunType = (typeof LIFECYCLE_RUN_TYPES)[number];
@@ -127,9 +128,12 @@ export function createLifecycleRun(
     checkpoint?: string | null;
     metadata?: LifecycleMetadata;
     committedAt: string;
+    /** The project folder. When given, the run's project is recorded in the register (R-REGISTER-1). */
+    projectRoot?: string;
   },
 ): LifecycleStoreMutationResult {
   return immediateTransaction(db, () => {
+    registerLifecycleProject(db, input);
     try {
       db.prepare(
         `INSERT INTO runs (
@@ -211,9 +215,12 @@ export function transitionLifecycleRun(
     checkpoint?: string | null;
     metadata?: LifecycleMetadata;
     committedAt: string;
+    /** The project folder. When given, the run's project is recorded in the register (R-REGISTER-1). */
+    projectRoot?: string;
   },
 ): LifecycleStoreMutationResult {
   return immediateTransaction(db, () => {
+    registerLifecycleProject(db, input);
     const current = readLifecycleRunOrThrow(db, input.projectId, input.runId);
     assertExpectedVersion(current, input.expectedVersion);
     const resultingVersion = current.version + 1;
@@ -270,9 +277,12 @@ export function attachLifecycleEvidence(
     reference: string;
     digest?: string | null;
     committedAt: string;
+    /** The project folder. When given, the run's project is recorded in the register (R-REGISTER-1). */
+    projectRoot?: string;
   },
 ): LifecycleStoreMutationResult & { evidence: LifecycleEvidenceRow } {
   return immediateTransaction(db, () => {
+    registerLifecycleProject(db, input);
     const current = readLifecycleRunOrThrow(db, input.projectId, input.runId);
     assertExpectedVersion(current, input.expectedVersion);
     try {
@@ -380,6 +390,18 @@ export function createLifecycleStoreMutationReceipt(input: {
     resultingVersion: subject.resultingVersion,
     committedAt: subject.committedAt,
   };
+}
+
+/**
+ * A lifecycle write is a Store write for its project (R-REGISTER-1). The register row
+ * joins the write's transaction, and a refused project name leaves no lifecycle row.
+ */
+function registerLifecycleProject(
+  db: StoreDatabase,
+  input: { projectId: string; projectRoot?: string; committedAt: string },
+): void {
+  if (input.projectRoot === undefined) return;
+  recordProjectInRegister(db, { projectId: input.projectId, projectRoot: input.projectRoot, now: input.committedAt });
 }
 
 function immediateTransaction<T>(db: StoreDatabase, apply: () => T): T {

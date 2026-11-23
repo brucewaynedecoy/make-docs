@@ -13,6 +13,7 @@ import type {
 import { OperationError } from "../operations/types";
 import type { ProjectSurfaceEnsureOutput } from "../operations/project/ops";
 import type { DoctorCheckResult, DoctorFixResult } from "../operations/project/doctor";
+import type { ProjectListResult } from "../store/project-register";
 import { readFileSync } from "node:fs";
 
 type ResourceOrigin = "effective" | "local" | "installed";
@@ -243,10 +244,15 @@ export async function runProjectCommand(
     await runProjectDoctorCommand(argv.slice(1), launch);
     return;
   }
+  if (argv[0] === "list") {
+    await runProjectListCommand(argv.slice(1), launch);
+    return;
+  }
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     process.stdout.write(
       [
-        "Usage: make-docs project surface ensure <archive|artifacts|assets>",
+        "Usage: make-docs project list [--target-root <path>] [--json]",
+        "       make-docs project surface ensure <archive|artifacts|assets>",
         "       make-docs project persona list [--target-root <path>] [--json]",
         "       make-docs project layout preview [--map <source>=<destination>] [--json]",
         "       make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--json]",
@@ -336,6 +342,66 @@ export async function runProjectCommand(
       "",
     ].join("\n"),
   );
+}
+
+async function runProjectListCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  if (argv[0] === "--help" || argv[0] === "-h") {
+    process.stdout.write("Usage: make-docs project list [--target-root <path>] [--json]\nList every project that the Make Docs Store knows. It reads only and changes nothing.\n--target-root names the project whose harness access admits the Store read. It defaults to the current folder.\n");
+    return;
+  }
+  let json = false;
+  let targetRoot: string | undefined;
+  const seen = new Set<string>();
+  const args = [...argv];
+  while (args.length) {
+    const flag = args.shift()!;
+    if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+    seen.add(flag);
+    if (flag === "--json") json = true;
+    else if (flag === "--target-root") {
+      const value = args.shift();
+      if (!value || value.startsWith("--")) throw new OperationError("--target-root requires a path.");
+      targetRoot = path.resolve(value);
+    } else throw new OperationError(`Unexpected project list option: ${flag}.`);
+  }
+  const invocation = await invokeOperation(
+    "project.register.list",
+    { ...(targetRoot ? { targetRoot } : {}) },
+    createExecutionContext({
+      surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
+      cwd: targetRoot,
+      writesAllowed: false,
+    }),
+  );
+  const value = invocation.value as unknown as ProjectListResult;
+  if (json) { printJson(value); return; }
+  process.stdout.write(renderProjectList(value));
+}
+
+/** Plain words for `make-docs project list`: each project by name first (PRD 39 R-STORE-CMD-2). */
+export function renderProjectList(value: ProjectListResult): string {
+  const lines = [value.summary];
+  for (const project of value.projects) {
+    lines.push("");
+    lines.push(project.name ?? "(no project name)");
+    lines.push(`  Project ID: ${project.projectId}`);
+    lines.push(project.lastSeenAt
+      ? `  Last seen: ${project.lastSeenAt}`
+      : "  Last seen: not recorded yet. The next Make Docs write for this project records it.");
+    if (!project.checkouts.length) lines.push("  Checkouts: none bound.");
+    else {
+      lines.push(project.checkouts.length === 1 ? "  Checkout:" : "  Checkouts:");
+      for (const checkout of project.checkouts) {
+        lines.push(`    ${checkout.rootPath}`);
+        if (checkout.folder !== "present") lines.push(`      ${checkout.folderNote}`);
+      }
+    }
+  }
+  lines.push("");
+  return lines.join("\n");
 }
 
 async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
@@ -598,6 +664,7 @@ async function runProjectStateCommand(
     ...(value.dryRun ? ["Preview only. No files or Store records changed."] : []),
     ...(Array.isArray(value.changes) ? value.changes.map((change: {path: string; to: string}) => `- ${change.path}: ${change.to}`) : []),
     ...(Array.isArray(value.conflicts) ? value.conflicts.map((conflict: unknown) => `Review: ${String(conflict)}`) : []),
+    ...(value.projectNameConflict ? [`Project name: ${String((value.projectNameConflict as {reason: unknown}).reason)} The register kept the name it had. ${String((value.projectNameConflict as {nextAction: unknown}).nextAction)}`] : []),
     ...(value.nextAction ? [`Next: ${String(value.nextAction)}`] : state === "blocked" ? ["Next: Review the listed conflicts. Preserve current files."] : value.dryRun && state === "ready" ? ["Next: Review this preview before running the same recovery command without --dry-run."] : []),
     "",
   ].join("\n"));

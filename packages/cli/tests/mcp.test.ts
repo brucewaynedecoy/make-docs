@@ -35,6 +35,7 @@ describe("make-docs MCP runtime", () => {
       "checkout_move_preview",
       "checkout_move_apply",
       "project_status",
+      "project_list",
       "project_recover",
       "surface_ensure",
       "paths_validate",

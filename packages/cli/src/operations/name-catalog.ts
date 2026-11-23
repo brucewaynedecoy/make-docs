@@ -364,9 +364,9 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
     reason: "Shortened: `project_path_hygiene_repair` has 27 characters.",
     decision: "ND-06",
   }),
-  planned("project.register.list", W32, "project", "project list", {
+  current("project.register.list", "project", "project list", "project_list", "project list", {
     formerPlannedMcp: "project_register_list",
-    reason: "PRD 39 R-STORE-CMD names `make-docs project list`. The earlier plan named the tool `project_register_list`.",
+    reason: "PRD 39 R-STORE-CMD names `make-docs project list`. The earlier plan named the tool `project_register_list`. W32 R0 P3 landed it.",
   }),
   current("project.doctor.check", "project", "project doctor check", "project_doctor_check", "project doctor check"),
   current("project.doctor.fix", "project", "project doctor fix", "project_doctor_fix", "project doctor fix"),

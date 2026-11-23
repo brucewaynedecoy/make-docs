@@ -16,7 +16,7 @@ import { listMakeDocsMcpTools } from "../src/mcp/tools";
 const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
   core: [
     "config", "install_status", "manifest", "domains",
-    "personas", "project_status", "resource_list", "resource_read",
+    "personas", "project_status", "project_list", "resource_list", "resource_read",
   ],
   setup: [
     "compatibility", "config", "install_plan", "install_status", "manifest",
@@ -48,11 +48,11 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 53 ready tools, including checkout move, with all equal to the intent union", () => {
+  test("assigns all 54 ready tools, including checkout move, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    expect(names).toHaveLength(53);
-    expect(new Set(names).size).toBe(53);
+    expect(names).toHaveLength(54);
+    expect(new Set(names).size).toBe(54);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }

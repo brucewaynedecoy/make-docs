@@ -1,7 +1,7 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { registerSkillAdoptionRecovery } from "../../skills-adoption";
-import { readInstallationStatus, recoverInstallationOperation, preparePlannedFileChange, sealInstallationOperation, withInstallationOperation, previewInstallationCheckoutMove, applyInstallationCheckoutMove, registerSeparateInstallationCheckout } from "../../store/installation-state";
+import { readInstallationStatus, readProjectRegisterList, recoverInstallationOperation, preparePlannedFileChange, sealInstallationOperation, withInstallationOperation, previewInstallationCheckoutMove, applyInstallationCheckoutMove, registerSeparateInstallationCheckout } from "../../store/installation-state";
 import { z } from "zod";
 import {
   PROJECT_READ_ACCESS,
@@ -41,7 +41,7 @@ import {
   type PathHygieneValidationResult,
 } from "../../path-hygiene";
 import type { OperationDefinition } from "../registry";
-import { OperationError } from "../types";
+import { OperationError, type JsonValue } from "../types";
 
 const inputSchema = z.object({
   surface: z.enum(["archive", "artifacts", "assets"]),
@@ -72,6 +72,7 @@ export interface ProjectSurfaceEnsureOutput {
 export type ProjectPathHygieneValidateOutput = PathHygieneValidationResult;
 
 const stateStatusInput = z.object({ targetRoot: z.string().min(1).optional() }).strict();
+const projectListInput = z.object({ targetRoot: z.string().min(1).optional() }).strict();
 const stateRecoverInput = z.object({
   targetRoot: z.string().min(1).optional(),
   operationId: z.string().min(1),
@@ -154,6 +155,18 @@ export const projectOperations: OperationDefinition[] = [{
     const input = stateStatusInput.parse(rawInput);
     registerSkillAdoptionRecovery();
     return readInstallationStatus(path.resolve(input.targetRoot ?? context.cwd));
+  },
+}, {
+  id: "project.register.list",
+  mcp: { profiles: ["core"], defaultExposure: "deferred" },
+  summary: "List every project that the Store knows, with its name, ID, checkouts, and missing checkout folders.",
+  mutates: "read",
+  access: STORE_READ_PROJECT_READ_ACCESS,
+  status: "active",
+  inputSchema: projectListInput,
+  handler(rawInput, context) {
+    const input = projectListInput.parse(rawInput);
+    return readProjectRegisterList(path.resolve(input.targetRoot ?? context.cwd), context.storeRoot) as unknown as JsonValue;
   },
 }, {
   id: "project.state.recover",

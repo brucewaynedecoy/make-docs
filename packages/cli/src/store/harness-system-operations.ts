@@ -15,6 +15,7 @@ import { fingerprintEntry } from "../harness-access";
 import { classifyStoreCheckpoint9State, type StoreDatabase } from "./database";
 import { isHarnessIntegrationReceipt, readCurrentHarnessIntegrationReceipt, redactHarnessIntegrationReceipt } from "./harness-integration-receipts";
 import { getStoreDatabasePath } from "./paths";
+import { findInstallationLocks, storedRootMatches } from "./root-path-match";
 import {
   canonicalInstallationPath,
   validateInstallationStoreRoot,
@@ -446,19 +447,18 @@ function assertNoOtherStoreWork(
   const tool = db.prepare(
     `SELECT operation_id FROM tool_operations WHERE status='pending'${ownOperationId ? " AND operation_id<>?" : ""} LIMIT 1`,
   ).get(...(ownOperationId ? [ownOperationId] : [])) as { operation_id: string } | undefined;
-  const project = db.prepare(
-    `SELECT operations.operation_id
+  // Compare checkout and lock paths with the platform key, so a folder renamed only by
+  // letter case still blocks machine setup while its work is pending (W32 R0 P3).
+  const project = (db.prepare(
+    `SELECT operations.operation_id, checkouts.root_path, checkouts.root_path_key
        FROM installation_operations AS operations
        JOIN installation_checkouts AS checkouts
          ON checkouts.checkout_id=operations.checkout_id
-      WHERE operations.status IN ('pending','failed') AND checkouts.root_path=?
-      LIMIT 1`,
-  ).get(targetRoot) as { operation_id: string } | undefined;
-  const writer = db.prepare(
-    "SELECT root_path FROM installation_locks WHERE root_path=? LIMIT 1",
-  ).get(targetRoot) as
-    | { root_path: string }
-    | undefined;
+      WHERE operations.status IN ('pending','failed')
+      ORDER BY operations.operation_id`,
+  ).all() as Array<{ operation_id: string; root_path: string; root_path_key: string | null }>)
+    .find((row) => storedRootMatches(row.root_path, targetRoot, row.root_path_key));
+  const writer = findInstallationLocks(db, targetRoot)[0];
   if (tool || project || writer) {
     throw new Error(
       `A Store operation is already pending (${tool?.operation_id ?? project?.operation_id ?? writer?.root_path}). Resolve it before machine setup. No native file was changed.`,

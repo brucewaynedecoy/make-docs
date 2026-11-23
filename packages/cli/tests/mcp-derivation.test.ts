@@ -51,6 +51,7 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "project.checkout-register.preview": "checkout_register_preview",
   "project.checkout-register.apply": "checkout_register_apply",
   "project.persona.list": "personas",
+  "project.register.list": "project_list",
   "project.layout.preview": "layout_preview",
   "project.layout.prepare": "layout_prepare",
   "project.layout.apply": "layout_apply",
