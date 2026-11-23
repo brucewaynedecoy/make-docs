@@ -111,7 +111,7 @@ The project harness-integration schema is separate from `harnessCapabilities`. I
 
 - R-CONFIG-WORK-1 (MUST): an optional top-level `work` block holds shared work store intent: `projection` (`on` or `off`, default `on`) for the `docs/work/` repo copy, `syncHold` for the repository-relative work folders or files that sync never writes or removes, and `tracker` for the selected tracker connection name and its field map. [PRD 52](52-work-store-and-work-queue.md) owns their meaning. The local store is the only v1 connection.
 - R-CONFIG-WORK-2 (MUST): an optional top-level `factory` block holds portable workflow choices: each workflow's type, the roles it needs, the capabilities each role needs, its limits, its optional steps such as preflight, and its added escalation events. [PRD 53](53-factory-setup-and-orchestration.md) owns their meaning.
-- R-CONFIG-WORK-3 (MUST): neither block holds grants, tool bindings, task handles, machine IDs, machine paths, digests, receipts, claims, locks, proof results, or secrets. Those stay in the Store or in the tools that own them. Validation rejects them in either block.
+- R-CONFIG-WORK-3 (MUST): neither block holds grants, tool bindings, task handles, machine IDs, machine paths, digests, receipts, claims, locks, proof results, or secrets. Those stay in the Store or in the tools that own them. Validation rejects them in either block. In the `work` block, it names each such key and what it holds, and it refuses a field map value that looks like a key or a token.
 - R-CONFIG-WORK-4 (MUST): Make Docs writes these blocks only through the same comment- and unknown-key-preserving config writer that setup uses, after the person reviews the change. Dry run shows the exact change. An absent block keeps the defaults: repo copies on, no tracker map beyond the local store, and no factory workflow.
 
 ### Validation
@@ -274,6 +274,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: the `work` block also holds `syncHold`, a list of work folders or files under `docs/work/` or `.make-docs/archive/work/` that a person holds, so sync never writes or removes them. The config validator accepts the `work` block and checks it against the work block contract.
 - Rationale: the owner chose on 2026-11-23 that the sync hold list lives in project config as paths that a person sets (W29 R0 P4 T19).
 - Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-work-queue-operations)
+
+### 2026-11-23 — W29 R0 P5
+
+- Affected requirement or section: R-CONFIG-WORK-3.
+- Previous contract: the `work` block refused any key it did not accept with the same message, and the field map accepted any value in the field name form.
+- Replacement contract: validation names each state or secret key in the `work` block with its own words (`work-block-state-field`), and refuses a field map value that looks like a key or a token.
+- Rationale: W29 R0 P5 T4. A person who pastes a digest or a token into the block learns why it does not belong there.
+- Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
 
 ## Source Anchors
 

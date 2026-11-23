@@ -816,3 +816,109 @@ The test `this repository's old installed backlog-review Skill accepts the defau
 - The re-check passed the second pass. Two of its three low wording items were fixed at integration: the MCP description for tools with optional Store access no longer talks about the review cache, and PRD 51 R-BACKLOG-SNAPSHOT-31 now says that a `--work-store` caller whom the harness refuses gets `workStore.refusal`, as R-BACKLOG-SNAPSHOT-11 allows.
 - Follow-up: when only the Store grant is missing, the next step of a project URI refusal still begins "Until the Store is usable", although the Store itself is usable. It should name the missing grant.
 - Lead decision: without a usable Store, only `work next` points to the `docs/work/` files and `make-docs backlog snapshot`. The write commands keep the plain typed Store error, because they need the Store to act. PRD 52 R-WORK-STORE-2 says exactly this.
+
+## P5 Agent Twin and Config
+
+Covers T1 to T10 and A22 to A24 in [P5](05-agent-twin-and-config.md). Evidence date: 2026-11-23. Branch: `t3/w29-r0-p5-agent-twin-config` from `a7e516cb` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. CLI package version `2.0.9`. Every test and command ran with a temporary `MAKE_DOCS_HOME`; nothing read or wrote the real Store.
+
+### What Was Built
+
+| Task | What it does now | Files |
+| --- | --- | --- |
+| T1, T2, T7 | The agent twin `make-docs://system/reference/work-store.md`. It states that it is the twin of the work operations, that both forms share the catalog `make-docs.work-store-rules.v1` and its rule IDs, and that a change to either form needs a review of the other. Sections: Purpose (the nine commands and MCP tools), Authority, Repo Copy, Sync (with the sync table and the settle choices of each conflict kind, also `claimed`), First Import (recorded status map and dependency bullets), Units, Readiness (every wait reason with one next action), Claims, Report and Close, Tracker Connections (with the `work` block), Quick Items, and Project URIs. A checkout without the CLI or a Store reads `docs/work/` directly and has no claims, notes, met-gate records, or quick items. | `packages/docs/template/.make-docs/system/references/work-store.md` |
+| T9 | Rules `WORK-RULE-041` to `WORK-RULE-054` in the catalog: same work on both sides (R-WORK-SYNC-14), a move (-15), a unit that leaves its file (-16), a file edit never acts for a claim (-12, -16), the hold list (-17), settle (-18), the first sync only imports (-9), a changed copy with copies off (R-WORK-STORE-10), a bullet with the unit's own title (R-WORK-SYNC-13), the private claim ID (R-WORK-QUEUE-19), notes and store-only edits (R-WORK-QUEUE-8), the read-only sync check (R-WORK-SYNC-8), no Store or no CLI (R-WORK-STORE-2, -6, R-WORK-URI-6), and export (R-WORK-STORE-10, -13). Fixtures `WSF-058` to `WSF-069`, among them a new fixture kind, `sync-scenario`. | `packages/cli/src/operations/work/work-store/catalog.ts`, `packages/cli/tests/fixtures/work-store-contract.ts` |
+| T3, T4 | The `work` block holds `projection` (default `on`), `syncHold`, and `tracker` (`connection: local` and a field map). Config validation names each state or secret key, such as a digest, an ID, a receipt, a claim, a revision, or a token, with code `work-block-state-field`, and refuses a field map value that looks like a key. | `packages/cli/src/operations/work/work-store/schemas.ts`, `packages/cli/src/config.ts` |
+| T5 | The template body is copied byte for byte to `packages/cli/template/` and to `.make-docs/system/references/`. Both catalogs list it in the `workflow` and `backlog` profiles, and the installer's reference list holds it. | `.make-docs/system-resources.catalog.json` (both), `packages/cli/src/rules.ts` |
+| T6 | The `docs/work/` router and the references router name `work-store.md`, in the template and the dogfood copy. | `docs/work/AGENTS.md`, `docs/work/CLAUDE.md`, `.make-docs/system/references/AGENTS.md`, `.make-docs/system/references/CLAUDE.md`, and their template sources |
+| T8 | Config validation of `projectName` existed since W32 R0 P3 (R-CONFIG-STATE-9). Setup now shows the name, or proposes one from the checkout folder name in the R-ID-8 form, in its plan text and in `project.name` and `project.nameProposal` of its JSON result. It writes nothing for it. | `packages/cli/src/store/project-register.ts`, `packages/cli/src/cli.ts` |
+| T10 | The doctor check `phase-status-line`. It finds a phase file under `docs/work/` with no front matter `status` whose tasks are all checked and whose `Tasks` sections have no unchecked box, and its fix adds `status: "completed"`. The agent twin `project-doctor.md` has the same rules and a shared example that the test reads. | `packages/cli/src/operations/project/doctor/phase-status-line.ts`, `index.ts`, `packages/cli/src/run/root-operations.ts`, `project-doctor.md` |
+
+### New Behavior
+
+- Setup shows a proposed `projectName` and does not write it. A linked git worktree proposes the folder name of its main checkout, because a worktree folder often has a generated name. Writing the name would turn every setup of an existing project into a config change.
+- The `phase-status-line` check skips each path on `work.syncHold` and names it as skipped by that check. `task-id-case` still reads held paths, so the W22 R2 doctor run of register D-063 stays possible. `--exclude` leaves a path out of every check.
+- A phase file with no front matter gets front matter that holds only the status line.
+- `project doctor check` on this repository now exits 1, because it has findings.
+
+### A22: Bytes
+
+The P5 test compares `work-store.md` and `project-doctor.md` in the template, the bundled package copy, and the dogfood copy, the catalog entry in both catalogs, and the router copies. All match.
+
+### A23: Twin Parity
+
+- The test reads the sections of `work-store.md`. Every catalog rule ID is in the section that its agent form names, and every rule ID in the text is in the catalog. It fails when a rule ID is on one side only, like `w34-r0-p2-skill-check-twins.test.ts`.
+- The text's sync table equals `WORK_SYNC_TABLE` row for row. Each conflict kind lists its catalog settle choices, and `claimed` names the release and never `keep-file`. Each wait reason, recorded status word, and claim time matches the catalog. The `work` block example in the text is a valid block.
+- The ten `sync-scenario` fixtures run through the real sync, and `WSF-067` (a title bullet) and `WSF-068` (a progress note) run through the P3 and P4 code.
+
+### A24: Config
+
+```text
+work.lastAppliedDigest holds a digest. The work block holds shared intent only: projection, syncHold, and tracker. Make Docs keeps this state in the Store. Remove the key.
+work.tracker.apiToken holds a secret. The work block holds shared intent only: projection, syncHold, and tracker. A secret stays with the tool that owns it. Remove the key.
+work.tracker.fieldMap.status: A field map value looks like a key or a token. The field map names fields only, never a secret.
+```
+
+### T8 Sample
+
+```text
+Project name: none. Proposed: paper-plans, from the checkout folder name. To use it, add projectName: paper-plans to .make-docs/config.yaml. You can choose another name: lower-case letters, digits, and hyphens, starting with a letter.
+```
+
+### T10: This Repository
+
+`make-docs project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption --target-root .` with a temporary `MAKE_DOCS_HOME`:
+
+```text
+Found 79 phase files with no status line whose tasks are all checked. Nothing changed.
+```
+
+It read 386 files, skipped 2, and excluded 6. No held path was skipped by the check, because the W22 R2 backlog was excluded. The 79 files are the same 79 that `work next` counted as done by the fallback in P4. `fix` was not run on this repository's files: a repository-wide fix needs the owner's approval.
+
+### Checks
+
+- `npx tsc --noEmit -p .` and `npm run build` in `packages/cli`: pass.
+- `tests/w29-r0-p5-agent-twin-and-config.test.ts`: 37 tests pass.
+- With it, all W29 tests, `work-store-contract`, the doctor tests, `config`, the setup tests, `consistency`, the resource and router tests, `mcp-resource-profiles` (counts updated for one more resource), `w32-r0-p3-project-register`, and `w34-r0-p2-skill-check-twins`: 29 files and 986 tests pass.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its system temporary folder.
+- `check prd`: no diagnostics. `project paths validate`: `valid: true`.
+
+### Full Test Suite
+
+`npx vitest run --reporter=json` in `packages/cli`, counted from the JSON report: 149 test files, 147 passed and 2 failed. Of 3,385 tests, 3,376 passed, 3 failed, and 6 were skipped. All three failures are known and exist without this phase: `mcp-app-contract` (two tests, a Node v26 deprecation warning on stderr) and `p5-migration-safety` fixture 11 (sandbox only).
+
+A mutation check removed one rule ID from the resource: the twin test failed and named `WORK-RULE-049` and its section. The resource was then restored. After the suite, one sentence of the resource changed (the expected version is named for claim, release, report, and close only); the P5 test and the task ID resource test passed again on the final bytes.
+
+### Review Fixes
+
+An independent review of P5 asked for small changes. Each is fixed with tests in `tests/w29-r0-p5-agent-twin-and-config.test.ts`.
+
+| Item | Fix |
+| --- | --- |
+| 1 (medium) | A phase file with front matter and mixed line endings got a second front matter block. The check now finds front matter with `/^---\r?\n/`, keeps each line's own ending, and gives each new line the ending of the file's first line. Tests: an LF file with one CRLF line, a CRLF first line in an LF file, and a file with no front matter. |
+| 2 (medium-low) | `looksLikeSecret` refused real camelCase field names with digits. It now splits a name into words at `_`, `.`, `-`, upper case, and digits, and refuses only a run of 32 or more letters and digits, or a name of four or more words where most words have one or two characters. `customField10023Value` and `issueLinksAndRelatedItems2024Q` are accepted. |
+| 3 (low) | The fix sentence is built from its parts: "Added 79 status lines in 79 files.", "Changed 1 task ID and added 4 status lines in 4 files.", and for a dry run "Would add 2 status lines in 2 files." and "Would change 1 task ID and add 4 status lines in 4 files." |
+| 4 (low) | State and secret key words matched inside other words. Keys are now split into words, each word compares whole (with a plural `s` or `es` removed), and `id` or `uuid` match only as the last word. `author`, `valid`, `idea`, `identity`, and `handler` pass to the plain unknown-key refusal. `apiKey`, `api_key`, and `privateKey` match as two-word names. |
+| 5 (low) | `work-store.md` names the opt-in `backlog snapshot --work-store` (MCP `workStore: true`). Template first, then the byte-identical dogfood copy. The resource and `project-doctor.md` also state the new field name and line ending rules. |
+| 6 (low) | New fixture kind `report-scenario`: `WSF-070` (a 257-character note is refused before the sync, so a file edit is not imported either; 256 characters are accepted), `WSF-071` (a new note replaces the last), and `WSF-072` (a status that the file cannot show stays in the store, and `work report` names it). They run through the real `work report`. |
+| 7 (low) | Test examples use generic names: `tracker_field_7` and `wt-1234abcd`. |
+
+PRD 39 R-DOCTOR-8 now states the line ending rule.
+
+Checks after the review fixes, all with a temporary `MAKE_DOCS_HOME`:
+
+- `npx tsc --noEmit -p .` and `npm run build` in `packages/cli`: pass.
+- `tests/w29-r0-p5-agent-twin-and-config.test.ts`: 45 tests pass. With all W29 tests, `work-store-contract`, the doctor, config, setup, resource, router, and `consistency` tests: 29 files and 994 tests pass.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass. `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox. `check prd`: no diagnostics. `project paths validate`: `valid: true`.
+- `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption` on a temporary copy of `docs/work/` and the config: 79 phase files, 386 files read. Without the exclusion, the copy also shows the 32 known lower-case task IDs in the W22 R2 backlog, and no held phase file needs a status line. `fix` was not run on this repository's files.
+- Full suite, `npx vitest run --reporter=json`, counted from the JSON report: 149 test files, 147 passed and 2 failed. Of 3,393 tests, 3,384 passed, 3 failed, and 6 were skipped. The three failures are the known ones: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11.
+
+### Owner Decision: `projectName` in Setup
+
+Setup proposes `projectName` and never writes it, as built. The owner chose this on 2026-11-23. Writing the name would turn every setup of an existing project into a config change.
+
+### Limits
+
+- The agent twin is prose. Its parity is checked through its tables, its rule IDs, and the shared fixtures, not by an agent run.
+- Setup proposes `projectName` and does not write it, so a project has no name until a person adds it.
+- The 79 status lines on this repository wait for the owner's approval of a repository-wide fix.

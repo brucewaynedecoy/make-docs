@@ -156,6 +156,7 @@ const ALWAYS_REFERENCE_PATHS = [
   ".make-docs/system/contracts/system-resource-contract.md",
   ".make-docs/system/references/path-and-link-hygiene.md",
   ".make-docs/system/references/project-doctor.md",
+  ".make-docs/system/references/work-store.md",
   ".make-docs/system/contracts/factory-contract.md",
   ".make-docs/system/references/factory/workflows/build-then-review.md",
   ".make-docs/system/references/factory/workflows/lead-and-specialists.md",

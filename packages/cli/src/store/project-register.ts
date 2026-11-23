@@ -76,6 +76,78 @@ export class ProjectNameTakenError extends OperationError {
   }
 }
 
+/** Turn a folder name into the R-ID-8 form, or null when nothing usable is left. */
+export function projectNameFromFolderName(folderName: string): string | null {
+  const words = folderName
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^[^a-z]+/, "")
+    .replace(/-+$/, "");
+  const name = words.slice(0, PROJECT_NAME_MAX_LENGTH).replace(/-+$/, "");
+  return name !== "" && projectNameProblem(name) === null ? name : null;
+}
+
+export interface ProjectNameProposal {
+  name: string;
+  /** The folder whose name gave the proposal. */
+  folder: string;
+  /** `main-checkout` when the target is a linked git worktree, so its main checkout's folder names the project. */
+  source: "checkout-folder" | "main-checkout-folder";
+}
+
+/**
+ * The project name that setup proposes when the config has none (PRD 38
+ * R-ID-8, W29 R0 P5 T8): the checkout folder name in the R-ID-8 form. A linked
+ * git worktree proposes the folder name of its main checkout, because a
+ * worktree folder often has a generated name. Setup only shows the proposal.
+ * The person adds `projectName` to the config, and can choose another name.
+ */
+export function proposeProjectName(projectRoot: string): ProjectNameProposal | null {
+  const root = path.resolve(projectRoot);
+  const gitFile = path.join(root, ".git");
+  try {
+    const stat = lstatSync(gitFile, { throwIfNoEntry: false });
+    if (stat?.isFile()) {
+      const match = /^gitdir:\s*(.+?)\s*$/m.exec(readFileSync(gitFile, "utf8"));
+      const gitDir = match ? path.resolve(root, match[1]!) : null;
+      const marker = `${path.sep}.git${path.sep}worktrees${path.sep}`;
+      const at = gitDir ? gitDir.lastIndexOf(marker) : -1;
+      if (gitDir && at > 0) {
+        const main = gitDir.slice(0, at);
+        const name = projectNameFromFolderName(path.basename(main));
+        if (name) return { name, folder: main, source: "main-checkout-folder" };
+      }
+    }
+  } catch {
+    // An unreadable .git file proposes from the checkout folder.
+  }
+  const name = projectNameFromFolderName(path.basename(root));
+  return name ? { name, folder: root, source: "checkout-folder" } : null;
+}
+
+/** The words that setup shows about `projectName`, or null when it shows none. */
+export function describeProjectNameForSetup(projectRoot: string): { name: string | null; proposal: ProjectNameProposal | null; text: string } {
+  let declared: DeclaredProjectName;
+  try {
+    declared = readDeclaredProjectName(projectRoot);
+  } catch (error) {
+    return { name: null, proposal: null, text: `Project name: the config cannot be read (${(error as Error).message})` };
+  }
+  if (declared.state === "named") return { name: declared.name, proposal: null, text: `Project name: ${declared.name}` };
+  const proposal = proposeProjectName(projectRoot);
+  if (!proposal) {
+    return { name: null, proposal: null, text: "Project name: none. Add projectName to .make-docs/config.yaml to read this project's work by name, such as make-docs://project/<name>/tasks/." };
+  }
+  const from = proposal.source === "main-checkout-folder" ? "the folder name of this worktree's main checkout" : "the checkout folder name";
+  return {
+    name: null,
+    proposal,
+    text: `Project name: none. Proposed: ${proposal.name}, from ${from}. To use it, add projectName: ${proposal.name} to .make-docs/config.yaml. You can choose another name: lower-case letters, digits, and hyphens, starting with a letter.`,
+  };
+}
+
 /**
  * What the project config says about `projectName`.
  * - `no-config`: there is no config file, so the name is unknown and the

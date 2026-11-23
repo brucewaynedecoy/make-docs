@@ -76,6 +76,7 @@ import {
   ProjectNameTakenError,
   type StoreCompatibilityBridgePreview,
 } from "./store";
+import { describeProjectNameForSetup } from "./store/project-register";
 import {
   readInstallationStatus,
   readDeclarativeProjectId,
@@ -2885,6 +2886,15 @@ function storePrerequisiteFailureAction(error: unknown): string {
   return "Correct the reported Store prerequisite, then run `make-docs setup` again to review a new exact bridge plan.";
 }
 
+/** The project name, or the name that setup proposes, for the setup JSON result (W29 R0 P5 T8). */
+function setupProjectNameJson(targetRoot: string): { name: string | null; nameProposal: { name: string; source: string } | null } {
+  const described = describeProjectNameForSetup(targetRoot);
+  return {
+    name: described.name,
+    nameProposal: described.proposal ? { name: described.proposal.name, source: described.proposal.source } : null,
+  };
+}
+
 function writeCanonicalSetupResult(input: {
   status: "planned" | "complete" | "partial" | "blocked" | "machine-recovered";
   dryRun: boolean;
@@ -2973,6 +2983,7 @@ function writeCanonicalSetupResult(input: {
     checkoutMove: input.checkoutMove ?? null,
     project: {
       state: input.status === "complete" || input.status === "partial" ? "ready" : input.status,
+      ...setupProjectNameJson(input.targetRoot),
       changed: input.projectChanged,
       mutationState: input.projectMutationState ?? (
         input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none"
@@ -3191,6 +3202,8 @@ function printPlan(options: {
         : []),
       `Selection source: ${selectionSource}`,
       `Project surface: ${selectedCapabilities.join(", ") || "none"}`,
+      // W29 R0 P5 T8 (PRD 38 R-ID-8): setup shows the name, or proposes one. It does not write it.
+      describeProjectNameForSetup(targetDir).text,
       `Local resource projection: ${selectedResourceTypes === undefined ? "legacy install (not yet selected)" : selectedResourceTypes.join(", ") || "none"}`,
       "Resource provider reads need no Store access.",
       "Local copies reduce CLI dependence. They do not grant harness or Store access.",

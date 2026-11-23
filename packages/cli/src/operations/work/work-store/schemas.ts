@@ -502,9 +502,37 @@ export const WorkTrackerFieldSchema = z.enum(WORK_TRACKER_FIELDS);
 /** A field map value is a plain field name, never a value or a secret. */
 export const WORK_TRACKER_FIELD_NAME_PATTERN = /^[A-Za-z][A-Za-z0-9_.-]{0,63}$/;
 
+/**
+ * The words of a name: split at `_`, `.`, `-`, and spaces, then at camelCase
+ * and letter-digit boundaries. `customField10023Value` gives custom, Field,
+ * 10023, Value.
+ */
+export function nameWords(value: string): string[] {
+  return value
+    .split(/[_.\-\s]+/)
+    .flatMap((part) => part.match(/[A-Z]+(?=[A-Z][a-z])|[A-Z]?[a-z]+|[A-Z]+|\d+/g) ?? [])
+    .filter((word) => word.length > 0);
+}
+
+/**
+ * A field name never looks like a key or a token (R-WORK-TRACKER-2, W29 R0 P5
+ * T4). Refused: a run of 32 or more letters and digits with no separator, or a
+ * name of four or more words where most words have one or two characters, as
+ * in a random key such as `Xq7Lm2Pz9Rt4`. Real field names use longer words.
+ */
+export function looksLikeSecret(value: string): boolean {
+  if ((value.match(/[A-Za-z0-9]{32,}/g) ?? []).length > 0) return true;
+  const words = nameWords(value);
+  const short = words.filter((word) => word.length <= 2).length;
+  return words.length >= 4 && short * 2 > words.length;
+}
+
 export const WorkTrackerFieldMapSchema = z.partialRecord(
   WorkTrackerFieldSchema,
-  z.string().regex(WORK_TRACKER_FIELD_NAME_PATTERN),
+  z
+    .string()
+    .regex(WORK_TRACKER_FIELD_NAME_PATTERN, "A field map value is a tracker field name: a letter, then letters, digits, _, ., or -, at most 64 characters.")
+    .refine((value) => !looksLikeSecret(value), "A field map value looks like a key or a token. The field map names fields only, never a secret."),
 );
 
 export const WorkTrackerConnectionSchema = z
@@ -546,6 +574,93 @@ export const WorkConfigBlockSchema = z
   })
   .strict();
 export type WorkConfigBlock = z.infer<typeof WorkConfigBlockSchema>;
+
+/** The keys that the `work` block accepts at each level. */
+const WORK_CONFIG_KEYS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  "": ["projection", "syncHold", "tracker"],
+  tracker: ["connection", "fieldMap"],
+  "tracker.fieldMap": WORK_TRACKER_FIELDS,
+});
+
+/**
+ * State and secret key words (PRD 24 R-CONFIG-WORK-3). A key is split into
+ * words, and each word compares whole, without letter case and without a
+ * plural `s`, so `author` and `valid` match nothing. `id` and `uuid` match only
+ * as the last word, as in `checkoutId`.
+ */
+const WORK_CONFIG_FORBIDDEN: ReadonlyArray<{ words: readonly string[]; last?: boolean; kind: "state" | "secret"; what: string }> = Object.freeze([
+  { words: ["token", "secret", "password", "passwd", "passphrase", "credential", "apikey", "privatekey", "auth", "cookie", "bearer"], kind: "secret", what: "a secret" },
+  { words: ["digest", "hash", "sha", "sha256", "checksum"], kind: "state", what: "a digest" },
+  { words: ["receipt"], kind: "state", what: "a receipt" },
+  { words: ["claim", "lease", "lock", "handle"], kind: "state", what: "claim or lock state" },
+  { words: ["revision", "ledger", "synced", "conflict", "expire", "expires", "applied"], kind: "state", what: "sync state" },
+  { words: ["checkout", "machine", "grant", "binding"], kind: "state", what: "machine or checkout state" },
+  { words: ["id", "uuid"], last: true, kind: "state", what: "an ID" },
+]);
+
+function forbiddenKeyWord(key: string): (typeof WORK_CONFIG_FORBIDDEN)[number] | null {
+  const words = nameWords(key).map((word) => word.toLowerCase());
+  const single = (word: string) =>
+    /(sh|ch|x|ss)es$/.test(word) ? word.slice(0, -2)
+      : word === "ids" ? "id"
+      : word.length > 3 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1)
+      : word;
+  const forms = words.map(single);
+  // Two-word names of one secret, such as apiKey or private_key.
+  const pairs = forms.slice(1).map((word, index) => `${forms[index]}${word}`);
+  for (const entry of WORK_CONFIG_FORBIDDEN) {
+    if (entry.last) {
+      if (forms.length > 0 && entry.words.includes(forms.at(-1)!)) return entry;
+      continue;
+    }
+    if (forms.some((word) => entry.words.includes(word)) || pairs.some((pair) => entry.words.includes(pair))) return entry;
+  }
+  return null;
+}
+
+export interface WorkConfigFieldProblem {
+  /** The key path inside the `work` block, such as `tracker.claimId`. */
+  path: string;
+  kind: "state" | "secret";
+  message: string;
+}
+
+/**
+ * Name each key in a `work` block that holds state or a secret (W29 R0 P5 T4,
+ * PRD 24 R-CONFIG-WORK-3). Only keys that the block does not accept are
+ * checked, so a field map key such as `claim` stays valid. Other unknown keys
+ * are left to the schema's own refusal.
+ */
+export function workConfigStateFieldProblems(value: unknown): WorkConfigFieldProblem[] {
+  const problems: WorkConfigFieldProblem[] = [];
+  const visit = (node: unknown, at: string): void => {
+    if (node === null || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      node.forEach((entry, index) => visit(entry, at === "" ? String(index) : `${at}.${index}`));
+      return;
+    }
+    const allowed = WORK_CONFIG_KEYS[at.replace(/\.\d+(?=\.|$)/g, "")];
+    for (const [key, child] of Object.entries(node as Record<string, unknown>)) {
+      const keyPath = at === "" ? key : `${at}.${key}`;
+      if (allowed?.includes(key)) {
+        visit(child, keyPath);
+        continue;
+      }
+      const hit = forbiddenKeyWord(key);
+      if (hit) {
+        problems.push({
+          path: keyPath,
+          kind: hit.kind,
+          message: `work.${keyPath} holds ${hit.what}. The work block holds shared intent only: projection, syncHold, and tracker. ${hit.kind === "secret" ? "A secret stays with the tool that owns it." : "Make Docs keeps this state in the Store."} Remove the key.`,
+        });
+        continue;
+      }
+      visit(child, keyPath);
+    }
+  };
+  visit(value, "");
+  return problems;
+}
 
 /**
  * A quick item lives only in the work store (R-WORK-QUEUE-3). `work add`

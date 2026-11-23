@@ -372,6 +372,13 @@
       ]
     },
     {
+      "uri": "make-docs://system/reference/work-store.md",
+      "profiles": [
+        "workflow",
+        "backlog"
+      ]
+    },
+    {
       "uri": "make-docs://system/template/design.md",
       "profiles": [
         "workflow"

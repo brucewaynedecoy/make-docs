@@ -51,6 +51,8 @@ import { PACKAGE_ROOT } from "../src/utils";
 import {
   WORK_STORE_CONTRACT_FIXTURES,
   WORK_STORE_FIXTURE_GROUPS,
+  WORK_REPORT_SCENARIOS,
+  WORK_SYNC_SCENARIOS,
   storeIdFor,
   unit,
 } from "./fixtures/work-store-contract";
@@ -340,6 +342,22 @@ describe("W29 R0 P1 fixture matrix", () => {
         }
         case "config": {
           expect(WorkConfigBlockSchema.safeParse(fixture.input.work).success, fixture.id).toBe(fixture.expected.valid);
+          break;
+        }
+        case "report-scenario": {
+          expect(WORK_REPORT_SCENARIOS, fixture.id).toContain(fixture.input.scenario);
+          if (!fixture.expected.accepted) {
+            expect(fixture.expected.latestNote, fixture.id).toBeNull();
+            expect(fixture.expected.storeOnlyEditKinds, fixture.id).toEqual([]);
+          }
+          break;
+        }
+        case "sync-scenario": {
+          expect(WORK_SYNC_SCENARIOS, fixture.id).toContain(fixture.input.scenario);
+          if (fixture.expected.conflictKind !== null) {
+            expect(fixture.expected.action, fixture.id).toBe("conflict");
+            expect(WORK_CONFLICT_KINDS).toContain(fixture.expected.conflictKind);
+          }
           break;
         }
       }

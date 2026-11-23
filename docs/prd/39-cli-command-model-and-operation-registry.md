@@ -241,11 +241,12 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 ### Project Doctor Commands (R-DOCTOR)
 
 - R-DOCTOR-1 (MUST): the registry admits `project.doctor.check` and `project.doctor.fix` within the existing `project` domain. No new top-level command is introduced.
-- R-DOCTOR-2 (MUST): the doctor holds one list of checks. Each check has a stable ID, a scope, plain finding text, and an optional fix. The current check is `task-id-case` under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22.
+- R-DOCTOR-2 (MUST): the doctor holds one list of checks. Each check has a stable ID, a scope, plain finding text, and an optional fix. The current checks are `task-id-case` under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22 and `phase-status-line` under R-DOCTOR-8.
 - R-DOCTOR-3 (MUST): `project doctor check` reads only. It reports the totals first in plain words, then each finding with its file, line, current text, and replacement. It returns a review digest that binds the findings, the exclusions, and the bytes of each file it read. A clean project returns no findings and says so.
 - R-DOCTOR-4 (MUST): `project doctor fix` needs the existing project write permission, the Store write permission that the reviewed write path uses to record each change, and a review digest from `check`. An optional `--check-json` input (MCP `reviewedFiles`) carries the saved check result, so a stale-review refusal can name each changed file. `--dry-run` shows the planned changes and writes nothing. It applies only the changes that the digest names. It refuses and names any file that changed after the check. It uses the existing reviewed project write path, with its backup and conflict rules, and it reports each changed file and the undo path.
 - R-DOCTOR-5 (MUST): both commands accept repeated `--exclude <path>` options with project-relative paths. Traversal and paths outside the project fail closed.
 - R-DOCTOR-6 (MUST): `task-id-case` scans Markdown files under `docs/work/`. It skips `.make-docs/archive/`, history records, fenced code blocks, inline code, and link targets. It finds task checkbox lines and whole-word task references in prose, such as `t3`, `P2 t11`, and `t1–t10`.
+- R-DOCTOR-8 (MUST): `phase-status-line` reads the phase files under `docs/work/`. A file has a finding when it has no front matter `status`, has at least one task line, every task line is checked, and no `Tasks` section holds an unchecked checkbox, as [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-20 reads it. The fix adds `status: "completed"` to the front matter, after `kind` or `title`, or adds front matter that holds only that line. Each new line uses the line ending of the file's first line, every other line keeps its own, and a byte order mark stays. The check never proposes or writes a change to a path on the sync hold list `work.syncHold` (PRD 52 R-WORK-SYNC-17); it names each held file that would have a finding as skipped. `--exclude` leaves a path out of every check.
 - R-DOCTOR-7 (MUST): the doctor has an agent twin in `make-docs://system/reference/project-doctor.md` under [PRD 06](06-template-contracts-and-generated-assets.md). Both forms find the same lines on shared fixtures. A change to either form needs a review of the other.
 
 | Registry identifier | Canonical CLI |
@@ -792,6 +793,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: the grant of the folder where the agent works decides; a Store read grant there allows every project URI; a folder that is not a project is refused clearly, with no setup step for it.
 - Rationale: an independent review of the W29 R0 P4 second pass. The rule is new behavior.
 - Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass-review-fixes)
+
+### 2026-11-23 — W29 R0 P5
+
+- Affected requirement or section: R-DOCTOR-2 and new R-DOCTOR-8.
+- Previous contract: the doctor had one check, `task-id-case`.
+- Replacement contract: the doctor also has `phase-status-line`, which proposes a status line for an older phase file whose tasks are all checked, and which never touches a path on the sync hold list.
+- Rationale: the owner decision of 2026-11-23 on W29 R0 P4 review finding 7 asked for explicit status lines, so the all-tasks-checked fallback is needed less over time (W29 R0 P5 T10).
+- Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
 
 ## Source Anchors
 

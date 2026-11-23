@@ -11,7 +11,7 @@ import {
 import { NO_ACCESS, type OperationAccess } from "./operations/access";
 import { PROJECT_RESOURCE_TYPES, type ProjectResourceType } from "./types";
 import { projectNameProblem } from "./store/project-register";
-import { WorkConfigBlockSchema } from "./operations/work/work-store/schemas";
+import { WorkConfigBlockSchema, workConfigStateFieldProblems } from "./operations/work/work-store/schemas";
 
 export const PERSONA_PRIMITIVES = ["user", "maintainer"] as const;
 export const RESERVED_PERSONA_SLUGS = new Set(["project", "archive", "artifacts", "library", "playbooks"]);
@@ -126,6 +126,7 @@ export interface MakeDocsConfigDiagnostic {
     | "invalid-type"
     | "invalid-project-name"
     | "invalid-work-block"
+    | "work-block-state-field"
     | "missing-required-key"
     | "parse-error"
     | "structural-rename-attempt"
@@ -395,10 +396,24 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
     }
   }
   if (parsed.work !== undefined && parsed.work !== null) {
+    // W29 R0 P5 T4 (PRD 24 R-CONFIG-WORK-3): name each state or secret key with its own words first.
+    const stateFields = workConfigStateFieldProblems(parsed.work);
+    for (const problem of stateFields) {
+      diagnostics.push({ code: "work-block-state-field", filePath: configPath, keyPath: `work.${problem.path}`, message: `Invalid make-docs config at ${configPath} (work.${problem.path}): ${problem.message}` });
+    }
+    const named = new Set(stateFields.map((problem) => problem.path));
     const work = WorkConfigBlockSchema.safeParse(parsed.work);
     if (!work.success) {
       for (const issue of work.error.issues) {
-        const keyPath = ["work", ...issue.path.map(String)].join(".");
+        const at = issue.path.map(String);
+        if (issue.code === "unrecognized_keys") {
+          const keys = issue.keys.filter((key) => !named.has([...at, key].join(".")));
+          if (keys.length === 0) continue;
+          const keyPath = ["work", ...at].join(".");
+          diagnostics.push({ code: "invalid-work-block", filePath: configPath, keyPath, message: `Invalid make-docs config at ${configPath} (${keyPath}): the work block does not accept ${keys.map((key) => `"${key}"`).join(", ")}.` });
+          continue;
+        }
+        const keyPath = ["work", ...at].join(".");
         diagnostics.push({ code: "invalid-work-block", filePath: configPath, keyPath, message: `Invalid make-docs config at ${configPath} (${keyPath}): ${issue.message}` });
       }
     }

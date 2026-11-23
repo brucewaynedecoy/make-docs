@@ -6,6 +6,7 @@ import type {
   WorkClaimRequest,
   WorkClaimResult,
   WorkCloseRequest,
+  WorkConflictKind,
   WorkNextQuery,
   WorkReleaseRequest,
   WorkReportRequest,
@@ -191,7 +192,8 @@ export interface SyncFixture extends FixtureBase {
 
 export interface DependencyFixture extends FixtureBase {
   kind: "dependency";
-  input: { unitCoordinate: string; bullet: string; existing: string[] };
+  /** `titles` gives a unit's real title, for the title rule of R-WORK-SYNC-13 (WORK-RULE-049). */
+  input: { unitCoordinate: string; bullet: string; existing: string[]; titles?: Record<string, string> };
   expected: { dependencies: string[]; unresolved: string[]; gate: boolean; reference: boolean; none: boolean };
 }
 
@@ -243,6 +245,57 @@ export interface ProjectUriFixture extends FixtureBase {
   expected: { canonical: (string | null)[] };
 }
 
+/**
+ * W29 R0 P5 T9: one sync scenario on the shared fixture backlog. The P5 test
+ * runs each scenario through the real sync code, and the agent form in
+ * `work-store.md` states the same answer.
+ */
+export const WORK_SYNC_SCENARIOS = [
+  "same-work-on-both-sides",
+  "archive-move",
+  "unit-leaves-file",
+  "file-closes-claimed-unit",
+  "held-path",
+  "settle-keep-store",
+  "first-sync-of-a-checkout",
+  "changed-copy-with-copies-off",
+  "read-only-check",
+  "export-to-named-folder",
+] as const;
+export type WorkSyncScenario = (typeof WORK_SYNC_SCENARIOS)[number];
+
+export interface SyncScenarioFixture extends FixtureBase {
+  kind: "sync-scenario";
+  input: { scenario: WorkSyncScenario };
+  expected: {
+    /** The sync action for the scenario's file. */
+    action: "none" | "imported" | "written" | "removed" | "conflict" | "adopted" | "moved" | "deferred" | "held";
+    conflictKind: WorkConflictKind | null;
+    /** True when the sync wrote or removed a project file. */
+    changedFiles: boolean;
+  };
+}
+
+/**
+ * W29 R0 P5 review item 6: one `work report` scenario on the shared fixture
+ * backlog. The P5 test runs each scenario through the real `work report`.
+ */
+export const WORK_REPORT_SCENARIOS = ["note-too-long", "note-replaces-last", "store-only-edit-named"] as const;
+export type WorkReportScenario = (typeof WORK_REPORT_SCENARIOS)[number];
+
+export interface ReportScenarioFixture extends FixtureBase {
+  kind: "report-scenario";
+  input: { scenario: WorkReportScenario };
+  expected: {
+    /** False when the report is refused before its sync, so nothing changes. */
+    accepted: boolean;
+    /** The unit's latest note after the scenario, or null. */
+    latestNote: string | null;
+    /** The kinds of store-only edits that the last report names. */
+    storeOnlyEditKinds: string[];
+  };
+}
+
 export interface ConfigFixture extends FixtureBase {
   kind: "config";
   input: { work: unknown };
@@ -260,6 +313,8 @@ export type WorkStoreContractFixture =
   | RoundTripFixture
   | AddFixture
   | ProjectUriFixture
+  | SyncScenarioFixture
+  | ReportScenarioFixture
   | ConfigFixture;
 
 const PHASE_QUERY: WorkNextQuery = { level: "phase", includeQuickItems: true };
@@ -457,7 +512,7 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
     id: "WSF-009",
     group: "no-Store checkout",
     title: "No Store configured keeps the files as the authority",
-    rules: ["WORK-RULE-001", "WORK-RULE-002"],
+    rules: ["WORK-RULE-001", "WORK-RULE-002", "WORK-RULE-053"],
     kind: "authority",
     input: { store: "not-configured", git: "available", cli: true },
     expected: { mode: "files" },
@@ -493,7 +548,7 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
     id: "WSF-013",
     group: "no-Store checkout",
     title: "Without the CLI, an agent uses the files with the same rules",
-    rules: ["WORK-RULE-001", "WORK-RULE-027"],
+    rules: ["WORK-RULE-001", "WORK-RULE-027", "WORK-RULE-053"],
     kind: "authority",
     input: { store: "usable", git: "available", cli: false },
     expected: { mode: "files" },
@@ -1097,9 +1152,156 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
     id: "WSF-056",
     group: "claims",
     title: "The claimant name alone neither renews a claim nor shows its claim ID",
-    rules: ["WORK-RULE-022", "WORK-RULE-023"],
+    rules: ["WORK-RULE-022", "WORK-RULE-023", "WORK-RULE-050"],
     kind: "claim",
     input: { now: NOW, units: portfolioUnits, claims: portfolioClaims, request: claimRequest("W1 R0 P5", "builder-a") },
     expected: { result: "refused", refusal: "already-claimed" },
+  },
+
+  /* W29 R0 P5 T9: parity fixtures for the sync rules that W29 R0 P3 and P4 added. */
+  {
+    id: "WSF-058",
+    group: "conflict",
+    title: "Both sides changed to the same work, so there is no conflict",
+    rules: ["WORK-RULE-041"],
+    kind: "sync-scenario",
+    input: { scenario: "same-work-on-both-sides" },
+    expected: { action: "adopted", conflictKind: null, changedFiles: false },
+  },
+  {
+    id: "WSF-059",
+    group: "current repository backlogs",
+    title: "A backlog moved to the archive keeps its units",
+    rules: ["WORK-RULE-042"],
+    kind: "sync-scenario",
+    input: { scenario: "archive-move" },
+    expected: { action: "moved", conflictKind: null, changedFiles: false },
+  },
+  {
+    id: "WSF-060",
+    group: "current repository backlogs",
+    title: "A task that a person removed from its file is deleted and named",
+    rules: ["WORK-RULE-043"],
+    kind: "sync-scenario",
+    input: { scenario: "unit-leaves-file" },
+    expected: { action: "imported", conflictKind: null, changedFiles: false },
+  },
+  {
+    id: "WSF-061",
+    group: "conflict",
+    title: "A file edit that checks a claimed task stops as a claimed conflict",
+    rules: ["WORK-RULE-044", "WORK-RULE-050"],
+    kind: "sync-scenario",
+    input: { scenario: "file-closes-claimed-unit" },
+    expected: { action: "conflict", conflictKind: "claimed", changedFiles: false },
+  },
+  {
+    id: "WSF-062",
+    group: "conflict",
+    title: "A held file is read and never written",
+    rules: ["WORK-RULE-045"],
+    kind: "sync-scenario",
+    input: { scenario: "held-path" },
+    expected: { action: "held", conflictKind: null, changedFiles: false },
+  },
+  {
+    id: "WSF-063",
+    group: "conflict",
+    title: "Keep the store rewrites the file of a both-changed conflict",
+    rules: ["WORK-RULE-046"],
+    kind: "sync-scenario",
+    input: { scenario: "settle-keep-store" },
+    expected: { action: "written", conflictKind: null, changedFiles: true },
+  },
+  {
+    id: "WSF-064",
+    group: "folder without git",
+    title: "The first sync of a second checkout writes nothing and names the next writes",
+    rules: ["WORK-RULE-047", "WORK-RULE-015"],
+    kind: "sync-scenario",
+    input: { scenario: "first-sync-of-a-checkout" },
+    expected: { action: "deferred", conflictKind: null, changedFiles: false },
+  },
+  {
+    id: "WSF-065",
+    group: "tracker and config",
+    title: "With copies off, a changed copy is imported and kept, and the next sync removes it",
+    rules: ["WORK-RULE-048"],
+    kind: "sync-scenario",
+    input: { scenario: "changed-copy-with-copies-off" },
+    expected: { action: "imported", conflictKind: null, changedFiles: true },
+  },
+  {
+    id: "WSF-066",
+    group: "current repository backlogs",
+    title: "Work next names a pending import and changes nothing",
+    rules: ["WORK-RULE-052"],
+    kind: "sync-scenario",
+    input: { scenario: "read-only-check" },
+    expected: { action: "none", conflictKind: null, changedFiles: false },
+  },
+  {
+    id: "WSF-067",
+    group: "dependency bullets",
+    title: "A bullet that adds only the phase's own title is a dependency",
+    rules: ["WORK-RULE-049", "WORK-RULE-031"],
+    kind: "dependency",
+    input: {
+      unitCoordinate: "W10 R1 P2",
+      bullet: "Phase 1 trace and scope.",
+      existing: ["W10 R1 P1"],
+      titles: { "W10 R1 P1": "Phase 1: Trace and Scope" },
+    },
+    expected: { dependencies: ["W10 R1 P1"], unresolved: [], gate: false, reference: false, none: false },
+  },
+  {
+    id: "WSF-068",
+    group: "report and close",
+    title: "The holder records a short progress note",
+    rules: ["WORK-RULE-051", "WORK-RULE-024"],
+    kind: "update",
+    input: {
+      now: NOW,
+      units: portfolioUnits,
+      claims: portfolioClaims,
+      request: { report: reportRequest("W1 R0 P5", "p5", { note: "The parser reads every front matter field." }) },
+    },
+    expected: { accepted: true, refusal: null, parentClosed: false, readyAfter: [] },
+  },
+  {
+    id: "WSF-069",
+    group: "tracker and config",
+    title: "Export refuses the work folder and writes only to a new folder that the caller names",
+    rules: ["WORK-RULE-054"],
+    kind: "sync-scenario",
+    input: { scenario: "export-to-named-folder" },
+    expected: { action: "none", conflictKind: null, changedFiles: false },
+  },
+  {
+    id: "WSF-070",
+    group: "report and close",
+    title: "A note of 257 characters is refused before sync, and nothing changes",
+    rules: ["WORK-RULE-051"],
+    kind: "report-scenario",
+    input: { scenario: "note-too-long" },
+    expected: { accepted: false, latestNote: null, storeOnlyEditKinds: [] },
+  },
+  {
+    id: "WSF-071",
+    group: "report and close",
+    title: "A new note replaces the last one",
+    rules: ["WORK-RULE-051"],
+    kind: "report-scenario",
+    input: { scenario: "note-replaces-last" },
+    expected: { accepted: true, latestNote: "Second note.", storeOnlyEditKinds: [] },
+  },
+  {
+    id: "WSF-072",
+    group: "report and close",
+    title: "A status that the file cannot show stays in the store, and the report names it",
+    rules: ["WORK-RULE-051"],
+    kind: "report-scenario",
+    input: { scenario: "store-only-edit-named" },
+    expected: { accepted: true, latestNote: null, storeOnlyEditKinds: ["status"] },
   },
 ];

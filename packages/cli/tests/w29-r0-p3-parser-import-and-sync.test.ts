@@ -439,7 +439,13 @@ describe("W29 R0 P3 dependency bullets (R-WORK-SYNC-13)", () => {
     if (fixture.kind !== "dependency") continue;
     it(`${fixture.id}: ${fixture.title}`, () => {
       const existing = new Set(fixture.input.existing);
-      const result = readDependencyBullet(fixture.input.bullet, fixture.input.unitCoordinate, (coordinate) => existing.has(coordinate));
+      const titles = fixture.input.titles;
+      const result = readDependencyBullet(
+        fixture.input.bullet,
+        fixture.input.unitCoordinate,
+        (coordinate) => existing.has(coordinate),
+        titles ? (coordinate) => titles[coordinate] ?? null : undefined,
+      );
       expect(result).toEqual(fixture.expected);
     });
   }

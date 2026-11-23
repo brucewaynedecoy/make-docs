@@ -166,6 +166,7 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 
 - R-TASK-RESOURCE-1 (MUST): the work phase template, the output contract, the execution workflow, the wave model, and the docs and work routers write task IDs as `T` and a number, under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22. No shipped template-owned file shows a lower-case task ID.
 - R-TASK-RESOURCE-2 (MUST): the project doctor agent twin uses stable URI `make-docs://system/reference/project-doctor.md`. It explains each doctor check of [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR for an agent without the CLI. It uses the existing reference type, the installed provider, and the optional projection model, and it is authored in `packages/docs/template/` first.
+- R-WORK-RESOURCE-1 (MUST): the work store agent twin uses stable URI `make-docs://system/reference/work-store.md` under [PRD 52](52-work-store-and-work-queue.md) R-WORK-STORE-6 and R-WORK-QUEUE-11. It uses the existing reference type, the installed provider, and the optional projection model, in the `workflow` and `backlog` resource profiles. It is authored in `packages/docs/template/` first, and the bundled and dogfood copies have the same bytes.
 
 ## Requirement History
 
@@ -287,6 +288,14 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - Replacement contract: shipped files write `T`, and `make-docs://system/reference/project-doctor.md` is the doctor's agent twin.
 - Rationale: one coordinate form everywhere, and one doctor path for projects without the CLI.
 - Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
+
+### 2026-11-23 — W29 R0 P5
+
+- Affected requirement or section: new R-WORK-RESOURCE-1.
+- Previous contract: PRD 52 named `make-docs://system/reference/work-store.md`, but no resource requirement owned it.
+- Replacement contract: the work store agent twin is a shipped reference in the `workflow` and `backlog` profiles, authored upstream first.
+- Rationale: W29 R0 P5 T1 and T5.
+- Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
 
 ## Source Anchors
 

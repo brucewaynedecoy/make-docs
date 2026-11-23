@@ -15,6 +15,7 @@ This reference is the agent twin of the deterministic doctor operations `project
 | Check ID | Scope | Finding | Fix |
 | --- | --- | --- | --- |
 | `task-id-case` | Markdown files under `docs/work/` | A task ID uses a lower-case `t`, such as `t3`. Make Docs writes task IDs with an upper-case `T`, such as `T3`. | Change the `t` to `T`. The number and all other text stay the same. |
+| `phase-status-line` | Phase files under `docs/work/`, except paths on the sync hold list (`work.syncHold`) | A phase file has no status line, and every task in it is checked. Make Docs counts it as done only through the all-tasks-checked fallback. | Add the status line `status: "completed"` to its front matter, after `kind` or `title`. A file with no front matter gets front matter that holds only this line. All other text stays the same. |
 
 Later checks are added here and in the CLI together.
 
@@ -22,8 +23,8 @@ Later checks are added here and in the CLI together.
 
 1. Ask the person which paths to leave out. Each excluded path is relative to the project folder. Do not accept a path that is absolute, uses `..`, starts with `~`, uses a backslash, has an empty or `.` part, passes through a symbolic link, or does not exist. Each part must match a folder or file name exactly, with the same upper and lower case, even on a file system that ignores case. Compare names in Unicode NFC form, so an accent written as one character or as a letter and a separate mark is the same name. Any other difference is a mismatch. Stop and say why.
 2. Find every finding with the rules below. Change nothing yet.
-3. Report the totals first, in plain words: the number of findings, lines, and files, and the number of task lines and prose references. Then list each finding with its file, line, current text, and replacement. If there are no findings, say that the check found no problems and changed nothing.
-4. Tell the person that a prose finding can be something that is not a task ID. Ask them to review the list.
+3. Report the totals first, in plain words: the number of findings, lines, and files, the number of task lines and prose references, and the number of phase files that need a status line. Then list each finding with its file, line, current text, and replacement. If there are no findings, say that the check found no problems and changed nothing.
+4. Tell the person that a prose finding can be something that is not a task ID, and that a phase can still have open work that is not a task line. Ask them to review the list.
 5. Fix only after the person approves this exact list. Before you edit a file, read it again. If it changed after your check, stop, name the file, and run the check again.
 6. Change only the reviewed characters. Report each changed file. Keep a copy of each file before you edit it, and name each copy. Give the undo path: for a file that git tracks, `git -C '<project folder>' diff` shows the change and `git -C '<project folder>' restore -- '<file>'` undoes it from any current folder, but that also drops any earlier uncommitted edit in the file. Quote each file name with single quotes. For a file that git does not track, or in a folder without git, the undo path is the copy.
 
@@ -76,6 +77,43 @@ Everything else is not a finding. The check does not find a task ID inside a wor
 A prose finding is a lower-case `t` and a number that stands alone as a word. It can be something that is not a task ID, such as a table label or a product name. The person reviews each prose finding before the fix.
 
 The edge of a skipped part counts as a word edge, so text glued to inline code, a link target, a URL, or an HTML tag is found. Examples: `t3` in `word<span>t3</span>word`, in `` `code`t3 ``, and in `<https://example.com>t3`. Review these findings with the rest.
+
+## The `phase-status-line` Check
+
+The work queue counts an older phase as done when it has no status line and every task is checked (`doneBy: "all-tasks-checked"`, rule `WORK-RULE-040` in `work-store.md`). This check proposes the status line that its tasks show, so the fallback is needed less over time. It reads the same files as `task-id-case` and skips the same files.
+
+- Check only phase files: a file named with two digits from `01` to `99`, a hyphen, and a name, such as `01-phase.md`, directly in a backlog folder whose name starts with a date, a wave, and a revision, such as `docs/work/2026-01-01-w1-r0-sample/`. Never read `.make-docs/archive/`. A phase file that the work rules cannot read, such as one with front matter that never closes, has no finding.
+- Skip each path on the sync hold list, `work.syncHold` in `.make-docs/config.yaml`. Name each held phase file that would have a finding as skipped, with the reason "on the sync hold list". The `--exclude` option also leaves a path out, for every check.
+- A file has a finding when all of these are true: its front matter has no `status` field, or it has no front matter; it has at least one task line, such as `- [x] T1: Write it.`; every task line is checked; and no `Tasks` section holds an unchecked checkbox at any indent, also one with no task ID.
+- A file with a status line, with no task, or with one unchecked task or checkbox has no finding.
+- The fix adds the line `status: "completed"`. In existing front matter, it goes after the `kind` line, or after the `title` line when there is no `kind`, or first. A file has front matter when its first line is `---`, with either line ending. A file with no front matter gets three lines at the top, `---`, the status line, and `---`, then an empty line. Each new line uses the line ending of the file's first line, and every other line keeps its own ending, also in a file that mixes them. Keep a byte order mark.
+- When the same file also has `task-id-case` findings, change the task IDs first, then add the status line.
+
+Before:
+
+```markdown
+# Phase 1: Build
+
+### Tasks
+
+- [x] T1: Write the parser.
+- [x] T2: Write the writer.
+```
+
+After:
+
+```markdown
+---
+status: "completed"
+---
+
+# Phase 1: Build
+
+### Tasks
+
+- [x] T1: Write the parser.
+- [x] T2: Write the writer.
+```
 
 ## Shared Examples
 

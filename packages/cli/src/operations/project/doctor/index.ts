@@ -14,6 +14,8 @@ import {
 } from "../../../store/installation-state";
 import { writeTextFile } from "../../../utils";
 import { OperationError } from "../../types";
+import { readWorkSyncConfig } from "../../work/work-store/sync";
+import { PHASE_STATUS_LINE, scanPhaseStatusLine } from "./phase-status-line";
 import { applyTaskIdCase, scanTaskIdCase, type TaskIdCaseFindingKind, type TaskIdCaseMatch, type TaskIdCaseTextSkip } from "./task-id-case";
 
 /**
@@ -32,8 +34,10 @@ export const DOCTOR_FIX_OPERATION = "project.doctor.fix";
  */
 const ROUTER_FILES = new Set(["agents.md", "claude.md"]);
 
+export type DoctorCheckId = "task-id-case" | "phase-status-line";
+
 export interface DoctorCheckDefinition {
-  id: "task-id-case";
+  id: DoctorCheckId;
   scope: string;
   description: string;
   fix: string | null;
@@ -47,6 +51,13 @@ export const DOCTOR_CHECKS: readonly DoctorCheckDefinition[] = Object.freeze([
     description: "A task ID uses a lower-case t, such as t3. Make Docs writes task IDs with an upper-case T, such as T3.",
     fix: "Change the t to T. The number and all other text stay the same.",
   }),
+  // W29 R0 P5 T10: owner decision of 2026-11-23 on W29 R0 P4 review finding 7 (PRD 52 R-WORK-QUEUE-20).
+  Object.freeze({
+    id: "phase-status-line" as const,
+    scope: "Phase files under docs/work/, except paths on the sync hold list (work.syncHold)",
+    description: "A phase file has no status line, and every task in it is checked. Make Docs counts it as done only through the all-tasks-checked fallback.",
+    fix: `Add the status line ${PHASE_STATUS_LINE} to its front matter, after kind or title. A file with no front matter gets front matter that holds only this line. All other text stays the same.`,
+  }),
 ]);
 
 /** Accepted risks. Each one is shown in every check result and has a fixture. */
@@ -54,11 +65,12 @@ export const DOCTOR_NOTES: readonly string[] = Object.freeze([
   "A prose finding is a lower-case t and a number that stands alone as a word. It can be something that is not a task ID, such as a table label or a product name. Review each prose finding before you run the fix.",
   "The check does not find a task ID in a form it cannot tell apart from other text: inside a word or a snake_case name, after a dot, after a slash or dash that does not follow an ID, with four or more digits, in a range without a second t (t1-6), in emphasis written with underscores (_t3_), or inside an HTML tag. Text inside an HTML tag, such as id=\"t3\", is listed as left unchanged, also when the tag runs over more than one line.",
   "The edge of a skipped part (inline code, a link target, a URL, or an HTML tag) counts as a word edge. So text glued to such a part is found, such as t3 in word<span>t3</span>word, `code`t3, or <https://example.com>t3. Review these findings with the rest.",
+  "A phase-status-line finding proposes status: \"completed\", because every task in the file is checked. A phase can still have open work that is not a task line. Review each one before you run the fix. The check never changes a path on the sync hold list (work.syncHold). It names each held phase file that would have a finding as skipped.",
 ]);
 
 export interface DoctorFinding {
-  check: "task-id-case";
-  kind: TaskIdCaseFindingKind;
+  check: DoctorCheckId;
+  kind: TaskIdCaseFindingKind | "missing-status-line";
   file: string;
   line: number;
   column: number;
@@ -75,7 +87,9 @@ export interface DoctorFileRead {
 
 export interface DoctorSkippedFile {
   path: string;
-  reason: "history-record" | "managed-router" | "symbolic-link" | "hard-link" | "not-utf8-text";
+  reason: "history-record" | "managed-router" | "symbolic-link" | "hard-link" | "not-utf8-text" | "sync-hold";
+  /** Set when only one check skips the file, such as `phase-status-line` for a path on the sync hold list. */
+  check?: DoctorCheckId;
 }
 
 /** Task-ID-like text inside a file that the check leaves unchanged on purpose. */
@@ -96,7 +110,10 @@ export interface DoctorCheckResult {
     filesSkipped: number;
     filesExcluded: number;
     textSkipped: number;
-    byCheck: Record<string, { taskLines: number; proseReferences: number }>;
+    byCheck: {
+      "task-id-case": { taskLines: number; proseReferences: number };
+      "phase-status-line": { phaseFiles: number };
+    };
   };
   checks: DoctorCheckDefinition[];
   exclusions: string[];
@@ -137,6 +154,9 @@ export interface DoctorFixResult {
 interface InternalScan {
   result: DoctorCheckResult;
   plans: Array<{ path: string; sha256: string; before: string; after: string; changes: number }>;
+  /** Task ID changes, apart from status lines. */
+  taskIdChanges: number;
+  statusLines: number;
 }
 
 const sha256 = (value: string | Uint8Array) => createHash("sha256").update(value).digest("hex");
@@ -255,6 +275,14 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
     throw new OperationError(`The project folder does not exist: ${root}.`);
   }
   const exclusions = normalizeDoctorExclusions(root, rawExclusions);
+  // The phase-status-line check never writes a held work path (PRD 52 R-WORK-SYNC-17).
+  let syncHold: string[];
+  try {
+    syncHold = readWorkSyncConfig(root).syncHold;
+  } catch (error) {
+    throw new OperationError(`The doctor cannot read the work block in .make-docs/config.yaml: ${(error as Error).message.split(" Make Docs did not sync")[0]} Nothing was read or changed.`);
+  }
+  const held = (relative: string) => syncHold.some((hold) => relative === hold || relative.startsWith(`${hold}/`));
   const skipped: DoctorSkippedFile[] = [];
   const counts = { excluded: 0 };
   const scope = "docs/work";
@@ -273,6 +301,8 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
   const findings: DoctorFinding[] = [];
   const skippedText: DoctorSkippedText[] = [];
   const plans: InternalScan["plans"] = [];
+  let taskIdChanges = 0;
+  let statusLines = 0;
   for (const relative of candidates) {
     // The scope is docs/work only, so .make-docs/archive/ is never read.
     if (ROUTER_FILES.has(path.posix.basename(relative).toLowerCase())) {
@@ -304,14 +334,45 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
       continue;
     }
     for (const text of scan.skippedText) skippedText.push({ file: relative, ...text });
-    if (scan.matches.length === 0) continue;
-    const after = applyTaskIdCase(text, scan.matches);
-    for (const match of scan.matches) findings.push(toFinding(relative, match, text, after));
-    plans.push({ path: relative, sha256: digest, before: text, after, changes: scan.matches.length });
+    const taskIdAfter = scan.matches.length > 0 ? applyTaskIdCase(text, scan.matches) : text;
+    for (const match of scan.matches) findings.push(toFinding(relative, match, text, taskIdAfter));
+    let after = taskIdAfter;
+    let changes = scan.matches.length;
+    taskIdChanges += scan.matches.length;
+    if (held(relative)) {
+      if (scanPhaseStatusLine(relative, text)) skipped.push({ path: relative, reason: "sync-hold", check: "phase-status-line" });
+    } else {
+      const status = scanPhaseStatusLine(relative, taskIdAfter);
+      if (status) {
+        after = status.after;
+        changes += 1;
+        statusLines += 1;
+        findings.push({
+          check: "phase-status-line",
+          kind: "missing-status-line",
+          file: relative,
+          line: status.line,
+          column: 1,
+          current: status.current,
+          replacement: status.replacement,
+          lineText: "",
+          fixedLineText: status.replacement,
+        });
+      }
+    }
+    if (changes === 0) continue;
+    plans.push({ path: relative, sha256: digest, before: text, after, changes });
   }
   const lines = new Set(findings.map((finding) => `${finding.file}:${finding.line}`)).size;
-  const taskLines = findings.filter((finding) => finding.kind === "task-line").length;
-  const proseReferences = findings.length - taskLines;
+  const taskIdFindings = findings.filter((finding) => finding.check === "task-id-case");
+  const taskLines = taskIdFindings.filter((finding) => finding.kind === "task-line").length;
+  const proseReferences = taskIdFindings.length - taskLines;
+  const taskIdLines = new Set(taskIdFindings.map((finding) => `${finding.file}:${finding.line}`)).size;
+  const taskIdFiles = new Set(taskIdFindings.map((finding) => finding.file)).size;
+  const foundParts = [
+    ...(taskIdFindings.length > 0 ? [`${plural(taskIdFindings.length, "lower-case task ID")} on ${plural(taskIdLines, "line")} in ${plural(taskIdFiles, "file")}: ${plural(taskLines, "task line")} and ${plural(proseReferences, "prose reference")}`] : []),
+    ...(statusLines > 0 ? [`${plural(statusLines, "phase file")} with no status line whose tasks are all checked`] : []),
+  ];
   const reviewDigest = sha256(canonicalJson({
     schemaVersion: 1,
     checks: DOCTOR_CHECKS.map((check) => check.id),
@@ -329,7 +390,7 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
     status: clean ? "clean" : "findings",
     summary: clean
       ? `No problems found in ${plural(files.length, "file")}. Nothing changed.`
-      : `Found ${plural(findings.length, "lower-case task ID")} on ${plural(lines, "line")} in ${plural(plans.length, "file")}: ${plural(taskLines, "task line")} and ${plural(proseReferences, "prose reference")}. Nothing changed.`,
+      : `Found ${foundParts.join(", and ")}. Nothing changed.`,
     totals: {
       findings: findings.length,
       lines,
@@ -338,7 +399,7 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
       filesSkipped: skipped.length,
       filesExcluded: counts.excluded,
       textSkipped: skippedText.length,
-      byCheck: { "task-id-case": { taskLines, proseReferences } },
+      byCheck: { "task-id-case": { taskLines, proseReferences }, "phase-status-line": { phaseFiles: statusLines } },
     },
     checks: DOCTOR_CHECKS.map((check) => ({ ...check })),
     exclusions,
@@ -352,7 +413,21 @@ function scanProject(projectRoot: string, rawExclusions: readonly string[]): Int
       ? "No fix is needed."
       : `Review each finding. Then run: make-docs project doctor fix --review ${reviewDigest}${excludeArgs} --target-root ${shellQuote(root)}`,
   };
-  return { result, plans };
+  return { result, plans, taskIdChanges, statusLines };
+}
+
+/**
+ * The words for what a fix does, built from its parts: "Changed 1 task ID and
+ * added 4 status lines", "Added 79 status lines", or, for a dry run, "Would
+ * change 1 task ID and add 4 status lines" and "Would add 79 status lines".
+ */
+function changeWords(taskIds: number, statusLines: number, mood: "done" | "would"): string {
+  const parts = mood === "done"
+    ? [...(taskIds > 0 ? [`changed ${plural(taskIds, "task ID")}`] : []), ...(statusLines > 0 ? [`added ${plural(statusLines, "status line")}`] : [])]
+    : [...(taskIds > 0 ? [`change ${plural(taskIds, "task ID")}`] : []), ...(statusLines > 0 ? [`add ${plural(statusLines, "status line")}`] : [])];
+  const text = parts.join(" and ");
+  const sentence = mood === "would" ? `would ${text}` : text;
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }
 
 function toFinding(file: string, match: TaskIdCaseMatch, before: string, after: string): DoctorFinding {
@@ -413,7 +488,7 @@ export function fixProjectDoctor(input: {
   /** The calling surface names the option that lists the reviewed files. */
   caller?: "cli" | "mcp";
 }): DoctorFixResult {
-  const { result, plans } = scanProject(input.projectRoot, input.exclusions ?? []);
+  const { result, plans, taskIdChanges, statusLines } = scanProject(input.projectRoot, input.exclusions ?? []);
   const root = result.targetRoot;
   if (result.reviewDigest !== input.review) {
     const changed = input.reviewedFiles ? changedSince(input.reviewedFiles, result.files) : [];
@@ -443,7 +518,9 @@ export function fixProjectDoctor(input: {
     return {
       ...base,
       status: "unchanged",
-      summary: `Dry run. The fix would change ${plural(result.totals.findings, "task ID")} in ${plural(plans.length, "file")}. Nothing changed.`,
+      summary: statusLines === 0
+        ? `Dry run. The fix would change ${plural(result.totals.findings, "task ID")} in ${plural(plans.length, "file")}. Nothing changed.`
+        : `Dry run. ${changeWords(taskIdChanges, statusLines, "would")} in ${plural(plans.length, "file")}. Nothing changed.`,
       operationId: null,
       changedFiles: plans.map((plan) => ({ path: plan.path, changes: plan.changes, backup: null })),
       undo: { method: "none", instructions: "Nothing changed, so there is nothing to undo.", command: null, notTrackedByGit: [] },
@@ -484,7 +561,9 @@ export function fixProjectDoctor(input: {
   return {
     ...base,
     status: "fixed",
-    summary: `Changed ${plural(result.totals.findings, "task ID")} on ${plural(result.totals.lines, "line")} in ${plural(changedFiles.length, "file")}. No other text changed.`,
+    summary: statusLines === 0
+      ? `Changed ${plural(result.totals.findings, "task ID")} on ${plural(result.totals.lines, "line")} in ${plural(changedFiles.length, "file")}. No other text changed.`
+      : `${changeWords(taskIdChanges, statusLines, "done")} in ${plural(changedFiles.length, "file")}. No other text changed.`,
     operationId,
     changedFiles,
     undo: trackedFiles.length

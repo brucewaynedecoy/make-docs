@@ -803,6 +803,7 @@ const SKIP_REASONS: Record<DoctorCheckResult["skipped"][number]["reason"], strin
   "symbolic-link": "symbolic link, not followed",
   "hard-link": "hard link, shares its bytes with another path",
   "not-utf8-text": "not UTF-8 text",
+  "sync-hold": "on the sync hold list, work.syncHold",
 };
 
 export function renderDoctorCheck(result: DoctorCheckResult): string {
@@ -810,10 +811,11 @@ export function renderDoctorCheck(result: DoctorCheckResult): string {
   const counts = result.totals.byCheck["task-id-case"];
   lines.push(`Read ${result.totals.filesRead} files. Skipped ${result.totals.filesSkipped}. Excluded ${result.totals.filesExcluded}.`);
   if (result.exclusions.length) lines.push(`Excluded paths: ${result.exclusions.join(", ")}`);
-  for (const file of result.skipped) lines.push(`Skipped: ${file.path} (${SKIP_REASONS[file.reason]})`);
+  for (const file of result.skipped) lines.push(`Skipped${file.check ? ` by ${file.check}` : ""}: ${file.path} (${SKIP_REASONS[file.reason]})`);
   for (const text of result.skippedText) lines.push(`Left unchanged: ${text.file}:${text.line}:${text.column} ${text.current} (inside an HTML tag)`);
   if (result.status === "findings" && counts) {
     lines.push("", `task-id-case: ${counts.taskLines} task lines and ${counts.proseReferences} prose references.`);
+    lines.push(`phase-status-line: ${result.totals.byCheck["phase-status-line"]?.phaseFiles ?? 0} phase files with no status line whose tasks are all checked.`);
     for (const check of result.checks) lines.push(`${check.id}: ${check.description}${check.fix ? ` Fix: ${check.fix}` : ""}`);
     for (const note of result.notes) lines.push(`Note: ${note}`);
     let file = "";
@@ -825,7 +827,9 @@ export function renderDoctorCheck(result: DoctorCheckResult): string {
     for (const group of byLine.values()) {
       const first = group[0]!;
       if (first.file !== file) { file = first.file; lines.push("", file); }
-      const kinds = group.map((finding) => `${finding.current} -> ${finding.replacement} (${finding.kind === "task-line" ? "task line" : "prose"})`).join(", ");
+      const kinds = group.map((finding) => finding.check === "phase-status-line"
+        ? `add ${finding.replacement} (status line)`
+        : `${finding.current} -> ${finding.replacement} (${finding.kind === "task-line" ? "task line" : "prose"})`).join(", ");
       lines.push(`  line ${first.line}: ${kinds}`, `    now:   ${first.lineText}`, `    fixed: ${first.fixedLineText}`);
     }
     lines.push("");

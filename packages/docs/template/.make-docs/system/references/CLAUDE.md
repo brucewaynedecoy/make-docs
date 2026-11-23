@@ -9,6 +9,7 @@ This always-local directory routes Make Docs references. A reference explains a 
 - Use `lifecycle.md` for the lifecycle arc and `naive-uat-workflow.md` to compose the governing contract, prompts, and scenario template.
 - Use `.make-docs/system/contracts/coverage-pass-contract.md` for shared coverage-pass rules.
 - Use `path-and-link-hygiene.md` for project-relative path rules, relative Markdown links, safe placeholders, and full-path exceptions.
+- Use `work-store.md` for work readiness, claims, reports, closes, sync, quick items, and project URIs.
 - Do not treat this directory as an output target or modify a resource body unless the user asks.
 - Do not infer optional Skills, plugins, Playbooks, Protocols, or unavailable policy from this router.
 <!-- make-docs:end -->

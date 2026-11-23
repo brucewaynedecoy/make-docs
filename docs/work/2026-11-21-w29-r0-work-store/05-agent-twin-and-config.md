@@ -53,16 +53,16 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T1: Author `work-store.md` in `packages/docs/template/`. Cover readiness, claims, report, close, sync, conflicts, and the tracker connection contract for an agent that edits files directly.
-- [ ] T2: State in the resource that it is the agent twin of the P4 operations, and that a change to either form needs a review of the other.
-- [ ] T3: Add the `work` block to the config schema: `projection` (default `on`) and `tracker` (connection name and field map).
-- [ ] T4: Reject state fields, IDs, digests, receipts, and secrets in the `work` block.
-- [ ] T5: Project the resource into the package, then into this repo's dogfood copy.
-- [ ] T6: Point routers that name work backlog rules at the new resource where an agent needs it.
-- [ ] T7: State in the resource that quick items live only in the work store, how `make-docs://project/<project>/tasks/` and `.../backlog/` URIs name a project and its work, and that a checkout without the CLI or a Store reads `docs/work/` directly and has no quick items.
-- [ ] T8: Validate `projectName` in config (PRD 24 R-CONFIG-STATE-9), and have setup propose the checkout folder name in the PRD 38 R-ID-8 form.
-- [ ] T9: Add the sync rules that W29 R0 P3 added to PRD 52 (R-WORK-SYNC-14 to R-WORK-SYNC-16, and the first-sync, copies-off, and phase-title edits) to the rule catalog and to the `sync` and `first-import` sections of the agent form, with parity fixtures.
-- [ ] T10: Give older backlogs explicit status lines, so the all-tasks-checked fallback of PRD 52 R-WORK-QUEUE-20 is needed less over time: for example a `make-docs project doctor` finding for a phase file with no status line, with a reviewed fix that adds the status line that its tasks show. Owner decision of 2026-11-23 on W29 R0 P4 review finding 7; not built in P4.
+- [x] T1: Author `work-store.md` in `packages/docs/template/`. Cover readiness, claims, report, close, sync, conflicts, and the tracker connection contract for an agent that edits files directly.
+- [x] T2: State in the resource that it is the agent twin of the P4 operations, and that a change to either form needs a review of the other.
+- [x] T3: Add the `work` block to the config schema: `projection` (default `on`) and `tracker` (connection name and field map).
+- [x] T4: Reject state fields, IDs, digests, receipts, and secrets in the `work` block.
+- [x] T5: Project the resource into the package, then into this repo's dogfood copy.
+- [x] T6: Point routers that name work backlog rules at the new resource where an agent needs it.
+- [x] T7: State in the resource that quick items live only in the work store, how `make-docs://project/<project>/tasks/` and `.../backlog/` URIs name a project and its work, and that a checkout without the CLI or a Store reads `docs/work/` directly and has no quick items.
+- [x] T8: Validate `projectName` in config (PRD 24 R-CONFIG-STATE-9), and have setup propose the checkout folder name in the PRD 38 R-ID-8 form.
+- [x] T9: Add the sync rules that W29 R0 P3 added to PRD 52 (R-WORK-SYNC-14 to R-WORK-SYNC-16, and the first-sync, copies-off, and phase-title edits) to the rule catalog and to the `sync` and `first-import` sections of the agent form, with parity fixtures.
+- [x] T10: Give older backlogs explicit status lines, so the all-tasks-checked fallback of PRD 52 R-WORK-QUEUE-20 is needed less over time: for example a `make-docs project doctor` finding for a phase file with no status line, with a reviewed fix that adds the status line that its tasks show. Owner decision of 2026-11-23 on W29 R0 P4 review finding 7; not built in P4.
 
 ### Acceptance criteria
 
@@ -76,10 +76,20 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Built (2026-11-23): T1 to T10. Evidence: [P5 section](evidence.md#p5-agent-twin-and-config).
+- T1, T2, T7: `make-docs://system/reference/work-store.md` is the agent twin of the nine work operations. It has one section for each catalog area, names each rule by its catalog ID, and covers authority, the repo copy, sync with its table and settle choices (also `claimed`), the hold list, first import and dependency bullets, units, readiness with every wait reason, claims with private claim IDs, report and close with the progress note, the tracker connection contract, quick items, project URIs, and a checkout without the CLI or a Store.
+- T9: catalog rules `WORK-RULE-041` to `WORK-RULE-054`, with parity fixtures `WSF-058` to `WSF-069`. Ten sync scenarios run through the real sync; one dependency fixture and one report fixture run through the P3 and P4 code.
+- T3, T4: the `work` block was admitted in P4. P5 names each state or secret key (`work-block-state-field`) and refuses a field map value that looks like a key.
+- T5: template, bundled package copy, and dogfood copy have the same bytes; both catalogs list the resource in the `workflow` and `backlog` profiles.
+- T6: the `docs/work/` router and the references router name the new resource.
+- T8: `projectName` validation existed since W32 R0 P3. Setup now shows the name, or proposes one from the checkout folder name, in its plan and in `project.nameProposal`. It does not write it. New behavior: a linked git worktree proposes its main checkout's folder name.
+- T10: `make-docs project doctor` has the check `phase-status-line`. It skips held paths (`work.syncHold`) for that check, and `--exclude` leaves a path out of every check. On this repository (`--exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`, temporary `MAKE_DOCS_HOME`) it finds 79 phase files, the same 79 that `work next` counts as done by the fallback. The fix was not run on this repository: a repository-wide fix needs the owner's approval.
+- Review fixes (2026-11-23): an independent review asked for seven small changes: mixed line endings in the doctor fix, camelCase field names, the fix sentence, whole-word key matching, the `--work-store` sentence, three note fixtures (`WSF-070` to `WSF-072`), and generic test names. All are fixed with tests. Evidence: [P5 review fixes](evidence.md#review-fixes).
+- Owner decision (2026-11-23): setup proposes `projectName` and never writes it, as built.
+- Four testing decisions: Automated Implementation Testing ran (see evidence). Performance Testing: `not-needed-now`. Guided Progress Review: `not-needed-now`. Unassisted Goal Testing: `not-needed-now`.
+- Performance evidence: none in this phase.
+- Human Experience Review: the resource puts the human meaning first, with short sentences and one next action for each wait reason. The doctor and config refusals name the key or file and say what to do.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: on 2026-11-23 the owner chose that setup only proposes `projectName`, and approved the repository-wide `phase-status-line` fix with W22 R2 excluded, as its own commit.
+- Evidence report: [P5 section](evidence.md#p5-agent-twin-and-config).
+- Phase / capability status: active; every task built; pending owner review.

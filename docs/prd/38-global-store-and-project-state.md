@@ -146,7 +146,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-ID-5 (MUST): an open review stays pinned to its checkout. Cache and judgments carry source version and provenance. Unknown, unsupported, unavailable, and known zero stay distinct.
 - R-ID-6 (MUST): a valid project ID with no verified installation ledger for the target is a portable unregistered checkout, not a fresh project. Status and checkout registration preview derive this shared classification from project identity, binding presence, and ledger trust. Both name the explicit `make-docs setup --adopt` route as the next action. A bound row without a ledger remains incomplete and cannot imply managed ownership.
 - R-ID-7 (MUST): plain setup reads portable unregistered identity and Store binding facts before any Store or project write. It cannot create a binding, ledger, or file change until the user selects adopt or normal setup in an interactive session, or supplies the explicit adopt flag. Non-interactive plain setup reports blocked and names `make-docs setup --adopt --yes`. Dry run leaves both Store and project unchanged.
-- R-ID-8 (MUST): a project may have a short project name in `.make-docs/config.yaml` as `projectName`, next to `projectId`. The Store records it in `project_register` under R-REGISTER-1. A name uses lower-case letters, digits, and hyphens, starts with a letter, and has at most 64 characters. A name that looks like a project ID is refused. The name never replaces the project ID. The Store records the name with the project ID at each Store write for that project. The Store refuses a name that another project in the same Store already holds, names that project, and asks for another name. When the name changes in config, the next Store write records the new name, and the old name stops resolving. Setup proposes the checkout folder name in this form, and the person can change it.
+- R-ID-8 (MUST): a project may have a short project name in `.make-docs/config.yaml` as `projectName`, next to `projectId`. The Store records it in `project_register` under R-REGISTER-1. A name uses lower-case letters, digits, and hyphens, starts with a letter, and has at most 64 characters. A name that looks like a project ID is refused. The name never replaces the project ID. The Store records the name with the project ID at each Store write for that project. The Store refuses a name that another project in the same Store already holds, names that project, and asks for another name. When the name changes in config, the next Store write records the new name, and the old name stops resolving. Setup proposes the checkout folder name in this form, and the person can change it. For a linked git worktree, setup proposes the folder name of its main checkout. Setup shows the proposal in its plan and its JSON result (`project.nameProposal`) and does not write it: the person adds `projectName` to the config.
 
 ### Checkout Binding and Path Update Safety (R-CHECKOUT)
 
@@ -495,6 +495,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: a work unit keeps its latest progress note, at most 256 characters of one-line plain text, and the time it was written. A new note replaces the last. The columns `note` and `note_at` are part of the unreleased schema v8 `work_units` table, with checks on length, line breaks, time form, and that both are set or both are empty.
 - Rationale: the owner chose option A of register D-066 on 2026-11-23. Schema v8 is unreleased, and no real Store is at v8.
 - Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-work-queue-operations)
+
+### 2026-11-23 — W29 R0 P5
+
+- Affected requirement or section: R-ID-8.
+- Previous contract: setup proposes the checkout folder name in the R-ID-8 form, and the person can change it. No setup output showed it.
+- Replacement contract: setup shows the name, or the proposal, in its plan and its JSON result, and writes nothing for it. A linked git worktree proposes the folder name of its main checkout.
+- Rationale: W29 R0 P5 T8. A worktree folder often has a generated name, so its main checkout's folder names the project better. Writing the name would turn every setup of an existing project into a config change, so the person adds it.
+- Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
 
 ## Source Anchors
 
