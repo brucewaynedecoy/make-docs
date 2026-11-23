@@ -135,8 +135,8 @@ describe("make-docs shared operations", () => {
     const phase = parseWorkPhase(fixture.phaseOne);
     expect(phase.coordinate).toEqual({ w: 16, r: 3, p: 1 });
     expect(phase.tasks.map((task) => [task.id, task.checked])).toEqual([
-      ["t1", true],
-      ["t2", false],
+      ["T1", true],
+      ["T2", false],
     ]);
     expect(phase.declaredPaths).toContain("packages/cli/src/operations.ts");
 

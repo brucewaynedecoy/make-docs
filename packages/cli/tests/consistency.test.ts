@@ -600,8 +600,10 @@ describe("work backlog task contract", () => {
     for (const relativePath of WORK_PHASE_TEMPLATE_PATHS) {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
-      expect(contents).toContain("- [ ] t1: {{TASK}}");
-      expect(contents).toContain("- [ ] t2: {{TASK}}");
+      // W31 R0 P2: shipped templates write upper-case task IDs (PRD 14 R-COORD-22).
+      expect(contents).toContain("- [ ] T1: {{TASK}}");
+      expect(contents).toContain("- [ ] T2: {{TASK}}");
+      expect(contents).not.toMatch(/\bt\d+:/);
       if (relativePath.endsWith("rebuild-backlog-phase.md")) {
         expect(contents).toContain("- {{ACCEPTANCE}}");
       } else {
@@ -626,7 +628,8 @@ describe("work backlog task contract", () => {
       const contents = readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 
       expect(contents).toContain("phase-local task IDs");
-      expect(contents).toContain("- [ ] t1:");
+      expect(contents).toContain("- [ ] T1:");
+      expect(contents).not.toMatch(/\bt\d+\b/);
       expect(contents).toContain("plain unordered bullets");
       expect(contents).toContain("renumber existing task IDs");
     }

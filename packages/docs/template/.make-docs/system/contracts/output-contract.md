@@ -216,9 +216,9 @@ Every work backlog is a directory, not a single file.
   - `### Tasks`
   - `### Acceptance criteria`
   - `### Dependencies`
-- `### Tasks` items are markdown task list items with phase-local task IDs: `- [ ] t1: {{TASK}}` for open tasks and `- [x] t1: {{TASK}}` for completed tasks.
-- Task IDs start at `t1` in each phase file and increment across all stages in that file. Do not reset numbering in later stages and do not renumber existing task IDs when inserting or completing work.
-- `### Acceptance criteria` items are always plain unordered bullets (`- {{ACCEPTANCE}}`). Do not use checkbox syntax or `t{T}` labels in acceptance criteria.
+- `### Tasks` items are markdown task list items with phase-local task IDs: `- [ ] T1: {{TASK}}` for open tasks and `- [x] T1: {{TASK}}` for completed tasks. Write an upper-case `T`. Readers accept a lower-case `t` as the same task ID.
+- Task IDs start at `T1` in each phase file and increment across all stages in that file. Do not reset numbering in later stages and do not renumber existing task IDs when inserting or completing work.
+- `### Acceptance criteria` items are always plain unordered bullets (`- {{ACCEPTANCE}}`). Do not use checkbox syntax or `T{T}` labels in acceptance criteria.
 
 ## Code Anchor Rules
 
@@ -257,7 +257,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Every work backlog is a directory under `docs/work/` following the W/R naming pattern; link phase files back to the relevant PRD docs.
 - Organize phases and stages by dependency order, not by implementation convenience.
 - Include markdown task-list items and plain-bullet acceptance criteria in every stage.
-- Use phase-local task IDs (`t1`, `t2`, etc.) on task items so a task can be referenced externally as `w{W} r{R} p{P} t{T}`.
+- Use phase-local task IDs (`T1`, `T2`, etc.) on task items so a task can be referenced externally as `W{W} R{R} P{P} T{T}`.
 - For PRD authority-maintenance work, amend the lineage wave's work backlog in place or add a revision Phase. Create a new dated work directory only for a new wave or a revision Wave, as `.make-docs/system/references/wave-model.md` decides.
 - After a plan or work backlog's first commit, record each scope edit in its `## Change History`, using the entry shape in `wave-model.md`. Progress updates need no entry.
 - Treat updated and genuinely new product PRDs as downstream requirement authority. Plans describe sequencing and requirement-history entries preserve provenance; neither overrides the current normative PRD body.

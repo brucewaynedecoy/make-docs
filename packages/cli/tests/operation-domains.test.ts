@@ -181,7 +181,7 @@ describe("operation domain modules", () => {
       target: phasePath,
     });
     expect(result.value.coordinate).toEqual({ w: 10, r: 8, p: 1 });
-    expect(result.value.uncheckedTasks.map((task) => task.id)).toEqual(["t2"]);
+    expect(result.value.uncheckedTasks.map((task) => task.id)).toEqual(["T2"]);
   });
 
   test("runs lifecycle domain operations without CLI parser or MCP transport setup", () => {

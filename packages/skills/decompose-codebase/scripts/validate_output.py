@@ -420,15 +420,15 @@ def validate_work_phase_doc(
                 match = TASK_ITEM_RE.match(line)
                 if not match:
                     errors.append(
-                        f"{path}: task item in '## {stage_title}' must use '- [ ] tN: ...' or '- [x] tN: ...': {line}"
+                        f"{path}: task item in '## {stage_title}' must use '- [ ] TN: ...' or '- [x] TN: ...': {line}"
                     )
                     continue
                 task_number = int(match.group(1))
                 if task_number in seen_task_numbers:
-                    errors.append(f"{path}: duplicate task id t{task_number}")
+                    errors.append(f"{path}: duplicate task id T{task_number}")
                 if task_number != expected_task_number:
                     errors.append(
-                        f"{path}: task item in '## {stage_title}' expected t{expected_task_number} but found t{task_number}"
+                        f"{path}: task item in '## {stage_title}' expected T{expected_task_number} but found T{task_number}"
                     )
                 seen_task_numbers.add(task_number)
                 expected_task_number += 1

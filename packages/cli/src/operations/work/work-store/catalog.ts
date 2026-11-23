@@ -710,7 +710,7 @@ export const WORK_DEPENDENCY_PATTERNS: readonly WorkDependencyPattern[] = Object
  * so P10 comes after P2. Quick items come after every coordinate, by number.
  */
 export const WORK_READY_ORDER = Object.freeze({
-  partOrder: ["W", "R", "P", "S", "t"] as const,
+  partOrder: ["W", "R", "P", "S", "T"] as const,
   numbersCompareAsNumbers: true,
   quickItemsLast: true,
 });

@@ -209,7 +209,8 @@ export function parseWorkPhase(phasePath: string | path.ParsedPath): PhaseState 
     const taskMatch = TASK_RE.exec(line);
     if (taskMatch) {
       const task = {
-        id: taskMatch[2] ?? "",
+        // Readers accept `t` and `T`; results always use `T` (PRD 14 R-COORD-22).
+        id: (taskMatch[2] ?? "").toUpperCase(),
         checked: (taskMatch[1] ?? "").toLowerCase() === "x",
         text: (taskMatch[3] ?? "").trim(),
         line: lineNumber,
@@ -828,13 +829,13 @@ function phaseWarnings(
   let expected = 1;
   for (const task of tasks) {
     // Task IDs compare without regard to case: `t1` and `T1` are the same task (PRD 14 R-COORD-22).
-    const key = task.id.toLowerCase();
+    const key = task.id.toUpperCase();
     if (seen.has(key)) {
-      warnings.push(`duplicate task id ${task.id}`);
+      warnings.push(`duplicate task id ${key}`);
     }
     seen.add(key);
-    if (key !== `t${expected}`) {
-      warnings.push(`expected task id t${expected}, found ${task.id}`);
+    if (key !== `T${expected}`) {
+      warnings.push(`expected task id T${expected}, found ${key}`);
     }
     expected += 1;
   }

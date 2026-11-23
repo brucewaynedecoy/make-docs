@@ -44,7 +44,7 @@ Intent: report wave progress. It does: runs the wave resolution, parses each pha
 
 ### work-phase-state
 
-Intent: parse a single phase document into a complete machine-usable state. It does: reads the markdown, extracts the title, parses task checkboxes of the form `- [ ] tN: ...` with their stage and section, collects acceptance criteria, dependencies, and validation commands, detects declared file paths from backtick-quoted text and manifest names, gathers source links, and computes warnings such as duplicate or non-sequential task ids. Read-only. Python origin: `work_phase_state.py`.
+Intent: parse a single phase document into a complete machine-usable state. It does: reads the markdown, extracts the title, parses task checkboxes of the form `- [ ] TN: ...` (a lower-case `t` is read as the same task ID, and results give `T`) with their stage and section, collects acceptance criteria, dependencies, and validation commands, detects declared file paths from backtick-quoted text and manifest names, gathers source links, and computes warnings such as duplicate or non-sequential task ids. Read-only. Python origin: `work_phase_state.py`.
 
 ### phase-plan
 

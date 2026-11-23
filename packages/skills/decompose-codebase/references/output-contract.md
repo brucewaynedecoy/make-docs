@@ -164,7 +164,7 @@ Use `## Source Anchors` to aggregate the most important files that shaped the do
 - Every rebuild backlog is a directory under `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/`.
 - Use `00-index.md` as the entry point and `0N-<phase>.md` files for dependency-ordered phase detail.
 - Link backlog phases back to the relevant current authoritative PRD docs. Never treat an archived PRD or a requirement-history entry as the normative source for downstream work.
-- In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
+- In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] T1: ...`, `- [x] T1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
 - Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 
 ## Link Rules

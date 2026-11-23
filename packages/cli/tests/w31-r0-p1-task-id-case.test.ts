@@ -160,10 +160,11 @@ describe("W31 R0 P1 readers accept both task ID cases", () => {
     expect(facts.mixed).toEqual(facts.lower);
   });
 
-  test("A1: the work phase parser keeps each ID as written in the file", () => {
-    expect(parseWorkPhase(fixture(CASES.lower).phase).tasks.map((task) => task.id)).toEqual(["t1", "t2", "t3", "t4"]);
+  // W31 R0 P2 t3 changed this test: the parser used to keep each ID as written; it now gives `T`.
+  test("A1: the work phase parser gives T for every task ID, whatever case the file uses", () => {
+    expect(parseWorkPhase(fixture(CASES.lower).phase).tasks.map((task) => task.id)).toEqual(["T1", "T2", "T3", "T4"]);
     expect(parseWorkPhase(fixture(CASES.upper).phase).tasks.map((task) => task.id)).toEqual(["T1", "T2", "T3", "T4"]);
-    expect(parseWorkPhase(fixture(CASES.mixed).phase).tasks.map((task) => task.id)).toEqual(["T1", "t2", "T3", "t4"]);
+    expect(parseWorkPhase(fixture(CASES.mixed).phase).tasks.map((task) => task.id)).toEqual(["T1", "T2", "T3", "T4"]);
   });
 
   test("A1: the backlog snapshot reports the same tasks and upper-case IDs for lower, upper, and mixed IDs", () => {
@@ -209,13 +210,13 @@ describe("W31 R0 P1 readers accept both task ID cases", () => {
   test("the phase task check still finds gaps and duplicates in either case", () => {
     const gap = fixture(["T", "T", "T", "T"]);
     write(gap.root, `${RECORD}/01-task-case.md`, phaseBody(CASES.upper).replace("T3: Check", "T5: Check"));
-    expect(parseWorkPhase(gap.phase).warnings).toEqual(["expected task id t3, found T5"]);
+    expect(parseWorkPhase(gap.phase).warnings).toEqual(["expected task id T3, found T5"]);
 
     const duplicate = fixture(CASES.lower);
     write(duplicate.root, `${RECORD}/01-task-case.md`, phaseBody(CASES.lower).replace("t2: Write", "T1: Write"));
     expect(parseWorkPhase(duplicate.phase).warnings).toEqual([
       "duplicate task id T1",
-      "expected task id t2, found T1",
+      "expected task id T2, found T1",
     ]);
   });
 

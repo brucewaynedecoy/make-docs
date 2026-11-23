@@ -392,7 +392,7 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
 
         result = build_result(self.tmpdir)
         self.assertFalse(result["ok"])
-        self.assertTrue(any("duplicate task id t1" in error for error in result["errors"]), result["errors"])
+        self.assertTrue(any("duplicate task id T1" in error for error in result["errors"]), result["errors"])
 
     def test_build_result_rejects_numbered_task_items(self):
         self._write_minimal_prd_set()
@@ -409,7 +409,7 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
         result = build_result(self.tmpdir)
         self.assertFalse(result["ok"])
         self.assertTrue(
-            any("must use '- [ ] tN: ...' or '- [x] tN: ...'" in error for error in result["errors"]),
+            any("must use '- [ ] TN: ...' or '- [x] TN: ...'" in error for error in result["errors"]),
             result["errors"],
         )
 
@@ -428,7 +428,7 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
         result = build_result(self.tmpdir)
         self.assertFalse(result["ok"])
         self.assertTrue(
-            any("must use '- [ ] tN: ...' or '- [x] tN: ...'" in error for error in result["errors"]),
+            any("must use '- [ ] TN: ...' or '- [x] TN: ...'" in error for error in result["errors"]),
             result["errors"],
         )
 
@@ -489,7 +489,7 @@ class TestValidateLinksEndToEnd(unittest.TestCase):
         result = build_result(self.tmpdir)
         self.assertFalse(result["ok"])
         self.assertTrue(
-            any("expected t2 but found t1" in error for error in result["errors"]),
+            any("expected T2 but found T1" in error for error in result["errors"]),
             result["errors"],
         )
 
