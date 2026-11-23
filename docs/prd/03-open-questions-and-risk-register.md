@@ -1364,7 +1364,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Logged on 2026-11-23 by the W34 R0 P5 Human Experience Review and its independent review. No code changed. Part A needs an owner decision. Part B can follow the same decision or its own small change. | The owner chooses the Part A rule; a later Wave or quick item builds both parts with tests. Evidence: [W34 R0 P5 Human Experience Review](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#human-experience-review-a21). |
+| Open | Logged on 2026-11-23 by the W34 R0 P5 Human Experience Review and its independent review. Part A: on 2026-11-23 the owner chose to skip only files that hold a real managed block. `holdsManagedBlock` in `packages/cli/src/operations/project/markdown-style.ts` now skips a file only when one of its lines is a begin or end marker on its own, as `make-docs setup` writes it; a file that only names the marker in prose or inline code is checked, with a test. Part B is still open. | Part B: a later Wave or quick item adds the plain note to `check decomposition` output, with a test. Evidence: [W34 R0 P5 Human Experience Review](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#human-experience-review-a21). |
 
 **Issue**: Two outputs of the W34 R0 Skill check commands ([PRD 39](39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK) can mislead a person.
 

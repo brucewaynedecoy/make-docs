@@ -12,6 +12,7 @@
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { isProtectedContentPath } from "../../path-hygiene";
+import { MANAGED_BLOCK_BEGIN, MANAGED_BLOCK_END } from "../../managed-block";
 import { assertManagedPathHasNoSymlinks } from "../../utils";
 import { OperationError } from "../types";
 
@@ -475,7 +476,16 @@ export interface MarkdownStyleRepairResult {
 }
 
 const ROUTER_FILES = new Set(["agents.md", "claude.md"]);
-const MANAGED_BLOCK_MARKER = "<!-- make-docs:begin -->";
+const MANAGED_BLOCK_LINES = new Set([MANAGED_BLOCK_BEGIN, MANAGED_BLOCK_END]);
+
+/**
+ * True when a line of the file is a managed block marker on its own, as
+ * `make-docs setup` writes it. A file that only mentions the marker in a
+ * sentence or in inline code holds no managed block (register D-067).
+ */
+export function holdsManagedBlock(text: string): boolean {
+  return text.split(/\r?\n/).some((line) => MANAGED_BLOCK_LINES.has(line.trim()));
+}
 
 function toPosix(value: string): string {
   return value.split(path.sep).join("/");
@@ -598,7 +608,7 @@ function readScope(input: MarkdownStyleScope): { targetRoot: string; scope: stri
   const texts: Array<[string, string]> = [];
   for (const file of files) {
     const text = readProjectText(targetRoot, file);
-    if (text.includes(MANAGED_BLOCK_MARKER)) skipped.push({ path: file, reason: "managed-block" });
+    if (holdsManagedBlock(text)) skipped.push({ path: file, reason: "managed-block" });
     else texts.push([file, text]);
   }
   skipped.sort((left, right) => comparePathParts(left.path, right.path));

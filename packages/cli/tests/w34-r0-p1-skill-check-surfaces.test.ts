@@ -17,6 +17,7 @@ import {
   type DecompositionValidationResult,
 } from "../src/operations/decomposition/output";
 import {
+  holdsManagedBlock,
   MARKDOWN_STYLE_RULES,
   MARKDOWN_STYLE_RULE_IDS,
   renderMarkdownStyleRepair,
@@ -411,6 +412,17 @@ describe("W34 R0 P1 review fixes", () => {
     expect(plain).toContain("Skipped: node_modules (protected folder, as project paths validate skips it)");
     expect(plain).toContain("Skipped: docs/AGENTS.md (instruction router file)");
     expect(plain).toContain("Skipped: docs/notes/with-block.md (holds a make-docs managed block)");
+  });
+
+  it("D-067: a file that only mentions the managed block marker is checked, not skipped", () => {
+    write(root, "docs/notes/mentions-marker.md", "# Notes\nThe `<!-- make-docs:begin -->` marker opens a block.\nWrapped\ntext.\n");
+    write(root, "docs/notes/real-block.md", "# Notes\n\n  <!-- make-docs:begin -->\nmanaged\n<!-- make-docs:end -->\n");
+    const result = validateMarkdownStyle({ targetRoot: root, paths: ["docs/notes"] });
+    expect(result.skipped).toContainEqual({ path: "docs/notes/real-block.md", reason: "managed-block" });
+    expect(result.skipped.map((skip) => skip.path)).not.toContain("docs/notes/mentions-marker.md");
+    expect(result.findings.some((finding) => finding.path === "docs/notes/mentions-marker.md")).toBe(true);
+    expect(holdsManagedBlock("Use `<!-- make-docs:begin -->` here.")).toBe(false);
+    expect(holdsManagedBlock("text\r\n<!-- make-docs:end -->\r\n")).toBe(true);
   });
 
   it("fix 3: the preview shows each exact change, and the edits give the repaired text", async () => {
