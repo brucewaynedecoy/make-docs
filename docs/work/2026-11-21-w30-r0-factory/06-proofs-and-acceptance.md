@@ -104,7 +104,7 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - [ ] T12: Version drift test: report a new version for a wired tool, and show `drifted` with `tool-version-changed`, the re-proof step, and no new work until the proof runs again (R-FACTORY-10, R-FACTORY-12).
 - [ ] T13: After both proofs, scan the Store factory records, the plan revisions, the status history, and the `.make-docs/factory/` copies for file contents, prompts, briefs, environment values, transcripts, and credentials (R-FACTORY-26).
 - [ ] T14: Update the Check column of the factory contract's Rule Catalog for the checks that W29 R0 P4 and W30 R0 P2 and P3 built. Choose a word for a built check, change the W30 R0 P1 test to accept it, and remove the note that rows marked "Planned in W30 R0 P3" are built (template first, then the dogfood and bundled copies). New on 2026-11-23.
-- [ ] T15: Moved from W30 R0 P3 T34 on 2026-11-23: a reviewed removal of a saved workflow, and of a pruned project's workflow rows. It deletes the workflow's backup records first, then its final assignments, then its grant use rows (`factory_grant_uses`, added on 2026-11-24), then its grants, test task results, plan revisions, and binding. It refuses while an assignment of the workflow is open, and it changes nothing on a refusal (P2 notes 1 and 2). Until it ships, a workflow removed from the config stays `drifted` and takes no new work. New on 2026-11-23.
+- [x] T15: Moved from W30 R0 P3 T34 on 2026-11-23: a reviewed removal of a saved workflow, and of a pruned project's workflow rows. Built on 2026-11-24 as `factory.workflow.clean` (`make-docs factory workflow clean`, MCP `factory_workflow_clean`, R-FACTORY-73) and in the scoped cleanup of a pruned project (PRD 52 R-WORK-STORE-13); see [Stage 5](#stage-5---store-lifecycle-fixes). It deletes the workflow's backup records first, then its final assignments, then its grant use rows (`factory_grant_uses`, added on 2026-11-24), then its grants, test task results, plan revisions, and binding. It refuses while an assignment of the workflow is open, and it changes nothing on a refusal (P2 notes 1 and 2). A workflow removed from the config stays `drifted` and takes no new work until the person removes it with this command. No command reaches the prune path yet: `pruneProjectFromStore` has no caller, so the pruned-project cleanup is proved at the service level only. New on 2026-11-23.
 
 ### Acceptance criteria
 
@@ -139,6 +139,42 @@ New on 2026-11-23. The owner approved three follow-up commands after P3 to P5 we
 ### Dependencies
 
 - P2 to P5.
+
+## Stage 5 - Store Lifecycle Fixes
+
+New on 2026-11-24. The owner audited the factory tables and decided each finding (option A for each). The fixes are here, before W30 R0 acceptance. All of it is new behavior.
+
+### Tasks
+
+- [x] T20: Readiness after a failed test task. The latest test result for a plan decides: `factory proof save` with a failed result for the plan of the `ready` revision ends its `ready` state in the same write. The workflow is `wired` with the readiness code `test-failed`, takes no new work, and returns to `ready` after a pass. `factory status` and `factory workflow show` say why and name the fix (R-FACTORY-12).
+- [x] T21: A backup record goes only together with its file. Cleanup keeps and reports a due record whose file is in another checkout or in a folder that moved or is gone, with the path inside the project only. The scoped cleanup of a pruned project removes no backup record (R-FACTORY-74).
+- [x] T22: Retention. Spent and expired grants stay until the workflow is removed, with indexed and bounded reads. A plan revision that any retained assignment names, open or final, is never removed by the keep rule (R-FACTORY-24, R-FACTORY-57, PRD 38).
+- [x] T23: Tool fact freshness. `factory status` shows each bound tool with the age of each proof, and calls a proof older than 30 days old. The run Skill checks its bound tools again before it takes new work and saves any change with `factory tools save` (R-FACTORY-75).
+- [x] T25: Fix the three defects and the four smaller points of the independent review of 2026-11-24. No delete goes through a symbolic link, in the removal and in cleanup. The removal checks every backup file before its first delete, and a delete that still fails gives the typed `stopped` result with a Store that matches the disk. The review digest binds record identities and versions. The prune result holds `factoryRemoved` and `factoryKept`. `factory workflow show --uses-before <use-id>` pages the use rows. The `not-ready` refusal of `factory assignment start` names `test-failed`. The removal result names `factory restore` for other checkouts, and `setup store check` shows a backup record whose folder is missing (R-FACTORY-12, R-FACTORY-24, R-FACTORY-73, R-FACTORY-74, PRD 38 R-MAINT-4).
+- [x] T26: Build the owner's decisions of 2026-11-24 on register D-078 (option B) and D-079 (option A), and fix the five findings of the re-check. The reviewed removal drops a backup record whose files are not found on this computer now, and the review lists each one as "record dropped, files not reachable". The review names each checkout that holds a backup file. The review digest binds the bytes of each backup file. A refusal's text matches its code. A delete that fails after the checks uses general words. `STORE-DECISION-005` splits a path at the last backup folder marker. The not-ready refusal says once that the test task failed (R-FACTORY-12, R-FACTORY-73, R-FACTORY-74).
+- [x] T27: Fix the five points of the round 4 check. The words no longer say "gone for good": the files are not found on this computer now (removed, renamed, or on a drive that is not connected), a file that still exists stays, and no later cleanup finds it. After a folder move, each matching copy goes and is listed, counted, and bound in the digest. A moved file with other bytes stops the removal with `backup-file-changed`. Two dropped records with one name both go. One shared function splits a backup path at the last marker that the assignment ID follows (R-FACTORY-73, R-FACTORY-74).
+- [x] T28: Fix the points of the round 5 check. In cleanup and in the removal, a file that is the recorded backup of another record is that record's own file, so the moved-folder rule never takes it. The path split uses the record's original path. A fixed rule may have no derive step. The contract and PRD 53 R-FACTORY-74 wording is corrected (R-FACTORY-73, R-FACTORY-74).
+- [x] T24: Correct the Store README for every factory table and command, including `factory_grant_uses`, and add the test assertion for the use row on the `--reset-rounds` path of `factory assignment start`.
+
+### Acceptance criteria
+
+- A89: `factory workflow clean` without a review digest changes nothing and gives the digest. With the digest it removes the workflow's backups with their files, final assignments, grant uses, grants, test task results, plan revisions, and binding, and the result names the project and each count. It refuses with no project, with an open assignment, with a digest that no longer matches, and with a backup file that it cannot reach.
+- A90: The scoped cleanup removes a pruned project's factory rows in the same order, keeps a workflow whole while a backup record of it stays, and the prune result reports both. No command reaches the prune path yet, so this is a service-level proof only.
+- A95: A symbolic link in a backup path (a linked assignment folder, a linked file, or a link into another checkout) makes the removal refuse with `backup-path-unsafe` and delete nothing, and cleanup keeps the record. A locked folder gives `backup-file-locked` before any delete. A delete that fails after the checks gives `stopped`, with one record removed for each removed file. A grant swapped for another after the review gives `review-mismatch`. No result holds a raw system error or an absolute backup path.
+- A97: With a review digest, `factory workflow clean` drops a backup record whose files are not found on this computer now, and the review listed it by name. Cleanup during a normal command keeps the same record. A record whose file is still on the computer in a folder that is not a bound checkout stops the removal. The review names each checkout that holds a backup file.
+- A98: A backup file whose bytes change after the review gives `review-mismatch`, and the changed file stays.
+- A99: After a folder move, the removal deletes the record's file in a reachable checkout, and each copy when two checkouts hold one. A moved file with other bytes gives `backup-file-changed` and keeps the record. Two dropped records with one name both go. A backed-up file whose own path holds the backup folder marker gets the right path in cleanup, in the review, and in `setup store check`.
+- A100: Cleanup and the removal work through a checkout folder that is a symbolic link, and a link below the checkout folder is still refused.
+- A101: With an old record of a folder that is not found and a young record of the same assignment, path, and hash, cleanup keeps the young record's file, and the removal counts one file and drops the old record. A backed-up file whose own path holds the marker and the same assignment ID gets the right path.
+- A96: `factory workflow show --uses-before` reads every use row in pages of 50. After a failed test task, the `factory assignment start` refusal names `test-failed` and the next step.
+- A91: Cleanup removes a backup file and its record together in the same checkout, keeps and reports the record for another checkout and for a missing checkout, and no report holds an absolute path.
+- A92: A `ready` workflow whose plan fails a new test is `wired` with `test-failed` and starts no assignment. A pass returns it to `ready`. A failed test of another plan leaves the `ready` revision.
+- A93: The plan revision of a final assignment stays after more than 10 newer revisions. A spent grant and an expired grant stay, and `factory workflow show` returns at most 50 use rows with the total.
+- A94: `factory status` shows the proof ages and marks a proof older than 30 days. The run Skill, its installed copy, and the contract say that the foreman checks its bound tools before new work.
+
+### Dependencies
+
+- P2 to P5, and Stage 4.
 
 ### Closeout Notes
 
@@ -184,6 +220,61 @@ New on 2026-11-23. The owner approved three follow-up commands after P3 to P5 we
 - PRD decision: `update-existing` — PRD 53 (Operations table, R-FACTORY-24, R-FACTORY-44, R-FACTORY-50, R-FACTORY-63, project scope table, and the new R-FACTORY-69 to R-FACTORY-71), PRD 39 R-RUN-1, PRD 25 R-MCP-PROFILE-2, and PRD 38 (the factory grants and backup records R-MIN rows).
 - Owner approval: the owner's decisions on 2026-11-23.
 - Source: [W30 R0 evidence](evidence.md#follow-up-commands)
+
+### 2026-11-24 — W30 R0 Store Lifecycle Round 5
+
+- Kind: `edit`
+- Affected scope: new T28 and A101.
+- Previous scope: no task covered an old record and a young record with one path, or a file path that holds the marker and the same assignment ID.
+- Replacement scope: T28 holds the round 5 fixes, and they are built. Existing task and acceptance IDs do not change.
+- Rationale: the round 5 check of 2026-11-24.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-74.
+- Owner approval: none needed for defect fixes inside the owner's decisions.
+- Source: [W30 R0 evidence](evidence.md#round-5)
+
+### 2026-11-24 — W30 R0 Store Lifecycle Round 4
+
+- Kind: `edit`
+- Affected scope: new T27 and A99, and the words of T26 and A97.
+- Previous scope: T26 and A97 said "gone for good". No task covered a second copy after a folder move, a moved file with other bytes, two dropped records with one name, or a file path that holds the backup folder marker.
+- Replacement scope: T27 holds the round 4 fixes, and they are built. T26 and A97 say "not found on this computer now". Existing task and acceptance IDs do not change.
+- Rationale: the round 4 check of 2026-11-24.
+- PRD decision: `update-existing` — PRD 53 (R-FACTORY-73 and R-FACTORY-74).
+- Owner approval: none needed for a wording correction and defect fixes inside the owner's decision on D-078. The owner answered both open points on 2026-11-24. No new refusal rule is added for a file that still exists, and the truthful words are the whole fix. A checkout folder can be a symbolic link (register D-080, option A); the build already worked this way.
+- Source: [W30 R0 evidence](evidence.md#round-4-wording-and-moved-folder-fixes)
+
+### 2026-11-24 — W30 R0 Store Lifecycle Owner Decisions and Re-Check Fixes
+
+- Kind: `edit`
+- Affected scope: new T26, and new A97 and A98.
+- Previous scope: a backup record whose checkout folder was gone stopped the workflow removal, and register D-078 and D-079 were open. The review digest did not bind the bytes of a backup file.
+- Replacement scope: T26 holds the two owner decisions and the five re-check fixes, and they are built. Existing task and acceptance IDs do not change. The dropped record is new behavior.
+- Rationale: the owner decided D-078 (option B) and D-079 (option A) on 2026-11-24, and a re-check found one medium and four small defects.
+- PRD decision: `update-existing` — PRD 53 (R-FACTORY-12, R-FACTORY-73, and R-FACTORY-74).
+- Owner approval: the owner's decisions on 2026-11-24.
+- Source: [W30 R0 evidence](evidence.md#round-3-owner-decisions-and-re-check-fixes)
+
+### 2026-11-24 — W30 R0 Store Lifecycle Review Fixes
+
+- Kind: `edit`
+- Affected scope: new T25, new A95 and A96, and the text of T15 and A90.
+- Previous scope: T15 said "Until it ships" after it shipped. A90 did not say that no command reaches the prune path. No task covered a symbolic link in a backup path, a file error mid-removal, a digest that binds only counts, or use rows older than the newest 50.
+- Replacement scope: T25 holds the review fixes, and they are built. T15 and A90 say that the pruned-project cleanup is proved at the service level only. Existing task and acceptance IDs do not change. This is new behavior.
+- Rationale: an independent review of the Store lifecycle fixes on 2026-11-24 found three defects and four smaller points.
+- PRD decision: `update-existing` — PRD 53 (R-FACTORY-12, R-FACTORY-24, R-FACTORY-73, and R-FACTORY-74), PRD 38 R-MAINT-4, and PRD 52 R-WORK-STORE-13.
+- Owner approval: none needed for defect fixes inside the owner's decisions of 2026-11-24. Register D-078 and D-079 stay open, and no behavior that they cover changed.
+- Source: [W30 R0 evidence](evidence.md#review-fixes-2026-11-24)
+
+### 2026-11-24 — W30 R0 Store Lifecycle Fixes
+
+- Kind: `edit`
+- Affected scope: T15 (now done), new Stage 5, tasks T20 to T24, and acceptance A89 to A94.
+- Previous scope: T15 was an unscheduled follow-up. No task covered readiness after a failed test task, backup records without their files, the retention of grants and of a final assignment's plan revision, the age of tool facts, or the stale Store README.
+- Replacement scope: T15 is built as `factory workflow clean` and in the scoped cleanup of a pruned project. Stage 5 holds T20 to T24, and they are built. Existing task and acceptance IDs do not change. This is new behavior.
+- Rationale: the owner's audit of the factory tables found these gaps, and the owner required the fixes before W30 R0 acceptance.
+- PRD decision: `update-existing` — PRD 53 (Operations table, project scope table, R-FACTORY-12, R-FACTORY-24, R-FACTORY-45, R-FACTORY-57, and the new R-FACTORY-73 to R-FACTORY-75), PRD 38 (six factory R-MIN rows), PRD 52 R-WORK-STORE-13, PRD 39 R-RUN-1, and PRD 25 R-MCP-PROFILE-2.
+- Owner approval: the owner's decisions on 2026-11-24 (option A for each finding).
+- Source: [W30 R0 evidence](evidence.md#store-lifecycle-fixes)
 
 ### 2026-11-24 — W30 R0 Grant-Use History
 

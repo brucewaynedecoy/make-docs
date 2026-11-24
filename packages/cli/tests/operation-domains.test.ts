@@ -129,6 +129,7 @@ describe("operation domain modules", () => {
       "factory.tools.list",
       "factory.file-backup.save",
       "factory.grant-use.record",
+      "factory.workflow.clean",
     ]);
     expect(new Set(identifiers).size).toBe(identifiers.length);
 
@@ -187,6 +188,7 @@ describe("operation domain modules", () => {
       "factory.restore",
       "factory.file-backup.save",
       "factory.grant-use.record",
+      "factory.workflow.clean",
     ]);
 
     const prunedNames = [

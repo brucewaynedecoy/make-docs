@@ -226,6 +226,18 @@ export const FACTORY_REFUSAL_CODES = [
 ] as const;
 export type FactoryRefusalCode = (typeof FACTORY_REFUSAL_CODES)[number];
 
+/**
+ * Readiness codes (owner decision 2026-11-24): why a saved workflow whose
+ * plan has not changed is not `ready`. `test-failed`: the latest test task
+ * under the current plan failed, so the workflow is `wired` until a test task
+ * passes again.
+ */
+export const FACTORY_READINESS_CODES = ["test-failed"] as const;
+export type FactoryReadinessCode = (typeof FACTORY_READINESS_CODES)[number];
+
+/** A capability proof older than this many days is shown as old in `factory status` (new on 2026-11-24). It changes no readiness. */
+export const FACTORY_PROOF_OLD_AFTER_DAYS = 30;
+
 export const FACTORY_STATUS_HISTORY_CODES = [
   "assigned",
   "tool-started",

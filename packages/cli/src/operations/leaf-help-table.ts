@@ -626,9 +626,15 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
   },
   "factory.workflow.show": {
     summary: "Show one workflow's latest or named plan revision, its live readiness and drift reasons, and its grants beside the plan. Changes nothing.",
-    usage: "<workflow> [--revision <n>] [--target-root <path>] [--project <name>] [--json]",
+    usage: "<workflow> [--revision <n>] [--uses-before <use-id>] [--target-root <path>] [--project <name>] [--json]",
     arguments: [{ name: "<workflow>", text: "The workflow name." }],
-    options: [{ name: "--revision <n>", text: "A kept plan revision. The default is the latest." }, FACTORY_READ_TARGET, FACTORY_READ_PROJECT, JSON_OPTION],
+    options: [
+      { name: "--revision <n>", text: "A kept plan revision. The default is the latest." },
+      { name: "--uses-before <use-id>", text: "Show the page of at most 50 grant uses that are just older than this use. The default is the newest page." },
+      FACTORY_READ_TARGET,
+      FACTORY_READ_PROJECT,
+      JSON_OPTION,
+    ],
     notes: [FACTORY_READ_NOTE],
   },
   "factory.workflow.list": {
@@ -743,6 +749,23 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
       FACTORY_WRITE_NOTE,
       FACTORY_CLAIM_NOTE,
       "A unit with an open assignment records its grant use with factory assignment save --grant-use instead. Make Docs records the use and never does the action.",
+    ],
+  },
+  // W30 R0 Store lifecycle fixes (owner decision 2026-11-24, PRD 53 R-FACTORY-73).
+  "factory.workflow.clean": {
+    summary: "Review, then remove, one saved workflow's Store records: its backups with their files, final assignments, grant uses, grants, test task results, plan revisions, and binding. Without a review digest it only reviews. It is refused while an assignment of the workflow is open.",
+    usage: "<workflow> [--review <digest>] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<workflow>", text: "The saved workflow to remove." }],
+    options: [
+      { name: "--review <digest>", text: "The review digest from the review you approved. Without it, the command only reviews." },
+      FACTORY_WRITE_TARGET,
+      FACTORY_WRITE_PROJECT,
+      JSON_OPTION,
+    ],
+    notes: [
+      FACTORY_WRITE_NOTE,
+      "Run it without --review first. The review lists what the removal deletes and gives the digest. A removal cannot be undone.",
+      "It never edits .make-docs/config.yaml, and it keeps the machine's tool list, the project's other workflows, and its work.",
     ],
   },
 };

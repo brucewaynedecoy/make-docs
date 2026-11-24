@@ -159,6 +159,7 @@ What moves a workflow:
 - `draft` to `wired`: setup binds the last needed role, proves its capabilities, and saves the workflow.
 - `wired` to `ready`: a test task passes under the current plan, and setup saves the proof. Only a passed test task makes a plan revision the `ready` revision.
 - `ready` to `wired`: setup changes and saves a role, a binding, a limit, or a step. The new plan needs its own passed test task.
+- `ready` to `wired` after a failed test task: the latest test result for a plan decides. When a test task fails under the plan of the `ready` revision, that revision is no longer the `ready` revision. The workflow is `wired` with the readiness code `test-failed`, and it takes no new work until a test task passes again under that plan. A failed test task under another plan changes no `ready` revision. New on 2026-11-24.
 - `ready` or `wired` to `drifted`: a check finds that a wired tool is gone or blocked, a tool has a new version, a proof was contradicted, the config was edited by hand, or the type file changed. A lost tool always moves the workflow to `drifted`, even when it was a role's only tool. The workflow then escalates.
 - `drifted` to `ready`: a fix restores the exact plan of the `ready` revision, for example the old tool version comes back or a hand edit is undone. No new test task is needed, because the passed proof belongs to that exact digest.
 - `drifted` to `wired`: a fix gives a new plan. Setup proves each changed capability again and saves the workflow. The new plan needs a passed test task to reach `ready`.
@@ -177,12 +178,20 @@ The machine tool rows give each bound tool's state (`available`, `missing`, or `
 The CLI then compares the current plan's digest with the saved revisions:
 
 - It matches the `ready` revision: the workflow is `ready`.
-- It matches another saved revision: the workflow is `wired` when each needed role is bound and proved, and `draft` when one is not.
+- It matches another saved revision: the workflow is `wired` when each needed role is bound and proved, and `draft` when one is not. When the latest test task under this plan failed, the result gives the readiness code `test-failed` and names the fix. The `not-ready` refusal of `make-docs factory assignment start` gives the same code and the same fix.
 - It matches no saved revision: the workflow is `drifted`. The result lists each drift reason code from [Reason Codes](#reason-codes).
 
 The CLI never contacts a tool. An agent reports tool facts through `make-docs factory tools save`, and reads the saved tools with `make-docs factory tools list`. It records a gone tool as `missing`. It records a tool that lost a permission it needs, such as an app permission or a sign-in, as `blocked`. Both change the current plan, so they give the drift codes `tool-missing` and `permission-lost`. A grant is not this kind of permission. An expired or spent grant never changes readiness. It only makes the foreman ask the person again.
 
 Only a `ready` workflow takes new work. A `drifted` workflow escalates before it takes new work. Its message names the broken part and the smallest step that fixes it.
+
+### Tool Facts Stay Fresh
+
+New on 2026-11-24. A tool can change after setup proved it. So:
+
+- `make-docs factory status` shows each tool that a workflow of the project binds: its state, its reported version, how long ago an agent last reported it, and the age of each capability proof. It calls a proof older than 30 days old, and names `make-docs factory tools save` as the fix. An old proof changes no readiness state.
+- Before the foreman takes new work, it checks each bound tool again: its version and its state. It saves any change with `make-docs factory tools save`. A changed tool then gives drift, as [How the CLI Finds the State](#how-the-cli-finds-the-state) says.
+- The CLI never does this check. Only an agent can look at a tool.
 
 ## Saved Records
 
@@ -225,7 +234,7 @@ Before an action outside the default authority, the foreman records the use of a
 
 The CLI refuses the use when no grant names the action, when the planned use is outside the grant's scope, when a `once` grant is spent, or after the expiry time. After a refusal, the foreman asks the person again through the human channel. That request is floor event 1.
 
-Each recorded use adds one use row to the Store, in the same write as the grant check. A use row holds the grant ID, the action, the scope, the work unit, the lifecycle run, and the time. It holds no content and no claim ID. A refused use adds no row. A use changes the grant itself only when it spends a `once` grant. Use rows stay until the workflow is removed. A revoke removes the grant and keeps its use rows. `make-docs factory workflow show` lists the use rows beside the grants. No local copy and no factory URI read shows a use row. Make Docs records the use and never does the action. New on 2026-11-24.
+Each recorded use adds one use row to the Store, in the same write as the grant check. A use row holds the grant ID, the action, the scope, the work unit, the lifecycle run, and the time. It holds no content and no claim ID. A refused use adds no row. A use changes the grant itself only when it spends a `once` grant. Use rows stay until the workflow is removed. A spent `once` grant, an ended `run` grant, and an expired grant stay until then too, unless the person revokes them. A revoke removes the grant and keeps its use rows. `make-docs factory workflow show` lists the use rows beside the grants. It shows every usable grant, the 50 newest other grants, and one page of at most 50 use rows, and it gives the totals. `--uses-before <use-id>` (MCP input `usesBefore`) shows the page of the use rows just older than that use, so every use row can be read. No local copy and no factory URI read shows a use row. Make Docs records the use and never does the action. New on 2026-11-24.
 
 `make-docs factory workflow save` writes each grant, at setup and during a run. During a run, after the person answers an escalation, the foreman records the person's answer with a grant-only save. A `run` grant names its lifecycle run. A grant-only save writes or revokes only the grant. It does not resolve the plan, save a revision, or change readiness.
 
@@ -285,11 +294,38 @@ The Store saves each plan as a revision. A revision holds the workflow name, its
 | Command | What it does with revisions |
 | --- | --- |
 | `make-docs factory workflow save` | Resolves the current plan. Saves a new revision only when no kept revision has its digest. Never makes a revision the `ready` revision. A grant-only save resolves nothing. |
-| `make-docs factory proof save` | Records a test task result for the plan digest that the test ran under. Refuses a digest that is not the current plan's digest, or that has no saved revision. On a pass, makes that revision the `ready` revision. |
+| `make-docs factory proof save` | Records a test task result for the plan digest that the test ran under. Refuses a digest that is not the current plan's digest, or that has no saved revision. On a pass, makes that revision the `ready` revision. On a failure under the plan of the `ready` revision, ends its `ready` state. |
 | `make-docs factory workflow show` | Reads the latest revision, or one named revision, with the current plan digest, the `ready` revision, and each drift reason code. Lists the grants beside the plan. Writes nothing. |
 | `make-docs factory restore` | Prints the latest revision to `.make-docs/factory/`, with no grant. |
+| `make-docs factory workflow clean` | With a review digest, removes every revision of the workflow, with its other records. See [Removing a Workflow](#removing-a-workflow). |
 
-For each workflow, the Store keeps the `ready` revision, each revision that an open assignment names, and the 10 newest other revisions. Each save removes the older revisions in the same write.
+For each workflow, the Store keeps the `ready` revision, each revision that a retained assignment names, open or final, and the 10 newest other revisions. So a final assignment always shows the plan that it ran under. Each save removes the older revisions in the same write.
+
+### Removing a Workflow
+
+New on 2026-11-24. `make-docs factory workflow clean <workflow>` (MCP `factory_workflow_clean`) removes one saved workflow's Store records. It is a project write, so it names its project.
+
+1. Run it without `--review`. This is the review. It changes nothing. It lists how many records of each kind the removal deletes, names anything that stops the removal, and gives a review digest.
+2. Show the review to the person. A removal cannot be undone.
+3. Run it again with `--review <digest>` (MCP input `review`). It removes only when the digest still matches. When the workflow changed since the review, it refuses with `review-mismatch`.
+
+The digest names the exact records that the person reviewed, not only how many there are. It binds the identity and the version of each record, each plan digest, and each backup record with its file's recorded hash. It also binds the bytes of each backup file on the disk at the review, and each backup record that goes with no file. A record that was added, removed, replaced, or changed after the review gives `review-mismatch`, also when every count is the same. So does a backup file whose bytes changed after the review.
+
+The removal reaches the workflow's backup files in every bound checkout of the project whose folder is on this machine, not only in the checkout that the call names. The review names each such checkout and the count of backup files there.
+
+The files of a backup record can be not found on this computer now (removed, renamed, or on a drive that is not connected): no reachable checkout of the project holds the path, and nothing is at the path. The reviewed removal drops such a record with no file. The review lists each one by name, marked "record dropped, files not reachable". Make Docs cannot know that the files are gone. If a file still exists, it stays where it is, and no later Make Docs cleanup finds it. New on 2026-11-24, by owner decision. Only the reviewed removal does this. Cleanup during normal factory commands keeps such a record and reports it.
+
+A checkout folder that moved is different. When a reachable checkout of the project holds a file at the same path inside the project, with the recorded hash, that file is the record's file, and the removal deletes it with the record. When more than one checkout holds such a file, each one goes, and the review lists and counts each one. When the file at that place has other bytes, or cannot be read safely, the removal stops with `backup-file-changed`: it deletes nothing and keeps the record. Look at the file, put the recorded backup back or move the file away, and review again.
+
+The removal refuses while an assignment of the workflow is open (`assignment-open`). It refuses while a backup record of the workflow names a file that is still on the computer, in a folder that is not a bound checkout of the project (`backup-file-out-of-reach`). Bind that folder with `make-docs setup`, or remove it, and review again. Before its first delete it checks every backup file. It refuses when a part of a backup path is a symbolic link (`backup-path-unsafe`) and when this account cannot delete a file (`backup-file-locked`). Each refusal changes nothing. See [Backups Outside Git](#backups-outside-git).
+
+When a delete still fails after that check, the cause is not known. The result says that the delete did not work, and that the file or its folder can be locked or protected. The result is `stopped`, and the CLI exits 1. The records of the files that went are deleted with them. Every other record stays, so the Store matches the disk. The result names what went and what stayed, by paths inside the project, and says how to run again: fix the folder, review again, and use the new digest.
+
+It deletes in this order: the backup files and their records, the final assignments with their status history, the grant uses, the grants, the test task results, the plan revisions, and the saved binding. Then it writes the `.make-docs/factory/` copies of the named checkout again. When the project has other bound checkouts, the result says so; run `make-docs factory restore` in each of them. The result names the project and the count of each removed record.
+
+It never edits the config file. While the config still names the workflow, the workflow shows as `draft`. It keeps the machine's tool list, the project's other workflows, and its work.
+
+A pruned project is no longer in the Store's project register, so no factory command can name it. The scoped cleanup of a pruned project in the work store removes its factory records (PRD 52). That cleanup removes no file, so it keeps each workflow that still has a backup record, and its result reports each one. No command reaches that cleanup yet.
 
 Each assignment records the revision number and the digest of the plan that it runs under. `make-docs factory assignment start` uses the `ready` revision, and it refuses when the workflow is not `ready`. A takeover loads the exact revision that each open assignment names. A new revision never changes an assignment that has already started.
 
@@ -478,6 +514,10 @@ The foreman saves each backup with `make-docs factory file-backup save` (MCP `fa
 
 Make Docs deletes the backups of an assignment when its work is accepted or closed. It deletes any backup older than 30 days. Cleanup runs during normal factory commands. Cleanup never touches installation recovery backups.
 
+A backup record and its file stay together. New on 2026-11-24. Make Docs removes a record only together with its file. Cleanup reaches only the checkout that the command acts on. A record whose file is in another checkout, or in a checkout folder that moved or is gone, stays. The result says so in plain words, and it names the file by its path inside the project. Run `make-docs factory restore` in the other checkout to clean up there. No record is dropped silently. Make Docs leaves no file without its record in a checkout that it can reach. One case is different, and the review says so: when the reviewed removal drops a record whose files are not found on this computer now, a file that still exists somewhere stays without a record. [Removing a workflow](#removing-a-workflow) reaches every bound checkout of the project whose folder is on this machine. Only that reviewed removal drops a record whose files are not found on this computer now (removed, renamed, or on a drive that is not connected), after the review listed it by name. Cleanup never drops one.
+
+Make Docs deletes nothing through a symbolic link below the checkout folder. Before each delete it reads each part of the path below the checkout folder without following a link. A checkout folder can itself be a symbolic link. The person registered that folder as a checkout, so Make Docs follows that one link to the real folder. By owner decision of 2026-11-24. A record whose path goes through a link, or whose file this account cannot delete, stays with its file, and the result says why. A checkout folder that moved keeps its backup files. Cleanup in the new folder finds each file by its path inside the project and its recorded hash, and removes it together with its record when the record is due. `make-docs setup store check` shows each backup record whose checkout folder is missing as a decision item.
+
 A `README.md` in `.make-docs/backup/factory/` tells people and agents the cleanup rule and how to get a file back. A `.gitignore` file inside the folder holds one line, `*`, and keeps the folder out of git. Make Docs never edits the project root `.gitignore`.
 
 ## Never-Log List
@@ -501,6 +541,10 @@ Drift results, refusals, and status history entries use reason codes. A reason c
 Drift codes: `config-changed`, `binding-changed`, `type-changed`, `type-name-clash`, `tool-missing`, `tool-version-changed`, `proof-contradicted`, and `permission-lost`.
 
 Refusal codes: `not-ready`, `claim-not-held`, `illegal-move`, `final-status`, `round-limit-reached`, `assignment-open`, `plan-digest-mismatch`, `proof-missing`, `unknown-capability`, `type-version-mismatch`, `grant-missing`, `grant-out-of-scope`, `grant-spent`, `grant-expired`, `never-log-field`, `project-missing`, `project-not-found`, `project-mismatch`, and `project-checkout-unclear`.
+
+A Store refusal can also give a service code that is not in these lists, such as `version-conflict`, `record-not-found`, `invalid-record`, `review-mismatch`, `backup-file-out-of-reach`, `backup-path-unsafe`, `backup-file-locked`, or `backup-file-changed`.
+
+Readiness codes: `test-failed`. New on 2026-11-24.
 
 Status history codes: `assigned`, `tool-started`, `result-returned`, `sent-to-review`, `review-passed`, `defects-found`, `correction-sent`, `handle-not-found`, `handle-checked`, `taken-over`, `stopped-by-person`, `stopped-by-foreman`, `tool-failed`, `round-limit-reached`, and `scope-changed`.
 
@@ -565,12 +609,13 @@ Each command is also an MCP tool in the `factory` MCP profile. The MCP name is t
 | `make-docs factory tools list` | `factory_tools_list` | Reads the machine's saved tools, each with its state, its capability proofs, and its record version. |
 | `make-docs factory file-backup save` | `factory_file_backup_save` | Outside git, copies files to `.make-docs/backup/factory/` before a worker changes them, and records each backup. |
 | `make-docs factory grant-use record` | `factory_grant_use_record` | Records the use of a grant on the live claim of a unit whose assignments are all final. |
+| `make-docs factory workflow clean` | `factory_workflow_clean` | Reviews, then removes, one saved workflow's Store records. Without a review digest it only reviews. |
 
-The last three commands are new on 2026-11-23.
+`tools list`, `file-backup save`, and `grant-use record` are new on 2026-11-23. `workflow clean` is new on 2026-11-24.
 
 Writes use the existing write permission, `expectedVersion`, and Store-unavailable rules.
 
-`make-docs factory status` shows one project, and names it. It shows one group for each running factory: grouped by checkout, then by lifecycle run. Several factories can run in one project at once, each in its own worktree. Each checkout group shows its own readiness, from that checkout's config file and type file. A checkout that has an open assignment gets a group, and so does the checkout that the call named or ran in. A checkout that cannot be read shows its readiness as unknown and says why. Each run group shows each claimed unit, the tool working on it, its state, and the last check time, in human words first. `--run <run-id>` shows one lifecycle run.
+`make-docs factory status` shows one project, and names it. It shows one group for each running factory: grouped by checkout, then by lifecycle run. Several factories can run in one project at once, each in its own worktree. Each checkout group shows its own readiness, from that checkout's config file and type file. A checkout that has an open assignment gets a group, and so does the checkout that the call named or ran in. A checkout that cannot be read shows its readiness as unknown and says why. Each run group shows each claimed unit, the tool working on it, its state, and the last check time, in human words first. `--run <run-id>` shows one lifecycle run. Without `--run`, the output also lists the bound tools with the age of each proof. See [Tool Facts Stay Fresh](#tool-facts-stay-fresh).
 
 When a workflow is `ready`, the backlog review "Work on this wave" action sends the wave to the foreman through the front desk. Without a `ready` workflow, that action works as it does today.
 
@@ -589,6 +634,7 @@ New on 2026-11-23. One Store serves every project on a machine. So each factory 
 | `make-docs factory restore` | Project | Write | Named project only. |
 | `make-docs factory file-backup save` | Project | Write | Named project only. |
 | `make-docs factory grant-use record` | Project | Write | Named project only. |
+| `make-docs factory workflow clean` | Project | Write | Named project only, also for the review. |
 | `make-docs factory workflow show` | Project | Read | The named project, or the project of the current folder. |
 | `make-docs factory workflow list` | Project | Read | The named project, or the project of the current folder. |
 | `make-docs factory assignment list` | Project | Read | The named project, or the project of the current folder. |
@@ -601,7 +647,7 @@ The machine records are the tool list, the tool states, and the capability proof
 - Name the project in every project write. Use `--target-root <path>` or `--project <name>`. In MCP, use the `targetRoot` or `project` input. A name resolves only through the Store's project register.
 - Never rely on the current folder for a write. A write never falls back to it, even when the folder is a project.
 - A write with no project is refused with `project-missing` and changes nothing. A name that the Store does not know is refused with `project-not-found`. A path and a name that give two different projects are refused with `project-mismatch`.
-- `workflow save`, `proof save`, and `assignment start` read the project's config file and type file. `restore` writes the copies into one checkout, and `file-backup save` writes the backups into one checkout. When a name gives no bound checkout or more than one, these writes are refused with `project-checkout-unclear`. Then name the checkout with `--target-root`.
+- `workflow save`, `proof save`, and `assignment start` read the project's config file and type file. `restore` and `workflow clean` write the copies into one checkout, and `file-backup save` writes the backups into one checkout. When a name gives no bound checkout or more than one, these writes are refused with `project-checkout-unclear`. Then name the checkout with `--target-root`.
 - Every refusal changes nothing.
 
 ### Results Name the Project
@@ -667,7 +713,7 @@ Every row marked "Planned in W30 R0 P3" is built as of W30 R0 P3. W30 R0 P6 upda
 | `plan-generated` | The CLI generates the resolved plan from the config entry, the machine binding, and the type. Nobody writes it by hand. | [Resolved Plan](#resolved-plan) | Planned in W30 R0 P3 T18: `factory.workflow.save` resolves the plan and saves a revision when its digest changed. |
 | `type-version` | Each workflow type states its version, and the config names it. | [Portable Definition](#portable-definition) | Planned in W30 R0 P3 T18: `factory.workflow.save` refuses a type version that does not match the type file. |
 | `role-context` | A role sees only the context kinds that its plan lists. | [Portable Definition](#portable-definition) | Planned in W30 R0 P2 T20: config validation accepts only the fixed context kinds. The run Skill hands each role only its list (W30 R0 P5 T19). |
-| `plan-revision-kept` | A saved plan revision never changes. The Store keeps the `ready` revision, each revision that an open assignment names, and the 10 newest others. | [Plan Record](#plan-record) | Planned in W30 R0 P2 T16: the Store refuses a change to a saved revision and removes older revisions on save. |
+| `plan-revision-kept` | A saved plan revision never changes. The Store keeps the `ready` revision, each revision that a retained assignment names, open or final, and the 10 newest others. | [Plan Record](#plan-record) | Planned in W30 R0 P2 T16: the Store refuses a change to a saved revision and removes older revisions on save. |
 | `drift-by-digest` | The CLI computes the current plan from the config file, the type file, and the machine tool rows. It is `ready` when its digest matches the `ready` revision, `wired` or `draft` when it matches another saved revision, and `drifted` when it matches none. | [Readiness](#readiness), [How the CLI Finds the State](#how-the-cli-finds-the-state) | Planned in W30 R0 P3 T21: `factory.status` and `factory.workflow.show` compute the current plan, compare its digest with the saved revisions, and list the drift codes. |
 | `assignment-plan-revision` | Each assignment records its plan revision and digest. A takeover loads that exact revision. | [Plan Record](#plan-record) | Planned in W30 R0 P3 T21: `factory.assignment.start` records the `ready` revision and refuses a workflow that is not `ready`. |
 | `plan-is-data` | The resolved plan has no steps, conditions, joins, or code. The CLI never reads it to decide what to do next. | [Data, Not a Program](#data-not-a-program) | Contract-only. It is a design rule. The plan schema in W30 R0 P3 T18 has no step fields to check. |
@@ -721,3 +767,8 @@ Every row marked "Planned in W30 R0 P3" is built as of W30 R0 P3. W30 R0 P6 upda
 | `printouts-out-of-git` | A `.gitignore` with one line, `*`, inside each factory folder keeps it out of git. Make Docs never edits the project root `.gitignore`. | [Saved Records](#saved-records), [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P2 T11: Make Docs writes the folder `.gitignore` files and leaves the root `.gitignore` unchanged. |
 | `unknown-correction-counts` | A move from `unknown` to `needs-correction` adds one correction round, unless the status before `unknown` was already `needs-correction`. | [Correction Rounds](#correction-rounds) | Planned in W30 R0 P3 T13: `factory.assignment.save` counts that move from the status history. |
 | `status-per-factory` | `factory status` groups one project by checkout and then by lifecycle run, with each checkout's own readiness. `--run` shows one run. | [Commands](#commands) | Planned in W30 R0 P3 T8, T29, and T33: status groups by checkout and run (P3 A23), and `factory.assignment.start` records the checkout ID of the checkout that it named (P3 A83). |
+| `latest-test-decides` | The latest test result for a plan decides. A failed test task under the `ready` plan makes the workflow `wired` with the code `test-failed` until a test task passes again. | [Readiness](#readiness) | Planned in W30 R0 P6 T20: `factory.proof.save` ends the `ready` state on that failure, and `factory.status` and `factory.workflow.show` give the code and the fix. The run Skill takes no new work then. |
+| `tools-rechecked` | Before the foreman takes new work, it checks each bound tool's version and state again and saves any change. `factory status` shows the age of each proof and calls a proof older than 30 days old. | [Tool Facts Stay Fresh](#tool-facts-stay-fresh) | Planned in W30 R0 P6 T23: `factory.status` shows the ages. The check of a tool is contract-only: only an agent can look at a tool, and the run Skill applies it. |
+| `workflow-removal-reviewed` | A saved workflow goes only through the reviewed removal, which names its project, refuses an open assignment, and deletes in a fixed order. | [Removing a Workflow](#removing-a-workflow) | Planned in W30 R0 P6 T15: `factory.workflow.clean` changes nothing without the review digest, and refuses with `review-mismatch`, `assignment-open`, `backup-file-out-of-reach`, `backup-path-unsafe`, or `backup-file-locked`. The digest binds record identities and versions and the bytes of each backup file. A record whose files are not found on this computer now is dropped only here, after the review listed it. |
+| `backup-record-with-file` | A backup record goes only together with its file. A record whose file is out of reach stays and is reported. | [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P6 T21: cleanup, the workflow removal, and the scoped cleanup of a pruned project never delete a record without its file, except a record that the reviewed removal drops because its files are not found on this computer now, and no delete goes through a symbolic link below the checkout folder. |
+| `history-kept-until-removal` | Spent and expired grants, grant uses, and each plan revision that a retained assignment names stay until the workflow is removed. | [Grants](#grants), [Plan Record](#plan-record) | Planned in W30 R0 P6 T22: the keep rule keeps a final assignment's revision, and no rule trims a grant or a use row. |

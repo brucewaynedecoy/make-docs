@@ -691,13 +691,13 @@ describe("W30 R0 P3 review fixes", () => {
     expect(await call("factory.assignment.start", { ...base, runId: "run-1" })).toMatchObject({ result: "started" });
   });
 
-  it("says plainly that a workflow removed from the config cannot be removed yet, and what to do now (review item 6)", async () => {
+  it("says plainly what to do with a workflow removed from the config, and names the reviewed removal (review item 6, owner decision 2026-11-24)", async () => {
     const root = project();
     await readyWorkflow(root);
     setConfig(root, "");
     const live = (await call("factory.workflow.show", { targetRoot: root, workflow: "ship" })).live;
     expect(live).toMatchObject({ readiness: "drifted", drift: [{ code: "config-changed" }] });
-    expect(live.nextStep).toBe("Make Docs cannot remove a saved workflow yet. To use it again, put its entry back in .make-docs/config.yaml. To stop using it, leave it as it is: a drifted workflow takes no new work and changes nothing else.");
+    expect(live.nextStep).toBe("To use it again, put its entry back in .make-docs/config.yaml. To remove its saved records, review the removal with make-docs factory workflow clean <workflow> and name the project. Until then it is drifted: it takes no new work and changes nothing else.");
     expect(JSON.stringify(live)).not.toContain("run factory setup again");
   });
 
@@ -788,6 +788,11 @@ describe("W30 R0 P3 assignments", () => {
     expect(reset).toMatchObject({ result: "started", assignment: { roundCount: 0 } });
     const grants = (await call("factory.workflow.show", { targetRoot: root, workflow: "ship" })).grants;
     expect(grants.find((grant: Value) => grant.action === "reset-correction-rounds")).toMatchObject({ state: "spent" });
+    // The --reset-rounds path writes one use row for the spent grant, in the same write (R-FACTORY-72, W30 R0 P6 T24).
+    const shown = await call("factory.workflow.show", { targetRoot: root, workflow: "ship" });
+    const spent = shown.grants.find((grant: Value) => grant.action === "reset-correction-rounds");
+    expect(shown.grantUses).toEqual([expect.objectContaining({ grantId: spent.grantId, action: "reset-correction-rounds", scope: "once", runId: "run-1", usedAt: spent.spentAt })]);
+    expect(shown.grantUseTotal).toBe(1);
   });
 
   it("checks moves and rounds against the assignment's own plan revision after a newer revision exists (T21, A61)", async () => {

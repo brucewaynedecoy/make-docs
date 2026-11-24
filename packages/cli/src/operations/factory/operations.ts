@@ -42,6 +42,7 @@ import {
   factoryStatus,
   factoryToolsList,
   factoryToolsSave,
+  factoryWorkflowClean,
   factoryWorkflowList,
   factoryWorkflowSave,
   factoryWorkflowShow,
@@ -136,6 +137,7 @@ const workflowShowInput = z.object({
   project: readProject,
   workflow,
   revision: z.number().int().positive().optional().describe("A kept plan revision number. The default is the latest."),
+  usesBefore: name.optional().describe("A grant use ID. The result then shows the page of at most 50 grant uses that are just older than that use. The default is the newest page."),
 }).strict();
 const workflowListInput = z.object({ targetRoot: readTargetRoot, project: readProject }).strict();
 
@@ -202,6 +204,12 @@ const grantUseInput = z.object({
   action: name.describe("The action that the grant permits, such as merge."),
   runId: z.string().min(1).describe("The lifecycle run of the unit's assignments."),
   claimId: z.string().optional().describe("Your private claim ID of the unit's live claim. It is checked and never saved or shown."),
+}).strict();
+const workflowCleanInput = z.object({
+  targetRoot,
+  project,
+  workflow,
+  review: z.string().regex(/^[0-9a-f]{64}$/).optional().describe("The review digest from the review of this removal. Leave it out to review only."),
 }).strict();
 const statusInput = z.object({
   targetRoot: readTargetRoot,
@@ -382,6 +390,14 @@ export const factoryOperations: OperationDefinition[] = [
     STORE_WRITE_PROJECT_READ_ACCESS,
     grantUseInput,
     (input, context, resolved) => factoryGrantUse(envOf(context), resolved!, input),
+  ),
+  // W30 R0 Store lifecycle fixes (owner decision 2026-11-24, PRD 53 R-FACTORY-73).
+  definition(
+    "factory.workflow.clean",
+    "Review, then remove, one saved workflow's Store records: its backups with their files, final assignments, grant uses, grants, test task results, plan revisions, and binding. Without a review digest it only reviews. It is refused while an assignment of the workflow is open.",
+    STORE_WRITE_PROJECT_WRITE_ACCESS,
+    workflowCleanInput,
+    (input, context, resolved) => factoryWorkflowClean(envOf(context), resolved!, input),
   ),
 ];
 

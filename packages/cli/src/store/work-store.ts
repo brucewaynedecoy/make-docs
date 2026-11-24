@@ -1110,8 +1110,23 @@ export function workProjectDigest(db: StoreDatabase, projectId: string): string 
 export interface DeletePrunedProjectWorkRowsResult {
   projectId: string;
   removed: { work_units: number; work_dependencies: number; work_links: number; work_claims: number };
-  /** The project's final factory assignments and their backup records, which the cleanup removed with the units (W30 R0 P2). */
-  factoryRemoved: { factory_assignments: number; factory_backups: number };
+  /**
+   * The factory rows that the cleanup removed with the units: every row of each workflow of the project that has no
+   * backup record (owner decision 2026-11-24). No backup record is ever removed here.
+   */
+  factoryRemoved: {
+    factory_assignments: number;
+    factory_grant_uses: number;
+    factory_grants: number;
+    factory_proof_results: number;
+    factory_workflow_plans: number;
+    factory_workflow_bindings: number;
+  };
+  /**
+   * The workflows that stay with all of their factory rows, because a backup record of theirs is still in the Store.
+   * A backup record goes only together with its file, and this cleanup removes no file.
+   */
+  factoryKept: { workflows: string[]; factory_backups: number };
 }
 
 /**
@@ -1126,11 +1141,19 @@ export interface DeletePrunedProjectWorkRowsResult {
  * - no unit of the project has a live claim; and
  * - no factory assignment of the project is open (W30 R0 P2 review).
  *
- * It removes the project's final factory assignments and their backup records
- * itself, backup records first, because no foreign key removes them by
- * cascade. It keeps the project's factory workflows (bindings, plan revisions,
- * grants, and test task results): they go only when the workflow is removed.
- * The backup files stay in the old checkout's folder, outside the Store.
+ * It also removes the factory rows of the pruned project (owner decision
+ * 2026-11-24): a pruned project is not in `project_register`, so no factory
+ * command can name it, and this cleanup is the one way out for its rows. For
+ * each workflow of the project that has no backup record, it deletes in this
+ * order: the final assignments with their status history, the grant uses, the
+ * grants, the test task results, the plan revisions, and the binding. No
+ * foreign key does this by cascade alone.
+ *
+ * A backup record goes only together with its file, and this cleanup removes
+ * no file. So it never deletes a backup record. A workflow with a backup
+ * record stays with all of its factory rows, and `factoryKept` reports it.
+ * Remove a workflow with `make-docs factory workflow clean` before the prune
+ * to remove its backups with their files.
  *
  * Otherwise it refuses and changes nothing. It never touches another
  * project's rows. Sync ledger, conflict, and first-sync rows belong to a
@@ -1181,26 +1204,32 @@ export function deletePrunedProjectWorkRows(
         { projectId, openAssignments },
       );
     }
-    const factoryRemoved = {
-      factory_assignments: count("SELECT count(*) AS n FROM factory_assignments WHERE project_id = ?"),
-      factory_backups: count("SELECT count(*) AS n FROM factory_backups WHERE project_id = ?"),
-    };
+    // Workflows with a backup record stay whole. Every other workflow of the project goes.
+    const keptWorkflows = (db.prepare(
+      "SELECT DISTINCT a.workflow_name AS name FROM factory_backups b JOIN factory_assignments a ON a.assignment_id = b.assignment_id WHERE b.project_id = ? ORDER BY a.workflow_name",
+    ).all(projectId) as Array<{ name: string }>).map((row) => row.name);
+    const factoryKept = { workflows: keptWorkflows, factory_backups: count("SELECT count(*) AS n FROM factory_backups WHERE project_id = ?") };
+    const notKept = keptWorkflows.length === 0 ? "" : ` AND workflow_name NOT IN (${keptWorkflows.map(() => "?").join(",")})`;
+    const factoryTables = ["factory_assignments", "factory_grant_uses", "factory_grants", "factory_proof_results", "factory_workflow_plans", "factory_workflow_bindings"] as const;
+    const factoryRemoved = Object.fromEntries(factoryTables.map((table) => [
+      table,
+      Number((db.prepare(`SELECT count(*) AS n FROM ${table} WHERE project_id = ?${notKept}`).get(projectId, ...keptWorkflows) as { n: number }).n),
+    ])) as DeletePrunedProjectWorkRowsResult["factoryRemoved"];
     const removed = {
       work_units: count("SELECT count(*) AS n FROM work_units WHERE project_id = ?"),
       work_dependencies: count("SELECT count(*) AS n FROM work_dependencies WHERE project_id = ?"),
       work_links: count("SELECT count(*) AS n FROM work_links l JOIN work_units u ON u.store_id = l.unit_store_id WHERE u.project_id = ?"),
       work_claims: count("SELECT count(*) AS n FROM work_claims WHERE project_id = ?"),
     };
-    // Factory rows first, in order: backup records name assignments, and nothing removes either by cascade.
-    db.prepare("DELETE FROM factory_backups WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM factory_assignments WHERE project_id = ?").run(projectId);
+    // Factory rows first, in the removal order. A backup record is never deleted here, so a workflow with one stays.
+    for (const table of factoryTables) db.prepare(`DELETE FROM ${table} WHERE project_id = ?${notKept}`).run(projectId, ...keptWorkflows);
     // Children first is not needed: the parent key is deferred and every unit of the project goes.
     db.prepare("DELETE FROM work_claims WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM work_dependencies WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM work_links WHERE unit_store_id IN (SELECT store_id FROM work_units WHERE project_id = ?)").run(projectId);
     db.prepare("DELETE FROM work_units WHERE project_id = ?").run(projectId);
     db.exec("COMMIT");
-    return { projectId, removed, factoryRemoved };
+    return { projectId, removed, factoryRemoved, factoryKept };
   } catch (error) {
     try {
       db.exec("ROLLBACK");

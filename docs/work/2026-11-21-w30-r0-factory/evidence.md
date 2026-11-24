@@ -922,3 +922,160 @@ The owner first chose to keep the last use only. The reviewer then found an audi
 - An independent re-check on 2026-11-24 passed the follow-up commands with the built CLI: the refused backup cases, the links, six races of three real CLI processes on one `once` grant (one `used`, two `grant-spent`, one row each time), three uses of a `standing` grant (three rows, grant version unchanged), and a revoke that keeps the rows.
 - Fixed at integration: one stale code comment and two stale phrases in this report.
 - Follow-up for P6: add one test assertion for the use row on the `--reset-rounds` path of `factory assignment start` (the CLI writes it; the re-check saw it).
+
+## Store Lifecycle Fixes
+
+Date: 2026-11-24. The owner audited the factory tables and decided each finding (option A for each). An implementation agent first checked each finding against the code at commit `bb9cf4f1`, then fixed it. All of it is new behavior. It is [P6](06-proofs-and-acceptance.md) T15 and T20 to T24. The work is not committed. Every test uses a temporary `MAKE_DOCS_HOME`; nothing read or wrote the real Store.
+
+### Findings
+
+| Finding | Confirmed | Fix | Test |
+| --- | --- | --- | --- |
+| 1. A saved workflow has no removal path. Its binding, plan revisions, grants, grant uses, and test task results stay, also after project work cleanup and after a prune. | Yes. No function deleted a binding, a plan revision of a live workflow, or a use row. `deletePrunedProjectWorkRows` kept the workflow rows, and each factory function refuses a pruned project with `project-not-registered`. | `make-docs factory workflow clean` (MCP `factory_workflow_clean`, PRD 53 R-FACTORY-73) for a registered project. The scoped cleanup of PRD 52 R-WORK-STORE-13 for a pruned project. See [The Removal Command](#the-removal-command). | `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, "factory workflow clean (finding 1)": 6 cases. The changed P2 case "makes the scoped project cleanup refuse an open assignment, and keep a workflow whole while a backup record of it stays". |
+| 2. A backup record can go without its file. | Yes, in two places. `cleanupFactoryBackups` deleted an old record whose file was outside the checkout and left the file (`recordsOnly`). `deletePrunedProjectWorkRows` deleted every backup record of the project and left every file. | A record goes only together with its file, the file first (R-FACTORY-74). Cleanup reaches the checkout that the call acts on. A due record for another checkout, or for a folder that moved or is gone, stays, and the result reports it as `kept`, with the path inside the project. A checkout folder that moved with its files is handled: the file at the same project path with the recorded digest is the record's file. The scoped cleanup removes no backup record and keeps that workflow whole. | `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, "backup records and files stay together (finding 2)": same checkout, other checkout, missing checkout, and accepted work. The changed P2 case for a moved checkout folder. |
+| 3. `factory proof save` records a failure but leaves the `ready` revision `ready`. | Yes. A failed result wrote only the `factory_proof_results` row. The binding kept `ready_revision`, the live state stayed `ready`, and `factory assignment start` still started work. | The latest test result for a plan decides (R-FACTORY-12). A failed result for the plan of the `ready` revision clears the `ready` revision in the same write. The state word is `wired`, and the new readiness code is `test-failed`. | `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, "readiness after a failed test task (finding 3)": 3 cases. |
+| 4a. No rule says how long a spent or expired grant stays, and reads load every grant and every use. | Yes. The rows stayed, with no stated reason. `useFactoryGrant` loaded every grant of the action, and `listFactoryGrantUses` loaded every use row of the workflow. | They stay until the workflow is removed, as their use rows do; the catalog and PRD 38 say so. A grant use reads through the (project, workflow, action) index and loads only grants that can still hold. `factory workflow show` returns the newest 50 use rows, every usable grant, and the 50 newest other grants, with the totals. | `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, "keeps a spent and an expired grant until the workflow is removed, reads grants through the index, and bounds the use rows that a read returns". |
+| 4b. The keep rule can remove the plan revision of a final assignment. | Yes. The rule kept only revisions that an open assignment named, so a final assignment lost its plan and its round limit after 10 newer revisions. | The rule keeps each revision that a retained assignment names, open or final (R-FACTORY-57). | `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, "keeps the plan revision of a final assignment through more than 10 newer revisions". The P2 keep-rule tests still pass. |
+| 5. Tool facts have no age, and the run Skill does not check its tools again. | Yes. `factory status` showed no proof time, and the run Skill read the saved tools only through the plan. | `factory status` lists each bound tool with the age of each proof and calls a proof older than 30 days old (R-FACTORY-75). The threshold is new, and it changes no readiness. The run Skill, its installed copy, and the contract say that the foreman checks each bound tool's version and state before new work and saves a change with `factory tools save`. | `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, "tool fact freshness (finding 5)": 2 cases. The P5 twin tests pass both ways. |
+| 6. The Store README says that no command writes the factory tables. | Yes: "No command writes these tables yet." | A table of each factory command and the tables it writes, for all nine tables, including `factory_grant_uses`. | `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, "the Store README (finding 6)": the rows must equal the catalog's factory write commands, and every table must be named. |
+| The use row on the `--reset-rounds` path had no test assertion. | Yes. | One assertion in the P3 case for `factory assignment start` with `resetRounds`. | `packages/cli/tests/w30-r0-p3-factory-operations.test.ts`, the round count case. |
+
+### The Removal Command
+
+- CLI path: `make-docs factory workflow clean <workflow> [--review <digest>]`, with `--target-root <path>` or `--project <name>`. Operation `factory.workflow.clean`. MCP tool `factory_workflow_clean` (22 characters), in the `factory` profile, with the inputs `workflow`, `review`, and `targetRoot` or `project`.
+- The name: a native command rule refuses the word `remove`, and `update`, `backup`, `setup`, and `uninstall`. `clean` is an approved end word and already means a reviewed removal in `setup store clean`.
+- The review pattern: one command, as `project doctor fix --review`. Without `--review` it is the review. It changes nothing, lists the count of each record, names what stops the removal, and gives a review digest. With the digest it removes. The digest binds the identity and the version of each record that the removal deletes, each plan digest, and each backup record with its file's recorded hash, so a change after the review gives `review-mismatch`, also when every count is the same (see [Review Fixes](#review-fixes-2026-11-24)).
+- It is a project write. It names its project also for the review, and it needs one checkout, because it writes the copies again.
+- The order: the backup files and their records, the final assignments with their status history, the grant uses, the grants, the test task results, the plan revisions, and the binding. The Store rows go in one transaction. Then it writes the `.make-docs/factory/` copies again.
+- The refusals: `project-missing`, `project-not-found`, `project-mismatch`, and `project-checkout-unclear` as for each project write; `record-not-found` for a workflow that is not saved; `review-mismatch`; `assignment-open`; `backup-file-out-of-reach`; `backup-path-unsafe`; and `backup-file-locked`. Each refusal changes nothing. A delete that fails after the checks gives the `stopped` result, which is not a refusal: it removed the files that it names, with their records.
+- The result names the project and the count of each removed record. It never edits the config file. While the config still names the workflow, the workflow shows as `draft`.
+- Backups: the reviewed removal reaches every bound checkout of the named project whose folder is on this machine, and the review names each one (register D-079, option A, closed). It drops a backup record whose files are not found on this computer now, after the review listed it by name (register D-078, option B, closed). A record whose file is still on the computer in a folder that is not a bound checkout stops the removal. See [Round 3](#round-3-owner-decisions-and-re-check-fixes).
+- The pruned-project case goes through the W29 scoped cleanup, not through this command: `project_register` no longer holds the project, so no factory command can name it. The cleanup removes every factory row of each workflow that has no backup record, in the same order, and reports the workflows that it kept.
+
+### Choices That the Implementer Made
+
+The owner gave the rules. These details are the implementer's choices under them, and each one is marked as new in the PRD history.
+
+- The state word after a failed test is `wired`, as the contract defines it: saved and proved, with no passed test task under this plan. The readiness code is `test-failed`, in a new add-only list, "Readiness codes".
+- The rule is stored, not computed at each read: the failed result clears the `ready` revision. So `factory assignment start`, `factory workflow save`, the live state, and the copies all follow it with no second rule, and the two kept proof results are all that it needs.
+- The proof age threshold is 30 days. An old proof is only shown. It changes no readiness state.
+- A read returns at most 50 use rows.
+- The Store refusal words `backup-file-out-of-reach` and `review-mismatch` are service codes, like `version-conflict`. They are not in the contract's refusal code list.
+- Schema v9 did not change. No table, column, or index was added, so the R-MIN parity, the expected-table check, and the rollback list did not change.
+
+### Checks
+
+Each command ran in this worktree with a temporary `MAKE_DOCS_HOME`.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-store-lifecycle-fixes.test.ts`: 19 tests pass.
+- The W30 and W29 tests, the Store, catalog, and maintenance tests, the name catalog, the W33 tests, the leaf help, the MCP tests, the setup and native-rule tests, the Skill and twin tests, and the consistency tests: all pass in the full run below, except the known tests and one fixed list.
+- `npm run validate:defaults`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its temporary folder.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files.
+- `project markdown validate` on the W30 work folder, both copies of the run Skill, the contract template, PRD 52, PRD 53, and the Store README: no style findings.
+- `npm run smoke:pack:local`: pass, run outside the sandbox because it needs the network. It uses its own temporary Store.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 156 test files and 3,694 tests; 3,684 passed, 4 failed, 6 skipped. Three of the four are known: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11. The fourth was the fixed tool list in `tests/mcp.test.ts`, which did not name `factory_workflow_clean`. It is fixed, and `tests/mcp.test.ts` then passed alone. The full run was not repeated after that one-line test fix. `w19-r5-skills-command` passed in this run.
+
+### Review Fixes (2026-11-24)
+
+An independent reviewer checked the Store lifecycle fixes and found three defects and four smaller points. All are fixed. They are [P6](06-proofs-and-acceptance.md) T25. The behaviors that register D-078 and D-079 cover did not change. The tests are in `packages/cli/tests/w30-r0-store-lifecycle-fixes.test.ts`, which now has 26 cases.
+
+| Review point | Fix | Test |
+| --- | --- | --- |
+| 1. High. A symbolic link planted inside `.make-docs/backup/factory/` made the removal delete files outside the backup folder, and then fail with a raw `ENOTDIR`. | `factoryBackupPathState` runs before every delete, in the removal, in cleanup, and in the sweep of old unrecorded files. It reads each path part below the checkout folder with `lstat`, refuses a link and a part that is not a folder or a regular file, and compares the real path of the file's folder with the folder that the path names. Nothing is deleted through a link. The removal refuses with `backup-path-unsafe`, and cleanup keeps the record as `unsafe-path`. | "linked assignment folder", "linked file", and "link to another checkout": each leaves the file behind the link, the link, and the record, and holds no raw error and no absolute path. |
+| 2. High. A file error mid-removal deleted files in one checkout, rolled the Store back, and printed a raw `EACCES` with an absolute path. | The review and the removal check every backup file before the first delete, and refuse with `backup-file-locked` when this account cannot delete one. When a delete still fails, the removal stops: it deletes the record of each file that went, keeps every other record, commits, and returns the typed `stopped` result. That result names what went and what stayed by paths inside the project, says how to run again, and makes the CLI exit 1. | "locked folder": a folder without write permission is refused before any delete, and nothing changes. "a delete that fails after the checks": the second of three deletes fails; one file and its record are gone, two stay, the old digest no longer matches, and a new review finishes the removal. |
+| 3. Medium. The review digest bound counts only. | The digest is made from the identity of every record: the binding and its version, each plan revision and its digest, each grant ID and version, each grant use ID, each assignment ID and version, each test task result with its version, time, and plan digest, and each backup record with its paths, its time, and its file's recorded hash. A test task result has no ID of its own; its key is the workflow and the outcome. | "binds the review digest to record identities": a grant revoked and another added, and a new test task result, each keep every count and give `review-mismatch`. |
+| 4. Medium. `pruneProjectFromStore` dropped `factoryKept`. | A removed `workRows` result now holds `factoryRemoved` and `factoryKept`. T15 and A90 say that no command reaches the prune path yet. | "returns factoryRemoved and factoryKept in the prune result". |
+| 5. Low. The 50-row cap had no way to read more. | New option `factory workflow show --uses-before <use-id>` (MCP input `usesBefore`): the page of at most 50 use rows just older than that use. The output names the use ID of the next page. | The retention case reads 60 use rows in two pages, with no row on both, and refuses an unknown use ID. |
+| 6. Low. After a failed test, the `assignment start` refusal did not name `test-failed`, and the words said that no test task has passed. | The refusal adds one line with the state, the reason, the code, and the next step. With the code `test-failed`, the readiness words are "wired: saved and proved, but the latest test task under this plan failed". | The failed-test case checks the refusal, the status, and the show output. |
+| 7. Low. Copies, `setup store check`, the moved-folder rule, and "Until it ships". | The removal result says that only the named checkout's copies were written again, and names `factory restore` for the others. `setup store check` shows a backup record whose checkout folder is missing as the new decision item `STORE-DECISION-005` (PRD 38 R-MAINT-4), with the path inside the project. PRD 53 R-FACTORY-74 states the moved-folder rule as new behavior. T15 no longer says "Until it ships". | The two-checkout removal case, the missing-checkout case, and the Store maintenance fixture SMF-009. |
+
+The name `--uses-before` follows the option style of the other factory commands: lower-case words with hyphens, and the MCP input in camel case.
+
+Checks after the review fixes, each with a temporary `MAKE_DOCS_HOME`:
+
+- `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-store-lifecycle-fixes.test.ts`: 26 tests pass.
+- `npm run validate:defaults`: 53 tests pass.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files.
+- `project markdown validate` on the W30 work folder, the run Skill, the contract template, PRD 52, PRD 53, and the Store README: no style findings.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 156 test files and 3,701 tests; 3,692 passed, 3 failed, 6 skipped. The three are known: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11. This run includes the W30 and W29 tests, the Store, catalog, and maintenance tests, the MCP tests, the setup and native-rule tests, the Skill twin tests, and the consistency tests. `w19-r5-skills-command` passed in this run.
+- The router check and `npm run smoke:pack:local` were not run again after the review fixes. The review fixes changed no router and no package file list.
+
+### Round 3: Owner Decisions and Re-Check Fixes
+
+Date: 2026-11-24. The owner answered the two open register questions, and a re-check of the review fixes passed all items except five findings. All of it is built. It is [P6](06-proofs-and-acceptance.md) T26. The lifecycle test file now has 30 cases.
+
+| Item | What changed | Test |
+| --- | --- | --- |
+| D-078, option B. The reviewed removal may drop a backup record whose files are not found on this computer now. | New behavior. The files are "not found" when no reachable checkout of the project holds the path and nothing is at the path. The software cannot know that they are gone: see [Round 4](#round-4-wording-and-moved-folder-fixes). The review lists each one by name as "record dropped, files not reachable", gives it in `backupsDropped`, and binds it in the digest. The removal drops it after every backup file went. A record whose file is still on the computer, in a folder that is not a bound checkout, still stops the removal. A checkout folder that moved is not "gone": the file at the same project path with the recorded hash, in a reachable checkout, is deleted with its record. Routine cleanup and the scoped cleanup of a pruned project do not change: they keep the record and report it. Register D-078 is closed. | "drops a backup record whose checkout folder is gone for good": cleanup keeps the record, the review lists it, an older digest gives `review-mismatch`, and the removal drops it. |
+| D-079, option A. The reviewed removal reaches the project's other bound checkouts. | Confirmed: the code already did this, with the same link check and locked-folder check for each checkout. New: the review and the result name each checkout that holds a backup file, with the count (`backupsByCheckout`). Register D-079 is closed. | "reaches a backup file in another bound checkout, and the review names that checkout". |
+| 1. Medium. New bytes in a backup file did not change the review digest. | `planFactoryWorkflowBackupRemoval` hashes each backup file on the disk, and the digest binds that hash with the file's checkout. A changed file gives `review-mismatch`, and the file stays. | "binds the review digest to the bytes of each backup file". |
+| 2. Low. The refusal code `backup-file-out-of-reach` came with the text about a link. | Each refusal builds its own line. After D-078, a record whose files are not found does not stop the removal; a link still does. | "does not drop a record while its file is still on this computer": with one record out of reach and one behind a link, the reason names only the first; after the folder is removed, the refusal is `backup-path-unsafe` and names only the link. |
+| 3. Low. A delete that failed after the checks always said "cannot delete in that folder". | New reason `delete-failed` with general words: "The delete did not work. The file or its folder can be locked or protected." The refusal code of the `stopped` result stays `backup-file-locked`. | The `stopped` case checks the reason and the next action. |
+| 4. Low. `STORE-DECISION-005` split the path at the first `.make-docs`. | The query walks to the last backup folder marker, `/.make-docs/backup/factory/`, for both path separators. | "setup store check splits a backup path at the last backup folder marker": a checkout folder whose own path holds the marker. |
+| 5. Cosmetic. The not-ready refusal said two times that the test task failed. | The readiness words say it once. The reason now adds only the time and the code: "It failed at <time>, so the workflow takes no new work. Reason code: test-failed." | The failed-test case counts one occurrence in the refusal, the status, and the show output. |
+
+No Skill text describes the backup record rule or the removal command, so no Skill file changed in this round. The factory contract is the agent's text for both, in the template and the identical dogfood copy.
+
+Checks after round 3, each with a temporary `MAKE_DOCS_HOME`:
+
+- `node scripts/copy-template-to-cli.mjs`: done. `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-store-lifecycle-fixes.test.ts`: 30 tests pass.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files. `project markdown validate` on the W30 work folder, the contract template, PRD 53, and the Store README: no style findings.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 156 test files and 3,705 tests; 3,696 passed, 3 failed, 6 skipped. The three are known: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11.
+- `npm run validate:defaults`, the router check, and `npm run smoke:pack:local` were not run again in round 3.
+
+### Round 4: Wording and Moved-Folder Fixes
+
+Date: 2026-11-24. A check of round 3 passed the main paths and found five points. All are fixed. They are [P6](06-proofs-and-acceptance.md) T27. The lifecycle test file now has 37 cases.
+
+| Point | What changed | Test |
+| --- | --- | --- |
+| F1. Medium, wording only. A record was called "gone for good" while its files can still be on a disk. | The output, the contract, PRD 53, the register D-078 resolution, and this report now say that the files are not found on this computer now (removed, renamed, or on a drive that is not connected). They say that a file that still exists stays where it is, and that no later cleanup finds it. The contract no longer says that no file is ever left without its record: it names this one case. The review label "record dropped, files not reachable" stays. No refusal rule was added. | "says in the contract, the PRD, and the register that the files are not found now", and the dropped-record case checks both output lines. |
+| F2. Low. After a folder move, the first checkout by folder name decided. | Every reachable checkout is looked at. Each file at the record's path inside the project with the recorded hash is the record's file. Each one goes, and the review lists each one, counts it (`backupFiles`, `backupsByCheckout`), and binds it in the digest. The record goes after all of its files went. | "moved folder with a copy in two checkouts". |
+| F3. Low. A moved file with other bytes was classed "files not reachable", and its record was dropped. | New class `changed-file`. The removal stops with the new service code `backup-file-changed`, deletes nothing, keeps the record, and names the next step. The same holds when the file at that place cannot be read safely. | "moved file with other bytes". |
+| F4. Low. Two dropped records with one assignment and one project path: the review said removable, and the removal refused. | The plan keeps each record's own key as an internal field, and the removal deletes by it. No result shows the key. | "two dropped records with one assignment and one project path". |
+| F5. Low. The split at the last marker was wrong when the backed-up file's own path holds the marker. | One shared function, `splitFactoryBackupPath` in `packages/cli/src/store/factory-backup-path.ts`, splits at the last marker that the record's assignment ID follows. Cleanup, the removal, and `STORE-DECISION-005` use it. The decision item reads plain rows and applies the function through a new optional `derive` step of a candidate query. | "splits a backup path at the last marker that the assignment ID follows". |
+| A removal test for the plain moved-folder case. | Added. | "moved folder: deletes the record's file at the same project path in a reachable checkout". |
+
+The owner answered the two open points on 2026-11-24:
+
+- F1, option A. Register D-078, option B, stays as it is. No new refusal rule is added. The truthful words are the whole fix. The owner accepted that a record can be dropped while its files stay in a renamed folder or on a drive that is not connected, and the D-078 resolution records this.
+- A checkout folder that is a symbolic link, option A: allow. The new closed register entry D-080 records it, and the contract states it. Cleanup and the removal follow a link at the checkout folder, because the person registered that folder. A link below the checkout folder stays refused. The build already worked this way, so no code changed. The test "linked checkout root" proves both parts.
+
+Checks after round 4, each with a temporary `MAKE_DOCS_HOME`:
+
+- `node scripts/copy-template-to-cli.mjs`: done. `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-store-lifecycle-fixes.test.ts`: 37 tests pass.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files. `project markdown validate` on the W30 work folder, the contract template, PRD 53, and the Store README: no style findings.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 156 test files and 3,712 tests; 3,703 passed, 3 failed, 6 skipped. The three are known: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11.
+- The router check and `npm run smoke:pack:local` were not run again in round 4.
+
+### Round 5
+
+Date: 2026-11-24. The round 4 check passed everything else and found these points. All are fixed, with small changes and no refactor. They are [P6](06-proofs-and-acceptance.md) T28. The lifecycle test file now has 41 cases.
+
+| Point | What changed | Test |
+| --- | --- | --- |
+| 1. Wording. The contract rule row said that the workflow removal never deletes a record without its file. | The row adds: "except a record that the reviewed removal drops because its files are not found on this computer now". Template first, dogfood identical. | None: wording. |
+| 2. Data, routine cleanup. An old record of a folder that is not found took the file of a young live record with the same assignment, path, and hash. | The moved-folder search skips a file that is the recorded backup path of another record. The old record stays and is reported. | "routine cleanup: an old record of a folder that is not found never takes the file of a young live record". |
+| 3. The same case in the reviewed removal. | The search skips a file that is the recorded path of another record of the workflow. The old record is then dropped as not found, and the review counts one file. With another hash, the removal no longer stops with `backup-file-changed`. | "reviewed removal: the file of a live record is counted once", for the same hash and for another hash. |
+| 4. The path split was wrong when the backed-up file's own path holds the marker and the same assignment ID. | `splitFactoryBackupPath` takes the record's original path and splits at the marker where the checkout folder plus the rest is that path. Without it, or when no marker fits, the last marker decides, as before. Each caller passes the original path. | "splits a backup path by the record's original path", with the `STORE-DECISION-005` key for that record. |
+| 5. Nits. | PRD 53 R-FACTORY-74 now says "The cleanup of R-FACTORY-45 never drops a record with no file". `storeCatalogDrift` reports a fixed rule that has a derive step, and the rule evaluation throws for one. The existing catalog test checks that the drift list is empty. | "allows a derive step only on a decision item, never on a fixed rule". |
+
+Question from the check: does a checkout move rewrite `backup_path` in the factory backup records? No. `applyInstallationCheckoutMove` changes only the `installation_checkouts` row (`packages/cli/src/store/installation-state.ts`, the `UPDATE installation_checkouts SET root_path` statement), and no code changes `backup_path` or `original_path` of a `factory_backups` row. So after a move, each record still names the old folder, and the moved-folder rule finds its file. This was read only; nothing changed.
+
+Checks after round 5, each with a temporary `MAKE_DOCS_HOME`. Every run finished before this report was written:
+
+- `node scripts/copy-template-to-cli.mjs`: done. `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-store-lifecycle-fixes.test.ts`: 41 tests pass.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass.
+- `check prd`: passed. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 156 test files and 3,716 tests; 3,707 passed, 3 failed, 6 skipped. The three are known: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11.
+
+### Open for the Owner
+
+- None. Register D-078, D-079, and D-080 are closed.

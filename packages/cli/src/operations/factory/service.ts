@@ -3,7 +3,9 @@ import path from "node:path";
 
 import type { StoreDatabase } from "../../store/database";
 import {
+  FACTORY_GRANT_USE_READ_MAX,
   FactoryStoreRefusalError,
+  countFactoryGrantUses,
   listFactoryAssignments,
   listFactoryGrantUses,
   listFactoryGrants,
@@ -15,6 +17,9 @@ import {
   readFactoryPlanRevision,
   readFactoryProofResult,
   readFactoryWorkflowBinding,
+  readFactoryWorkflowRemovalFacts,
+  readFactoryWorkflowRemovalIdentity,
+  removeFactoryWorkflowRows,
   revokeFactoryGrant,
   saveFactoryGrant,
   saveFactoryMachineTool,
@@ -35,7 +40,23 @@ import { withStoreReadOnlyDatabase, withStoreWriteDatabase } from "../../store/i
 import { checkWorkUnitWriteClaim, findWorkUnitByCoordinate, listWorkClaims, readWorkUnit } from "../../store/work-store";
 import { normalizeWorkUnitReference } from "../work/work-queue/queue";
 import { visibleWorkClaim, workUnitLabel, type WorkVisibleClaim } from "../work/work-queue/readiness";
-import { backupFactoryFileBeforeChange, cleanupFactoryBackups, FACTORY_BACKUP_RELATIVE_PATH, FactoryBackupFileError, factoryBackupFolder, isInsideGitWorkTree, removeEmptyFactoryBackupFolders, removeUnusedFactoryBackupFolder, type FactoryBackupCleanupResult } from "./backups";
+import {
+  backupFactoryFileBeforeChange,
+  factoryBackupProjectPath,
+  cleanupFactoryBackups,
+  FACTORY_BACKUP_RELATIVE_PATH,
+  FACTORY_BACKUP_BLOCK_FIXES,
+  FACTORY_BACKUP_BLOCK_WORDS,
+  FactoryBackupFileError,
+  factoryBackupFolder,
+  factoryBackupKeptLines,
+  isInsideGitWorkTree,
+  planFactoryWorkflowBackupRemoval,
+  removeEmptyFactoryBackupFolders,
+  removeFactoryWorkflowBackups,
+  removeUnusedFactoryBackupFolder,
+  type FactoryBackupCleanupResult,
+} from "./backups";
 import { writeFactoryCopies, type FactoryCopiesResult } from "./copies";
 import {
   bindingForPlan,
@@ -51,7 +72,7 @@ import {
   type FactoryLiveReadiness,
   type FactoryWorkflowLiveState,
 } from "./live-plan";
-import { resolveFactoryPlan, factoryPlanRoundLimit, type FactoryJsonValue } from "./plan";
+import { resolveFactoryPlan, factoryCanonicalDigest, factoryPlanRoundLimit, type FactoryJsonValue } from "./plan";
 import {
   FACTORY_MACHINE_ACTED_ON,
   factoryProjectActedOn,
@@ -65,6 +86,7 @@ import {
 } from "./project-scope";
 import {
   FACTORY_FINAL_STATUSES,
+  FACTORY_PROOF_OLD_AFTER_DAYS,
   isFinalAssignmentStatus,
   unknownFactoryCapabilities,
   type FactoryAssignmentStatus,
@@ -514,7 +536,8 @@ export function factoryProofSave(env: FactoryEnv, project: FactoryProjectResolut
       }, { expectedVersion: input.expectedVersion, now: env.now });
       const binding = readFactoryWorkflowBinding(db, project.projectId, input.workflow)!;
       const after = input.outcome === "passed" ? markFactoryReadyRevision(db, project.projectId, input.workflow, input.planDigest, { expectedVersion: binding.version }) : binding;
-      return { result, binding: after, revision: live.matchedRevision };
+      // The latest test result for a plan decides (owner decision 2026-11-24): a failed test of the ready plan ended its ready state.
+      return { result, binding: after, revision: live.matchedRevision, readyEnded: input.outcome === "failed" && live.readiness === "ready" };
     });
     const copies = writeCopies(env, project, checkout);
     const passed = input.outcome === "passed";
@@ -522,7 +545,9 @@ export function factoryProofSave(env: FactoryEnv, project: FactoryProjectResolut
       `Saved a ${input.outcome} test task for workflow ${input.workflow} of ${factoryProjectWords(project)}, under plan revision ${outcome.revision ?? "unknown"}.`,
       passed
         ? `Plan revision ${outcome.binding.readyRevision} is now the ready revision. The workflow is ready and takes new work.`
-        : "The workflow did not become ready. Fix what the test task found, save the workflow, and run the test task again.",
+        : outcome.readyEnded
+          ? `The workflow was ready, and this failed test task ends that: the latest test result for a plan decides. It is now wired and takes no new work. Reason code: test-failed. Fix what the test task found, then run the test task again and record a pass with make-docs factory proof save --plan-digest ${input.planDigest}.`
+          : "The workflow did not become ready. Reason code: test-failed. Fix what the test task found, save the workflow, and run the test task again.",
       ...(input.manualSteps.length ? ["Open manual steps:", ...input.manualSteps.map((step) => `- ${step}`)] : []),
       `Copies: wrote ${copies.written.length} files in checkout ${checkout.root}.`,
     ];
@@ -535,6 +560,8 @@ export function factoryProofSave(env: FactoryEnv, project: FactoryProjectResolut
       planDigest: input.planDigest,
       revision: outcome.revision,
       readiness: outcome.binding.readiness,
+      readinessCode: passed ? null : "test-failed" as const,
+      readyEnded: outcome.readyEnded,
       readyRevision: outcome.binding.readyRevision,
       proofVersion: outcome.result.version,
       copies: { written: copies.written, removed: copies.removed },
@@ -610,6 +637,7 @@ export function factoryAssignmentStart(env: FactoryEnv, project: FactoryProjectR
   const operation = "factory.assignment.start" as const;
   const actedOn = factoryProjectActedOn(project);
   let drift: FactoryDriftEntry[] = [];
+  let notReady: string[] = [];
   return refusable(operation, actedOn, () => {
     const checkout = project.checkout!;
     const config = readFactoryCheckoutConfig(checkout.root);
@@ -617,6 +645,10 @@ export function factoryAssignmentStart(env: FactoryEnv, project: FactoryProjectR
       const unit = unitOf(db, project.projectId, input.unit);
       const live = factoryWorkflowLiveState(db, { projectId: project.projectId, workflowName: input.workflow, root: checkout.root, config });
       drift = live.drift;
+      // A not-ready refusal says why and names the next step, also after a failed test task (code test-failed).
+      notReady = live.readiness === "ready" || live.drift.length > 0
+        ? []
+        : [`- The workflow is ${factoryReadinessWords(live.readiness, live.readinessCode)}.${live.reason ? ` ${live.reason}` : ""}${live.nextStep ? ` Next: ${live.nextStep}` : ""}`];
       const binding = readFactoryWorkflowBinding(db, project.projectId, input.workflow);
       const ready = binding?.readyRevision === null || binding?.readyRevision === undefined ? null : readFactoryPlanRevision(db, project.projectId, input.workflow, binding.readyRevision);
       // When the workflow is not ready, the Store service refuses with `not-ready`; the tool name below only has to be well formed.
@@ -664,7 +696,7 @@ export function factoryAssignmentStart(env: FactoryEnv, project: FactoryProjectR
       `Assignment ID: ${view.assignmentId}. Version ${view.version}.`,
     ];
     return finish({ operation, result: "started" as const, actedOn, assignment: view, checkout: { checkoutId: checkout.checkoutId, root: checkout.root }, lines });
-  }, (error) => (error.refusal === "not-ready" ? drift.map((entry) => `- ${entry.code}: ${entry.text} Next: ${entry.nextStep}`) : []));
+  }, (error) => (error.refusal === "not-ready" ? [...drift.map((entry) => `- ${entry.code}: ${entry.text} Next: ${entry.nextStep}`), ...notReady] : []));
 }
 
 export interface FactoryAssignmentSaveInput {
@@ -715,6 +747,7 @@ export function factoryAssignmentSave(env: FactoryEnv, project: FactoryProjectRe
       ...(outcome.grant ? [`Used the ${outcome.grant.scope} grant for ${outcome.grant.action}${outcome.grant.scope === "once" ? ", which is now spent" : ""}.`] : []),
       ...(isFinalAssignmentStatus(outcome.view.status) ? [`The assignment is ${outcome.view.status}, which is final.`] : []),
       ...(cleanup && cleanup.removed.length ? [`Removed ${count(cleanup.removed.length, "factory backup")} of finished or old work.`] : []),
+      ...factoryBackupKeptLines(cleanup?.kept ?? []),
     ];
     return finish({
       operation,
@@ -724,7 +757,7 @@ export function factoryAssignmentSave(env: FactoryEnv, project: FactoryProjectRe
       assignment: outcome.view,
       grant: outcome.grant ? grantView(outcome.grant, env.now) : null,
       grantUse: outcome.grantUse,
-      backupCleanup: cleanup ? { removed: cleanup.removed.length, recordsOnly: cleanup.recordsOnly.length } : null,
+      backupCleanup: cleanup ? { removed: cleanup.removed.length, kept: cleanup.kept } : null,
       lines,
     });
   });
@@ -879,7 +912,7 @@ export function factoryGrantUse(env: FactoryEnv, project: FactoryProjectResoluti
 function cleanBackups(env: FactoryEnv, project: FactoryProjectResolution, checkoutId: string): FactoryBackupCleanupResult | null {
   const checkout = project.checkouts.find((candidate) => candidate.checkoutId === checkoutId && candidate.exists) ?? (project.checkout?.checkoutId === checkoutId ? project.checkout : null);
   if (!checkout) return null;
-  return withStoreWriteDatabase(env.storeRoot, (db) => cleanupFactoryBackups(db, { projectRoot: checkout.root, projectId: project.projectId }, { now: env.now }));
+  return withStoreWriteDatabase(env.storeRoot, (db) => cleanupFactoryBackups(db, { projectRoot: checkout.root, projectId: project.projectId, checkouts: project.checkouts }, { now: env.now }));
 }
 
 /** `factory assignment list` (T29): a project's assignments. It reads only. */
@@ -911,6 +944,7 @@ function liveStateFor(db: StoreDatabase, project: FactoryProjectResolution, work
     return {
       workflowName: workflow,
       readiness: "unknown",
+      readinessCode: null,
       reason: `The live state needs one checkout, and ${factoryProjectWords(project)} has ${count(project.checkouts.length, "bound checkout")}.`,
       currentPlanDigest: null,
       matchedRevision: null,
@@ -931,7 +965,7 @@ function liveView(state: FactoryWorkflowLiveState) {
 }
 
 function liveLines(state: FactoryWorkflowLiveState, indent = ""): string[] {
-  const head = `${indent}Workflow ${state.workflowName}: ${factoryReadinessWords(state.readiness)}.${state.reason ? ` ${state.reason}` : ""}`;
+  const head = `${indent}Workflow ${state.workflowName}: ${factoryReadinessWords(state.readiness, state.readinessCode)}.${state.reason ? ` ${state.reason}` : ""}`;
   const revisions = `${indent}  Ready revision: ${state.readyRevision ?? "none"}. Latest revision: ${state.latestRevision ?? "none"}.`;
   const drift = state.drift.map((entry) => `${indent}  - ${entry.code}: ${entry.text} Next: ${entry.nextStep}`);
   const next = state.drift.length === 0 && state.nextStep ? [`${indent}  Next: ${state.nextStep}`] : [];
@@ -948,7 +982,7 @@ function proofView(result: FactoryProofResultRecord | null) {
  * revision, each drift reason code in plain words, and the grants beside the
  * plan. It writes nothing.
  */
-export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectResolution, input: { workflow: string; revision?: number }) {
+export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectResolution, input: { workflow: string; revision?: number; usesBefore?: string }) {
   const operation = "factory.workflow.show" as const;
   const actedOn = factoryProjectActedOn(project);
   return refusable(operation, actedOn, () => {
@@ -963,9 +997,19 @@ export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectReso
         refuse("record-not-found", `Workflow ${input.workflow} keeps no plan revision ${input.revision}. Kept revisions: ${revisions.map((revision) => revision.revision).join(", ") || "none"}.`, "Name a kept revision, or leave it out for the latest.", { revision: input.revision });
       }
       const live = liveStateFor(db, project, input.workflow, checkout, config);
-      const grants = listFactoryGrants(db, project.projectId, input.workflow).map((grant) => grantView(grant, env.now));
-      // Every recorded use, also of a revoked grant (R-FACTORY-72). Beside the plan, never in it, and never in a copy.
-      const grantUses = listFactoryGrantUses(db, project.projectId, input.workflow).map((use) => grantUseView(db, use));
+      // Spent and expired grants stay until the workflow is removed (owner decision 2026-11-24). The result shows every
+      // usable grant and the newest spent or expired ones, and gives the totals.
+      const allGrants = listFactoryGrants(db, project.projectId, input.workflow).map((grant) => grantView(grant, env.now));
+      const pastGrants = allGrants.filter((grant) => grant.state !== "usable");
+      const shownPast = new Set(pastGrants.slice(-FACTORY_GRANT_USE_READ_MAX).map((grant) => grant.grantId));
+      const grants = allGrants.filter((grant) => grant.state === "usable" || shownPast.has(grant.grantId));
+      const grantTotals = { all: allGrants.length, usable: allGrants.length - pastGrants.length, spentOrExpired: pastGrants.length, shown: grants.length };
+      // The newest recorded uses, also of a revoked grant (R-FACTORY-72). Beside the plan, never in it, and never in a copy.
+      // One page of at most 50. `usesBefore` reads the page of the uses just older than one use, so every use can be read.
+      const grantUses = listFactoryGrantUses(db, project.projectId, input.workflow, { beforeUseId: input.usesBefore }).map((use) => grantUseView(db, use));
+      const grantUseTotal = countFactoryGrantUses(db, project.projectId, input.workflow);
+      const olderGrantUses = grantUses.length === 0 ? 0 : countFactoryGrantUses(db, project.projectId, input.workflow, { beforeUseId: grantUses[0]!.useId });
+      const olderUsesBefore = olderGrantUses > 0 ? grantUses[0]!.useId : null;
       const passed = proofView(readFactoryProofResult(db, project.projectId, input.workflow, "passed"));
       const failed = proofView(readFactoryProofResult(db, project.projectId, input.workflow, "failed"));
       const shownWords = shown
@@ -979,8 +1023,12 @@ export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectReso
         shownWords,
         `Grants (beside the plan, never in it): ${grants.length === 0 ? "none." : ""}`,
         ...grants.map(grantLine),
+        ...(grantTotals.shown < grantTotals.all ? [`Shown: ${grantTotals.shown} of ${count(grantTotals.all, "grant")}. The other ${grantTotals.all - grantTotals.shown} are older spent or expired grants. They stay until the workflow is removed.`] : []),
         `Grant uses (one line for each recorded use, also of a revoked grant): ${grantUses.length === 0 ? "none." : ""}`,
         ...grantUses.map(grantUseLine),
+        ...(grantUses.length < grantUseTotal
+          ? [`Shown: ${input.usesBefore === undefined ? "the newest " : ""}${grantUses.length} of ${count(grantUseTotal, "grant use")}${input.usesBefore === undefined ? "" : `, the ones just older than ${input.usesBefore}`}. They stay until the workflow is removed.${olderUsesBefore ? ` ${count(olderGrantUses, "older use")} ${olderGrantUses === 1 ? "is" : "are"} not shown. Read the next page with --uses-before ${olderUsesBefore} (MCP usesBefore).` : ""}`]
+          : []),
         ...(passed?.manualSteps.length ? ["Open manual steps:", ...passed.manualSteps.map((step) => `- ${step}`)] : []),
         FACTORY_READ_TAIL,
       ];
@@ -1006,7 +1054,13 @@ export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectReso
           : null,
         keptRevisions: revisions.map((revision) => revision.revision),
         grants,
+        grantTotals,
         grantUses,
+        grantUseTotal,
+        grantUseShownMax: FACTORY_GRANT_USE_READ_MAX,
+        usesBefore: input.usesBefore ?? null,
+        olderGrantUses,
+        olderUsesBefore,
         proofs: { passed, failed },
         lines,
       });
@@ -1039,6 +1093,270 @@ export function factoryWorkflowList(env: FactoryEnv, project: FactoryProjectReso
 }
 
 /* ------------------------------------------------------------------------ */
+/* workflow clean (project write, owner decision 2026-11-24)                */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * The words for a backup record that goes with no file (register D-078, option B; wording of round 4). The software
+ * cannot know that the files are gone for good, so the words say what it found and what happens to a file that still exists.
+ */
+export const FACTORY_BACKUP_NOT_FOUND_WORDS =
+  "The files are not found on this computer now (removed, renamed, or on a drive that is not connected). If a file still exists, it stays where it is, and no later Make Docs cleanup finds it:";
+
+/** The order in which a workflow removal deletes, as the result lists the counts. */
+const FACTORY_REMOVAL_ORDER = ["factory_backups", "factory_assignments", "factory_grant_uses", "factory_grants", "factory_proof_results", "factory_workflow_plans", "factory_workflow_bindings"] as const;
+const FACTORY_REMOVAL_WORDS: Readonly<Record<(typeof FACTORY_REMOVAL_ORDER)[number], string>> = Object.freeze({
+  factory_backups: "backup record",
+  factory_assignments: "final assignment",
+  factory_grant_uses: "grant use",
+  factory_grants: "grant",
+  factory_proof_results: "test task result",
+  factory_workflow_plans: "plan revision",
+  factory_workflow_bindings: "saved binding",
+});
+
+/**
+ * `factory workflow clean` (W30 R0 P6 T15, owner decision 2026-11-24): the
+ * reviewed removal of one saved workflow's Store rows. New behavior.
+ *
+ * Without a review digest it is the review: it changes nothing, lists what a
+ * removal would delete, and gives the review digest. With `review` it
+ * removes, but only when the digest still matches, so the person approved
+ * exactly what goes. It refuses while an assignment of the workflow is open
+ * (`assignment-open`), and while a backup record's file is still on this
+ * computer in a folder that is not a bound checkout
+ * (`backup-file-out-of-reach`): a backup record goes only together with its
+ * file. It reaches the backup files in every bound checkout of the project
+ * (register D-079, option A). It drops a record whose files are not found on
+ * this computer now, after the review listed it by name (register D-078,
+ * option B). It cannot know that they are gone for good: a file that still
+ * exists stays, and no later cleanup finds it. Before its first delete it checks
+ * that every backup file can be deleted safely, and refuses a symbolic link in
+ * a path (`backup-path-unsafe`) and a folder that it cannot change
+ * (`backup-file-locked`). When a delete still fails, the result is `stopped`:
+ * it names what went and what stayed, and the Store matches the disk. It deletes in order: the backup
+ * files and their records, the final assignments with their status history,
+ * the grant uses, the grants, the test task results, the plan revisions, and
+ * the binding. Then it writes the `.make-docs/factory/` copies again. It
+ * never edits the config file.
+ */
+export function factoryWorkflowClean(env: FactoryEnv, project: FactoryProjectResolution, input: { workflow: string; review?: string }) {
+  const operation = "factory.workflow.clean" as const;
+  const actedOn = factoryProjectActedOn(project);
+  const words = factoryProjectWords(project);
+  return refusable(operation, actedOn, () => {
+    const checkout = project.checkout!;
+    const config = readFactoryCheckoutConfig(checkout.root);
+    const inConfig = config.ok && Object.hasOwn(config.workflows, input.workflow);
+    const read = (db: StoreDatabase) => {
+      const facts = readFactoryWorkflowRemovalFacts(db, project.projectId, input.workflow);
+      if (!facts) refuse("record-not-found", `${words} has no saved workflow named ${input.workflow}.`, "Run make-docs factory workflow list to see the saved workflows.", { workflow: input.workflow });
+      const backups = planFactoryWorkflowBackupRemoval(db, { projectId: project.projectId, workflowName: input.workflow, checkouts: project.checkouts });
+      // The digest binds the review to the exact records that the person approved, not only to their counts: each
+      // record's identity and version, each plan digest, and each backup record with its file's recorded hash. It
+      // also binds what is on the disk: for each backup file, the checkout that holds it and the SHA-256 of its bytes
+      // now, and each record that goes without a file. So a record that was added, removed, replaced, or changed, and
+      // a backup file whose bytes changed, each give `review-mismatch`.
+      const reviewDigest = factoryCanonicalDigest({
+        operation,
+        projectId: project.projectId,
+        workflow: input.workflow,
+        openAssignments: facts.openAssignments,
+        records: readFactoryWorkflowRemovalIdentity(db, project.projectId, input.workflow) as FactoryJsonValue,
+        // Each file that goes: after a folder move, one record can have a copy in more than one checkout, and each copy is bound.
+        backupFiles: backups.inReach.flatMap((entry) => entry.files.map((target) => [factoryBackupProjectPath(entry.record.backupPath, entry.record.assignmentId, entry.record.originalPath), target.checkoutId, target.diskDigest])).sort(),
+        backupsDropped: backups.dropped.map((entry) => [entry.backup, entry.assignmentId]).sort(),
+        backupsChanged: backups.changed.map((entry) => [entry.backup, entry.checkoutId]).sort(),
+        backupsOutOfReach: backups.outOfReach.map((entry) => entry.backup).sort(),
+        backupsBlocked: backups.blocked.map((entry) => [entry.backup, entry.where]).sort(),
+      } as FactoryJsonValue);
+      return { facts, backups, reviewDigest };
+    };
+    const countLines = (counts: Record<(typeof FACTORY_REMOVAL_ORDER)[number], number>, dropped = 0) => FACTORY_REMOVAL_ORDER.map((table) =>
+      `- ${count(counts[table], FACTORY_REMOVAL_WORDS[table])}${table !== "factory_backups" ? "" : dropped === 0 ? ", each with its backup file" : `: ${counts[table] - dropped} with ${counts[table] - dropped === 1 ? "its" : "their"} backup file, and ${dropped} dropped with no file`}.`);
+    const openLine = (state: ReturnType<typeof read>) => `${count(state.facts.openAssignments, "assignment")} of this workflow ${state.facts.openAssignments === 1 ? "is" : "are"} open. Finish or cancel each one with make-docs factory assignment save first.`;
+    // A file that is still on this machine, in a folder that is not a bound checkout. A record whose files are not
+    // found on this computer does not stop the removal (register D-078, option B): the review lists it, and the removal drops it.
+    const outOfReachLine = (state: ReturnType<typeof read>) => {
+      const entries = state.backups.outOfReach;
+      return `${count(entries.length, "backup record")} of this workflow ${entries.length === 1 ? "names a file" : "name files"} that ${entries.length === 1 ? "is" : "are"} still on this computer, in a folder that is not a bound checkout of this project: ${entries.slice(0, 5).map((entry) => entry.backup).join(", ")}${entries.length > 5 ? ", and more" : ""}. A backup record goes only together with its file. Bind the folder with make-docs setup, or remove the folder, then review again.`;
+    };
+    // A backup file that cannot be deleted safely stops the removal before the first delete (W30 R0 review, 2026-11-24).
+    const blockedLine = (state: ReturnType<typeof read>, where: "unsafe-path" | "locked") => {
+      const entries = state.backups.blocked.filter((entry) => entry.where === where);
+      return `${count(entries.length, "backup file")} of this workflow cannot be deleted: ${entries.slice(0, 5).map((entry) => entry.backup).join(", ")}${entries.length > 5 ? ", and more" : ""}. ${FACTORY_BACKUP_BLOCK_WORDS[where]} ${FACTORY_BACKUP_BLOCK_FIXES[where]}`;
+    };
+    const hasBlocked = (state: ReturnType<typeof read>, where: "unsafe-path" | "locked") => state.backups.blocked.some((entry) => entry.where === where);
+    // The recorded path is not found, and a reachable checkout holds something at the same path inside the project
+    // that is not proved to be the record's file. The record is not dropped, and nothing is deleted (round 4, F3).
+    const changedLine = (state: ReturnType<typeof read>) => {
+      const entries = state.backups.changed;
+      return `${count(entries.length, "backup record")} of this workflow ${entries.length === 1 ? "names a file" : "name files"} that moved, and the file at the same place in a checkout of this project is not proved to be the recorded one: ${entries.slice(0, 5).map((entry) => entry.backup).join(", ")}${entries.length > 5 ? ", and more" : ""}. Its bytes are not the recorded ones, or it cannot be read safely. Make Docs does not delete it, and does not drop the record. Look at the file: put the recorded backup back, or move the file away yourself, then review again.`;
+    };
+    const blockers = (state: ReturnType<typeof read>) => [
+      ...(state.facts.openAssignments > 0 ? [openLine(state)] : []),
+      ...(state.backups.outOfReach.length > 0 ? [outOfReachLine(state)] : []),
+      ...(state.backups.changed.length > 0 ? [changedLine(state)] : []),
+      ...(["unsafe-path", "locked"] as const).filter((where) => hasBlocked(state, where)).map((where) => blockedLine(state, where)),
+    ];
+    // What goes on the disk, by checkout (register D-079, option A): the removal reaches every bound checkout of the
+    // project whose folder is on this machine, and the review names each one.
+    const byCheckout = (state: ReturnType<typeof read>) => project.checkouts
+      .map((candidate) => ({ checkoutId: candidate.checkoutId, root: candidate.root, files: state.backups.inReach.reduce((total, entry) => total + entry.files.filter((target) => target.checkoutId === candidate.checkoutId).length, 0) }))
+      .filter((entry) => entry.files > 0);
+    // After a folder move, one record can have a copy in more than one checkout. Each copy is listed and counted (round 4, F2).
+    const copyLines = (state: ReturnType<typeof read>) => state.backups.inReach.filter((entry) => entry.files.length > 1).map((entry) =>
+      `- ${factoryBackupProjectPath(entry.record.backupPath, entry.record.assignmentId, entry.record.originalPath)}: ${entry.files.length} copies of this one backup go, in ${entry.files.map((target) => `checkout ${target.root}`).join(" and ")}.`);
+    const fileCount = (state: ReturnType<typeof read>) => state.backups.inReach.reduce((total, entry) => total + entry.files.length, 0);
+    const backupLines = (state: ReturnType<typeof read>) => [
+      ...(byCheckout(state).length ? ["Backup files that the removal deletes, by checkout:", ...byCheckout(state).map((entry) => `- ${count(entry.files, "backup file")} in checkout ${entry.root}${entry.checkoutId === checkout.checkoutId ? " (the checkout of this call)" : ""}.`)] : []),
+      ...copyLines(state),
+      ...(state.backups.dropped.length
+        ? [
+            `${count(state.backups.dropped.length, "backup record")} ${state.backups.dropped.length === 1 ? "goes" : "go"} with no file. ${FACTORY_BACKUP_NOT_FOUND_WORDS}`,
+            ...state.backups.dropped.map((entry) => `- ${entry.backup}: record dropped, files not reachable.`),
+          ]
+        : []),
+    ];
+    const otherCheckouts = project.checkouts.filter((candidate) => candidate.checkoutId !== checkout.checkoutId);
+    const copiesNote = otherCheckouts.length === 0
+      ? []
+      : [`Only the copies of this checkout were written again. This project has ${count(otherCheckouts.length, "other bound checkout")}: run make-docs factory restore --target-root <that checkout> in each one to write its copies again.`];
+    const configLine = inConfig
+      ? `The config of checkout ${checkout.root} still has the entry factory.workflows.${input.workflow}. Make Docs never edits it. While it stays, the workflow shows as draft: in the config, but not saved.`
+      : `The config of checkout ${checkout.root} has no entry for this workflow, so nothing of it stays.`;
+    if (input.review === undefined) {
+      const state = withStoreReadOnlyDatabase(env.storeRoot, read);
+      const blocked = blockers(state);
+      const lines = [
+        `Review: removing saved workflow ${input.workflow} from ${words} would delete these Store records, in this order:`,
+        ...countLines(state.facts.counts, state.backups.dropped.length),
+        ...backupLines(state),
+        ...(blocked.length ? ["The removal is refused now:", ...blocked.map((line) => `- ${line}`)] : []),
+        configLine,
+        "A removal cannot be undone. The machine's tool list stays, and so do the project's other workflows and its work.",
+        blocked.length
+          ? "Fix what is named above, then review again."
+          : `To remove it, run: make-docs factory workflow clean ${input.workflow} --review ${state.reviewDigest}, and name the project the same way.`,
+        "This review changed nothing.",
+      ];
+      return finish({
+        operation,
+        result: "reviewed" as const,
+        actedOn,
+        workflow: input.workflow,
+        reviewDigest: state.reviewDigest,
+        removable: blocked.length === 0,
+        openAssignments: state.facts.openAssignments,
+        counts: state.facts.counts,
+        backupFiles: fileCount(state),
+        backupsByCheckout: byCheckout(state),
+        // The record's own key stays inside: a result names a backup only by its path inside the project.
+        backupsDropped: state.backups.dropped.map(({ backupPath: _key, ...shown }) => shown),
+        backupsChanged: state.backups.changed,
+        backupsOutOfReach: state.backups.outOfReach,
+        backupsBlocked: state.backups.blocked,
+        inConfig,
+        checkout: { checkoutId: checkout.checkoutId, root: checkout.root },
+        lines,
+      });
+    }
+    const removed = withStoreWriteDatabase(env.storeRoot, (db) => {
+      const state = read(db);
+      if (state.reviewDigest !== input.review) {
+        refuse("review-mismatch", `The review digest does not match workflow ${input.workflow} as it is now: something changed since the review, or the digest is of another workflow.`, `Review again with make-docs factory workflow clean ${input.workflow}, then use the new digest.`, { field: "review" });
+      }
+      if (state.facts.openAssignments > 0) {
+        refuse("assignment-open", `Workflow ${input.workflow} has ${count(state.facts.openAssignments, "open assignment")}, so it stays.`, "Finish or cancel each open assignment with make-docs factory assignment save, then review the removal again.", { openAssignments: state.facts.openAssignments });
+      }
+      if (state.backups.outOfReach.length > 0) {
+        refuse("backup-file-out-of-reach", outOfReachLine(state), `Then review again with make-docs factory workflow clean ${input.workflow}, and use the new digest.`, { backups: state.backups.outOfReach });
+      }
+      if (state.backups.changed.length > 0) {
+        refuse("backup-file-changed", changedLine(state), `Then review again with make-docs factory workflow clean ${input.workflow}, and use the new digest.`, { backups: state.backups.changed });
+      }
+      // Before the first delete: every backup file can be deleted safely. A link in a path, or a folder that this
+      // account cannot change, refuses the removal here, and nothing changes.
+      for (const where of ["unsafe-path", "locked"] as const) {
+        if (!hasBlocked(state, where)) continue;
+        refuse(
+          where === "unsafe-path" ? "backup-path-unsafe" : "backup-file-locked",
+          blockedLine(state, where),
+          `Then review again with make-docs factory workflow clean ${input.workflow}, and use the new digest.`,
+          { backups: state.backups.blocked.filter((entry) => entry.where === where) },
+        );
+      }
+      // Each backup file goes first, then its record, then the rest in order. The Store rows go in one transaction.
+      const files = removeFactoryWorkflowBackups(db, project.projectId, state.backups);
+      if (files.stoppedAt) {
+        // A delete failed after the checks passed. The records of the files that went are deleted with them, and
+        // every other record stays, so the Store matches the disk. This transaction commits exactly that.
+        return { stopped: files };
+      }
+      const rest = removeFactoryWorkflowRows(db, project.projectId, input.workflow, { expectedVersion: state.facts.bindingVersion });
+      return { counts: { ...rest, factory_backups: files.removed.length + files.dropped.length }, backupFiles: files.filesRemoved, dropped: files.dropped, byCheckout: byCheckout(state) };
+    });
+    if ("stopped" in removed) {
+      const { stoppedAt, removed: went, kept } = removed.stopped!;
+      const list = (entries: readonly string[]) => `${entries.slice(0, 10).join(", ")}${entries.length > 10 ? `, and ${entries.length - 10} more` : ""}`;
+      const refusal = stoppedAt!.why === "unsafe-path" ? "backup-path-unsafe" as const : "backup-file-locked" as const;
+      const reason = `Make Docs could not delete the backup file ${stoppedAt!.backup}. ${FACTORY_BACKUP_BLOCK_WORDS[stoppedAt!.why]}`;
+      const nextAction = `${FACTORY_BACKUP_BLOCK_FIXES[stoppedAt!.why]} Then review again with make-docs factory workflow clean ${input.workflow}, name the project the same way, and use the new digest.`;
+      const lines = [
+        `Stopped: the removal of saved workflow ${input.workflow} from ${words} is not complete. ${reason}`,
+        went.length ? `Removed ${count(went.length, "backup file")} with ${went.length === 1 ? "its record" : "their records"}: ${list(went)}.` : "Removed no backup file.",
+        `Kept ${count(kept.length, "backup file")} with ${kept.length === 1 ? "its record" : "their records"}: ${list(kept)}.`,
+        "Every other record of the workflow stays: its assignments, grant uses, grants, test task results, plan revisions, and binding. The Store matches the files on the disk.",
+        `Next: ${nextAction}`,
+        `Reason code: ${refusal}.`,
+      ];
+      return finish({
+        operation,
+        result: "stopped" as const,
+        // The CLI exits 1 for a result that was not accepted.
+        accepted: false as const,
+        actedOn,
+        workflow: input.workflow,
+        refusal,
+        reason,
+        nextAction,
+        backupsRemoved: went,
+        backupsKept: kept,
+        stoppedAt,
+        checkout: { checkoutId: checkout.checkoutId, root: checkout.root },
+        lines,
+      });
+    }
+    const copies = writeCopies(env, project, checkout);
+    const lines = [
+      `Removed saved workflow ${input.workflow} from ${words}. Deleted, in this order:`,
+      ...countLines(removed.counts!, removed.dropped!.length),
+      ...(removed.byCheckout!.length ? ["Backup files deleted, by checkout:", ...removed.byCheckout!.map((entry) => `- ${count(entry.files, "backup file")} in checkout ${entry.root}.`)] : []),
+      ...(removed.dropped!.length ? [`Backup records dropped with no file. ${FACTORY_BACKUP_NOT_FOUND_WORDS}`, ...removed.dropped!.map((backup) => `- ${backup}: record dropped, files not reachable.`)] : []),
+      configLine,
+      `Copies: wrote ${copies.written.length} files in checkout ${checkout.root}${copies.removed.length ? `, and removed ${copies.removed.join(", ")}` : ""}.`,
+      ...copiesNote,
+      "The machine's tool list stays, and so do the project's other workflows and its work.",
+    ];
+    return finish({
+      operation,
+      result: "removed" as const,
+      actedOn,
+      workflow: input.workflow,
+      counts: removed.counts!,
+      backupFilesRemoved: removed.backupFiles!,
+      backupsByCheckout: removed.byCheckout!,
+      backupsDropped: removed.dropped!,
+      inConfig,
+      checkout: { checkoutId: checkout.checkoutId, root: checkout.root },
+      copies: { written: copies.written, removed: copies.removed },
+      otherCheckouts: otherCheckouts.length,
+      lines,
+    });
+  });
+}
+
+/* ------------------------------------------------------------------------ */
 /* restore (project)                                                        */
 /* ------------------------------------------------------------------------ */
 
@@ -1055,6 +1373,7 @@ export function factoryRestore(env: FactoryEnv, project: FactoryProjectResolutio
       ...(copies.removed.length ? [`Removed copies that the Store no longer backs: ${copies.removed.join(", ")}.`] : []),
       "The copies hold no grant. Make Docs never reads them as input.",
       ...(cleanup && cleanup.removed.length ? [`Removed ${count(cleanup.removed.length, "factory backup")} of finished or old work.`] : []),
+      ...factoryBackupKeptLines(cleanup?.kept ?? []),
     ];
     return finish({
       operation,
@@ -1062,7 +1381,7 @@ export function factoryRestore(env: FactoryEnv, project: FactoryProjectResolutio
       actedOn,
       checkout: { checkoutId: checkout.checkoutId, root: checkout.root },
       copies: { folder: copies.folder, written: copies.written, removed: copies.removed },
-      backupCleanup: cleanup ? { removed: cleanup.removed.length, recordsOnly: cleanup.recordsOnly.length } : null,
+      backupCleanup: cleanup ? { removed: cleanup.removed.length, kept: cleanup.kept } : null,
       lines,
     });
   });
@@ -1144,6 +1463,34 @@ export function factoryStatus(env: FactoryEnv, project: FactoryProjectResolution
       const unit = readWorkUnit(db, claim.unitStoreId);
       return { unit: unit ? workUnitLabel(unit) : claim.unitStoreId, claimant: claim.claimant, expiresAt: claim.expiresAt };
     });
+    // The age of each bound tool's proofs (owner decision 2026-11-24). A proof older than 30 days is called old; that
+    // changes no readiness. Only an agent can check a tool again.
+    const boundRoles = new Map<string, Array<{ workflow: string; role: string }>>();
+    for (const binding of bindings) {
+      for (const [role, toolId] of Object.entries(binding.roles)) boundRoles.set(toolId, [...(boundRoles.get(toolId) ?? []), { workflow: binding.workflowName, role }]);
+    }
+    const dayMs = 24 * 60 * 60 * 1000;
+    const ageDays = (time: string) => Math.max(0, Math.floor((env.now.getTime() - new Date(time).getTime()) / dayMs));
+    const boundTools = [...boundRoles.keys()].sort().map((toolId) => {
+      const tool = toolsById.get(toolId) ?? null;
+      const proofs = (tool?.proofs ?? []).map((proof) => {
+        const days = ageDays(proof.provedAt);
+        return { capabilityId: proof.capabilityId, result: proof.result, toolVersion: proof.toolVersion, provedAt: proof.provedAt, ageDays: days, old: days > FACTORY_PROOF_OLD_AFTER_DAYS };
+      });
+      return {
+        toolId,
+        label: tool?.label ?? null,
+        state: tool?.state ?? null,
+        reportedVersion: tool?.reportedVersion ?? null,
+        reportedAt: tool?.reportedAt ?? null,
+        reportedAgeDays: tool ? ageDays(tool.reportedAt) : null,
+        roles: boundRoles.get(toolId)!,
+        proofs,
+        oldestProofAgeDays: proofs.length ? Math.max(...proofs.map((proof) => proof.ageDays)) : null,
+        hasOldProof: proofs.some((proof) => proof.old),
+      };
+    });
+    const dayWords = (days: number) => (days === 0 ? "today" : `${days} day${days === 1 ? "" : "s"} ago`);
     const lines = [`Factory status for ${factoryProjectWords(project)}${project.chosenBy === "named" ? ", as named" : ", taken from the current folder"}.`];
     if (input.run !== undefined) lines.push(`Only lifecycle run ${input.run}.`);
     if (shown.length === 0) {
@@ -1155,7 +1502,7 @@ export function factoryStatus(env: FactoryEnv, project: FactoryProjectResolution
       for (const workflow of groups.find((candidate) => candidate.checkoutId === group.checkoutId)!.workflows) {
         if (!group.readable) continue;
         const revision = workflow.matchedRevision !== null ? ` Plan revision ${workflow.matchedRevision}.` : workflow.readyRevision !== null ? ` Ready revision ${workflow.readyRevision}.` : "";
-        lines.push(`  Workflow ${workflow.workflowName}: ${factoryReadinessWords(workflow.readiness)}.${revision}${workflow.reason ? ` ${workflow.reason}` : ""}`);
+        lines.push(`  Workflow ${workflow.workflowName}: ${factoryReadinessWords(workflow.readiness, workflow.readinessCode)}.${revision}${workflow.reason ? ` ${workflow.reason}` : ""}`);
         for (const entry of workflow.drift) lines.push(`    - ${entry.code}: ${entry.text} Next: ${entry.nextStep}`);
         if (workflow.drift.length === 0 && workflow.readiness !== "ready" && workflow.nextStep) lines.push(`    Next: ${workflow.nextStep}`);
       }
@@ -1173,12 +1520,27 @@ export function factoryStatus(env: FactoryEnv, project: FactoryProjectResolution
     if (input.run === undefined && claimedOnly.length) {
       lines.push("Claimed units with no open assignment:", ...claimedOnly.map((entry) => `- ${entry.unit}: claimed by ${entry.claimant} until ${entry.expiresAt}.`));
     }
+    if (input.run === undefined && boundTools.length) {
+      lines.push(`Bound tools of this machine, with the age of each proof. A proof older than ${FACTORY_PROOF_OLD_AFTER_DAYS} days is old:`);
+      for (const tool of boundTools) {
+        if (tool.state === null) {
+          lines.push(`- ${tool.toolId}: not in this machine's tool list. Report it with make-docs factory tools save.`);
+          continue;
+        }
+        lines.push(`- ${tool.toolId} (${tool.label}): ${tool.state}, version ${tool.reportedVersion ?? "not reported"}, last reported ${dayWords(tool.reportedAgeDays!)}.${tool.proofs.length === 0 ? " No capability proof." : ""}`);
+        for (const proof of tool.proofs) {
+          lines.push(`  - ${proof.capabilityId}: ${proof.result} ${dayWords(proof.ageDays)}${proof.old ? `. Old: older than ${FACTORY_PROOF_OLD_AFTER_DAYS} days. Check the tool again and save it with make-docs factory tools save` : ""}.`);
+        }
+      }
+    }
     lines.push(FACTORY_READ_TAIL);
     return finish({
       operation,
       result: "read" as const,
       actedOn,
       run: input.run ?? null,
+      proofOldAfterDays: FACTORY_PROOF_OLD_AFTER_DAYS,
+      boundTools: input.run === undefined ? boundTools : [],
       checkouts: shown,
       claimedWithoutAssignment: input.run === undefined ? claimedOnly : [],
       finalStatuses: [...FACTORY_FINAL_STATUSES],

@@ -58,7 +58,14 @@ export interface PruneProjectFromStoreOptions extends ResolveStoreRootOptions {
 
 /** What a prune did with the project's work store rows (W29 R0 P4 T12). */
 export type PruneWorkRowsOutcome =
-  | { status: "removed"; removed: DeletePrunedProjectWorkRowsResult["removed"] }
+  | {
+      status: "removed";
+      removed: DeletePrunedProjectWorkRowsResult["removed"];
+      /** The project's factory rows that went with the work rows (W30 R0 review, 2026-11-24). */
+      factoryRemoved: DeletePrunedProjectWorkRowsResult["factoryRemoved"];
+      /** The workflows that stay whole, because a backup record of theirs stays. */
+      factoryKept: DeletePrunedProjectWorkRowsResult["factoryKept"];
+    }
   | { status: "kept"; reason: string };
 
 export type PruneProjectFromStoreResult =
@@ -121,7 +128,9 @@ export function pruneProjectFromStore(
         workRows = { status: "kept", reason: "A checkout of the project is still bound, so its work rows stay." };
       } else {
         try {
-          workRows = { status: "removed", removed: deletePrunedProjectWorkRows(db, resolvedProjectId, { exportDigest: options.workExportDigest }).removed };
+          // The factory report goes back too: what went, and each workflow that stays because a backup record of it stays (PRD 52 R-WORK-STORE-13).
+          const cleaned = deletePrunedProjectWorkRows(db, resolvedProjectId, { exportDigest: options.workExportDigest });
+          workRows = { status: "removed", removed: cleaned.removed, factoryRemoved: cleaned.factoryRemoved, factoryKept: cleaned.factoryKept };
         } catch (error) {
           if (!(error instanceof WorkStoreRefusalError)) throw error;
           workRows = { status: "kept", reason: error.reason };

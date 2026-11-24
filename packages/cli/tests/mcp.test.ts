@@ -105,6 +105,7 @@ describe("make-docs MCP runtime", () => {
       "factory_tools_list",
       "factory_file_backup_save",
       "factory_grant_use_record",
+      "factory_workflow_clean",
     ]);
   });
 

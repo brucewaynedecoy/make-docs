@@ -237,6 +237,8 @@ export const ADMITTED_OPERATION_IDS = [
   "factory.tools.list",
   "factory.file-backup.save",
   "factory.grant-use.record",
+  // W30 R0 Store lifecycle fixes (owner decision 2026-11-24): the reviewed workflow removal.
+  "factory.workflow.clean",
 ] as const;
 
 /**
@@ -321,6 +323,7 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "factory.tools.list": ["factory", "tools list"],
   "factory.file-backup.save": ["factory", "file-backup save"],
   "factory.grant-use.record": ["factory", "grant-use record"],
+  "factory.workflow.clean": ["factory", "workflow clean"],
 };
 
 export function operationDomain(id: string): string {

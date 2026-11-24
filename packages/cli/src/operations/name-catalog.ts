@@ -506,6 +506,8 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   added("factory.tools.list", W30, "factory", "factory tools list"),
   added("factory.file-backup.save", W30, "factory", "factory file-backup save"),
   added("factory.grant-use.record", W30, "factory", "factory grant-use record"),
+  // W30 R0 Store lifecycle fixes (owner decision 2026-11-24). `clean` is the catalog's verb for a reviewed removal; `remove` is refused in native command rules.
+  added("factory.workflow.clean", W30, "factory", "factory workflow clean"),
 
   // check
   current("prd.authority.validate", "check", "run prd authority validate", "prd_validate", "check prd", {

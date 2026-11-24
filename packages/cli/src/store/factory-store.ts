@@ -77,7 +77,22 @@ import { checkWorkUnitWriteClaim } from "./work-store";
  */
 
 /** Service refusals besides the contract's reason codes. They follow the work store service. */
-export const FACTORY_STORE_SERVICE_REFUSALS = ["version-conflict", "record-not-found", "invalid-record", "project-not-identified", "project-not-registered", "checkout-not-bound"] as const;
+export const FACTORY_STORE_SERVICE_REFUSALS = [
+  "version-conflict",
+  "record-not-found",
+  "invalid-record",
+  "project-not-identified",
+  "project-not-registered",
+  "checkout-not-bound",
+  // Store lifecycle fixes (owner decisions 2026-11-24): the reviewed workflow removal.
+  "backup-file-out-of-reach",
+  "review-mismatch",
+  // W30 R0 review of 2026-11-24: a backup file that the removal cannot delete safely.
+  "backup-path-unsafe",
+  "backup-file-locked",
+  // W30 R0 round 4: a moved backup file whose bytes are not the recorded ones.
+  "backup-file-changed",
+] as const;
 export type FactoryStoreRefusal = FactoryRefusalCode | (typeof FACTORY_STORE_SERVICE_REFUSALS)[number];
 
 /** Typed refusal of a factory Store write. Nothing changed. */
@@ -500,6 +515,11 @@ export function markFactoryReadyRevision(
     if (!passed || passed.planDigest !== planDigest) {
       refuse("proof-missing", "No passed test task ran under that plan revision.", "Run the test task under that plan revision and record it with factory proof save.");
     }
+    // The latest test result for a plan decides (owner decision 2026-11-24): a newer failure of this plan stops the move.
+    const failed = readFactoryProofResult(db, projectId, workflowName, "failed");
+    if (failed && failed.planDigest === planDigest && failed.recordedAt > passed.recordedAt) {
+      refuse("proof-missing", "The latest test task under that plan revision failed.", "Fix what the test task found, run the test task again, and record the pass with factory proof save.");
+    }
     db.prepare(
       "UPDATE factory_workflow_bindings SET ready_revision = ?, readiness = 'ready', entry_version = entry_version + 1 WHERE project_id = ? AND workflow_name = ? AND entry_version = ?",
     ).run(revision.revision, projectId, workflowName, options.expectedVersion);
@@ -581,7 +601,8 @@ export interface FactoryPlanSaveResult {
  * cannot give a digest that does not match the bytes. A new revision is
  * added only when no kept revision has this digest. In the same write, the
  * keep rule removes every revision that is not the `ready` revision, not
- * named by an open assignment, and not one of the 10 newest others. The
+ * named by a retained assignment (open or final; owner decision 2026-11-24),
+ * and not one of the 10 newest others. The
  * workflow's binding must exist. This never makes a revision `ready`.
  */
 export function saveFactoryPlanRevision(
@@ -648,10 +669,12 @@ function pruneFactoryPlanRevisions(db: StoreDatabase, projectId: string, workflo
   const revisions = (db.prepare("SELECT revision FROM factory_workflow_plans WHERE project_id = ? AND workflow_name = ?").all(projectId, workflowName) as Array<{ revision: number | bigint }>).map((row) => Number(row.revision));
   const binding = bindingRow(db, projectId, workflowName);
   const ready = binding?.ready_revision === null || binding?.ready_revision === undefined ? null : Number(binding.ready_revision);
-  const open = (db.prepare(
-    `SELECT DISTINCT plan_revision FROM factory_assignments WHERE project_id = ? AND workflow_name = ? AND status NOT IN (${FACTORY_FINAL_STATUSES.map(() => "?").join(",")})`,
-  ).all(projectId, workflowName, ...FACTORY_FINAL_STATUSES) as Array<{ plan_revision: number | bigint }>).map((row) => Number(row.plan_revision));
-  const keep = factoryPlanRevisionsToKeep(revisions, ready, open);
+  // Every retained assignment, open or final, keeps its plan revision (owner decision 2026-11-24), so a final
+  // assignment can always show the plan and the round limit that it ran under. The workflow index serves this read.
+  const named = (db.prepare(
+    "SELECT DISTINCT plan_revision FROM factory_assignments WHERE project_id = ? AND workflow_name = ?",
+  ).all(projectId, workflowName) as Array<{ plan_revision: number | bigint }>).map((row) => Number(row.plan_revision));
+  const keep = factoryPlanRevisionsToKeep(revisions, ready, named);
   const removed = revisions.filter((revision) => !keep.has(revision)).sort((left, right) => left - right);
   const remove = db.prepare("DELETE FROM factory_workflow_plans WHERE project_id = ? AND workflow_name = ? AND revision = ?");
   for (const revision of removed) remove.run(projectId, workflowName, revision);
@@ -788,10 +811,44 @@ function toGrantUse(row: GrantUseRow): FactoryGrantUseRecord {
   return { useId: row.use_id, projectId: row.project_id, workflowName: row.workflow_name, grantId: row.grant_id, action: row.action, scope: row.scope, unitStoreId: row.unit_store_id, runId: row.run_id, usedAt: row.used_at };
 }
 
-/** Every recorded grant use of one workflow, oldest first, also of a grant that was revoked. */
-export function listFactoryGrantUses(db: StoreDatabase, projectId: string, workflowName: string): FactoryGrantUseRecord[] {
+/** How many grant uses one read returns at most. Use rows stay until the workflow is removed, so no read loads them all. */
+export const FACTORY_GRANT_USE_READ_MAX = 50;
+
+/**
+ * One page of the recorded grant uses of one workflow, oldest first, also of
+ * a grant that was revoked. Without `beforeUseId` it is the newest page. With
+ * it, it is the page of the uses just older than that use, so a caller can
+ * read every use, one page at a time. A page is bounded (`limit`, at most
+ * {@link FACTORY_GRANT_USE_READ_MAX}) and uses the (project, workflow, use
+ * time) index. {@link countFactoryGrantUses} gives the total, or the count of
+ * the uses older than one use. A use ID that the workflow does not hold is
+ * refused with `record-not-found`.
+ */
+export function listFactoryGrantUses(db: StoreDatabase, projectId: string, workflowName: string, options: { limit?: number; beforeUseId?: string } = {}): FactoryGrantUseRecord[] {
   checkProjectId(db, projectId);
-  return (db.prepare("SELECT * FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ? ORDER BY used_at, rowid").all(projectId, workflowName) as unknown as GrantUseRow[]).map(toGrantUse);
+  const limit = Math.max(1, Math.min(options.limit ?? FACTORY_GRANT_USE_READ_MAX, FACTORY_GRANT_USE_READ_MAX));
+  const before = grantUseCursor(db, projectId, workflowName, options.beforeUseId);
+  const rows = (before
+    ? db.prepare("SELECT * FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ? AND (used_at < ? OR (used_at = ? AND rowid < ?)) ORDER BY used_at DESC, rowid DESC LIMIT ?").all(projectId, workflowName, before.usedAt, before.usedAt, before.rowid, limit)
+    : db.prepare("SELECT * FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ? ORDER BY used_at DESC, rowid DESC LIMIT ?").all(projectId, workflowName, limit)) as unknown as GrantUseRow[];
+  return rows.reverse().map(toGrantUse);
+}
+
+function grantUseCursor(db: StoreDatabase, projectId: string, workflowName: string, useId: string | undefined): { usedAt: string; rowid: number } | null {
+  if (useId === undefined) return null;
+  const row = db.prepare("SELECT used_at, rowid AS row_number FROM factory_grant_uses WHERE use_id = ? AND project_id = ? AND workflow_name = ?").get(useId, projectId, workflowName) as { used_at: string; row_number: number | bigint } | undefined;
+  if (!row) refuse("record-not-found", `Workflow ${workflowName} has no grant use ${useId}.`, "Give a use ID that make-docs factory workflow show lists for this workflow.", { field: "usesBefore" });
+  return { usedAt: row.used_at, rowid: Number(row.row_number) };
+}
+
+/** The count of the grant uses of one workflow, or of those older than one use. */
+export function countFactoryGrantUses(db: StoreDatabase, projectId: string, workflowName: string, options: { beforeUseId?: string } = {}): number {
+  checkProjectId(db, projectId);
+  const before = grantUseCursor(db, projectId, workflowName, options.beforeUseId);
+  const row = (before
+    ? db.prepare("SELECT count(*) AS n FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ? AND (used_at < ? OR (used_at = ? AND rowid < ?))").get(projectId, workflowName, before.usedAt, before.usedAt, before.rowid)
+    : db.prepare("SELECT count(*) AS n FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ?").get(projectId, workflowName)) as { n: number | bigint };
+  return Number(row.n);
 }
 
 type GrantUseRefusal = Extract<FactoryRefusalCode, "grant-missing" | "grant-out-of-scope" | "grant-spent" | "grant-expired">;
@@ -832,15 +889,28 @@ export function useFactoryGrant(
   }
   const now = (options.now ?? new Date()).toISOString();
   return atomic(db, () => {
-    const named = db.prepare("SELECT * FROM factory_grants WHERE project_id = ? AND workflow_name = ? AND action = ? ORDER BY granted_at DESC, grant_id DESC").all(request.projectId, request.workflowName, action) as unknown as GrantRow[];
-    if (named.length === 0) refuse("grant-missing", `No grant names the action ${action}.`, "Ask the person through the human channel.", { action });
-    const grants = request.scopes ? named.filter((grant) => request.scopes!.includes(grant.scope)) : named;
-    if (grants.length === 0) refuse("grant-out-of-scope", `No grant for the action ${action} has the scope that this use needs.`, "Ask the person through the human channel.", { action });
-    const order: Record<FactoryGrantScope, number> = { standing: 0, run: 1, once: 2 };
-    const usable = grants.filter((grant) => grantUseRefusal(db, grant, request.runId, now) === null).sort((left, right) => order[left.scope] - order[right.scope]);
-    const chosen = usable[0];
+    // Spent and expired grants stay until the workflow is removed (owner decision 2026-11-24), so this read never
+    // loads them all: each query uses the (project, workflow, action) index, and the candidate query leaves out
+    // every grant that SQL can already rule out.
+    const where = "project_id = ? AND workflow_name = ? AND action = ?";
+    const key = [request.projectId, request.workflowName, action] as const;
+    if (!db.prepare(`SELECT 1 FROM factory_grants WHERE ${where} LIMIT 1`).get(...key)) {
+      refuse("grant-missing", `No grant names the action ${action}.`, "Ask the person through the human channel.", { action });
+    }
+    const scopes = request.scopes ? [...new Set(request.scopes)] : [...FACTORY_GRANT_SCOPES];
+    const scopeSql = `scope IN (${scopes.map(() => "?").join(",")})`;
+    const newest = db.prepare(`SELECT * FROM factory_grants WHERE ${where} AND ${scopeSql} ORDER BY granted_at DESC, grant_id DESC LIMIT 1`).get(...key, ...scopes) as GrantRow | undefined;
+    if (!newest) refuse("grant-out-of-scope", `No grant for the action ${action} has the scope that this use needs.`, "Ask the person through the human channel.", { action });
+    const candidates = db.prepare(
+      `SELECT * FROM factory_grants WHERE ${where} AND ${scopeSql}
+          AND (expires_at IS NULL OR expires_at > ?)
+          AND NOT (scope = 'once' AND spent_at IS NOT NULL)
+          AND (scope <> 'run' OR run_id = ?)
+        ORDER BY CASE scope WHEN 'standing' THEN 0 WHEN 'run' THEN 1 ELSE 2 END, granted_at DESC, grant_id DESC LIMIT 32`,
+    ).all(...key, ...scopes, now, runId) as unknown as GrantRow[];
+    const chosen = candidates.find((grant) => grantUseRefusal(db, grant, request.runId, now) === null);
     if (!chosen) {
-      const reason = grantUseRefusal(db, grants[0]!, request.runId, now)!;
+      const reason = grantUseRefusal(db, newest, request.runId, now) ?? "grant-out-of-scope";
       refuse(reason, `No grant for the action ${action} holds now.`, "Ask the person through the human channel.", { action });
     }
     if (chosen.scope === "once") {
@@ -1187,6 +1257,12 @@ export function readFactoryProofResult(db: StoreDatabase, projectId: string, wor
  * `plan-digest-mismatch`. A result replaces the last one of the same outcome.
  * It does not make the revision `ready`; {@link markFactoryReadyRevision}
  * does that after a pass.
+ *
+ * The latest test result for a plan decides (owner decision 2026-11-24). A
+ * failed result for the digest of the `ready` revision ends that revision's
+ * `ready` state in the same write: the binding keeps no `ready` revision and
+ * its readiness is `wired`, so the workflow takes no new work until a test
+ * task passes again. A failed result for any other digest changes no binding.
  */
 export function saveFactoryProofResult(
   db: StoreDatabase,
@@ -1212,6 +1288,13 @@ export function saveFactoryProofResult(
       `INSERT INTO factory_proof_results (project_id, workflow_name, outcome, test_task, plan_digest, path_json, manual_steps_json, recorded_at, entry_version)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(projectId, workflowName, outcome, testTask, input.planDigest, JSON.stringify(path), JSON.stringify(manualSteps), recordedAt, (options.expectedVersion ?? 0) + 1);
+    if (outcome === "failed") {
+      db.prepare(
+        `UPDATE factory_workflow_bindings SET ready_revision = NULL, readiness = 'wired', entry_version = entry_version + 1
+          WHERE project_id = ? AND workflow_name = ? AND ready_revision =
+            (SELECT revision FROM factory_workflow_plans WHERE project_id = ? AND workflow_name = ? AND plan_digest = ?)`,
+      ).run(projectId, workflowName, projectId, workflowName, input.planDigest);
+    }
     return readFactoryProofResult(db, projectId, workflowName, outcome)!;
   });
 }
@@ -1287,4 +1370,124 @@ export function listFactoryBackupsForFinishedWork(db: StoreDatabase, projectId: 
       WHERE b.project_id = ? AND (a.status = 'accepted' OR u.status = 'closed')
       ORDER BY b.backed_up_at, b.backup_path`,
   ).all(projectId) as unknown as BackupRow[]).map(toBackup);
+}
+
+/** The backup records of the assignments of one workflow, oldest first. */
+export function listFactoryBackupsOfWorkflow(db: StoreDatabase, projectId: string, workflowName: string): FactoryBackupRecord[] {
+  checkProjectId(db, projectId);
+  return (db.prepare(
+    `SELECT b.* FROM factory_backups b JOIN factory_assignments a ON a.assignment_id = b.assignment_id
+      WHERE b.project_id = ? AND a.workflow_name = ? ORDER BY b.backed_up_at, b.backup_path`,
+  ).all(projectId, workflowName) as unknown as BackupRow[]).map(toBackup);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Workflow removal (owner decision 2026-11-24, W30 R0 P6 T15)              */
+/* ------------------------------------------------------------------------ */
+
+/** What a workflow removal holds or removed, as row counts by table. */
+export interface FactoryWorkflowRemovalCounts {
+  factory_backups: number;
+  factory_assignments: number;
+  factory_grant_uses: number;
+  factory_grants: number;
+  factory_proof_results: number;
+  factory_workflow_plans: number;
+  factory_workflow_bindings: number;
+}
+
+export interface FactoryWorkflowRemovalFacts {
+  projectId: string;
+  workflowName: string;
+  bindingVersion: number;
+  openAssignments: number;
+  counts: FactoryWorkflowRemovalCounts;
+}
+
+/** The rows that a removal of one saved workflow would remove. It reads only. */
+export function readFactoryWorkflowRemovalFacts(db: StoreDatabase, projectId: string, workflowName: string): FactoryWorkflowRemovalFacts | null {
+  checkProjectId(db, projectId);
+  const binding = bindingRow(db, projectId, workflowName);
+  if (!binding) return null;
+  const count = (sql: string, ...values: string[]) => Number((db.prepare(sql).get(projectId, workflowName, ...values) as { n: number | bigint }).n);
+  return {
+    projectId,
+    workflowName,
+    bindingVersion: Number(binding.entry_version),
+    openAssignments: count(`SELECT count(*) AS n FROM factory_assignments WHERE project_id = ? AND workflow_name = ? AND status NOT IN (${FACTORY_FINAL_STATUSES.map(() => "?").join(",")})`, ...FACTORY_FINAL_STATUSES),
+    counts: {
+      factory_backups: count("SELECT count(*) AS n FROM factory_backups b JOIN factory_assignments a ON a.assignment_id = b.assignment_id WHERE b.project_id = ? AND a.workflow_name = ?"),
+      factory_assignments: count("SELECT count(*) AS n FROM factory_assignments WHERE project_id = ? AND workflow_name = ?"),
+      factory_grant_uses: count("SELECT count(*) AS n FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ?"),
+      factory_grants: count("SELECT count(*) AS n FROM factory_grants WHERE project_id = ? AND workflow_name = ?"),
+      factory_proof_results: count("SELECT count(*) AS n FROM factory_proof_results WHERE project_id = ? AND workflow_name = ?"),
+      factory_workflow_plans: count("SELECT count(*) AS n FROM factory_workflow_plans WHERE project_id = ? AND workflow_name = ?"),
+      factory_workflow_bindings: 1,
+    },
+  };
+}
+
+/**
+ * The identity of every record that a removal of one workflow deletes (W30
+ * R0 review, 2026-11-24). The review digest is made from it, so the digest
+ * names the exact records that the person approved, not only their counts:
+ * the binding and its version, each plan revision and its digest, each grant
+ * and its version, each grant use, each assignment and its version, each test
+ * task result with its version, time, and plan digest, and each backup record
+ * with its file's recorded hash. A record that was added, removed, replaced,
+ * or changed after the review gives another digest. It reads only.
+ */
+export function readFactoryWorkflowRemovalIdentity(db: StoreDatabase, projectId: string, workflowName: string): Record<string, unknown> | null {
+  checkProjectId(db, projectId);
+  const binding = bindingRow(db, projectId, workflowName);
+  if (!binding) return null;
+  const rows = (sql: string) => (db.prepare(sql).all(projectId, workflowName) as Array<Record<string, unknown>>).map((row) => Object.values(row).map((value) => (typeof value === "bigint" ? Number(value) : value)));
+  return {
+    binding: [projectId, workflowName, Number(binding.entry_version)],
+    plans: rows("SELECT revision, plan_digest FROM factory_workflow_plans WHERE project_id = ? AND workflow_name = ? ORDER BY revision"),
+    grants: rows("SELECT grant_id, entry_version FROM factory_grants WHERE project_id = ? AND workflow_name = ? ORDER BY grant_id"),
+    grantUses: rows("SELECT use_id FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ? ORDER BY use_id"),
+    assignments: rows("SELECT assignment_id, entry_version FROM factory_assignments WHERE project_id = ? AND workflow_name = ? ORDER BY assignment_id"),
+    proofs: rows("SELECT outcome, entry_version, recorded_at, plan_digest FROM factory_proof_results WHERE project_id = ? AND workflow_name = ? ORDER BY outcome"),
+    backups: rows(
+      `SELECT b.assignment_id, b.original_path, b.backup_path, b.content_digest, b.backed_up_at FROM factory_backups b
+         JOIN factory_assignments a ON a.assignment_id = b.assignment_id
+        WHERE b.project_id = ? AND a.workflow_name = ? ORDER BY b.assignment_id, b.original_path`,
+    ),
+  };
+}
+
+/**
+ * Remove one saved workflow's Store rows (owner decision 2026-11-24). The
+ * caller removed each backup record together with its file first, and
+ * dropped each reviewed record whose files are not found on this computer
+ * (`operations/factory/backups.ts`); a backup record that is still here stops
+ * the removal with `backup-file-out-of-reach`, because a backup record goes
+ * only with its file. It refuses with `assignment-open` while an assignment
+ * of the workflow is open. It then deletes, in this order and in one write:
+ * the final assignments with their status history, the grant uses, the
+ * grants, the test task results, the plan revisions, and the binding. Nothing
+ * here removes a row by cascade alone, and no other workflow's row changes.
+ */
+export function removeFactoryWorkflowRows(db: StoreDatabase, projectId: string, workflowName: string, options: { expectedVersion: number }): FactoryWorkflowRemovalCounts {
+  checkProjectId(db, projectId);
+  checkName("workflowName", workflowName);
+  return atomic(db, () => {
+    const facts = readFactoryWorkflowRemovalFacts(db, projectId, workflowName);
+    assertVersion(`Workflow ${workflowName}`, facts ? facts.bindingVersion : null, options.expectedVersion);
+    if (facts!.openAssignments > 0) {
+      refuse("assignment-open", `Workflow ${workflowName} has ${facts!.openAssignments} open assignment(s), so it stays.`, "Finish or cancel each open assignment with make-docs factory assignment save, then review the removal again.", { openAssignments: facts!.openAssignments });
+    }
+    if (facts!.counts.factory_backups > 0) {
+      refuse("backup-file-out-of-reach", `Workflow ${workflowName} still has ${facts!.counts.factory_backups} backup record(s). A backup record goes only together with its file.`, "Run the removal in a checkout that holds the backup files, as the review names them.", { backupRecords: facts!.counts.factory_backups });
+    }
+    const key = [projectId, workflowName] as const;
+    db.prepare("DELETE FROM factory_assignments WHERE project_id = ? AND workflow_name = ?").run(...key);
+    db.prepare("DELETE FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ?").run(...key);
+    db.prepare("DELETE FROM factory_grants WHERE project_id = ? AND workflow_name = ?").run(...key);
+    db.prepare("DELETE FROM factory_proof_results WHERE project_id = ? AND workflow_name = ?").run(...key);
+    db.prepare("DELETE FROM factory_workflow_plans WHERE project_id = ? AND workflow_name = ?").run(...key);
+    db.prepare("DELETE FROM factory_workflow_bindings WHERE project_id = ? AND workflow_name = ?").run(...key);
+    return facts!.counts;
+  });
 }

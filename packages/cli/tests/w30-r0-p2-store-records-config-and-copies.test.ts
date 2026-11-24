@@ -1206,7 +1206,7 @@ describe("W30 R0 P2 review: no cascade from work units into factory records (fin
     writeWorkStore(root, (db) => expect(readFactoryAssignment(db, PROJECT_ID, assignmentId)).toMatchObject({ status: "cancelled", unitStoreId }), { storeRoot: store, now: T0 });
   });
 
-  it("makes the scoped project cleanup refuse an open assignment, and remove final assignments and their backup records itself", () => {
+  it("makes the scoped project cleanup refuse an open assignment, and keep a workflow whole while a backup record of it stays (owner decision 2026-11-24)", () => {
     const ready = readyWorkflow("prune");
     const assignmentId = write(ready, (db) => {
       const assignment = start(ready, db);
@@ -1226,9 +1226,12 @@ describe("W30 R0 P2 review: no cascade from work units into factory records (fin
     expect(() => prune()).toThrow(/open factory assignment/);
     expect(rows()).toEqual({ assignments: 1, backups: 1, bindings: 1 });
     write(ready, (db) => move(ready, db, readFactoryAssignment(db, PROJECT_ID, assignmentId)!, "cancelled", "stopped-by-person"));
-    expect(prune()).toMatchObject({ factoryRemoved: { factory_assignments: 1, factory_backups: 1 } });
-    // The workflow's own rows stay; they go only when the workflow is removed.
-    expect(rows()).toEqual({ assignments: 0, backups: 0, bindings: 1 });
+    // A backup record goes only together with its file, and this cleanup removes no file. So the workflow stays whole.
+    expect(prune()).toMatchObject({
+      factoryRemoved: { factory_assignments: 0, factory_grant_uses: 0, factory_grants: 0, factory_proof_results: 0, factory_workflow_plans: 0, factory_workflow_bindings: 0 },
+      factoryKept: { workflows: ["ship"], factory_backups: 1 },
+    });
+    expect(rows()).toEqual({ assignments: 1, backups: 1, bindings: 1 });
   });
 
   it("refuses to remove an assignment that a backup record names, for every connection", () => {
@@ -1279,7 +1282,7 @@ describe("W30 R0 P2 review: a save that changes nothing keeps ready (finding 3)"
 });
 
 describe("W30 R0 P2 review: smaller fixes (findings 5 to 8)", () => {
-  it("applies the 30-day rule to every backup record of the project, and deletes a file only inside this checkout (finding 5)", () => {
+  it("keeps a backup record and its file together when the checkout folder moved, and removes both after 30 days (finding 5, owner decision 2026-11-24)", () => {
     const ready = readyWorkflow("moving");
     const record = write(ready, (db) => {
       const assignment = start(ready, db);
@@ -1292,13 +1295,16 @@ describe("W30 R0 P2 review: smaller fixes (findings 5 to 8)", () => {
     const movedBackup = path.join(moved, path.relative(ready.root, record.backupPath));
     writeWorkStore(moved, (db) => {
       // Within 30 days the record of the old folder stays, and the moved file is not touched.
-      expect(cleanupFactoryBackups(db, { projectRoot: moved, projectId: PROJECT_ID }, { now: at(10 * day) })).toMatchObject({ removed: [], recordsOnly: [] });
+      expect(cleanupFactoryBackups(db, { projectRoot: moved, projectId: PROJECT_ID }, { now: at(10 * day) })).toMatchObject({ removed: [], kept: [] });
       expect(existsSync(movedBackup)).toBe(true);
-      // After 30 days the record goes. Its path is outside this checkout, so no file is deleted by that record;
-      // the moved copy is an old unrecorded file in this checkout's folder, so the sweep removes it.
+      expect(listFactoryBackups(db, PROJECT_ID)).toHaveLength(1);
+      // After 30 days the record is due. The moved file has the record's path inside the project and its digest,
+      // so it is the record's file: the file and the record go together, and nothing is dropped alone.
       const cleaned = cleanupFactoryBackups(db, { projectRoot: moved, projectId: PROJECT_ID }, { now: at(31 * day) });
-      expect(cleaned.recordsOnly).toEqual([record.backupPath]);
-      expect(cleaned.reasons).toEqual({ [movedBackup]: "unrecorded-older-than-30-days" });
+      expect(cleaned.kept).toEqual([]);
+      expect(cleaned.removed).toEqual([movedBackup]);
+      expect(cleaned.reasons).toEqual({ [movedBackup]: "older-than-30-days" });
+      expect(existsSync(movedBackup)).toBe(false);
       expect(listFactoryBackups(db, PROJECT_ID)).toEqual([]);
     }, { storeRoot: store, now: T0 });
   });

@@ -101,6 +101,7 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "factory.tools.list": "factory_tools_list",
   "factory.file-backup.save": "factory_file_backup_save",
   "factory.grant-use.record": "factory_grant_use_record",
+  "factory.workflow.clean": "factory_workflow_clean",
 };
 
 const SUPPORT_EVIDENCE_REF =

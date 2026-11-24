@@ -226,23 +226,24 @@ export function factoryPlanRoundLimit(planJson: string): number | null {
 /* Revision keep rule                                                       */
 /* ------------------------------------------------------------------------ */
 
-/** For each workflow, the Store keeps this many newest revisions besides the `ready` one and the ones open assignments name. */
+/** For each workflow, the Store keeps this many newest revisions besides the `ready` one and the ones that retained assignments name. */
 export const FACTORY_PLAN_KEEP_NEWEST = 10;
 
 /**
  * The revisions to keep for one workflow (R-FACTORY-57): the `ready`
- * revision, each revision that an open assignment names, and the 10 newest
- * other revisions. Every other revision is removed in the same write.
+ * revision, each revision that a retained assignment names (open or final;
+ * owner decision 2026-11-24), and the 10 newest other revisions. Every other
+ * revision is removed in the same write.
  */
 export function factoryPlanRevisionsToKeep(
   revisions: readonly number[],
   readyRevision: number | null,
-  openAssignmentRevisions: Iterable<number>,
+  assignmentRevisions: Iterable<number>,
 ): Set<number> {
   const existing = new Set(revisions);
   const kept = new Set<number>();
   if (readyRevision !== null && existing.has(readyRevision)) kept.add(readyRevision);
-  for (const revision of openAssignmentRevisions) if (existing.has(revision)) kept.add(revision);
+  for (const revision of assignmentRevisions) if (existing.has(revision)) kept.add(revision);
   const others = [...existing].filter((revision) => !kept.has(revision)).sort((left, right) => right - left);
   for (const revision of others.slice(0, FACTORY_PLAN_KEEP_NEWEST)) kept.add(revision);
   return kept;

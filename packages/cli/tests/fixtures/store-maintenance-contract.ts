@@ -504,7 +504,7 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
   {
     id: "SMF-009",
     title: "Decision items, a pending layout with no lock, and machine setup history",
-    proves: ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-DECISION-004", "STORE-LEFTOVER-003", "STORE-LEFTOVER-004", "STORE-LEFTOVER-007"],
+    proves: ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-DECISION-004", "STORE-DECISION-005", "STORE-LEFTOVER-003", "STORE-LEFTOVER-004", "STORE-LEFTOVER-007"],
     seed(db, env) {
       checkout(db, "c-present", env.presentFolder);
       checkout(db, "c-missing", env.missingFolder);
@@ -530,6 +530,17 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       const claim = db.prepare("INSERT INTO work_claims VALUES (?, 'project-claims', ?, 'builder-a', NULL, ?, ?, ?, NULL)");
       claim.run("wc-claimold1", "wu-claimold1", daysAgo(9), daysAgo(9), daysAgo(8));
       claim.run("wc-claimnew1", "wu-claimnew1", daysAgo(4), daysAgo(4), daysAgo(3));
+      // W30 R0 review (2026-11-24): a factory backup record whose checkout folder is missing (reported), and one whose folder is there (kept).
+      db.prepare(`INSERT INTO factory_workflow_bindings (project_id, workflow_name, roles_json, worktree_method, channel_ref, wake_method, wake_ref, known_losses_json, ready_revision, readiness, entry_version)
+        VALUES ('project-backups', 'ship', '{}', 'none', NULL, 'person', NULL, '[]', NULL, 'draft', 1)`).run();
+      db.prepare(`INSERT INTO factory_assignments (assignment_id, project_id, workflow_name, checkout_id, unit_store_id, role, part_label, tool_id, task_handle, run_id, status, checked_at,
+        round_count, plan_revision, plan_digest, history_json, entry_version)
+        VALUES ('fa-fixture00001', 'project-backups', 'ship', 'c-present', 'wu-backup01', 'builder', 'main', 'tool-a', NULL, 'run-1', 'cancelled', ?, 0, 1, ?, ?, 1)`)
+        .run(daysAgo(3), "a".repeat(64), JSON.stringify([{ status: "cancelled", at: daysAgo(3), reason: "stopped-by-person" }]));
+      const backup = db.prepare("INSERT INTO factory_backups (project_id, assignment_id, original_path, backup_path, content_digest, backed_up_at) VALUES ('project-backups', 'fa-fixture00001', ?, ?, ?, ?)");
+      for (const [folder, file] of [[env.missingFolder, "gone.md"], [env.presentFolder, "here.md"]] as const) {
+        backup.run(`${folder}/notes/${file}`, `${folder}/.make-docs/backup/factory/fa-fixture00001/notes/${file}`, "b".repeat(64), daysAgo(3));
+      }
     },
     expected: [
       { target: "STORE-DECISION-001", key: "c-missing", outcome: "act" },
@@ -543,6 +554,8 @@ export const STORE_MAINTENANCE_FIXTURES: readonly StoreMaintenanceFixture[] = Ob
       { target: "STORE-DECISION-003", key: "op-other-pending", outcome: "keep" },
       { target: "STORE-DECISION-004", key: "wu-claimold1", outcome: "act" },
       { target: "STORE-DECISION-004", key: "wu-claimnew1", outcome: "keep" },
+      { target: "STORE-DECISION-005", key: "project-backups|.make-docs/backup/factory/fa-fixture00001/notes/gone.md", outcome: "act" },
+      { target: "STORE-DECISION-005", key: "project-backups|.make-docs/backup/factory/fa-fixture00001/notes/here.md", outcome: "keep" },
       { target: "STORE-RULE-005", key: "c-present|snapshot|detached:op-layout", outcome: "keep" },
       { target: "STORE-RULE-002", key: "machine-done", outcome: "keep" },
       { target: "STORE-RULE-002", key: "machine-failed", outcome: "keep" },
@@ -666,7 +679,9 @@ export function evaluateStoreFixture(
     const outcomes = new Map<string, StoreFixtureOutcome>();
     const inactive = isInactive(target) && !options.asIfActive;
     for (const query of target.candidates) {
-      const rows = db.prepare(query.sql).all(storeMaintenanceParametersFor(query.sql, parameters)) as Row[];
+      const rows = (db.prepare(query.sql).all(storeMaintenanceParametersFor(query.sql, parameters)) as Row[])
+        .map((row) => (query.derive ? (query.derive(row) as Row | null) : row))
+        .filter((row): row is Row => row !== null);
       for (const row of rows) {
         let outcome: StoreFixtureOutcome = "act";
         if (inactive || (row.skip_reason !== undefined && row.skip_reason !== null)) outcome = "skip";

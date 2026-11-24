@@ -38,6 +38,8 @@ export const FACTORY_OPERATION_IDS = [
   "factory.tools.list",
   "factory.file-backup.save",
   "factory.grant-use.record",
+  // Store lifecycle fixes (owner decision 2026-11-24).
+  "factory.workflow.clean",
 ] as const;
 export type FactoryOperationId = (typeof FACTORY_OPERATION_IDS)[number];
 
@@ -63,6 +65,8 @@ export const FACTORY_OPERATION_SCOPES: Readonly<Record<FactoryOperationId, Facto
   // The backup is a file copy in the one checkout that the assignment runs in.
   "factory.file-backup.save": { scope: "project", kind: "write", needsCheckout: true },
   "factory.grant-use.record": { scope: "project", kind: "write", needsCheckout: false },
+  // The removal writes the copies of one checkout again, and its review is a write call too: it names its project.
+  "factory.workflow.clean": { scope: "project", kind: "write", needsCheckout: true },
   "factory.tools.list": { scope: "machine", kind: "read", needsCheckout: false },
   "factory.workflow.show": { scope: "project", kind: "read", needsCheckout: false },
   "factory.workflow.list": { scope: "project", kind: "read", needsCheckout: false },

@@ -531,7 +531,7 @@ Object.assign(RUN_CLI_ADAPTERS, {
   },
   "factory.workflow.show": (options: OperationOptions) => {
     const revision = optionalPositiveInteger(options, "revision", operationPath("factory.workflow.show"));
-    return { input: { workflow: factoryPositional(options, "factory.workflow.show"), ...(revision === undefined ? {} : { revision }), ...factoryProject(options) } };
+    return { input: { workflow: factoryPositional(options, "factory.workflow.show"), ...(revision === undefined ? {} : { revision }), ...optionalText(options, "uses-before", "usesBefore"), ...factoryProject(options) } };
   },
   "factory.workflow.list": (options: OperationOptions) => ({ input: { ...factoryProject(options) } }),
   "factory.proof.save": (options: OperationOptions) => {
@@ -609,6 +609,9 @@ Object.assign(RUN_CLI_ADAPTERS, {
       },
     };
   },
+  "factory.workflow.clean": (options: OperationOptions) => ({
+    input: { workflow: factoryPositional(options, "factory.workflow.clean"), ...optionalText(options, "review", "review"), ...factoryProject(options) },
+  }),
 } satisfies Record<string, RunCliAdapter>);
 
 /** Flags that take a value in one command although the shared parser lists them as booleans. */

@@ -92,7 +92,7 @@ const LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS = [
 ] as const;
 const LITERAL_W25_R0_P4_ADMITTED_IDENTIFIERS = ["backlog.review.open", "backlog.review.refresh"] as const;
 /** W30 R0 P3: the factory (PRD 53 R-FACTORY-49). */
-const LITERAL_W30_R0_P3_ADMITTED_IDENTIFIERS = ["factory.status","factory.tools.save","factory.workflow.save","factory.workflow.show","factory.workflow.list","factory.proof.save","factory.assignment.start","factory.assignment.save","factory.assignment.list","factory.restore","factory.tools.list","factory.file-backup.save","factory.grant-use.record"] as const;
+const LITERAL_W30_R0_P3_ADMITTED_IDENTIFIERS = ["factory.status","factory.tools.save","factory.workflow.save","factory.workflow.show","factory.workflow.list","factory.proof.save","factory.assignment.start","factory.assignment.save","factory.assignment.list","factory.restore","factory.tools.list","factory.file-backup.save","factory.grant-use.record","factory.workflow.clean"] as const;
 /** W29 R0 P4: the work queue (PRD 52 R-WORK-QUEUE-12). */
 const LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS = [
   "work.queue.status",

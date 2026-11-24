@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { WORK_STORE_RMIN_ROWS } from "./work-store-schema";
 import { FACTORY_STORE_RMIN_ROWS } from "./factory-store-schema";
+import { splitFactoryBackupPath } from "./factory-backup-path";
 
 /**
  * W32 R0 P1 Store table catalog and fixed maintenance rules (PRD 38 R-MAINT).
@@ -91,7 +92,7 @@ export const STORE_FIXED_RULE_IDS = [
 ] as const;
 export type StoreFixedRuleId = (typeof STORE_FIXED_RULE_IDS)[number];
 
-export const STORE_DECISION_ITEM_IDS = ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-DECISION-004"] as const;
+export const STORE_DECISION_ITEM_IDS = ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-DECISION-004", "STORE-DECISION-005"] as const;
 export type StoreDecisionItemId = (typeof STORE_DECISION_ITEM_IDS)[number];
 
 /* ------------------------------------------------------------------------ */
@@ -785,7 +786,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["project_id", "workflow_name", "revision", "plan_digest", "plan_json", "config_digest", "binding_digest", "created_at"],
     purpose: "Immutable resolved plan revisions of each project workflow, as canonical JSON with its SHA-256 digest (R-FACTORY-56). A trigger refuses any change to a saved row, and a unique key allows one revision for each digest.",
-    writers: ["factory-store.ts saveFactoryPlanRevision, for factory workflow save; it adds a revision only when no kept revision has its digest, and removes older revisions in the same write"],
+    writers: ["factory-store.ts saveFactoryPlanRevision, for factory workflow save; it adds a revision only when no kept revision has its digest, and removes older revisions in the same write", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
     readers: ["factory-store.ts readFactoryPlanRevision and listFactoryPlanRevisions, for proof save, assignment start and save, workflow show, status, restore, and drift"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.plans, classCell: "Store-canonical and non-rebuildable" }],
@@ -793,9 +794,9 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
       rows: "Every row.",
       maintenanceClass: "bounded",
       rule: null,
-      limit: "For each workflow: the `ready` revision, each revision that an open assignment names, and the 10 newest other revisions (FACTORY_PLAN_KEEP_NEWEST). Each save removes the older revisions in the same write, and removing the workflow removes them all (R-FACTORY-57).",
+      limit: "For each workflow: the `ready` revision, each revision that a retained assignment names (open or final), and the 10 newest other revisions (FACTORY_PLAN_KEEP_NEWEST). Each save removes the older revisions in the same write, and removing the workflow removes them all (R-FACTORY-57).",
     }],
-    retention: "Keep the `ready` revision, each revision that an open assignment names, and the 10 newest other revisions; remove all with the workflow.",
+    retention: "Keep the `ready` revision, each revision that a retained assignment names (open or final), and the 10 newest other revisions; remove all with the workflow.",
     decisionItems: [],
     humanMeaning: "The exact saved shape of each factory workflow, one numbered version for each change. Old versions are trimmed when a new one is saved.",
   },
@@ -805,12 +806,12 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["project_id", "workflow_name", "roles_json", "worktree_method", "channel_ref", "wake_method", "wake_ref", "known_losses_json", "ready_revision", "readiness", "entry_version"],
     purpose: "The saved choices of one project workflow on this machine: the tool for each role, the working-copy method, the human channel account reference and the wake binding, the accepted known losses, the `ready` plan revision, and the readiness state (R-FACTORY-23).",
-    writers: ["factory-store.ts saveFactoryWorkflowBinding (never sets `ready`) and markFactoryReadyRevision (only after a passed test task), each with an expected record version"],
+    writers: ["factory-store.ts saveFactoryWorkflowBinding (never sets `ready`) and markFactoryReadyRevision (only after a passed test task), each with an expected record version", "factory-store.ts saveFactoryProofResult, which ends the `ready` state when a failed test task ran under the `ready` plan", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
     readers: ["factory-store.ts readFactoryWorkflowBinding and listFactoryWorkflowBindings, for the Skills, status, restore, drift, and the local copies"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.bindings, classCell: "Store-canonical and non-rebuildable" }],
-    rowClasses: [keepRows("Every row until the person changes or removes the workflow.")],
-    retention: "Retain until the person changes or removes the workflow.",
+    rowClasses: [keepRows("Every row until the person changes the workflow or removes it with the reviewed removal `factory workflow clean`.")],
+    retention: "Retain until the person changes the workflow or removes it with the reviewed removal.",
     decisionItems: [],
     humanMeaning: "How each factory workflow is wired on this computer. Maintenance never removes it.",
   },
@@ -820,12 +821,12 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["grant_id", "project_id", "workflow_name", "action", "scope", "run_id", "expires_at", "spent_at", "granted_by", "granted_at", "entry_version"],
     purpose: "A person's permission for one action outside the default authority, with its scope (`once`, `run`, or `standing`), its lifecycle run, an optional expiry, and when a `once` grant was spent (R-FACTORY-24). Never in config, a copy, or a plan.",
-    writers: ["factory-store.ts saveFactoryGrant, revokeFactoryGrant, useFactoryGrant, useFactoryGrantOnClaim, and startFactoryAssignment (which spends a `reset-correction-rounds` grant)"],
-    readers: ["factory-store.ts listFactoryGrants and useFactoryGrant, for assignment checks, workflow show, and status"],
+    writers: ["factory-store.ts saveFactoryGrant, revokeFactoryGrant, useFactoryGrant, useFactoryGrantOnClaim, and startFactoryAssignment (which spends a `reset-correction-rounds` grant)", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts listFactoryGrants and useFactoryGrant, for assignment checks, workflow show, and status; each read uses the (project, workflow, action) index, and a grant use reads only the grants that can still hold"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.grants, classCell: "Store-canonical and non-rebuildable" }],
-    rowClasses: [keepRows("Every row until the person revokes it or removes the workflow. Spent, ended, and expired grants stay as history.")],
-    retention: "Retain until the person revokes it or removes the workflow.",
+    rowClasses: [keepRows("Every row until the person revokes it or removes the workflow. A spent `once` grant, an ended `run` grant, and an expired grant stay as history until then, as their use rows do: they show why a recorded use was allowed, so no rule trims them (owner decision 2026-11-24).")],
+    retention: "Retain until the person revokes it or removes the workflow. Spent, ended, and expired grants stay until the workflow is removed.",
     decisionItems: [],
     humanMeaning: "What you allowed the factory to do without asking, such as a merge. Maintenance never removes it.",
   },
@@ -835,8 +836,8 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["use_id", "project_id", "workflow_name", "grant_id", "action", "scope", "unit_store_id", "run_id", "used_at"],
     purpose: "One row for each recorded use of a grant: the grant ID, its action and scope, the work unit, the lifecycle run, and the time (R-FACTORY-72). It holds no content and no claim ID. A revoke of the grant keeps its use rows.",
-    writers: ["factory-store.ts useFactoryGrant, in the same transaction as the grant check: for `factory assignment save --grant-use`, `factory grant-use record`, and a `reset-correction-rounds` grant that `factory assignment start` spends"],
-    readers: ["factory-store.ts listFactoryGrantUses, for workflow show"],
+    writers: ["factory-store.ts useFactoryGrant, in the same transaction as the grant check: for `factory assignment save --grant-use`, `factory grant-use record`, and a `reset-correction-rounds` grant that `factory assignment start` spends", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts listFactoryGrantUses (the newest 50, through the workflow and use time index) and countFactoryGrantUses, for workflow show"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.grantUses, classCell: "Store-canonical and non-rebuildable" }],
     rowClasses: [keepRows("Every row until the person removes the workflow. It is the only record that an action outside the default authority was done under a grant, so maintenance never removes it, also after the grant is revoked.")],
@@ -850,12 +851,12 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["assignment_id", "project_id", "workflow_name", "checkout_id", "unit_store_id", "role", "part_label", "tool_id", "task_handle", "run_id", "status", "checked_at", "round_count", "plan_revision", "plan_digest", "history_json", "entry_version"],
     purpose: "One job (work unit, role, and part label) run by one tool in one checkout, with its status, round count, plan revision, and 20 newest status changes (R-FACTORY-27). A partial unique index allows one open assignment for each job, and a trigger refuses a change to a final assignment. It never holds a claim ID.",
-    writers: ["factory-store.ts startFactoryAssignment and updateFactoryAssignment, each after a check of the unit's live claim, with an expected record version for updates", "work-store.ts deletePrunedProjectWorkRows, which removes a pruned project's final assignments and refuses an open one; no foreign key removes an assignment by cascade"],
+    writers: ["factory-store.ts startFactoryAssignment and updateFactoryAssignment, each after a check of the unit's live claim, with an expected record version for updates", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`, which refuses an open assignment", "work-store.ts deletePrunedProjectWorkRows, which removes a pruned project's final assignments of each workflow that has no backup record, and refuses an open one; no foreign key removes an assignment by cascade"],
     readers: ["factory-store.ts readFactoryAssignment and listFactoryAssignments, for the Skills, status, takeover, and the plan keep rule"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.assignments, classCell: "Store-canonical and non-rebuildable" }],
-    rowClasses: [keepRows("Every row: open assignments until final, and a final assignment's summary until an explicit scoped cleanup.")],
-    retention: "Keep open assignments until final; keep the final summary until explicit scoped cleanup.",
+    rowClasses: [keepRows("Every row: open assignments until final, and each final assignment until the reviewed workflow removal or the scoped cleanup of a pruned project.")],
+    retention: "Keep open assignments until final; keep each final assignment until the reviewed workflow removal or the scoped cleanup of a pruned project.",
     decisionItems: [],
     humanMeaning: "Which tool is doing which job, and what happened to it. Maintenance never removes it.",
   },
@@ -865,17 +866,17 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["project_id", "workflow_name", "outcome", "test_task", "plan_digest", "path_json", "manual_steps_json", "recorded_at", "entry_version"],
     purpose: "The latest passed and the latest failed test task of each workflow, with the plan digest it ran under, the path it exercised, and the manual steps still open (R-FACTORY-12).",
-    writers: ["factory-store.ts saveFactoryProofResult, with an expected record version, for factory proof save"],
-    readers: ["factory-store.ts readFactoryProofResult, for readiness, status, and markFactoryReadyRevision"],
+    writers: ["factory-store.ts saveFactoryProofResult, with an expected record version, for factory proof save", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts readFactoryProofResult, for readiness (the latest test result for a plan decides), status, and markFactoryReadyRevision"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.proofs, classCell: "Store-canonical and non-rebuildable" }],
     rowClasses: [{
       rows: "Every row.",
       maintenanceClass: "bounded",
       rule: null,
-      limit: "At most one passed and one failed row for each workflow, enforced by the primary key. A new result of the same outcome replaces the last.",
+      limit: "At most one passed and one failed row for each workflow, enforced by the primary key. A new result of the same outcome replaces the last. The two rows are all that the rule \"the latest test result for a plan decides\" needs: a failed result of the `ready` plan ends its `ready` state in the same write, so no older result is ever read.",
     }],
-    retention: "Retain the latest passing and latest failing proof per workflow.",
+    retention: "Retain the latest passing and latest failing proof per workflow; remove both with the workflow.",
     decisionItems: [],
     humanMeaning: "The last passed and the last failed test run of each factory workflow.",
   },
@@ -885,18 +886,18 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     schemaStatus: "physical",
     columns: ["project_id", "assignment_id", "original_path", "backup_path", "content_digest", "backed_up_at"],
     purpose: "A record of each file that the factory copied to `.make-docs/backup/factory/` before a worker changed it in a folder without git (R-FACTORY-44). The bytes stay in that folder; the row holds the paths, the digest, and the assignment.",
-    writers: ["operations/factory/backups.ts backupFactoryFileBeforeChange through factory-store.ts recordFactoryBackup, and cleanupFactoryBackups through deleteFactoryBackupRecord", "work-store.ts deletePrunedProjectWorkRows, before it removes the assignments"],
-    readers: ["factory-store.ts listFactoryBackups, for cleanup and restore help"],
+    writers: ["operations/factory/backups.ts backupFactoryFileBeforeChange through factory-store.ts recordFactoryBackup, and cleanupFactoryBackups and removeFactoryWorkflowBackups through deleteFactoryBackupRecord, each only together with the backup file"],
+    readers: ["factory-store.ts listFactoryBackups and listFactoryBackupsOfWorkflow, for cleanup, the reviewed workflow removal, and restore help", "work-store.ts deletePrunedProjectWorkRows, which keeps every workflow that has a backup record", "maintenance.ts evaluateStoreDecisions, for STORE-DECISION-005"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.backups, classCell: "Store-canonical and non-rebuildable while the backup exists" }],
     rowClasses: [{
       rows: "Every row.",
       maintenanceClass: "bounded",
       rule: null,
-      limit: "Factory cleanup, not a Store maintenance rule, deletes a row and its file when the assignment's work is accepted or closed, and any backup older than 30 days (R-FACTORY-45). It never touches an installation recovery backup.",
+      limit: "Factory cleanup, not a Store maintenance rule, deletes a row and its file when the assignment's work is accepted or closed, and any backup older than 30 days (R-FACTORY-45). A row goes only together with its file (R-FACTORY-74): a due row whose file is in another checkout, or in a folder that moved or is gone, stays, and the cleanup result reports it. The reviewed workflow removal deletes the rows and files of its workflow, and drops a row whose files are not found on this computer now, after the review listed it (register D-078, option B). It never touches an installation recovery backup.",
     }],
-    retention: "Delete when the assignment's work is accepted or closed, or after 30 days.",
-    decisionItems: [],
+    retention: "Delete when the assignment's work is accepted or closed, after 30 days, or with the workflow, and only together with the backup file.",
+    decisionItems: ["STORE-DECISION-005"],
     humanMeaning: "Copies of your files from before a factory worker changed them, in a folder without git. They are removed after the work is accepted or after 30 days.",
   },
 ]);
@@ -1067,6 +1068,13 @@ export interface StoreRuleCandidateQuery {
   sql: string;
   /** Result columns that identify one row. */
   key: readonly string[];
+  /**
+   * Optional. Turn one SQL row into the row that the proofs, the key, and the reason read, or into null to leave the
+   * row out. It is for a value that SQL cannot split safely, and it must only compute from the row. Only a decision
+   * item may use it: a fixed rule rechecks and deletes rows by their SQL columns, so {@link storeCatalogDrift}
+   * reports a fixed rule that has one, and the rule evaluation throws.
+   */
+  derive?: (row: Record<string, unknown>) => Record<string, unknown> | null;
 }
 
 /** A rule that is `inactive` reports its candidates as skipped and never changes a row. */
@@ -1679,6 +1687,35 @@ export const STORE_DECISION_ITEMS: readonly StoreDecisionItem[] = Object.freeze<
     reasonText: "The claim of {claimant} on {label} in project {project_id} ended at {expires_at}. Make Docs never removes a claim for you: the unit waits until someone takes it over after a handle check, or releases it.",
     nextAction: "Check the claimant's task. Then take the unit over with `make-docs work claim`, or release the claim with `make-docs work release`.",
   },
+  {
+    id: "STORE-DECISION-005",
+    title: "Factory backup record whose folder is missing",
+    prdPhrase: "a factory backup record whose checkout folder is missing",
+    condition: [
+      "The row is in factory_backups.",
+      "The checkout-folder-missing proof passes for the checkout folder that its backup_path names, split by splitFactoryBackupPath.",
+    ],
+    candidates: [{
+      table: "factory_backups",
+      // `backup` and `root_path` are empty here. `derive` fills both from backup_path, which SQL cannot split safely.
+      sql: `SELECT project_id, assignment_id, '' AS backup, '' AS root_path, backup_path, original_path
+          FROM factory_backups
+         ORDER BY project_id, backup_path`,
+      key: ["project_id", "backup"],
+      // The reason shows the backup by its path inside the project, and root_path is only the input of the folder
+      // proof. Both come from the shared split, at the last backup folder marker that the record's assignment ID
+      // follows, so the checkout folder's own path and the backed-up file's own path can hold the marker. The
+      // absolute backup path leaves the row here.
+      derive: (row) => {
+        const split = splitFactoryBackupPath(String(row.backup_path), String(row.assignment_id), typeof row.original_path === "string" ? row.original_path : null);
+        return split ? { project_id: row.project_id, assignment_id: row.assignment_id, backup: split.projectPath, root_path: split.root } : null;
+      },
+    }],
+    proofs: ["checkout-folder-missing"],
+    settings: [],
+    reasonText: "The factory backup record for {backup} in project {project_id} names a file in a checkout folder that is missing, or that cannot be checked from this computer. Make Docs removes a backup record only together with its file, so the record stays.",
+    nextAction: "If the folder moved, run `make-docs setup` in the new folder, and then `make-docs factory restore` there. If the folder does not come back, leave the record: it changes nothing else. The reviewed removal of its workflow, `make-docs factory workflow clean`, drops it.",
+  },
 ]);
 
 /* ------------------------------------------------------------------------ */
@@ -1985,6 +2022,11 @@ export function storeCatalogDrift(
   },
 ): string[] {
   const drift: string[] = [];
+  for (const rule of STORE_FIXED_RULES) {
+    rule.candidates.forEach((query, index) => {
+      if (query.derive) drift.push(`Fixed rule ${rule.id} candidate ${index} has a derive step. Only a decision item may have one.`);
+    });
+  }
   const catalogTables = new Map(catalog.tables.map((entry) => [entry.table as string, entry]));
   for (const [table, columns] of Object.entries(physical.tables)) {
     const entry = catalogTables.get(table);

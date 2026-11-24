@@ -7,6 +7,7 @@ import type { StoreDatabase } from "../../store/database";
 import {
   listFactoryMachineTools,
   listFactoryPlanRevisions,
+  readFactoryProofResult,
   readFactoryWorkflowBinding,
   type FactoryMachineToolRecord,
   type FactoryPlanRevisionRecord,
@@ -16,7 +17,7 @@ import { loadInstalledSystemResourceProvider } from "../resource/provider";
 import { readSystemResource } from "../resource/resolver";
 import { parseFactoryConfigBlock, type FactoryWorkflowDefinition } from "./config-block";
 import { factoryCanonicalJson, factoryDigest, resolveFactoryPlan, type FactoryJsonValue, type FactoryResolvedPlan, type FactoryToolFacts, type FactoryTypeFacts } from "./plan";
-import { FACTORY_DRIFT_CODES, FACTORY_STANDARD_ROLES, type FactoryReadiness } from "./records";
+import { FACTORY_DRIFT_CODES, FACTORY_STANDARD_ROLES, type FactoryReadiness, type FactoryReadinessCode } from "./records";
 
 /**
  * W30 R0 P3 T9, T18, and T21: the current plan from the three live sources
@@ -348,10 +349,10 @@ export function factoryDriftEntries(current: FactoryResolvedPlan, reference: Fac
 
 /**
  * The next step of a saved workflow whose config entry is gone (review item 6).
- * No command removes a workflow yet (P3 follow-up T34).
+ * `factory workflow clean` removes the saved workflow (owner decision 2026-11-24).
  */
 export const FACTORY_REMOVED_WORKFLOW_NEXT_STEP =
-  "Make Docs cannot remove a saved workflow yet. To use it again, put its entry back in .make-docs/config.yaml. To stop using it, leave it as it is: a drifted workflow takes no new work and changes nothing else.";
+  "To use it again, put its entry back in .make-docs/config.yaml. To remove its saved records, review the removal with make-docs factory workflow clean <workflow> and name the project. Until then it is drifted: it takes no new work and changes nothing else.";
 
 export type FactoryLiveReadiness = FactoryReadiness | "unknown";
 
@@ -360,6 +361,8 @@ export interface FactoryWorkflowLiveState {
   readiness: FactoryLiveReadiness;
   /** Why the readiness is unknown, or why the workflow is not set up. */
   reason: string | null;
+  /** The readiness code of a saved, unchanged plan that is not `ready`: `test-failed`, or null. */
+  readinessCode: FactoryReadinessCode | null;
   currentPlanDigest: string | null;
   /** The saved revision whose digest the current plan has, or null. */
   matchedRevision: number | null;
@@ -395,6 +398,7 @@ export function factoryWorkflowLiveState(
     readyRevision: binding?.readyRevision ?? null,
     latestRevision: latest?.revision ?? null,
     matchedRevision: null as number | null,
+    readinessCode: null as FactoryReadinessCode | null,
     currentPlanDigest: null as string | null,
     drift: [] as FactoryDriftEntry[],
     plan: null as FactoryResolvedPlan | null,
@@ -434,6 +438,20 @@ export function factoryWorkflowLiveState(
   }
   if (matched) {
     const wired = factoryPlanIsWired(plan.plan);
+    // The latest test result for a plan decides (owner decision 2026-11-24).
+    const failed = readFactoryProofResult(db, input.projectId, input.workflowName, "failed");
+    const passed = readFactoryProofResult(db, input.projectId, input.workflowName, "passed");
+    const testFailed = failed !== null && failed.planDigest === plan.planDigest && !(passed !== null && passed.planDigest === plan.planDigest && passed.recordedAt >= failed.recordedAt);
+    if (wired && testFailed) {
+      return {
+        ...live,
+        readiness: "wired",
+        readinessCode: "test-failed",
+        // The readiness words already say that the latest test task failed, so the reason adds only the time and the code.
+        reason: `It failed at ${failed.recordedAt}, so the workflow takes no new work. Reason code: test-failed.`,
+        nextStep: `Fix what the test task found. Then run the test task again under plan revision ${matched.revision} and record a pass with make-docs factory proof save.`,
+      };
+    }
     return {
       ...live,
       readiness: wired ? "wired" : "draft",
@@ -450,12 +468,13 @@ export function factoryWorkflowLiveState(
   return { ...live, readiness: "drifted", reason: null, drift, nextStep: drift[0]!.nextStep };
 }
 
-/** The readiness word for people. */
-export function factoryReadinessWords(state: FactoryLiveReadiness): string {
+/** The readiness word for people. With the code `test-failed`, a `wired` plan may have an older pass, so the words name the failed test. */
+export function factoryReadinessWords(state: FactoryLiveReadiness, code: FactoryReadinessCode | null = null): string {
   switch (state) {
     case "ready":
       return "ready: it takes new work";
     case "wired":
+      if (code === "test-failed") return "wired: saved and proved, but the latest test task under this plan failed";
       return "wired: saved and proved, but no test task has passed under this plan";
     case "draft":
       return "draft: not every role is bound and proved";

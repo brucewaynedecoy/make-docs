@@ -461,6 +461,8 @@ function lockTokenAbsentProof(db: StoreDatabase, recordJson: SqlValue): { result
 function evaluateRule(rule: StoreFixedRule, ctx: EvaluationContext): StoreMaintenanceRuleEvaluation {
   const rows: StoreMaintenanceRowResult[] = [];
   rule.candidates.forEach((query, index) => {
+    // A fixed rule acts on the SQL row itself. A derive step is for decision items only (storeCatalogDrift reports one here).
+    if (query.derive) throw new Error(`Store fixed rule ${rule.id} candidate ${index} has a derive step, which only a decision item may have.`);
     const candidates = ctx.db.prepare(query.sql).all(storeMaintenanceParametersFor(query.sql, ctx.parameters)) as Row[];
     for (const row of candidates) rows.push(evaluateRow(rule, query, index, row, ctx));
   });
@@ -546,12 +548,15 @@ export function evaluateStoreDecisions(db: StoreDatabase, env: StoreMaintenanceE
   const decisions: StoreMaintenanceDecision[] = [];
   for (const item of STORE_DECISION_ITEMS) {
     for (const query of item.candidates) {
-      for (const row of db.prepare(query.sql).all(storeMaintenanceParametersFor(query.sql, parameters)) as Row[]) {
+      for (const raw of db.prepare(query.sql).all(storeMaintenanceParametersFor(query.sql, parameters)) as Row[]) {
+        const row = query.derive ? (query.derive(raw) as Row | null) : raw;
+        if (row === null) continue;
         let reason = fillReason(item.reasonText, row);
         if (item.proofs.includes("checkout-folder-missing")) {
           const missing = env.folderMissing(text(row.root_path));
           if (missing === "refuted") continue;
-          if (missing === "unknown") reason = `The folder ${text(row.root_path)} for project ${text(row.project_id)} cannot be checked from this computer, for example a drive that is not connected. Make Docs keeps its Store rows.`;
+          // Only the checkout item names the folder. A backup record's reason already covers a folder that cannot be checked, with no absolute path.
+          if (missing === "unknown" && item.id === "STORE-DECISION-001") reason = `The folder ${text(row.root_path)} for project ${text(row.project_id)} cannot be checked from this computer, for example a drive that is not connected. Make Docs keeps its Store rows.`;
         }
         decisions.push({ id: item.id, title: item.title, key: keyOf(query, row), reason, nextAction: item.nextAction });
       }

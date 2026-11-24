@@ -1544,6 +1544,52 @@ Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same pr
 
 **Resolution**: Closed on 2026-11-24 at the owner's choice of option A. The commands are `factory file-backup save` and `factory grant-use record`. The build followed the D-076 precedent, option C: it picked names that the rules admit, and the harness access contract and the approved end words do not change. Neither name had been released, so neither has a former-name alias. PRD 53 R-FACTORY-70 and R-FACTORY-71, PRD 39 R-RUN-1, the factory contract, and both factory Skills state the names. This is new behavior: the names.
 
+### D-078 Backup Records Whose Checkout Folder Is Gone for Good
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option B on 2026-11-24: the reviewed removal may drop a backup record whose files are not found on this computer now. | None. The build drops such a record only in `factory workflow clean` with a review digest. |
+
+**Question**: What happens to a factory backup record when the checkout folder that holds its file never comes back?
+
+**Why it matters**: On 2026-11-24 the owner decided that a backup record goes only together with its file, and that a record stays and is reported when its checkout is not available ([PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-74). That rule has one hard case. When the folder is gone for good, the record can never go. It then stops `factory workflow clean` for that workflow with `backup-file-out-of-reach`, and the scoped cleanup of a pruned project keeps that workflow's rows. Nothing is lost and nothing is wrong, but those rows stay in the Store with no way out.
+
+**Options**: Option A keeps the build as it is. The record stays, each cleanup reports it, and the workflow cannot be removed until the folder is back and bound. Option B adds an explicit choice to the reviewed removal: the review lists each record whose folder is gone, and the person can approve dropping those records with the rest of the workflow. The review digest covers that choice, so nothing is dropped silently.
+
+**Recommendation**: Option B. It keeps the owner's rule for every normal case and gives a reviewed way out for the one case that has none.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option B. This is new behavior. `factory workflow clean` with a review digest drops a backup record when its files are not found on this computer now (removed, renamed, or on a drive that is not connected): no reachable checkout of the project holds its path, and nothing is at the path. The review lists each such record by name, marked "record dropped, files not reachable", and the review digest covers each one. The title of this entry says "gone for good", but the software cannot know that. If a file still exists, for example in a renamed folder or on a drive that is not connected, it stays where it is, and no later cleanup finds it. The review says so. The owner accepted this on 2026-11-24 (option A on the round 4 question): a record can be dropped while its files stay in a renamed folder or on a drive that is not connected, the output says so in plain words, and no new refusal rule is added. A record whose file is still on the computer, in a folder that is not a bound checkout, still stops the removal with `backup-file-out-of-reach`. Routine cleanup does not change: it keeps such a record and reports it. The scoped cleanup of a pruned project does not change either: it is not a reviewed removal, so it keeps each workflow that has a backup record. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-73 and R-FACTORY-74 and the factory contract state the rule.
+
+### D-079 Reach of the Workflow Removal Into Other Checkouts
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-24: the reviewed removal reaches the backup files in the project's other bound checkouts too. | None. The build already did this. |
+
+**Question**: Does `factory workflow clean` delete the workflow's backup files in other bound checkouts of the same project, or only in the checkout that the call names?
+
+**Why it matters**: The owner's rule of 2026-11-24 says that routine cleanup keeps a record whose file is in another checkout. The removal is different: it must delete every backup record of the workflow, or the assignments and the binding cannot go. With one named checkout only, a workflow with backups in two checkouts could never be removed, because each call would find the other checkout's records out of reach.
+
+**Options**: Option A, as built: the reviewed removal reaches every bound checkout of the named project whose folder is on this machine. The review counts those backups before the person approves. Routine cleanup still reaches only its own checkout. Option B limits the removal to the named checkout, and adds a first step that removes one checkout's backups of the workflow, so the person runs it once in each checkout.
+
+**Recommendation**: Option A. The person reviews and approves the removal, the files are in folders that Make Docs owns, and one command finishes the job.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option A. The build already reached every bound checkout of the named project whose folder is on this machine, with the same link check and the same locked-folder check in each one. The review now names each checkout that holds a backup file of the workflow, with the count of files there. Routine cleanup still reaches only its own checkout. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-73 and R-FACTORY-74 and the factory contract state the rule.
+
+### D-080 A Checkout Folder That Is a Symbolic Link
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-24: allow it. Factory cleanup and the reviewed workflow removal may follow a symbolic link at the checkout folder itself. A link below the checkout folder stays refused. | None. The build already works this way, and a test proves both parts. |
+
+**Question**: May factory cleanup and `factory workflow clean` delete backup files when the checkout folder that the person named is a symbolic link?
+
+**Why it matters**: Make Docs deletes no backup file through a symbolic link ([PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-74). The round 3 check asked whether that rule also covers the checkout folder itself. Some people keep a project in one place and reach it through a link.
+
+**Options**: Option A allows a link at the checkout folder, because the person registered that folder as a checkout with `make-docs setup`, and refuses every link below it. Option B refuses a checkout folder that is a link.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option A. A checkout folder can be a symbolic link: the person registered it, so Make Docs follows it to the real folder. Below the checkout folder, each part of a backup path is still read without following a link, and a link there is refused with `backup-path-unsafe` in the removal and kept as `unsafe-path` in cleanup. The build did this before the decision, so no code changed. The factory contract states the rule.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

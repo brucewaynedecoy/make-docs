@@ -27,10 +27,11 @@ Every run is for one project and one workflow. Take both from the request, the w
 3. Read the factory contract.
 4. Refuse a workflow that is not `ready` (rule `only-ready-takes-work`). Take no new work. Tell the person the state and the smallest fix:
    - `draft`: run the `factory-setup` Skill to bind each role and prove it.
-   - `wired`: run the `factory-setup` Skill to pass the test task under the current plan.
+   - `wired`: run the `factory-setup` Skill to pass the test task under the current plan. With the readiness code `test-failed`, the latest test task under this plan failed: tell the person what failed, and that a passed test task makes the workflow `ready` again (rule `latest-test-decides`).
    - `drifted`: explain each drift reason code in plain words, and give its next step. Send this as floor event 4 (rule `drift-escalates`).
    - No workflow or no Store: run the `factory-setup` Skill. The factory has no zero-config mode.
 5. Read the plan of the `ready` revision. It names the tool of each role, the round limit, the claim size, the added escalation events, the integration owner, the human channel, and whether the preflight step is on.
+6. Check each bound tool again before you take new work (rule `tools-rechecked`). [The run loop](references/run-loop.md) gives the steps, under "Check the Bound Tools Again".
 
 ## Run the loop
 
@@ -40,7 +41,7 @@ Read [the run loop](references/run-loop.md) before the first step. It gives each
 2. Check each open assignment through its task handle. Settle each `unknown` assignment first (rule `unknown-first`). Renew each claim.
 3. Judge each returned result. Send it to a reviewer who did not build it. Return defects for correction within the limit.
 4. Accept each unit inside the given scope on the reviewer's evidence. Record the evidence. Close the unit.
-5. Take the next ready unit when the scope and the limits allow. Run preflight first only when the workflow turns that step on (rule `preflight-opt-in`).
+5. Take the next ready unit when the scope and the limits allow. Check each bound tool again first (rule `tools-rechecked`). Run preflight first only when the workflow turns that step on (rule `preflight-opt-in`).
 6. Escalate each floor event. At the end of the given scope, send one acceptance request.
 
 A finished worker returns control to you. Go on with the loop. Do not ask the person to start the run again after each unit (rule `completion-returns-control`).

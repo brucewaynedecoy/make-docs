@@ -16,6 +16,18 @@ Describe each tool by what it can do, never by its name, in a brief or a message
 - `make-docs factory status --project <name>` (MCP `factory_status`). It shows the readiness of each checkout, each lifecycle run, each claimed unit, its tool, its state, and the last check time.
 - If the workflow is `drifted`, take no new work. Escalate floor event 4 with each drift reason code in plain words and its next step. Go on only with step 2 for work that already runs: an open assignment keeps the plan revision that it names.
 - A project type with the name of a shipped type is `type-name-clash`. Escalate it as floor event 4 and take no new work (rule `no-silent-replace`).
+- If the workflow is `wired` with the readiness code `test-failed`, the latest test task under its plan failed. Take no new work. Tell the person what the status says, and that the `factory-setup` Skill must pass the test task again (rule `latest-test-decides`).
+
+### Check the Bound Tools Again
+
+Do this before you take new work: at the start of a run, and before step 5 at each wake (rule `tools-rechecked`). Make Docs never contacts a tool, so only you can find a change.
+
+1. Read the saved tools: `make-docs factory tools list` (MCP `factory_tools_list`). It takes no project. `make-docs factory status --project <name>` shows the age of each bound tool's proofs, and calls a proof older than 30 days old.
+2. For each tool that the `ready` plan binds, look at the tool itself. Find its version, and whether it is `available`, `missing`, or `blocked`.
+3. When the version and the state match the saved record, change nothing.
+4. When one differs, save what you found: `make-docs factory tools save` (MCP `factory_tools_save`), with the tool's record version as `expectedVersion`. Keep each proof as it is. A proof names the tool version that it ran under, so do not give an old proof the new version.
+5. Read the readiness again. A changed tool makes the workflow `drifted`. Then take no new work, and escalate floor event 4 as in the list above.
+6. When a proof is old but the version and the state are the same, go on. Tell the person in the next message that the proof is old, and that the `factory-setup` Skill can prove the tool again.
 
 ## 2. Check Open Assignments and Renew Claims
 
@@ -172,6 +184,8 @@ The CLI refuses the call with `assignment-open` while an assignment of the unit 
 When no unit of the scope has a live claim any more, the factory cannot record the grant use. Do not do the action. Tell the person which action waits, so that the person can do it.
 
 ## 5. Take the Next Unit
+
+Before the first step, [check the bound tools again](#check-the-bound-tools-again).
 
 1. Find ready work inside the scope: `make-docs work next --level <claim-size> --claimant <you> --target-root <checkout>` (MCP `work_next`). The claim size comes from the plan. The default is `phase`. These are the claim sizes:
    - `wave`

@@ -125,17 +125,17 @@ function fixture(overrides: Partial<NameCatalogEntry>): NameCatalogEntry {
 }
 
 describe("W33 R0 P1 name catalog", () => {
-  it("lists 74 current operations, 6 hand-defined tools, and no planned operations", () => {
+  it("lists 75 current operations, 6 hand-defined tools, and no planned operations", () => {
     const currentOperations = NAME_CATALOG.filter((item) => item.kind === "operation" && item.status === "current");
     const tools = NAME_CATALOG.filter((item) => item.kind === "hand-defined-tool");
     const plannedOperations = NAME_CATALOG.filter((item) => item.status === "planned");
     expect(currentOperations).toHaveLength(ADMITTED_OPERATION_IDS.length);
-    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more, W29 R0 P4 landed 9, W30 R0 P3 landed 10, and the W30 R0 follow-up landed 3.
-    expect(currentOperations).toHaveLength(74);
+    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more, W29 R0 P4 landed 9, W30 R0 P3 landed 10, the W30 R0 follow-up landed 3, and the W30 R0 Store lifecycle fixes landed 1.
+    expect(currentOperations).toHaveLength(75);
     expect(currentOperations.filter((item) => item.addedBy === "W30 R0").map((item) => item.newCli).sort()).toEqual([
       "factory assignment list", "factory assignment save", "factory assignment start", "factory file-backup save", "factory grant-use record",
       "factory proof save", "factory restore", "factory status", "factory tools list", "factory tools save",
-      "factory workflow list", "factory workflow save", "factory workflow show",
+      "factory workflow clean", "factory workflow list", "factory workflow save", "factory workflow show",
     ]);
     expect(currentOperations.filter((item) => item.addedBy === "W29 R0").map((item) => item.newCli).sort()).toEqual([
       "work add", "work claim", "work close", "work export", "work next", "work release", "work report", "work status", "work sync",
@@ -323,7 +323,7 @@ describe("W33 R0 P1 name catalog", () => {
 
     it("reads every row of each table", () => {
       expect(parsePrdOperationTable(markdownSection(PRD_52, "### Operations"))).toHaveLength(9);
-      expect(parsePrdGroupedOperationTable(markdownSection(PRD_53, "### Operations"))).toHaveLength(13);
+      expect(parsePrdGroupedOperationTable(markdownSection(PRD_53, "### Operations"))).toHaveLength(14);
       expect(parsePrdOperationTable(markdownSection(PRD_39, "### Skill Check Commands (R-SKILL-CHECK)"))).toHaveLength(4);
     });
   });
@@ -548,7 +548,7 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     expect(PRD_LISTS.rRun1(PRD_39.replace("`export`, and `add`, active `backlog`", "and `export`, active `backlog`"))).toEqual([
       "R-RUN-1 misses active `work add`.",
     ]);
-    expect(PRD_LISTS.rRun1(PRD_39.replace("and `grant-use record`.", "`grant-use record`, and planned `work` commands for `next`."))).toEqual([
+    expect(PRD_LISTS.rRun1(PRD_39.replace("and `workflow clean`.", "`workflow clean`, and planned `work` commands for `next`."))).toEqual([
       "R-RUN-1 lists planned `work next`, which the catalog does not plan.",
     ]);
   });
