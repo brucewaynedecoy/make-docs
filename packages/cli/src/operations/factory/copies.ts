@@ -90,7 +90,7 @@ function workflowCopy(binding: FactoryWorkflowBindingRecord, latest: FactoryPlan
     `- Human channel: ${fromPlan(definition?.humanChannel, "none")}${binding.channelRef ? ` (${binding.channelRef})` : ""}.`,
     `- Working-copy method: ${binding.worktreeMethod}.`,
     `- Integration owner: ${fromPlan(definition?.integrationOwner, "none")}.`,
-    `- Accepted known losses: ${binding.knownLosses.length ? binding.knownLosses.join("; ") : "none"}.`,
+    `- Accepted known losses: ${knownLossesLine(binding.knownLosses)}`,
     "",
     "## Resolved Plan",
     "",
@@ -127,6 +127,16 @@ function writeReadOnly(file: string, content: string): void {
   }
   writeFileSync(file, content, { encoding: "utf8", mode: 0o644 });
   chmodSync(file, 0o444);
+}
+
+/**
+ * The accepted known losses as one line that ends with one full stop. A loss that ends with a full stop
+ * gets no second one. An ellipsis at the end of a loss stays as it is.
+ */
+export function knownLossesLine(knownLosses: readonly string[]): string {
+  if (knownLosses.length === 0) return "none.";
+  const joined = knownLosses.map((loss) => loss.replace(/(?<!\.)\.$/, "")).join("; ");
+  return joined.endsWith(".") ? joined : `${joined}.`;
 }
 
 /**

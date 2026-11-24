@@ -111,7 +111,7 @@ Code anchors:
 ### Run loop
 
 - R-FACTORY-32 (MUST): each time the foreman wakes, it syncs the work store and reads the workflow's readiness, checks open assignments through their handles, renews claims, judges returned work, sends it to a reviewer who did not build it, returns defects within the limit, accepts and closes units inside the given scope, takes the next ready unit when the scope and limits allow, and escalates each floor event.
-- R-FACTORY-33 (MUST): a `drifted` workflow escalates and takes no new work. Its message names the smallest fix.
+- R-FACTORY-33 (MUST): a `drifted` workflow escalates and takes no new work. Its message names the smallest fix. For each drift reason, `make-docs factory status`, `make-docs factory workflow list`, and the `not-ready` refusal of `make-docs factory assignment start` give one fix step, the smallest one, and never two steps joined by "or". For a lost tool, that step is to bring the tool back and report it. `make-docs factory workflow show` gives that step first, and then the second way: bind another tool to the role. Changed on 2026-11-24.
 - R-FACTORY-34 (MUST): worker completion returns control to the foreman. The person does not restart the run after each unit.
 
 ### Waking and the human channel
@@ -426,6 +426,14 @@ This is move table version 1. Every workflow uses it. A workflow cannot change i
 - Replacement contract: the text says that the files are not found on this computer now (removed, renamed, or on a drive that is not connected), that a file that still exists stays, and that no later cleanup finds it. Each matching copy after a folder move goes and is listed, counted, and bound in the digest. A moved file with other bytes stops the removal with `backup-file-changed`. The split is at the last marker that the record's assignment ID follows, in one shared function. The wording is a correction, and the owner accepted on 2026-11-24 that a record can be dropped while its files stay in a renamed folder or on a drive that is not connected, with no new refusal rule. The other three points are new behavior. The owner also decided on 2026-11-24 that a checkout folder can be a symbolic link (register D-080, option A): the build already worked this way, so only the text changed.
 - Rationale: a check of round 3 found that the words claimed more than the software knows, and found three small defects in the moved-folder search and the path split.
 - Source: the round 4 check of 2026-11-24, recorded in the [W30 R0 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#round-4-wording-and-moved-folder-fixes).
+
+### 2026-11-24 — W30 R0 One Fix Step for a Lost Tool
+
+- Affected requirement or section: R-FACTORY-33.
+- Previous contract: the requirement said that the message names the smallest fix. For a lost tool, the CLI gave one line with two steps joined by "or": bring the tool back, or bind another tool.
+- Replacement contract: for each drift reason, `make-docs factory status`, `make-docs factory workflow list`, and the `not-ready` refusal of `make-docs factory assignment start` give one fix step, the smallest one. For a lost tool, that step is to bring the tool back and report it with `make-docs factory tools save`. Only `make-docs factory workflow show` also gives the second way, after the first: bind another tool to the role with `make-docs factory workflow save`. This is a change of output. No readiness rule changed.
+- Rationale: the W30 R0 P6 drift test asks for one fix step (A46), and the owner chose one step in status on 2026-11-24.
+- Source: the owner's decision of 2026-11-24, recorded in the [W30 R0 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#p6-owner-decisions-2026-11-24).
 
 ## Source Anchors
 

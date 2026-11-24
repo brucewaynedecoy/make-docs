@@ -28,7 +28,7 @@ Every run is for one project and one workflow. Take both from the request, the w
 4. Refuse a workflow that is not `ready` (rule `only-ready-takes-work`). Take no new work. Tell the person the state and the smallest fix:
    - `draft`: run the `factory-setup` Skill to bind each role and prove it.
    - `wired`: run the `factory-setup` Skill to pass the test task under the current plan. With the readiness code `test-failed`, the latest test task under this plan failed: tell the person what failed, and that a passed test task makes the workflow `ready` again (rule `latest-test-decides`).
-   - `drifted`: explain each drift reason code in plain words, and give its next step. Send this as floor event 4 (rule `drift-escalates`).
+   - `drifted`: explain each drift reason code in plain words, and give its one next step: the smallest fix. For a lost tool, `factory workflow show` also gives a second way, to bind another tool. Give that second way only when the person says that the first cannot work. Send this as floor event 4 (rule `drift-escalates`).
    - No workflow or no Store: run the `factory-setup` Skill. The factory has no zero-config mode.
 5. Read the plan of the `ready` revision. It names the tool of each role, the round limit, the claim size, the added escalation events, the integration owner, the human channel, and whether the preflight step is on.
 6. Check each bound tool again before you take new work (rule `tools-rechecked`). [The run loop](references/run-loop.md) gives the steps, under "Check the Bound Tools Again".

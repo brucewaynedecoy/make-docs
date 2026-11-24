@@ -964,10 +964,21 @@ function liveView(state: FactoryWorkflowLiveState) {
   return rest;
 }
 
-function liveLines(state: FactoryWorkflowLiveState, indent = ""): string[] {
+/** A drift entry with its one smallest fix only: what `factory status`, `factory workflow list`, and a refusal give. */
+function smallestFixOnly(entry: FactoryDriftEntry): FactoryDriftEntry {
+  const { otherStep: _otherStep, ...rest } = entry;
+  return rest;
+}
+
+/** The live state without any second fix. Only `factory workflow show` keeps the second fix of a drift entry. */
+function liveSummaryView(state: FactoryWorkflowLiveState) {
+  return { ...liveView(state), drift: state.drift.map(smallestFixOnly) };
+}
+
+function liveLines(state: FactoryWorkflowLiveState, indent = "", withOtherStep = false): string[] {
   const head = `${indent}Workflow ${state.workflowName}: ${factoryReadinessWords(state.readiness, state.readinessCode)}.${state.reason ? ` ${state.reason}` : ""}`;
   const revisions = `${indent}  Ready revision: ${state.readyRevision ?? "none"}. Latest revision: ${state.latestRevision ?? "none"}.`;
-  const drift = state.drift.map((entry) => `${indent}  - ${entry.code}: ${entry.text} Next: ${entry.nextStep}`);
+  const drift = state.drift.map((entry) => `${indent}  - ${entry.code}: ${entry.text} Next: ${entry.nextStep}${withOtherStep && entry.otherStep ? ` If that cannot work: ${entry.otherStep}` : ""}`);
   const next = state.drift.length === 0 && state.nextStep ? [`${indent}  Next: ${state.nextStep}`] : [];
   return [head, revisions, ...drift, ...next];
 }
@@ -1018,7 +1029,7 @@ export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectReso
       const lines = [
         factoryProjectChoiceLine(project),
         ...(checkout ? [`Checkout: ${checkout.root}.`] : []),
-        ...liveLines(live),
+        ...liveLines(live, "", true),
         `  Current plan digest: ${live.currentPlanDigest ?? "unknown"}.`,
         shownWords,
         `Grants (beside the plan, never in it): ${grants.length === 0 ? "none." : ""}`,
@@ -1087,7 +1098,7 @@ export function factoryWorkflowList(env: FactoryEnv, project: FactoryProjectReso
         ...states.flatMap((state) => liveLines(state, "- ")),
         FACTORY_READ_TAIL,
       ];
-      return finish({ operation, result: "read" as const, actedOn, checkout: checkout ? { checkoutId: checkout.checkoutId, root: checkout.root } : null, workflows: states.map(liveView), lines });
+      return finish({ operation, result: "read" as const, actedOn, checkout: checkout ? { checkoutId: checkout.checkoutId, root: checkout.root } : null, workflows: states.map(liveSummaryView), lines });
     });
   });
 }
@@ -1450,7 +1461,7 @@ export function factoryStatus(env: FactoryEnv, project: FactoryProjectResolution
         thisCheckout: callCheckout?.checkoutId === checkoutId,
         readable: config.ok,
         reason: config.ok ? null : config.reason,
-        workflows: workflows.map(liveView),
+        workflows: workflows.map(liveSummaryView),
         manualSteps,
         runs,
       };

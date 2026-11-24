@@ -27,7 +27,7 @@ For a run that goes on while the person is away, the foreman also needs `wake-on
 ## Steps
 
 1. The front desk takes the scope from the person and passes it to the foreman.
-2. The foreman syncs the work queue and asks for the next ready unit inside the scope (`make-docs work next`, MCP `work_next`, planned). A unit is ready only when the units it depends on are closed.
+2. The foreman syncs the work queue and asks for the next ready unit inside the scope (`make-docs work next`, MCP `work_next`). A unit is ready only when the units it depends on are closed.
 3. The foreman picks the type for the unit: `build-then-review` for a unit that one worker can do, or `lead-and-specialists` for a unit that needs several kinds of skill.
 4. The foreman runs the unit through that type, from claim to close.
 5. The foreman accepts the unit inside the given scope on the reviewer's evidence and closes it.

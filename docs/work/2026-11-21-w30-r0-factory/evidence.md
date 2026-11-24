@@ -925,7 +925,7 @@ The owner first chose to keep the last use only. The reviewer then found an audi
 
 ## Store Lifecycle Fixes
 
-Date: 2026-11-24. The owner audited the factory tables and decided each finding (option A for each). An implementation agent first checked each finding against the code at commit `bb9cf4f1`, then fixed it. All of it is new behavior. It is [P6](06-proofs-and-acceptance.md) T15 and T20 to T24. The work is not committed. Every test uses a temporary `MAKE_DOCS_HOME`; nothing read or wrote the real Store.
+Date: 2026-11-24. The owner audited the factory tables and decided each finding (option A for each). An implementation agent first checked each finding against the code at commit `bb9cf4f1`, then fixed it. All of it is new behavior. It is [P6](06-proofs-and-acceptance.md) T15 and T20 to T24. The work is committed as `383319ac`. Every test uses a temporary `MAKE_DOCS_HOME`; nothing read or wrote the real Store.
 
 ### Findings
 
@@ -1079,3 +1079,204 @@ Checks after round 5, each with a temporary `MAKE_DOCS_HOME`. Every run finished
 ### Open for the Owner
 
 - None. Register D-078, D-079, and D-080 are closed.
+
+## P6 Proofs and Acceptance
+
+Covers the tasks of [P6](06-proofs-and-acceptance.md) that an agent can do without the owner's real tools: T4 to T10, T12, T14, and the record path of T1, T2, T11, and T13. Evidence date: 2026-11-24. Base commit: `383319ac`. Node `v26.13.1`. CLI package version `2.0.9`. The work is uncommitted in its worktree. Every run used a temporary `MAKE_DOCS_HOME` and a temporary home folder. Nothing read or wrote the real Store.
+
+### State of Each Task
+
+| Task | State | Proof |
+| --- | --- | --- |
+| T1 Proof A | Open. Owner gate. | The owner picks the real tool, and a real session must start real subagents. This phase ran only the record path. See [Record Path Runs](#record-path-runs). |
+| T2 Proof B | Open. Owner gate. | The owner picks the real tools, and a person must answer one escalation away from the session. This phase ran only the record path. |
+| T3 Real tools named | Open. It follows T1 and T2. | No real tool was used, so this report names none and makes no support claim for any tool combination. |
+| T4 Drift test | Done. | [Drift Test](#drift-test-t4-a46). |
+| T5 Outside-git test | Done. | [Outside-Git Test](#outside-git-test-t5-a47). |
+| T6 Evidence report | Done. | This report exists, and the [index](00-index.md) links it in `## Usage Notes`. |
+| T7 Package parity | Done. A48 is met for the package candidate. One owner step is open for this repository's own installed copy. | [Package Parity](#package-parity-t7-a48). |
+| T8 Tool name search | Done. No hit to fix. | [Tool Name Search](#tool-name-search-t8-a49). |
+| T9 Human Experience Review | Done as an agent review. | [Human Experience Review](#human-experience-review-t9-a50). Four promises are `satisfied` within their limits. Three wait for the real proofs. |
+| T10 Unassisted Goal Testing | Done. The owner decided on 2026-11-24: keep `not-needed-now`. | [P6 Owner Decisions](#p6-owner-decisions-2026-11-24). |
+| T11 Capability tags | Open. It follows T1 and T2. | The record path run lists the capability IDs that it recorded, as a form for the real proofs. |
+| T12 Version drift test | Done. | [Version Drift Test](#version-drift-test-t12-a71). |
+| T13 Never-log scan | Open. The task says "after both proofs". | The scan is built as a test and ran clean on the record path run. See [Never-Log Scan](#never-log-scan-t13-a72). It must run again on the records of the real proofs. |
+| T14 Rule catalog | Done. | [Rule Catalog](#rule-catalog-t14). |
+| T15, T16 to T19, T20 to T28 | Done before this phase work. | Commits `bb9cf4f1` and `383319ac`. See [Follow-Up Commands](#follow-up-commands) and [Store Lifecycle Fixes](#store-lifecycle-fixes). Not done again. T24's `--reset-rounds` assertion is in `packages/cli/tests/w30-r0-p3-factory-operations.test.ts` ("The --reset-rounds path writes one use row for the spent grant"), and it passes. |
+
+### Record Path Runs
+
+These runs are not Proof A and Proof B. A real proof needs a real harness that starts real agents, and a real message that a person answers. No agent was started here, and no message was sent. The implementing agent was told to start no subagent, and the owner picks the real tools.
+
+What ran: the installed package candidate, called as a person's agent calls it, from a folder that is not the project. The package candidate is the tarball of `npm pack` in `packages/cli` on this worktree, installed with `npm install` into a temporary folder: `brucewaynedecoy-make-docs-2.0.9.tgz`, SHA-256 `69902b7581f35b74c068162012357144d93d976f3987003397939f405151734b`. All 118 steps of the run passed on that installed package. This is the round 2 tarball, packed after the round 2 changes. The round 1 run used the tarball with SHA-256 `0777a94b3b75e1b6607104f08f30b3c5f74d1a2d2df5d751cf8b79d6034baeac`, and it also saved one more fixture tool that no role used. That tool is removed, so the installed-package run and the test now make the same steps and the same records. The same steps are the test "runs two units with one correction, the backup outside git, both drift tests, a two-tool unit with one grant, and the never-log scan" in `packages/cli/tests/w30-r0-p6-proofs-and-acceptance.test.ts`, which runs the built CLI. Tool names are generic: `tool-a`, `tool-b`, and `channel-a`. Each project was made with `make-docs setup --yes`, with every harness skipped and no Skills.
+
+| Run | What the CLI recorded | Result |
+| --- | --- | --- |
+| Smallest setup (the record path of A43) | Project `aurora`, a folder without git. Type `staged-backlog`. One tool, `tool-a`, with the five capabilities of the smallest setup, fills the front desk, foreman, builder, and reviewer roles. Channel kind `wait-in-session`. Two quick items. Unit 1: builder, review, `defects-found`, `needs-correction` at round 1 of 3, `correction-sent`, a second review, `review-passed`, accept, close. Unit 2: builder, review, accept at round 0, close. | 5 assignments, all `accepted`: 2 builder jobs and 3 reviews. Both units closed with `work close`. |
+| Two tools (the record path of A44) | Project `cascade`. Type `lead-and-specialists`. `tool-a` fills foreman and builder, and `tool-b` fills researcher and reviewer. Channel kind `messaging-tool`, with the channel account reference `channel-a`. One unit with the parts `research` on `tool-b` and `draft` on `tool-a`, open at the same time, and a review of `draft` on `tool-b`. The accept with `--grant-use merge` is refused with `grant-missing`, and the assignment stays `in-review`. After a grant-only `factory workflow save` with a `once` grant, the same accept works, and `factory workflow show` lists one grant use. | 3 assignments `accepted`, one grant spent, one use row. The unit closed. |
+
+The refusal that the foreman turns into floor event 1, as the CLI printed it:
+
+```text
+Refused for project cascade (<project-id>). No grant names the action merge.
+Next: Ask the person through the human channel.
+Reason code: grant-missing. Nothing changed.
+```
+
+Capability IDs that these runs recorded as `proved` under a tool version, as the form for T11: `read-write-files`, `run-commands`, `launch-agent`, `wait-for-agent`, and `read-agent-result` for `tool-a` (version `1.0`, then `1.1`); `read-write-files` for `tool-b` (version `2.0`); `message-person` and `receive-answer` for `channel-a` (version `3.0`). These are fixture records. No capability was proved against a real tool, so A70 is not met.
+
+Limits: the acceptance request at the end of the scope is text that the run Skill writes, and no CLI output holds it. So this run shows no acceptance request. The owner reviewed the form of that request in the P5 Guided Progress Review. A real one comes only from Proof A.
+
+### Drift Test (T4, A46)
+
+Project `borealis`, a folder with git, type `build-then-review`, workflow `ready`, with one open builder assignment. The agent reports the wired tool as `missing` with `factory tools save`. The CLI never contacts a tool, so this report is how a removed tool reaches it.
+
+```text
+Factory status for project borealis (<project-id>), as named.
+Checkout <borealis> (the checkout of this call):
+  Workflow ship: drifted: something changed without a save, so it takes no new work. Ready revision 1.
+    - tool-missing: Tool tool-a for the builder, foreman and reviewer roles is missing on this machine. Next: Bring tool-a back and report it with make-docs factory tools save.
+  Lifecycle run run-p6-borealis-1:
+    - task 1 (builder, part main): tool tool-a (Tool A, missing), offered, last check <time>; round 0 of 3; claimed by foreman-1 until <time>.
+```
+
+`factory assignment start` for a new job then exits 1:
+
+```text
+Refused for project borealis (<project-id>). Workflow ship is not ready, so it takes no new work.
+- tool-missing: Tool tool-a for the builder, foreman and reviewer roles is missing on this machine. Next: Bring tool-a back and report it with make-docs factory tools save.
+Next: Check the workflow with factory workflow show and fix what it names.
+Reason code: not-ready. Nothing changed.
+```
+
+- The project had 1 assignment before the refused start and 1 after it. No new work started.
+- When the tool is reported `available` again, the workflow is `ready` again with no new test task, as the contract says for a restored plan.
+- One fix step. This is a change of output, by owner decision of 2026-11-24 (see [P6 Owner Decisions](#p6-owner-decisions-2026-11-24)). Before, the line gave two steps joined by "or". Now `factory status`, `factory workflow list`, and the refused start give only the smallest fix: bring the tool back and report it. Only `factory workflow show` adds the second way, after the first: "If that cannot work: Bind another tool to the builder, foreman and reviewer roles with make-docs factory workflow save." The status JSON holds no second step.
+- Limit: the tool was a fixture record. No real tool was removed.
+
+### Version Drift Test (T12, A71)
+
+The same project. The agent reports `tool-a` at version `1.1`, while each proof names `1.0`.
+
+```text
+  Workflow ship: drifted: something changed without a save, so it takes no new work. Ready revision 1.
+    - tool-version-changed: Tool tool-a for the builder, foreman and reviewer roles reports version 1.1, but its proof is for version 1.0. Next: Prove tool-a again and save it with make-docs factory tools save, save the workflow, and pass a new test task. If version 1.0 comes back, the workflow is ready again with no new step.
+```
+
+- `factory workflow show` gives `drifted` with the one drift code `tool-version-changed`. `factory assignment start` is refused with `not-ready`.
+- Re-proof step 1: each of the five proofs is saved again under version `1.1`. The workflow is still `drifted`.
+- Re-proof step 2: `factory workflow save` makes plan revision 2. The workflow is `wired`, and `factory assignment start` is still refused.
+- Re-proof step 3: `factory proof save` with a passed test task under revision 2 makes the workflow `ready`.
+- The project still had 1 assignment at the end. No new work started until the proof ran again.
+
+### Outside-Git Test (T5, A47)
+
+Project `aurora` has no git folder. Before the builder's file changed, the foreman's call saved the backup:
+
+```text
+Saved the backups of 1 file for the assignment of task 1 (builder, part main) in project aurora (<project-id>), checkout <aurora>.
+- notes.md: backed up. Backup .make-docs/backup/factory/<assignment-id>/notes.md, digest 158cefa4c1106b0a8504217889833d2ee8f204f2a78168ecceee01e4914ab879.
+The backups are in .make-docs/backup/factory/, and its README.md says how to get a file back. Make Docs removes them when the work is accepted or closed, or after 30 days.
+```
+
+- After the call, `.make-docs/backup/factory/` held `.gitignore` (one line, `*`), `README.md`, and `<assignment-id>/notes.md`. The result holds no file contents and no claim ID. No root `.gitignore` was written.
+- The folder note, `README.md`, has two parts: "How to Get a File Back" (find the folder of the job, the backup has the same path as the original file, copy it back) and "When Backups Are Removed" (on accept or close, after 30 days, during normal factory commands, a backup and its Store record together, and never the installation recovery backups).
+- The backup stayed through the correction round. When the builder's assignment moved to `accepted`, the file was gone, and `factory_backups` held 0 rows. Cleanup ran inside that normal factory command.
+- In `borealis`, a folder with git, the same call gave `not-needed` and wrote no copy.
+- Limit: the 30-day rule was not waited for. The tests of P2 and of the Store lifecycle fixes cover it with a set clock.
+
+### Never-Log Scan (T13, A72)
+
+The scan ran on the records of the record path runs. T13 stays open, because the task asks for the scan after both real proofs.
+
+- Planted first: a file with a known text that was backed up and changed; an environment value in the CLI's environment; and two refused writes, one task handle that holds a credential and one that holds an environment setting. Both were refused with `never-log-field`, and neither refusal showed the value.
+- Scanned: all 9 factory tables (10 assignments, 8 capability proofs, 1 grant, 1 grant use, 3 machine tools, 3 test task results, 3 bindings, 4 plan revisions, 0 backups), the lifecycle tables, the bytes of the whole Store file, and the 9 files in `.make-docs/factory/` of the three projects. The test now asserts each of these counts. The round 1 text said 11 capability proofs and 4 machine tools. Those numbers came from the round 1 installed-package run, which saved one more fixture tool with 3 proofs than the test did. The round 2 installed-package run gives the same counts as the test.
+- Found: none of the planted texts. No claim ID in a factory table, a lifecycle table, or a copy. No grant in a copy. No factory column for a prompt, a brief, a transcript, a password, a secret, a token, a key, contents, or an environment value; the one `content_digest` column holds a hash. No text value with a line break. All 47 status history entries hold only `at`, `reason`, and `status`.
+- Limit: a scan for planted values proves that those values are absent. It cannot prove that no other private text is in a free-text field, such as a tool label that a person typed. The CLI check of each write (one line, at most 120 characters, no credential or environment form) is the control for that.
+
+### Package Parity (T7, A48)
+
+- Resources: the four factory resources and `system-resources.catalog.json` are byte-identical in `packages/docs/template/`, in the dogfood `.make-docs/`, and in the bundled `packages/cli/template/` (`cmp`). `make-docs resource read` with the built CLI returns each of the four URIs with exit 0 and the template bytes, from a folder with no Store, and creates no Store.
+- Skills in the repository: `diff -r packages/skills/factory .agents/skills/factory` shows no difference.
+- Skills from the installed package (A48): in an empty temporary folder, with a temporary Store and a temporary home folder, the installed tarball ran `make-docs setup --yes` with every harness set to none or skipped, `--skill-scope project`, and `--selected-skills all`. It exited 0 and wrote 9 Skills to `.agents/skills/`. `diff -r`, without dot folders, of `.agents/skills/factory` (5 files) and `.agents/skills/factory-setup` (7 files) against `packages/skills/factory` and `packages/skills/factory-setup` shows no difference. Nothing was written to the temporary home folder.
+- Operations: `make-docs factory --help` lists 14 commands, and the contract's `## Commands` table lists the same 14 with their MCP names. The registry, name catalog, leaf help, and MCP profile tests pass in the full run.
+- Installed package: in the installed package candidate, the four resources and the catalog are byte-identical to `packages/docs/template/`, `make-docs factory --help` lists the same 14 commands, and the record path run passed. `npm run smoke:pack:local` passed in round 1 and was not run again in round 2.
+- Open owner step, outside A48: this repository's installed dogfood copy has no `.agents/skills/factory-setup/`. Installing it needs `make-docs setup skills`, which writes the real Store. P4 recorded the same limit.
+
+### Tool Name Search (T8, A49)
+
+Searched with the two name lists of the P1 resource test (28 product names in any letter case, and 20 brand forms): both shipped factory Skills, the installed `factory` copy, the contract, the three workflow types, the factory source in `packages/cli/src/operations/factory/` and `packages/cli/src/store/factory-*.ts`, and the seven W30 test files. 41 files.
+
+- Shipped Skills, resources, and factory source: no hit.
+- Test files: three kinds of hit, and none is a tool named as required or default. The guard lists of the P1, P4, and P5 tests hold the names so that they can refuse them. The packaging file name `agents/openai.yaml` is the recorded exception. Two tests pass harness-skip options of `make-docs setup`, which are existing Make Docs install options and not part of the factory.
+- New guard: the test "names no particular tool in the factory source text that a person or an agent reads" keeps the search of the factory source. The P1, P4, and P5 tests already keep the search of the resources and the Skills.
+
+### Rule Catalog (T14)
+
+This is the builder's choice of a word, so it is listed for owner review. It is new wording, not new behavior.
+
+- The word for a built check is "Built in", followed by the phase and task as before, for example "Built in W30 R0 P3 T7". The owner kept this word on 2026-11-24. 57 rows changed from "Planned in" to "Built in". Each of those checks was confirmed built: every task that a row names is done in its phase file, P3 and P5 are completed, and W29 R0 is completed.
+- Round 2: three rows said "Contract-only" for a check that the CLI makes. They now say "Built in". `only-ready-takes-work`: `factory.assignment.start` refuses a workflow that is not `ready` with `not-ready` (P3 T21). `no-silent-replace`: `factory.workflow.save` refuses a project type with a shipped name, and status and show give `type-name-clash` (P3 T3 and T21). `one-human-channel`: the config check requires one `humanChannel` kind (P2 T20); the "wait in session" last resort part stays with the setup Skill. The P6 test proves all three with the built CLI.
+- Round 2: each of the other 30 "Contract-only" rows was read against the code and the tests. Each one is true as written, with one sentence made exact: `claim-opens-run` now says that `factory.assignment.start` checks that the run is a run of the project that has not ended, and not its stage. The rows that name no check were confirmed: no code checks a custom role name against the standard names, a wake interval, a merge or a deploy, the nine sections of a type file, or the content of a work note beyond its length and line form.
+- Final counts: 90 rows. 60 start with "Built in", 30 start with "Contract-only", and none starts with "Planned in".
+- The catalog's opening paragraph now explains the three row forms: "Built in", "Contract-only", and "Planned in" for a check that is not built yet. It says that no row is planned now. The note "Every row marked Planned in W30 R0 P3 is built" is removed.
+- Four rows said that a later task "builds" a check. They now say "built" or "searched". The `claim-held` row named `.update`, the old end word of `factory.assignment.save` (register D-076). It now names `factory.assignment.save`.
+- The P1 test accepts "Built in" and "Planned in" with a phase and task, or "Contract-only" with a reason. The new P6 test requires that no row is planned, that 60 of the 90 rows are built and 30 are contract-only, and that the note is gone.
+- Template first, then the dogfood copy and the bundled copy. All three are byte-identical.
+
+### Other Fixes
+
+- `staged-backlog.md` step 2 said "(`make-docs work next`, MCP `work_next`, planned)". The command shipped in W29 R0, so the word "planned" is removed. Template first, dogfood identical. Effect to know: the plan records the digest of the type file, so this text change gives the drift code `type-changed` for a `staged-backlog` workflow that was saved under the old file. No release holds the factory yet, so no saved workflow of a person is affected. The type version stays 1, because no rule changed.
+- The generated copy `workflow-<name>.md` printed an accepted known loss that ends with a full stop as "No tool can wake on its own..". `packages/cli/src/operations/factory/copies.ts` now ends the line with one full stop. Round 2: an ellipsis at the end of a known loss stays as it is. The P6 test checks the line and six cases of the function `knownLossesLine`. The Store record and the plan do not change.
+
+### Human Experience Review (T9, A50)
+
+Reviewed on the real plain output of the installed package candidate in the runs above, and on the owner-reviewed samples of P3, P4, and P5. This is an agent review. It does not claim how a person feels about the result. A real setup summary, a real escalation, and a real acceptance request need Proof A and Proof B.
+
+| Promise | Observation | Conclusion | Limit | Next action |
+| --- | --- | --- | --- | --- |
+| Setup ends with a plain summary of roles, wake method, human channel, test result, accepted known losses, and open manual steps. | The `factory-setup` Skill writes the summary. The owner passed its sample in the P4 Guided Progress Review. In these runs, the copy `workflow-ship.md` listed each role with its tool, the wake method, the channel kind, the integration owner, and the accepted known loss. | `insufficient evidence` for a real setup | No real setup ran in this phase. | Run Proof A and Proof B, then review the real summary (owner gate). |
+| The person hears only floor events and added events. Each message says what happened, what is needed, and what happens next. | The run Skill writes each message. The owner passed the escalation sample in P5. The CLI refusal that starts floor event 1 names the project, the cause, the next step, and the reason code. | `insufficient evidence` for a real message | No message was sent. | Proof B: one real escalation, answered away from the session (owner gate). |
+| `factory status` shows each claimed unit, its tool, its state, and the last check, in human words first, grouped by checkout and then by lifecycle run. | Status named the project and how it was chosen, then the checkout, the workflow readiness in words, the run, and one line for each open assignment with role, part, tool, status, last check, round, and claim holder. Then the bound tools with proof ages. It ends with "Changes nothing." | `satisfied` | A quick item shows as "task 1". The output was read in its `summary` form, because the CLI prints JSON when its output is not a terminal. Times are UTC time stamps. | None needed. The owner can look at the sample in the Guided Progress Review. |
+| At the end of the given scope, the person gets one acceptance request with the reviewed result and evidence. | The run Skill writes the request. The owner passed its sample in P5. No CLI output holds it. | `insufficient evidence` | No real scope ended. | Proof A (owner gate). |
+| A drifted workflow says so before it takes new work and names the smallest fix. | See [Drift Test](#drift-test-t4-a46). Status and the refused start both say `drifted`, the cause, and a `Next:` line. No new work started. | `satisfied` | The tool was a fixture record. Since the owner decision of 2026-11-24, the line gives one fix step. | None. |
+| When a tool changes version, or the setup changes without a save, the factory says what changed in plain words, with its reason code, before it takes new work. | See [Version Drift Test](#version-drift-test-t12-a71). The line names the role, both versions, the three re-proof steps, and the way back. | `satisfied` | Only `tool-missing` and `tool-version-changed` ran here. The P3 fixtures cover the other drift codes. | None. |
+| Every factory result names the project it acted on, or says that it acted on this machine. A write that names no project changes nothing and says how to name one. | Each project result in the runs started with the project name and ID. `factory tools list` said "saved for this machine". With no Store, the machine read gave `store-unavailable` and made no Store. | `satisfied` | The `project-missing` refusal was not run again here. P5 A82 covers it. | None. |
+
+### Checks
+
+These are the round 2 runs, after the last code change. Each command ran in this worktree with a temporary `MAKE_DOCS_HOME`. Every run finished before this report was written.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass. `node scripts/copy-template-to-cli.mjs`: done.
+- `npx vitest run tests/w30-r0-p6-proofs-and-acceptance.test.ts tests/w30-r0-p1-factory-resources.test.ts`: 11 tests pass (4 in P6, 7 in P1).
+- `npx vitest run tests/w30-r0-*.test.ts`, the 8 factory test files: 226 tests pass.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files.
+- `project markdown validate` on the W30 work folder, PRD 53, the contract template, and the run Skill: 14 files, no style findings.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 157 test files and 3,720 tests; 3,711 passed, 3 failed, 6 skipped. The three are known: `mcp-app-contract` "opens the same factory and resource over real stdio", `mcp-app-contract` "gives a typed chat fallback for an unproved transport", and `p5-migration-safety` "fixture 11: persists every fixed checkpoint failure and all typed receipt shapes". `w19-r5-skills-command` passed in this run, and no test hit a time limit.
+- `npm run smoke:pack:local`: passed in round 1, outside the sandbox because it needs the package registry, with its own temporary Store. It was not run again in round 2.
+
+### P6 Owner Decisions (2026-11-24)
+
+The owner answered three choices of round 1 on 2026-11-24.
+
+- Unassisted Goal Testing for first setup (T10): option A. Keep `not-needed-now`. The owner passed the setup interview and the closing summary in the P4 Guided Progress Review, and no question about finding or starting first setup is open that can change a current decision. T10 is closed.
+- The fix line of a lost tool: option B. `factory status` gives only the first fix, the smallest one. This is a change of output, and it is built in round 2: `packages/cli/src/operations/factory/live-plan.ts` and `service.ts`, the contract (template first, dogfood identical), PRD 53 R-FACTORY-33 with a Requirement History entry, the run Skill and its installed copy, and the P6 test. A drift entry has a new optional field, `otherStep`, which only `factory workflow show` gives. No readiness rule changed.
+- The word "Built in" in the Rule Catalog: option A. Keep it.
+
+### P6 Open for the Owner
+
+Each item is open. Nothing here was decided for the owner.
+
+1. Proof A (T1, A43), and with it T3, T11, and T13. The owner picks one real agent tool that can start its own subagents. A session of that tool runs `factory-setup` and then the `factory` Skill on a staged backlog of at least two units, with one correction, and ends with one acceptance request.
+2. Proof B (T2, A44), and with it T3, T11, and T13. The owner picks a real multiplexer and a real human channel that works from a phone. The run needs one `lead-and-specialists` unit and one escalation that the owner answers away from the session.
+3. Guided Progress Review of the real setup summary, status output, escalation messages, and acceptance request from the two proofs. The drift and status samples in this report are ready to read now.
+4. The dogfood install of `factory-setup` in `.agents/skills/`. It needs `make-docs setup skills` or `make-docs update` on the real Store, so the owner runs it.
+5. The explicit human acceptance gate of W30 R0, and the closeout of this phase and of the index. P1 and P2 phase files still say `status: "active"`; their closeout is outside this phase's task list.
+6. Found in round 2, not changed: the fix line of the drift code `proof-contradicted` also gives two steps joined by "or" ("Bind a tool ... that has the capability proved, or prove it again ..."). The owner's decision named the lost tool only. Option A (recommended): treat it the same way, with "prove it again" as the one step in status. Option B: leave it as it is.
+
+### Could Not Do
+
+- Any run with a real tool, a real subagent, or a real message. See items 1 and 2.
+- Any read or write of the real Store.
+

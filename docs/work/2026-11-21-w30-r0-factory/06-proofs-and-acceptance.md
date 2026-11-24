@@ -37,7 +37,7 @@ The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestra
 | Automated Implementation Testing | selected | Full suite, package build, installed Skills, resources, and operations parity. |
 | Performance Testing | not-needed-now | No performance candidate applies. |
 | Guided Progress Review | selected | Owner review of the real setup summary, status, escalation messages, and acceptance request from the two proofs. |
-| Unassisted Goal Testing | not-needed-now | Reassess here. Activate only if a normal-use discoverability question about first setup remains open and can change a current decision. |
+| Unassisted Goal Testing | not-needed-now | Reassessed in T10. The owner decided on 2026-11-24 to keep `not-needed-now`: the P4 Guided Progress Review passed the setup interview and the closing summary, and no normal-use discoverability question about first setup is open that can change a current decision. See the [evidence report](evidence.md#p6-owner-decisions-2026-11-24). |
 
 There are no performance candidates.
 
@@ -59,16 +59,16 @@ There are no performance candidates.
 - [ ] T1: Proof A, smallest setup: one harness, its own subagents, and "wait in session". Run a staged backlog of at least two units through build then review, including one correction.
 - [ ] T2: Proof B, multi-tool setup: a multiplexer plus a human channel that the person can use from a phone. Run one lead and specialists unit and one escalation that the person answers away from the session.
 - [ ] T3: Record the real tools that the owner picked for each proof in the evidence. Limit support claims to the combinations tested (R-FACTORY-1, R-FACTORY-10).
-- [ ] T4: Drift test: remove a wired tool and show the blocked state and the fix step before new work (R-FACTORY-12, R-FACTORY-33).
-- [ ] T5: Outside-git test: run a unit in a folder without git and show the backup, its cleanup, and the backup folder note (R-FACTORY-44 to R-FACTORY-46).
-- [ ] T6: Create this backlog's `evidence.md` and link it from the index.
+- [x] T4: Drift test: remove a wired tool and show the blocked state and the fix step before new work (R-FACTORY-12, R-FACTORY-33).
+- [x] T5: Outside-git test: run a unit in a folder without git and show the backup, its cleanup, and the backup folder note (R-FACTORY-44 to R-FACTORY-46).
+- [x] T6: Create this backlog's `evidence.md` and link it from the index.
 
 ### Acceptance criteria
 
 - A43: Proof A completes two units, including one correction, and ends with one acceptance request.
 - A44: Proof B completes one lead and specialists unit, and the person answers one escalation away from the session.
 - A45: The evidence names the real tools for each proof, and no support claim reaches past them.
-- A46: The drift test shows the `drifted` state and one fix step, and no new work starts.
+- A46: The drift test shows the `drifted` state and one fix step, and no new work starts. Since 2026-11-24, `factory status` gives one fix step for a lost tool, by owner decision.
 - A47: The outside-git test shows a recorded backup, its cleanup, and the folder note.
 
 ### Dependencies
@@ -79,10 +79,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T7: Prove package and installed parity for both Skills, the four resources, and the operations.
-- [ ] T8: Search the shipped Skills, resources, and fixtures for any tool named as required or default, and fix each hit.
-- [ ] T9: Complete a Human Experience Review for each promise in the index.
-- [ ] T10: Reassess Unassisted Goal Testing for first setup, and record the decision.
+- [x] T7: Prove package and installed parity for both Skills, the four resources, and the operations.
+- [x] T8: Search the shipped Skills, resources, and fixtures for any tool named as required or default, and fix each hit.
+- [x] T9: Complete a Human Experience Review for each promise in the index.
+- [x] T10: Reassess Unassisted Goal Testing for first setup, and record the decision. The owner decided on 2026-11-24: keep `not-needed-now`.
 
 ### Acceptance criteria
 
@@ -101,9 +101,9 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 ### Tasks
 
 - [ ] T11: Tag each proof case in the evidence with the capability IDs it exercised, the tool version each tool reported, and each proof result. List each "does not cover" item and each accepted known loss (R-FACTORY-10, R-FACTORY-14, R-FACTORY-53).
-- [ ] T12: Version drift test: report a new version for a wired tool, and show `drifted` with `tool-version-changed`, the re-proof step, and no new work until the proof runs again (R-FACTORY-10, R-FACTORY-12).
+- [x] T12: Version drift test: report a new version for a wired tool, and show `drifted` with `tool-version-changed`, the re-proof step, and no new work until the proof runs again (R-FACTORY-10, R-FACTORY-12).
 - [ ] T13: After both proofs, scan the Store factory records, the plan revisions, the status history, and the `.make-docs/factory/` copies for file contents, prompts, briefs, environment values, transcripts, and credentials (R-FACTORY-26).
-- [ ] T14: Update the Check column of the factory contract's Rule Catalog for the checks that W29 R0 P4 and W30 R0 P2 and P3 built. Choose a word for a built check, change the W30 R0 P1 test to accept it, and remove the note that rows marked "Planned in W30 R0 P3" are built (template first, then the dogfood and bundled copies). New on 2026-11-23.
+- [x] T14: Update the Check column of the factory contract's Rule Catalog for the checks that W29 R0 P4 and W30 R0 P2 and P3 built. Choose a word for a built check, change the W30 R0 P1 test to accept it, and remove the note that rows marked "Planned in W30 R0 P3" are built (template first, then the dogfood and bundled copies). New on 2026-11-23.
 - [x] T15: Moved from W30 R0 P3 T34 on 2026-11-23: a reviewed removal of a saved workflow, and of a pruned project's workflow rows. Built on 2026-11-24 as `factory.workflow.clean` (`make-docs factory workflow clean`, MCP `factory_workflow_clean`, R-FACTORY-73) and in the scoped cleanup of a pruned project (PRD 52 R-WORK-STORE-13); see [Stage 5](#stage-5---store-lifecycle-fixes). It deletes the workflow's backup records first, then its final assignments, then its grant use rows (`factory_grant_uses`, added on 2026-11-24), then its grants, test task results, plan revisions, and binding. It refuses while an assignment of the workflow is open, and it changes nothing on a refusal (P2 notes 1 and 2). A workflow removed from the config stays `drifted` and takes no new work until the person removes it with this command. No command reaches the prune path yet: `pruneProjectFromStore` has no caller, so the pruned-project cleanup is proved at the service level only. New on 2026-11-23.
 
 ### Acceptance criteria
@@ -178,15 +178,26 @@ New on 2026-11-24. The owner audited the factory tables and decided each finding
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Pending. Automated Implementation Testing ran (see the evidence report). Guided Progress Review waits for the two proofs and the owner. Unassisted Goal Testing stays `not-needed-now`, by the owner's decision of 2026-11-24 (T10).
+- Performance evidence: none applies. There is no performance candidate.
+- Human Experience Review: recorded on 2026-11-24 as an agent review, in the [evidence report](evidence.md#human-experience-review-t9-a50). Four promises are `satisfied` within their limits. Three have `insufficient evidence` until the two proofs run.
+- Optional experience handoff: Pending. It follows the two proofs.
+- Explicit human acceptance gate: Pending. The owner accepts W30 R0.
+- Evidence report: [P6 Proofs and Acceptance](evidence.md#p6-proofs-and-acceptance).
+- Phase / capability status: `active`. Open: T1, T2, T3, T11, and T13. Each one waits for the owner. See [P6 Open for the Owner](evidence.md#p6-open-for-the-owner).
 
 ## Change History
+
+### 2026-11-24 — W30 R0 P6 One Fix Step for a Lost Tool
+
+- Kind: `edit`
+- Affected scope: A46, and the output of `factory status`, `factory workflow list`, `factory workflow show`, and the `not-ready` refusal of `factory assignment start`.
+- Previous scope: for a lost tool, one line gave two fix steps joined by "or": bring the tool back, or bind another tool.
+- Replacement scope: status, the workflow list, and the refusal give one fix step, the smallest one: bring the tool back and report it. Only `factory workflow show` adds the second way, after the first. A drift entry has a new optional field, `otherStep`. This is a change of output. No readiness rule changed. Existing task and acceptance IDs do not change.
+- Rationale: A46 asks for one fix step, and the round 1 drift test showed two.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-33.
+- Owner approval: the owner's decision on 2026-11-24 (option B).
+- Source: [W30 R0 evidence](evidence.md#p6-owner-decisions-2026-11-24)
 
 ### 2026-11-23 — W30 R0 P3 Review Follow-Up
 

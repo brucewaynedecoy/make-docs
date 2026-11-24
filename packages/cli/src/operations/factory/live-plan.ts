@@ -63,8 +63,13 @@ export interface FactoryDriftEntry {
   role: string | null;
   toolId: string | null;
   text: string;
-  /** The smallest step that fixes it (R-FACTORY-33). */
+  /** The smallest step that fixes it (R-FACTORY-33). It is one step, never two joined by "or". */
   nextStep: string;
+  /**
+   * Another way to fix it, for when the smallest step cannot work. Only `factory workflow show` gives it.
+   * `factory status`, `factory workflow list`, and a not-ready refusal give the one smallest step (owner decision 2026-11-24).
+   */
+  otherStep?: string;
 }
 
 export interface FactoryTypeRead {
@@ -239,7 +244,8 @@ function liveToolDrift(roles: readonly string[], tool: RoleToolPlan | null): Fac
       role,
       toolId: tool.toolId,
       text: `Tool ${tool.toolId} for ${phrase} is missing on this machine.`,
-      nextStep: `Bring ${tool.toolId} back and report it with make-docs factory tools save, or bind another tool to ${phrase} with make-docs factory workflow save.`,
+      nextStep: `Bring ${tool.toolId} back and report it with make-docs factory tools save.`,
+      otherStep: `Bind another tool to ${phrase} with make-docs factory workflow save.`,
     });
   }
   if (tool.state === "blocked") {

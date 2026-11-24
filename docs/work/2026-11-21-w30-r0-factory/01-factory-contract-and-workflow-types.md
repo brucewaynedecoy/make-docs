@@ -159,3 +159,14 @@ There are no performance candidates.
 - PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -41, -60, and -67.
 - Owner approval: the owner's decisions on 2026-11-23.
 - Source: [Factory design](../../designs/2026-11-21-factory.md#context)
+
+### 2026-11-24 — W30 R0 P1 Rule Catalog Check Column
+
+- Kind: `edit`
+- Affected scope: the factory contract's Rule Catalog, one paragraph of its Readiness section, and one sentence of the `staged-backlog` workflow type, after P1 was done.
+- Previous scope: 57 rows of the Check column said "Planned in" for checks that are built, with a note that the P3 rows are built. Three more rows said "Contract-only" for checks that the CLI makes: `only-ready-takes-work`, `no-silent-replace`, and `one-human-channel`. For a lost tool, the CLI gave two fix steps in one line. Step 2 of `staged-backlog` called `make-docs work next` planned.
+- Replacement scope: a built check says "Built in" with its phase and task. The opening paragraph of the catalog explains the three row forms and says that no row is planned now. The note is removed. The `claim-held` row names `factory.assignment.save`. The three rows now say "Built in", so 60 of the 90 rows are built and 30 are contract-only. The `claim-opens-run` row says exactly what `factory.assignment.start` checks. The Readiness section says that status gives one fix step for each drift reason, and that only `factory workflow show` gives the second way for a lost tool; that part is a change of output, by owner decision. The word "planned" is removed from the `staged-backlog` step. The upstream files changed first in `packages/docs/template/`, and the dogfood copies match them byte for byte. No rule changed. The word "Built in" is new wording that the P6 builder chose, and the owner kept it on 2026-11-24.
+- Rationale: [P6](06-proofs-and-acceptance.md) T14, one stale word found in the same check, the review of 2026-11-24, and the owner's decision of 2026-11-24 on the fix line.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-33, for the one fix step only.
+- Owner approval: none needed for T14, which the owner's P3 review follow-up scheduled. The owner's decisions on 2026-11-24 for the word and for the one fix step.
+- Source: [W30 R0 evidence](evidence.md#rule-catalog-t14)

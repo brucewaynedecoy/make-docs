@@ -161,13 +161,14 @@ describe("W30 R0 P1 factory resources", () => {
       expect(ids, id).toContain(id);
     }
     const checkOf = (id: string) => rules.find((row) => row.startsWith(`| \`${id}\` |`))!.split(" | ")[3];
-    expect(checkOf("escalation-floor")).toMatch(/^Planned in W30 R0 P5 T11/);
-    expect(checkOf("check-handles-before-takeover")).toMatch(/^Planned in W29 R0 P4 T4/);
-    expect(checkOf("limits-saved")).toMatch(/^Planned in W30 R0 P2 T7/);
+    expect(checkOf("escalation-floor")).toMatch(/^Built in W30 R0 P5 T11/);
+    expect(checkOf("check-handles-before-takeover")).toMatch(/^Built in W29 R0 P4 T4/);
+    expect(checkOf("limits-saved")).toMatch(/^Built in W30 R0 P2 T7/);
     for (const row of rules) {
       const check = row.split(" | ")[3] ?? "";
-      // A planned check names its phase and task. A contract-only row gives a reason.
-      expect(check, row).toMatch(/^(Planned in W\d+ R\d+ P\d+ T\d+[ :,]|Contract-only\. \S)/);
+      // A built check, or a check that is planned and not built yet, names its phase and task.
+      // A contract-only row gives a reason. "Built in" is the word of W30 R0 P6 T14.
+      expect(check, row).toMatch(/^((Built|Planned) in W\d+ R\d+ P\d+ T\d+[ :,]|Contract-only\. \S)/);
       expect(row, row).toMatch(/\]\(#[a-z-]+\)/);
     }
   });
