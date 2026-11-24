@@ -240,7 +240,7 @@ describe("W30 R0 P6 record path through the built CLI", () => {
     expect((drifted.drift as Value[]).map((entry) => entry.code ?? entry)).toContain("tool-missing");
     const status = cli(["factory", "status", "--target-root", borealis]).value.summary as string;
     expect(status).toMatch(/Workflow ship: drifted: something changed without a save, so it takes no new work/);
-    // One fix step, the smallest one, and never two joined by "or" (A46, owner decision 2026-11-24).
+    // For a lost tool: one fix step, the smallest one, and no second way (A46, owner decision 2026-11-24).
     const missingLine = status.split("\n").find((line) => line.includes("tool-missing:"))!;
     expect(missingLine.trim()).toBe("- tool-missing: Tool tool-a for the builder, foreman and reviewer roles is missing on this machine. Next: Bring tool-a back and report it with make-docs factory tools save.");
     expect(missingLine).not.toMatch(/, or | or bind/);

@@ -63,7 +63,7 @@ export interface FactoryDriftEntry {
   role: string | null;
   toolId: string | null;
   text: string;
-  /** The smallest step that fixes it (R-FACTORY-33). It is one step, never two joined by "or". */
+  /** The smallest step that fixes it (R-FACTORY-33). For a lost tool it is one step. Three codes name two full fixes joined by "or" (owner decision 2026-11-24). */
   nextStep: string;
   /**
    * Another way to fix it, for when the smallest step cannot work. Only `factory workflow show` gives it.
