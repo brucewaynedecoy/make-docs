@@ -56,16 +56,16 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T1: Confirm that PRD 38 has an R-MIN row for every new field before the migration exists.
-- [ ] T2: Add one append-only migration after v8, with the Store write guard triggers and a Store table catalog entry on each new table, with tables for machine tools and capability proofs, workflow bindings, grants, human channel and wake bindings, assignments, proof results, and backup records (R-FACTORY-15, R-FACTORY-23).
-- [ ] T3: Store assignment fields: work unit, role, tool, task handle, lifecycle run ID, status, and last check time. Store no prompt, transcript, or task graph (R-FACTORY-27, R-FACTORY-28).
-- [ ] T4: Save the machine's tool list once per machine, so all projects on that machine reuse it (R-FACTORY-15).
-- [ ] T5: Add migration tests for the upgrade, a failed migration rollback, and a newer-schema refusal.
-- [ ] T6: Add a test that fails when the R-MIN register and the physical schema drift.
-- [ ] T16: Add the `factory_workflow_plans` table in the same migration: project ID, workflow name, revision number, plan digest, canonical plan JSON, config digest, binding digest, and created time. Refuse any change to a saved row, with a unique key on project, workflow, and revision. Give it the `bounded` maintenance class. Each save removes older revisions in the same write, and keeps the `ready` revision, each revision that an open assignment names, and the 10 newest others (R-FACTORY-56, R-FACTORY-57). New on 2026-11-23.
-- [ ] T17: Add to the assignment record: the part label (a short kebab-case name; `main` for a unit with one part), the correction round count, the plan revision number and digest, and a status history that keeps the 20 newest entries of status, time, and reason code (R-FACTORY-27, R-FACTORY-41, R-FACTORY-58). New on 2026-11-23.
-- [ ] T18: Add a tool state (`available`, `missing`, or `blocked`) to each machine tool row. Add to each capability proof: the reported tool version, the proof time, the result (`proved`, `unproved`, or `contradicted`), and a bounded "does not cover" list. Add the accepted known losses and the `ready` revision to the workflow binding (R-FACTORY-10, R-FACTORY-14). New on 2026-11-23.
-- [ ] T19: Add to each grant: the scope (`once`, `run`, or `standing`), the lifecycle run for a `run` grant, an optional expiry time, and the time a `once` grant was spent (R-FACTORY-24). New on 2026-11-23.
+- [x] T1: Confirm that PRD 38 has an R-MIN row for every new field before the migration exists.
+- [x] T2: Add one append-only migration after v8, with the Store write guard triggers and a Store table catalog entry on each new table, with tables for machine tools and capability proofs, workflow bindings, grants, human channel and wake bindings, assignments, proof results, and backup records (R-FACTORY-15, R-FACTORY-23).
+- [x] T3: Store assignment fields: work unit, role, tool, task handle, lifecycle run ID, status, and last check time. Store no prompt, transcript, or task graph (R-FACTORY-27, R-FACTORY-28).
+- [x] T4: Save the machine's tool list once per machine, so all projects on that machine reuse it (R-FACTORY-15).
+- [x] T5: Add migration tests for the upgrade, a failed migration rollback, and a newer-schema refusal.
+- [x] T6: Add a test that fails when the R-MIN register and the physical schema drift.
+- [x] T16: Add the `factory_workflow_plans` table in the same migration: project ID, workflow name, revision number, plan digest, canonical plan JSON, config digest, binding digest, and created time. Refuse any change to a saved row, with a unique key on project, workflow, and revision. Give it the `bounded` maintenance class. Each save removes older revisions in the same write, and keeps the `ready` revision, each revision that an open assignment names, and the 10 newest others (R-FACTORY-56, R-FACTORY-57). New on 2026-11-23.
+- [x] T17: Add to the assignment record: the part label (a short kebab-case name; `main` for a unit with one part), the correction round count, the plan revision number and digest, and a status history that keeps the 20 newest entries of status, time, and reason code (R-FACTORY-27, R-FACTORY-41, R-FACTORY-58). New on 2026-11-23.
+- [x] T18: Add a tool state (`available`, `missing`, or `blocked`) to each machine tool row. Add to each capability proof: the reported tool version, the proof time, the result (`proved`, `unproved`, or `contradicted`), and a bounded "does not cover" list. Add the accepted known losses and the `ready` revision to the workflow binding (R-FACTORY-10, R-FACTORY-14). New on 2026-11-23.
+- [x] T19: Add to each grant: the scope (`once`, `run`, or `standing`), the lifecycle run for a `run` grant, an optional expiry time, and the time a `once` grant was spent (R-FACTORY-24). New on 2026-11-23.
 
 ### Acceptance criteria
 
@@ -84,20 +84,20 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T7: Add the `factory:` block to the config schema: workflow type, roles needed, capability needs, limits, steps such as preflight, and added escalation events (R-FACTORY-22).
-- [ ] T8: Reject grants, IDs, paths, digests, receipts, and secrets in the `factory:` block (R-FACTORY-24, R-FACTORY-26).
-- [ ] T9: Write generated, read-only copies of the saved setup to `.make-docs/factory/` on each factory save. Each file starts with a note that it is generated and that edits are lost (R-FACTORY-25).
-- [ ] T10: Make sure Make Docs never reads a copy as input.
-- [ ] T11: Add `.make-docs/factory/` to the standard `.gitignore` that setup writes.
-- [ ] T20: Add the new portable fields to the `factory:` block schema: type version; each role's job, returns, and context kinds from the fixed set; the round limit; the gates; the integration owner role; and the human channel kind. Refuse a context kind outside the fixed set (R-FACTORY-55, R-FACTORY-60, R-FACTORY-61). New on 2026-11-23.
-- [ ] T21: Print the latest resolved plan revision as a read-only copy in `.make-docs/factory/`, with the generated-file note and a line that says whether it is the `ready` revision (R-FACTORY-25). New on 2026-11-23.
+- [x] T7: Add the `factory:` block to the config schema: workflow type, roles needed, capability needs, limits, steps such as preflight, and added escalation events (R-FACTORY-22).
+- [x] T8: Reject grants, IDs, paths, digests, receipts, and secrets in the `factory:` block (R-FACTORY-24, R-FACTORY-26).
+- [x] T9: Write generated, read-only copies of the saved setup to `.make-docs/factory/` on each factory save. Each file starts with a note that it is generated and that edits are lost (R-FACTORY-25).
+- [x] T10: Make sure Make Docs never reads a copy as input.
+- [x] T11: Keep `.make-docs/factory/` out of git with a generated `.gitignore` inside the folder. Make Docs never edits the project root `.gitignore`. Changed on 2026-11-23 by owner decision: setup writes no standard `.gitignore`.
+- [x] T20: Add the new portable fields to the `factory:` block schema: type version; each role's job, returns, and context kinds from the fixed set; the round limit; the gates; the integration owner role; and the human channel kind. Refuse a context kind outside the fixed set (R-FACTORY-55, R-FACTORY-60, R-FACTORY-61). New on 2026-11-23.
+- [x] T21: Print the latest resolved plan revision as a read-only copy in `.make-docs/factory/`, with the generated-file note and a line that says whether it is the `ready` revision (R-FACTORY-25). New on 2026-11-23.
 
 ### Acceptance criteria
 
 - A12: Config validation accepts the `factory:` block and rejects each state or secret field in it.
 - A13: A grant saved in the Store never appears in config or in any copy.
 - A14: Each copy starts with the generated-file note, and changing a copy does not change any factory result.
-- A15: A fresh setup writes `.make-docs/factory/` to `.gitignore`.
+- A15: The folder ignores itself: Make Docs writes a `.gitignore` inside `.make-docs/factory/` (and inside `.make-docs/backup/factory/`), so git ignores the copies in a fresh project. Make Docs never edits the project root `.gitignore`. Owner-approved 2026-11-23.
 - A54: Config validation accepts the new portable fields and refuses an unknown context kind, naming it.
 - A55: The resolved plan copy prints the latest revision, starts with the generated-file note, says whether it is the `ready` revision, and holds no grant.
 
@@ -109,10 +109,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T12: In a folder without git, copy a file to `.make-docs/backup/factory/` before a worker changes it, and record its file, hash, and assignment (R-FACTORY-44).
-- [ ] T13: Delete an assignment's backups when its work is accepted or closed. Delete any backup older than 30 days. Run cleanup during normal factory operations (R-FACTORY-45).
-- [ ] T14: Write a `README.md` in `.make-docs/backup/factory/` that states the cleanup rule and how to get a file back (R-FACTORY-46).
-- [ ] T15: Add tests for both cleanup triggers and for the boundary with installation recovery backups.
+- [x] T12: In a folder without git, copy a file to `.make-docs/backup/factory/` before a worker changes it, and record its file, hash, and assignment (R-FACTORY-44).
+- [x] T13: Delete an assignment's backups when its work is accepted or closed. Delete any backup older than 30 days. Run cleanup during normal factory operations (R-FACTORY-45).
+- [x] T14: Write a `README.md` in `.make-docs/backup/factory/` that states the cleanup rule and how to get a file back (R-FACTORY-46).
+- [x] T15: Add tests for both cleanup triggers and for the boundary with installation recovery backups.
 
 ### Acceptance criteria
 
@@ -126,10 +126,15 @@ There are no performance candidates.
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing is selected and done: 59 new tests in `packages/cli/tests/w30-r0-p2-store-records-config-and-copies.test.ts` cover the migration upgrade, rollback, newer-schema refusal, and set-back check (A9); the R-MIN parity test (A10); the assignment fields, status moves, final states, round count, open-job rule, status history, never-log check, and private claim ID (A11, A52); plan revisions, their digest, and the keep rule (A51); tool, proof, binding, and grant fields (A53); the config block (A12, A54); the copies (A13, A14, A15, A55); and the backups (A16 to A18); and the owner's project scoping decision of 2026-11-23. Performance Testing, Guided Progress Review, and Unassisted Goal Testing stay `not-needed-now`.
+- Performance evidence: none. No performance candidate applies.
+- Human Experience Review: the copies and the backup `README.md` say in plain words that they are generated, that edits are lost, how to get a file back, and when backups go. The resolved plan copy says whether it is the `ready` revision. A refusal names the field, never the value. No interactive surface ships in P2; P3 reviews status output.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: open. The owner accepts the phase.
+- Evidence report: [W30 R0 Evidence Report, P2](evidence.md#p2-store-records-config-and-copies).
+- Independent review: one HIGH finding (factory records removed by cascade when sync deleted a unit) and six smaller ones are fixed and tested. Review finding 4, the `unknown` to `needs-correction` round gap, and the custom role context choice stay open for the owner. See [Independent Review Fixes](evidence.md#independent-review-fixes).
+- Re-check: closing a unit while its factory assignment is open is refused everywhere (`work close`, `--accept-deletion`, and a sync close from the file), and the open-assignment sync conflict has a clear message, a working `--keep-store`, and a refused `--keep-file`. See [Re-check Fixes](evidence.md#re-check-fixes).
+- Notes for P3 (not built in P2): (1) a pruned project's workflow rows (bindings, plan revisions, grants, and test task results) cannot be removed today, because every factory function refuses a project ID that `project_register` no longer holds with `project-not-registered`; P3 needs a reviewed removal path for them. (2) Removing a workflow must first delete its backup records and its final assignments, in that order, and refuse while an assignment is open, because no foreign key removes them by cascade.
+- Owner decision 2026-11-23, project scoping: each project-scoped factory table carries the project ID from `project_register`, and each Store service function for those tables takes it explicitly. Machine tools and capability proofs carry none. A missing or unknown project ID is a typed refusal that changes nothing. See the evidence report.
+- Owner decisions 2026-11-23 applied in P2: each assignment records its checkout; the integration owner and the human channel kind live in config only; a move from `unknown` to `needs-correction` counts a round, unless the status before `unknown` was `needs-correction`; only a custom role that the project adds must list its context kinds; and the per-folder `.gitignore` keeps the copies out of git (T11, A15). See [Owner Decisions of 2026-11-23](evidence.md#owner-decisions-of-2026-11-23).
+- Phase / capability status: T1 to T21 are done. No public command or MCP tool was added; P3 owns them.

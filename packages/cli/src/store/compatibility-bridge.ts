@@ -222,13 +222,21 @@ export function previewStoreCompatibilityBridge(storeRoot: string): StoreCompati
         `Schema ${version} can add the empty work store tables for work units, dependencies, links, claims, the sync ledger, and sync conflicts, each with the Store write guard. Every row stays.`,
       ));
     }
+    if (version < 9) {
+      records.push(record(
+        "w30-r0-p2-store-schema-v9",
+        "convert",
+        1,
+        `Schema ${version} can add the empty factory tables for machine tools, capability proofs, plan revisions, workflow bindings, grants, assignments, test task results, and file backups, each with the Store write guard. Every row stays.`,
+      ));
+    }
     if (version < CURRENT_STORE_SCHEMA_VERSION) {
       changes.push(`Create and verify one Store backup before converting schema ${version} to schema ${CURRENT_STORE_SCHEMA_VERSION}.`);
     }
     if (version >= 3 && tables.has("installation_checkouts")) {
       const bridgeCollisions = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_migration_records WHERE kind='legacy-import' AND record_id IN ('w22-p5:checkout-object-numbers:v4','w22-p5:installation-ledger-projection:v4')").get() as { count: number | bigint }).count);
       if (version < 5 && bridgeCollisions) blockers.push(`${bridgeCollisions} reserved P5 bridge record(s) already exist in an older schema.`);
-      // Schema 5 to 8 conversions keep every row, so a lock or pending row stays
+      // Schema 5 to 9 conversions keep every row, so a lock or pending row stays
       // recoverable after the upgrade and does not block it.
       const quietRequired = version < 5 || version >= CURRENT_STORE_SCHEMA_VERSION;
       const activeLocks = Number((db.prepare("SELECT COUNT(*) AS count FROM installation_locks").get() as { count: number | bigint }).count);

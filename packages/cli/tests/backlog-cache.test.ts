@@ -248,7 +248,11 @@ describe("backlog review cache", () => {
     }
     db.exec("DROP TABLE backlog_review_cache");
     db.exec("DROP TABLE IF EXISTS project_register");
-    for (const table of ["work_claims", "work_dependencies", "work_links", "work_sync_checkouts", "work_sync_conflicts", "work_sync_ledger", "work_units"]) {
+    // Schema 9 (W30 R0 P2) factory tables first, children before parents, then the schema 8 work tables.
+    for (const table of [
+      "factory_backups", "factory_proof_results", "factory_assignments", "factory_grants", "factory_workflow_bindings", "factory_workflow_plans", "factory_capability_proofs", "factory_machine_tools",
+      "work_claims", "work_dependencies", "work_links", "work_sync_checkouts", "work_sync_conflicts", "work_sync_ledger", "work_units",
+    ]) {
       db.exec(`DROP TABLE IF EXISTS ${table}`);
     }
     db.exec("DELETE FROM store_schema_journal WHERE schema_version>=6");

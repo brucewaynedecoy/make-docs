@@ -1316,7 +1316,8 @@ describe("W29 R0 P3 re-check fix 2: the first sync of a checkout is recorded", (
     getInstallationCheckoutId(root, store);
     const raw = new DatabaseSync(path.join(store, "store.db"));
     try {
-      expect(raw.prepare("PRAGMA user_version").get()).toEqual({ user_version: 8 });
+      // W30 R0 P2 made schema v9 current; the v8 table is part of it.
+      expect(raw.prepare("PRAGMA user_version").get()).toEqual({ user_version: 9 });
       expect((raw.prepare("PRAGMA table_info(work_sync_checkouts)").all() as Array<{ name: string }>).map((column) => column.name)).toEqual(["checkout_id", "first_synced_at"]);
       const triggers = raw.prepare("SELECT count(*) AS n FROM sqlite_schema WHERE type = 'trigger' AND tbl_name = 'work_sync_checkouts'").get() as { n: number };
       expect(Number(triggers.n)).toBe(3);

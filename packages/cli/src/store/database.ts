@@ -23,6 +23,7 @@ import { createRequire } from "node:module";
 import { platform } from "../platform";
 import { getStoreDatabasePath } from "./paths";
 import { WORK_STORE_SINCE_SCHEMA, WORK_STORE_TABLE_NAMES, WORK_STORE_V8_STATEMENTS } from "./work-store-schema";
+import { FACTORY_STORE_SINCE_SCHEMA, FACTORY_STORE_TABLE_NAMES, FACTORY_STORE_V9_STATEMENTS } from "./factory-store-schema";
 
 /**
  * SQLite operational database for the global store (R-DB-1 through R-DB-4).
@@ -43,7 +44,7 @@ import { WORK_STORE_SINCE_SCHEMA, WORK_STORE_TABLE_NAMES, WORK_STORE_V8_STATEMEN
  */
 
 /** Current schema version of the operational database (recorded in `PRAGMA user_version`). */
-export const CURRENT_STORE_SCHEMA_VERSION = 8;
+export const CURRENT_STORE_SCHEMA_VERSION = 9;
 
 /**
  * Store write guard (PRD 38 R-WRITE-GUARD). Every Store table has
@@ -193,14 +194,16 @@ export function inspectStoreWriteGuard(db: StoreDatabase): string[] {
 const STORE_ROLLBACK_MARKER_TABLES: ReadonlyArray<{ table: string; sinceSchema: number }> = Object.freeze([
   { table: "project_register", sinceSchema: STORE_WRITE_GUARD_SINCE_SCHEMA },
   ...WORK_STORE_TABLE_NAMES.map((table) => ({ table, sinceSchema: WORK_STORE_SINCE_SCHEMA })),
+  ...FACTORY_STORE_TABLE_NAMES.map((table) => ({ table, sinceSchema: FACTORY_STORE_SINCE_SCHEMA })),
 ]);
 
 /**
  * Find objects of a newer schema in a Store that reports an older one
  * (R-WRITE-GUARD-4). A Store that Make Docs left at a schema never has a write
  * guard trigger from schema 7 when it reports schema 6 or older, a table that
- * a later schema creates (such as `project_register` from schema 7 or the
- * work store tables from schema 8), or a schema journal row newer than its
+ * a later schema creates (such as `project_register` from schema 7, the
+ * work store tables from schema 8, or the factory tables from schema 9), or a
+ * schema journal row newer than its
  * `user_version`. When one of them is present, the version was set back
  * outside Make Docs: the guard check that starts at schema 7 must not be
  * skipped, and a migration must not run again over the newer objects.
@@ -751,6 +754,21 @@ export const STORE_MIGRATIONS: StoreMigration[] = [
       ...storeWriteGuardStatements(WORK_STORE_TABLE_NAMES),
     ],
   },
+  {
+    version: 9,
+    description:
+      "W30 R0 P2: factory tables for machine tools, capability proofs, plan revisions, workflow bindings, grants, assignments, proof results, and file backups, each with the Store write guard.",
+    statements: [
+      ...FACTORY_STORE_V9_STATEMENTS,
+      `INSERT INTO store_schema_journal VALUES (
+        9,
+        'W30 R0 P2 factory tables',
+        strftime('%Y-%m-%dT%H:%M:%fZ','now')
+      )`,
+      // Each migration installs the guard triggers of the tables it creates (R-WRITE-GUARD-3).
+      ...storeWriteGuardStatements(FACTORY_STORE_TABLE_NAMES),
+    ],
+  },
 ];
 
 /** The v7 statement after which the terminal operation receipt columns are backfilled. */
@@ -931,8 +949,8 @@ export class StoreMigrationRequiredError extends Error {
 
 export type StoreCheckpoint9Classification =
   | { state: "absent"; databasePath: string; schemaVersion: null }
-  | { state: "supported-current"; databasePath: string; schemaVersion: 8 }
-  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 }
+  | { state: "supported-current"; databasePath: string; schemaVersion: 9 }
+  | { state: "supported-legacy"; databasePath: string; schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 }
   | { state: "newer-unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
   | { state: "corrupt"; databasePath: string; schemaVersion: null; reason: string; issue?: StoreIssue }
   | { state: "unknown"; databasePath: string; schemaVersion: number; reason: string; issue?: StoreIssue }
@@ -1646,6 +1664,7 @@ const VERSION_FIVE_TABLES = [...VERSION_FOUR_TABLES, "store_migration_receipts"]
 const VERSION_SIX_TABLES = [...VERSION_FIVE_TABLES, "backlog_review_cache"] as const;
 const VERSION_SEVEN_TABLES = [...VERSION_SIX_TABLES, "project_register"] as const;
 const VERSION_EIGHT_TABLES = [...VERSION_SEVEN_TABLES, ...WORK_STORE_TABLE_NAMES] as const;
+const VERSION_NINE_TABLES = [...VERSION_EIGHT_TABLES, ...FACTORY_STORE_TABLE_NAMES] as const;
 
 /** Tables that a supported schema version must have, or null for an unsupported version. */
 function expectedTablesForVersion(version: number): readonly string[] | null {
@@ -1658,6 +1677,7 @@ function expectedTablesForVersion(version: number): readonly string[] | null {
     case 6: return VERSION_SIX_TABLES;
     case 7: return VERSION_SEVEN_TABLES;
     case 8: return VERSION_EIGHT_TABLES;
+    case 9: return VERSION_NINE_TABLES;
     default: return null;
   }
 }
@@ -1778,8 +1798,8 @@ export function classifyStoreCheckpoint9State(
       }
     }
     return schemaVersion < CURRENT_STORE_SCHEMA_VERSION
-      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 | 5 | 6 | 7 }
-      : { state: "supported-current", databasePath, schemaVersion: 8 };
+      ? { state: "supported-legacy", databasePath, schemaVersion: schemaVersion as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 }
+      : { state: "supported-current", databasePath, schemaVersion: 9 };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const corrupt = isCorruptDatabaseMessage(reason);

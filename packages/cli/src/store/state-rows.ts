@@ -343,7 +343,10 @@ export interface DeleteProjectRowsResult {
  * the remaining projects from `project_register`. It keeps the project's work
  * store rows (`work_units` and their dependencies, links, and claims), because
  * PRD 38 removes them only by a scoped cleanup after export:
- * `deletePrunedProjectWorkRows` in `work-store.ts` (W29 R0 P4 T12).
+ * `deletePrunedProjectWorkRows` in `work-store.ts` (W29 R0 P4 T12). It keeps
+ * the project's factory rows too (W30 R0 P2): bindings, plan revisions,
+ * grants, assignments, test task results, and backup records stay until the
+ * person removes the workflow.
  */
 export function deleteProjectRows(db: StoreDatabase, projectId: string): DeleteProjectRowsResult {
   db.exec("BEGIN IMMEDIATE");

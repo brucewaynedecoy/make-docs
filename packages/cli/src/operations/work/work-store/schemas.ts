@@ -395,6 +395,8 @@ export const WORK_UPDATE_REFUSALS = [
   // W29 R0 P4 finding 9 (owner option A): a release or close of an expired claim needs the handle check.
   "handle-check-needed",
   "previous-holder-still-working",
+  // W30 R0 P2 review: a unit with an open factory assignment does not close.
+  "factory-assignment-open",
 ] as const;
 export const WorkUpdateRefusalSchema = z.enum(WORK_UPDATE_REFUSALS);
 export type WorkUpdateRefusal = z.infer<typeof WorkUpdateRefusalSchema>;

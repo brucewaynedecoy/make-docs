@@ -266,7 +266,8 @@ describe("W32 R0 P3 row events (A11)", () => {
     const parent = base();
     const store = path.join(parent, "store");
     const { rows } = event(store, () => withStoreDatabase(store, () => undefined));
-    expect(rows).toEqual({ store_schema_journal: { created: 6 } });
+    // Schema journal rows for versions 3 to 9 (W30 R0 P2 added 9).
+    expect(rows).toEqual({ store_schema_journal: { created: 7 } });
     expect(register(store)).toEqual([]);
   });
 

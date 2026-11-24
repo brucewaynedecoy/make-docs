@@ -826,7 +826,7 @@ describe.skipIf(!sqliteAvailable)("W32 R0 P4 review fixes", () => {
     const failures: Array<[string, () => unknown]> = [
       ["verify", () => { return cleanStore(store, fixtureEnv({ now: new Date(FIXTURE_NOW.getTime() + 1000) }), { testHooks: { afterVacuumInto: (partial) => writeFileSync(partial, "") } }); }],
       ["apply", () => cleanStore(store, fixtureEnv({ now: new Date(FIXTURE_NOW.getTime() + 2000) }), { testHooks: { afterLock: () => { throw new Error("injected apply failure"); } } })],
-      ["schema", () => cleanStore(store, fixtureEnv({ now: new Date(FIXTURE_NOW.getTime() + 3000) }), { testHooks: { afterLock: (db) => db.exec("PRAGMA user_version = 9") } })],
+      ["schema", () => cleanStore(store, fixtureEnv({ now: new Date(FIXTURE_NOW.getTime() + 3000) }), { testHooks: { afterLock: (db) => db.exec("PRAGMA user_version = 10") } })],
     ];
     if (process.platform !== "win32") {
       failures.push(["vacuum into", () => {
@@ -916,7 +916,7 @@ describe.skipIf(!sqliteAvailable)("W32 R0 P4 review fixes", () => {
     seedCache();
     const before = dump();
     expect(() => cleanStore(store, fixtureEnv(), { testHooks: { afterLock: (db) => db.exec("PRAGMA user_version = 6") } }))
-      .toThrow(/The Store schema is 6 inside the clean transaction, not 8\. Clean changed nothing\./);
+      .toThrow(/The Store schema is 6 inside the clean transaction, not 9\. Clean changed nothing\./);
     expect(dump()).toEqual(before);
     expect(cleanFiles()).toEqual([]);
   });

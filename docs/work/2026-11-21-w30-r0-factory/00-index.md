@@ -154,3 +154,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -41, -60, and -67. Register D-075 is closed. PRD 25: `none`, because R-ACCESS-6 already checks project grants and target scope.
 - Owner approval: the owner's decisions on 2026-11-23.
 - Source: [Factory design](../../designs/2026-11-21-factory.md#context)
+
+### 2026-11-23 — W30 R0 P2
+
+- Kind: `edit`
+- Affected scope: P2 T11 and A15.
+- Previous scope: T11 added `.make-docs/factory/` to the standard `.gitignore` that setup writes, and A15 checked that a fresh setup writes it.
+- Replacement scope: setup writes no standard `.gitignore`, so the copy folder ignores itself: Make Docs writes a `.gitignore` inside `.make-docs/factory/` (and inside `.make-docs/backup/factory/`), and never edits the project root `.gitignore`.
+- Rationale: no `.gitignore` that setup writes exists, and editing a person's root file is outside what Make Docs owns.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-25 and R-FACTORY-46 (W30 R0 Owner Answers entry).
+- Owner approval: the owner's decision on 2026-11-23.
+- Source: [W30 R0 P2 evidence](evidence.md#owner-decisions-of-2026-11-23)

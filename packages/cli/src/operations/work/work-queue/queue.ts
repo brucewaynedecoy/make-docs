@@ -10,6 +10,7 @@ import {
 import {
   WorkStoreRefusalError,
   checkWorkUnitWriteClaim,
+  hasOpenFactoryAssignment,
   claimWorkUnit,
   createQuickItem,
   findWorkUnitByCoordinate,
@@ -662,6 +663,8 @@ function updateRefusalText(refusal: WorkUpdateRefusal, state: ClaimState, operat
       return "The unit's claim ran out. Check the old task handle first, then send what you saw with --handle: stopped, finished, or not-found, or no-handle when the claim has no task handle.";
     case "previous-holder-still-working":
       return "The old task still runs, so its expired claim stays. Wait for it to stop or finish.";
+    case "factory-assignment-open":
+      return "A factory assignment is still open for this unit. Finish or cancel it first, then close the unit.";
   }
 }
 
@@ -868,6 +871,8 @@ export function workClose(
     if (unit.revision !== input.expectedVersion) return refuse("version-conflict");
     const claimRefusal = checkWorkUnitWriteClaim(db, unit.storeId, input.claimId, env.now, { closing: true, handleObservation: input.handleObservation ?? null });
     if (claimRefusal) return refuse(claimRefusal);
+    // W30 R0 P2 review: closing ends the claim, and an open factory assignment changes only through it.
+    if (hasOpenFactoryAssignment(db, unit.storeId)) return refuse("factory-assignment-open");
     putWorkUnit(db, { ...unitInput(unit), status: "closed", closeOutcome: input.outcome }, {
       expectedVersion: unit.revision,
       claimId: input.claimId,

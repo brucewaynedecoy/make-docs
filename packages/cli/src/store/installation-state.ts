@@ -920,8 +920,9 @@ interface CheckoutMoveReceipt {
  * record tables have every column that these actions read and write, so they do not
  * migrate the Store. A setup review shows the Store conversion separately, and only a
  * reviewed setup applies it. Schema 7 adds `project_register`, which these actions write
- * only when it exists. Schema 7 is also used as it is after schema 8 is current: schema 8
- * adds only the work store tables, which these actions never read or write (W29 R0 P2).
+ * only when it exists. Schema 7 and schema 8 are also used as they are after schema 9 is
+ * current: schema 8 adds only the work store tables (W29 R0 P2), and schema 9 adds only
+ * the factory tables (W30 R0 P2). These actions never read or write either set.
  */
 const CHECKOUT_BINDING_MIN_STORE_SCHEMA = 6;
 /** Classify the Store for checkout binding actions. Unsafe Stores, including a Store whose write guard changed or whose version was set back, stay refused. */

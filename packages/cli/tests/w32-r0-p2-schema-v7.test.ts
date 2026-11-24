@@ -118,7 +118,8 @@ function replace(relative: string, content: string): void {
 describe("W32 R0 P2 schema v7 migration (A5, A25)", () => {
   it("moves v6 to v7 in one transaction, keeps every row and reference, and backfills terminal receipts", () => {
     // W29 R0 P2 made schema v8 current, so a v6 Store moves through v7 to v8, each in its own transaction.
-    expect(CURRENT_STORE_SCHEMA_VERSION).toBe(8);
+    // W30 R0 P2 made schema v9 current, so a v6 Store moves through v7 and v8 to v9.
+    expect(CURRENT_STORE_SCHEMA_VERSION).toBe(9);
     const db = seedV6(store);
     seedV6Rows(db);
     expect(previewStoreCompatibilityBridge(store).records).toEqual(expect.arrayContaining([
@@ -131,7 +132,7 @@ describe("W32 R0 P2 schema v7 migration (A5, A25)", () => {
     expect(columns(db, "project_register")).toEqual(["project_id", "project_name", "first_seen_at", "last_seen_at"]);
     expect(columns(db, "installation_operations")).toEqual(STORE_TABLE_CATALOG.find((entry) => entry.table === "installation_operations")!.columns);
     const journal = readStoreSchemaJournal(db as never);
-    expect(journal.journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8]);
+    expect(journal.journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8, 9]);
     expect(journal.missingVersions).toEqual([]);
 
     const rows = db.prepare("SELECT operation_id,status,before_ledger_digest,after_ledger_digest,step_count,applied_step_count,failure_code FROM installation_operations ORDER BY operation_id").all();
@@ -190,20 +191,23 @@ describe("W32 R0 P2 schema v7 migration (A5, A25)", () => {
   it("refuses a newer schema without reading or changing its bytes", () => {
     openStoreDatabase(store).db.close();
     const raw = new DatabaseSync(path.join(store, "store.db"));
-    raw.exec("PRAGMA user_version=9");
+    raw.exec("PRAGMA user_version=10");
     raw.close();
     const bytes = readFileSync(path.join(store, "store.db"));
     expect(() => openStoreDatabase(store)).toThrow(StoreSchemaNewerError);
-    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "newer-unknown", schemaVersion: 9 });
+    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "newer-unknown", schemaVersion: 10 });
     expect(readFileSync(path.join(store, "store.db"))).toEqual(bytes);
   });
 
   it("creates a fresh v7 Store with mode 0600, every guard trigger, and the full schema journal", () => {
     withStoreDatabase(store, (db) => {
       expect(inspectStoreWriteGuard(db)).toEqual([]);
-      const triggers = db.prepare("SELECT COUNT(*) AS count FROM sqlite_schema WHERE type='trigger'").get() as { count: number };
+      const triggers = db.prepare("SELECT COUNT(*) AS count FROM sqlite_schema WHERE type='trigger' AND name LIKE 'make_docs_guard_%'").get() as { count: number };
       expect(triggers.count).toBe(V7_TABLES.length * STORE_WRITE_GUARD_EVENTS.length);
-      expect(readStoreSchemaJournal(db).journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8]);
+      // Schema v9 (W30 R0 P2) adds two triggers that are not guard triggers: a saved plan revision and a final assignment never change.
+      expect((db.prepare("SELECT name FROM sqlite_schema WHERE type='trigger' AND name NOT LIKE 'make_docs_guard_%' ORDER BY name").all() as Array<{ name: string }>).map((row) => row.name))
+        .toEqual(["factory_assignments_final_status", "factory_workflow_plans_never_change"]);
+      expect(readStoreSchemaJournal(db).journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8, 9]);
     });
     if (POSIX) expect(statSync(path.join(store, "store.db")).mode & 0o777).toBe(0o600);
   });
@@ -407,10 +411,10 @@ describe("W32 R0 P2 defect fixes (A9, A10)", () => {
 
   it("reads store_schema_journal in Store status and reports a missing version", () => {
     operation(() => replace("note.md", "text"));
-    expect(readInstallationStatus(project, store)).toMatchObject({ storeSchema: { schemaVersion: CURRENT_STORE_SCHEMA_VERSION, journalVersions: [3, 4, 5, 6, 7, 8], missingVersions: [], warning: null } });
+    expect(readInstallationStatus(project, store)).toMatchObject({ storeSchema: { schemaVersion: CURRENT_STORE_SCHEMA_VERSION, journalVersions: [3, 4, 5, 6, 7, 8, 9], missingVersions: [], warning: null } });
     withInstallationDatabase(project, (db) => db.prepare("DELETE FROM store_schema_journal WHERE schema_version=5").run(), { storeRoot: store });
     expect(readInstallationStatus(project, store)).toMatchObject({
-      storeSchema: { journalVersions: [3, 4, 6, 7, 8], missingVersions: [5], warning: expect.stringContaining("no row for version 5") },
+      storeSchema: { journalVersions: [3, 4, 6, 7, 8, 9], missingVersions: [5], warning: expect.stringContaining("no row for version 5") },
     });
   });
 });

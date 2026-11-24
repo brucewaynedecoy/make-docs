@@ -73,6 +73,7 @@ export const WORK_STORE_REFUSALS = [
   "project-still-registered",
   "export-proof-stale",
   "claim-live",
+  "factory-assignment-open",
 ] as const;
 export type WorkStoreRefusal = (typeof WORK_STORE_REFUSALS)[number];
 
@@ -406,6 +407,23 @@ export function listWorkUnits(db: StoreDatabase, projectId: string): WorkUnitRec
 export type WorkUnitInput = Omit<WorkUnitRecord, "revision">;
 
 /**
+ * True when a factory assignment of the unit is open (not `accepted`,
+ * `failed`, or `cancelled`). A unit with an open assignment is never closed
+ * or deleted: closing would end its claim, and an assignment changes only
+ * through the claim, so the assignment could never finish (W30 R0 P2 review).
+ */
+export function hasOpenFactoryAssignment(db: StoreDatabase, unitStoreId: string): boolean {
+  return db.prepare(
+    "SELECT 1 FROM factory_assignments WHERE unit_store_id = ? AND status NOT IN ('accepted','failed','cancelled') LIMIT 1",
+  ).get(unitStoreId) !== undefined;
+}
+
+/** The message of a close or delete that an open factory assignment stops. */
+export function openFactoryAssignmentMessage(unitLabel: string): string {
+  return `A factory assignment is still open for ${unitLabel}. Finish or cancel it first, then sync again.`;
+}
+
+/**
  * Create or replace one unit with its dependencies and links.
  *
  * `expectedVersion` is null to create a unit that must not exist yet, or the
@@ -415,8 +433,9 @@ export type WorkUnitInput = Omit<WorkUnitRecord, "revision">;
  * writes later, because their foreign keys are checked at commit. A unit that
  * closes loses its claim (R-WORK-QUEUE-9), and a close follows the claim rule
  * of a report: a unit with a live claim closes only through `claimId` of its
- * holder (R-WORK-QUEUE-8). Inside {@link writeWorkStore}, the unit must belong
- * to the project that the session opened.
+ * holder (R-WORK-QUEUE-8). A unit with an open factory assignment never
+ * closes (`factory-assignment-open`). Inside {@link writeWorkStore}, the unit
+ * must belong to the project that the session opened.
  */
 export function putWorkUnit(
   db: StoreDatabase,
@@ -446,6 +465,9 @@ export function putWorkUnit(
       }
     }
     if (record.status === "closed" && current && current.status !== "closed") {
+      if (hasOpenFactoryAssignment(db, record.storeId)) {
+        refuse("factory-assignment-open", `A factory assignment is still open for ${record.coordinate}, so it cannot close.`, "Finish or cancel the factory assignment first.", { storeId: record.storeId });
+      }
       const claimRefusal = checkWorkUnitWriteClaim(db, record.storeId, options.claimId ?? null, options.now ?? new Date(), {
         closing: true,
         handleObservation: options.handleObservation ?? null,
@@ -505,6 +527,9 @@ export function putWorkUnit(
  * at `expectedVersion`, have no child, and be no other unit's dependency, so
  * nothing points at a missing unit. Its dependencies, links, and claim go
  * with it. Inside {@link writeWorkStore}, it must belong to the opened project.
+ * A unit with an open factory assignment is never deleted (W30 R0 P2 review):
+ * the assignment stays until it is final. A final assignment stays too, after
+ * its unit goes, until an explicit scoped cleanup (PRD 38).
  */
 export function deleteWorkUnit(db: StoreDatabase, storeId: string, options: { expectedVersion: number }): void {
   atomic(db, () => {
@@ -516,6 +541,9 @@ export function deleteWorkUnit(db: StoreDatabase, storeId: string, options: { ex
     }
     const child = db.prepare("SELECT store_id FROM work_units WHERE parent_store_id = ? LIMIT 1").get(storeId) as { store_id: string } | undefined;
     const dependent = db.prepare("SELECT unit_store_id FROM work_dependencies WHERE depends_on_store_id = ? LIMIT 1").get(storeId) as { unit_store_id: string } | undefined;
+    if (hasOpenFactoryAssignment(db, storeId)) {
+      refuse("factory-assignment-open", `Work unit ${storeId} has an open factory assignment.`, "Finish or cancel the factory assignment first.", { storeId });
+    }
     if (child || dependent) {
       refuse(
         "unit-in-use",
@@ -1082,6 +1110,8 @@ export function workProjectDigest(db: StoreDatabase, projectId: string): string 
 export interface DeletePrunedProjectWorkRowsResult {
   projectId: string;
   removed: { work_units: number; work_dependencies: number; work_links: number; work_claims: number };
+  /** The project's final factory assignments and their backup records, which the cleanup removed with the units (W30 R0 P2). */
+  factoryRemoved: { factory_assignments: number; factory_backups: number };
 }
 
 /**
@@ -1093,7 +1123,14 @@ export interface DeletePrunedProjectWorkRowsResult {
  *   prune removed it (R-REGISTER-4); and
  * - `exportDigest` is the digest from a `work export` result that wrote all of
  *   the project's work, and it still matches every work row; and
- * - no unit of the project has a live claim.
+ * - no unit of the project has a live claim; and
+ * - no factory assignment of the project is open (W30 R0 P2 review).
+ *
+ * It removes the project's final factory assignments and their backup records
+ * itself, backup records first, because no foreign key removes them by
+ * cascade. It keeps the project's factory workflows (bindings, plan revisions,
+ * grants, and test task results): they go only when the workflow is removed.
+ * The backup files stay in the old checkout's folder, outside the Store.
  *
  * Otherwise it refuses and changes nothing. It never touches another
  * project's rows. Sync ledger, conflict, and first-sync rows belong to a
@@ -1135,19 +1172,35 @@ export function deletePrunedProjectWorkRows(
       );
     }
     const count = (sql: string) => Number((db.prepare(sql).get(projectId) as { n: number }).n);
+    const openAssignments = count("SELECT count(*) AS n FROM factory_assignments WHERE project_id = ? AND status NOT IN ('accepted','failed','cancelled')");
+    if (openAssignments > 0) {
+      refuse(
+        "factory-assignment-open",
+        `Project ${projectId} has ${openAssignments} open factory assignment(s), so its work rows stay.`,
+        "Finish or cancel each factory assignment, then export and clean up again.",
+        { projectId, openAssignments },
+      );
+    }
+    const factoryRemoved = {
+      factory_assignments: count("SELECT count(*) AS n FROM factory_assignments WHERE project_id = ?"),
+      factory_backups: count("SELECT count(*) AS n FROM factory_backups WHERE project_id = ?"),
+    };
     const removed = {
       work_units: count("SELECT count(*) AS n FROM work_units WHERE project_id = ?"),
       work_dependencies: count("SELECT count(*) AS n FROM work_dependencies WHERE project_id = ?"),
       work_links: count("SELECT count(*) AS n FROM work_links l JOIN work_units u ON u.store_id = l.unit_store_id WHERE u.project_id = ?"),
       work_claims: count("SELECT count(*) AS n FROM work_claims WHERE project_id = ?"),
     };
+    // Factory rows first, in order: backup records name assignments, and nothing removes either by cascade.
+    db.prepare("DELETE FROM factory_backups WHERE project_id = ?").run(projectId);
+    db.prepare("DELETE FROM factory_assignments WHERE project_id = ?").run(projectId);
     // Children first is not needed: the parent key is deferred and every unit of the project goes.
     db.prepare("DELETE FROM work_claims WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM work_dependencies WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM work_links WHERE unit_store_id IN (SELECT store_id FROM work_units WHERE project_id = ?)").run(projectId);
     db.prepare("DELETE FROM work_units WHERE project_id = ?").run(projectId);
     db.exec("COMMIT");
-    return { projectId, removed };
+    return { projectId, removed, factoryRemoved };
   } catch (error) {
     try {
       db.exec("ROLLBACK");

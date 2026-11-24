@@ -357,7 +357,7 @@ The foreman claims work through the work queue (`make-docs work claim`, MCP `wor
 
 Each claim opens one lifecycle run at stage `implementation` (operation `lifecycle.start`). Each assignment points to that run. Evidence goes in through the existing evidence operations, `work.evidence.record` and `lifecycle.attach-evidence`.
 
-Only the holder of a live claim starts or updates the unit's assignments. `make-docs factory assignment start` and `make-docs factory assignment update` (planned) take the claim's private claim ID, as the work queue rules require for a report or a close. A caller that no longer holds the claim is refused. Never write a claim ID into a factory record, a note, or a message.
+Only the holder of a live claim starts or updates the unit's assignments. `make-docs factory assignment start` and `make-docs factory assignment update` (planned) take the claim's private claim ID, as the work queue rules require for a report or a close. A caller that no longer holds the claim is refused. Never write a claim ID into a factory record, a note, or a message. `assignment start` refuses a checkout that is not a bound checkout of the project with `checkout-not-bound`. A unit with an open assignment does not close and does not leave the work store: the work queue refuses with `factory-assignment-open` (PRD 52).
 
 The foreman renews the claim at each check. The work queue rules set the timing: the claimant checks at least every 10 minutes, and a claim lasts 30 minutes by default. So the foreman's wake interval must be shorter than the claim time limit. A wake that comes less often lets the claim expire while the work still runs.
 

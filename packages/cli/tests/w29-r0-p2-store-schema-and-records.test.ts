@@ -139,11 +139,12 @@ function columns(db: { prepare(sql: string): { all(...args: unknown[]): unknown[
 
 describe("W29 R0 P2 schema v8 migration (A5)", () => {
   it("creates a fresh Store at schema v8 with every work table, its guard triggers, its journal row, and its catalog entry", () => {
-    expect(CURRENT_STORE_SCHEMA_VERSION).toBe(8);
+    // W30 R0 P2 made schema v9 current; the v8 work tables are part of it.
+    expect(CURRENT_STORE_SCHEMA_VERSION).toBe(9);
     withStoreDatabase(store, (db) => {
       const journal = readStoreSchemaJournal(db);
-      expect(journal.schemaVersion).toBe(8);
-      expect(journal.journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8]);
+      expect(journal.schemaVersion).toBe(9);
+      expect(journal.journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8, 9]);
       expect(inspectStoreWriteGuard(db)).toEqual([]);
       const triggers = new Set((db.prepare("SELECT name FROM sqlite_schema WHERE type = 'trigger'").all() as Array<{ name: string }>).map((row) => row.name));
       for (const table of WORK_STORE_TABLE_NAMES) {
@@ -180,15 +181,16 @@ describe("W29 R0 P2 schema v8 migration (A5)", () => {
 
     const db = openStoreSqliteConnection(path.join(store, "store.db"), {}, "migrate");
     try {
-      expect(applyStoreMigrations(db, 7)).toBe(8);
-      expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: 8 });
+      expect(applyStoreMigrations(db, 7)).toBe(CURRENT_STORE_SCHEMA_VERSION);
+      expect(db.prepare("PRAGMA user_version").get()).toEqual({ user_version: CURRENT_STORE_SCHEMA_VERSION });
       expect(db.prepare("SELECT checkout_id FROM installation_checkouts").all()).toEqual([{ checkout_id: "checkout-old" }]);
-      expect(readStoreSchemaJournal(db).journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8]);
+      expect(readStoreSchemaJournal(db).journal.map((row) => row.version)).toEqual([3, 4, 5, 6, 7, 8, 9]);
       expect(inspectStoreWriteGuard(db)).toEqual([]);
     } finally {
       db.close();
     }
-    const backups = readdirSync(store).filter((file) => /^store\.db\.bridge-v7-to-v8-.*\.backup$/.test(file));
+    // Since W30 R0 P2 a v7 Store moves through v8 to v9 after the same one backup.
+    const backups = readdirSync(store).filter((file) => /^store\.db\.bridge-v7-to-v9-.*\.backup$/.test(file));
     expect(backups).toHaveLength(1);
     expect(isVerifiedStoreBackupFile(path.join(store, backups[0]!))).toBe(true);
     const backup = new DatabaseSync(path.join(store, backups[0]!), { readOnly: true });
@@ -197,7 +199,7 @@ describe("W29 R0 P2 schema v8 migration (A5)", () => {
     } finally {
       backup.close();
     }
-    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "supported-current", schemaVersion: 8 });
+    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "supported-current", schemaVersion: CURRENT_STORE_SCHEMA_VERSION });
   });
 
   it("rolls the whole v8 migration back when one statement fails, and the v7 Store stays usable", () => {
@@ -235,12 +237,12 @@ describe("W29 R0 P2 schema v8 migration (A5)", () => {
   it("refuses a newer schema without a write", () => {
     withStoreDatabase(store, () => undefined);
     const raw = new DatabaseSync(path.join(store, "store.db"));
-    raw.exec("PRAGMA user_version=9");
+    raw.exec("PRAGMA user_version=10");
     raw.close();
     const bytes = readFileSync(path.join(store, "store.db"));
-    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "newer-unknown", schemaVersion: 9 });
+    expect(classifyStoreCheckpoint9State(store)).toMatchObject({ state: "newer-unknown", schemaVersion: 10 });
     expect(() => openStoreDatabase(store)).toThrow(StoreSchemaNewerError);
-    expect(() => openStoreDatabase(store)).toThrow(/schema version 9, but this CLI supports up to version 8/);
+    expect(() => openStoreDatabase(store)).toThrow(/schema version 10, but this CLI supports up to version 9/);
     expect(readFileSync(path.join(store, "store.db")).equals(bytes)).toBe(true);
   });
 
@@ -252,7 +254,7 @@ describe("W29 R0 P2 schema v8 migration (A5)", () => {
     const state = classifyStoreCheckpoint9State(store);
     expect(state).toMatchObject({ state: "unknown", schemaVersion: 7, issue: { code: "changed-outside" } });
     expect("reason" in state && state.reason).toContain("The Store reports schema 7 but has the work_units table from schema 8.");
-    expect("reason" in state && state.reason).toContain("its schema journal records schema 8");
+    expect("reason" in state && state.reason).toContain("its schema journal records schema 9");
     const review = new DatabaseSync(path.join(store, "store.db"), { readOnly: true });
     try {
       expect(inspectStoreGuardAndVersion(review as never).length).toBeGreaterThan(0);
@@ -386,7 +388,7 @@ describe("W29 R0 P2 Store service (T5, A6)", () => {
     rmSync(store, { recursive: true, force: true });
     withStoreDatabase(store, () => undefined);
     const newer = new DatabaseSync(path.join(store, "store.db"));
-    newer.exec("PRAGMA user_version=9");
+    newer.exec("PRAGMA user_version=10");
     newer.close();
     expect(scoped(() => writeWorkStore(root, () => undefined, { storeRoot: store }))).toMatchObject({ code: "store-unsafe" });
 

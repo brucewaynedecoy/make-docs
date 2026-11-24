@@ -13,6 +13,8 @@ import {
   deleteSyncConflict,
   deleteSyncLedgerEntry,
   deleteWorkUnit,
+  hasOpenFactoryAssignment,
+  openFactoryAssignmentMessage,
   listSyncConflicts,
   listSyncLedger,
   listWorkUnits,
@@ -411,6 +413,8 @@ export const WORK_SETTLE_REFUSALS = [
   "file-changed",
   "store-cannot-render",
   "claimed",
+  // W30 R0 P2 review: a settle that would close or remove a unit with an open factory assignment.
+  "factory-assignment-open",
 ] as const;
 export type WorkSettleRefusal = (typeof WORK_SETTLE_REFUSALS)[number];
 
@@ -1048,6 +1052,23 @@ function runSync(context: SyncContext): WorkSyncReport {
       case "reimport": {
         if (view.bytes === null) return refuseSettle("file-missing", `${view.path} is not in this checkout.`, "Settle with the other choice.");
         if (!view.parsed?.ok) return refuseSettle("file-unreadable", `Make Docs cannot read ${view.path}.`, "Fix the file, then settle again.");
+        {
+          // W30 R0 P2 review: the file's version would close or remove a unit with an open factory assignment,
+          // so the import would stop again. Refuse instead of reporting a settle that does not hold.
+          const parsedUnits = new Map((view.parsed as { ok: true; document: WorkFileDocument }).document.units.map((unit) => [unit.coordinate, unit]));
+          const stuck = view.units.filter((unit) => {
+            if (unit.status === "closed" || !hasOpenFactoryAssignment(db, unit.storeId)) return false;
+            const parsed = parsedUnits.get(unit.coordinate);
+            return !parsed || recordedStatusOf(parsed.recordedStatus).status === "closed";
+          });
+          if (stuck.length > 0) {
+            return refuseSettle(
+              "factory-assignment-open",
+              stuck.map((unit) => openFactoryAssignmentMessage(unit.coordinate).replace(", then sync again.", ".")).join(" "),
+              "Finish or cancel each factory assignment, then settle again, or settle with --keep-store.",
+            );
+          }
+        }
         clearConflict();
         if (settle.choice === "reimport") {
           clearLedger(view.path);
@@ -1086,6 +1107,14 @@ function runSync(context: SyncContext): WorkSyncReport {
       case "accept-deletion": {
         if (view.bytes !== null) {
           return refuseSettle("file-present", `${view.path} is in this checkout again.`, "Delete the file first, or settle with --restore.");
+        }
+        const assignedUnits = view.units.filter((unit) => unit.status !== "closed" && hasOpenFactoryAssignment(db, unit.storeId));
+        if (assignedUnits.length > 0) {
+          return refuseSettle(
+            "factory-assignment-open",
+            assignedUnits.map((unit) => openFactoryAssignmentMessage(unit.coordinate).replace(", then sync again.", ".")).join(" "),
+            "Finish or cancel each factory assignment, then settle again.",
+          );
         }
         const claims = liveClaimsOf(db, projectId, now);
         const held = view.units.filter((unit) => unit.status !== "closed" && claims.has(unit.storeId));
@@ -1372,6 +1401,10 @@ function runImports(
   const claims = liveClaimsOf(db, projectId, now);
   // Units with a progress note (register D-066): the note is store-only data (re-check finding 2).
   const noted = new Set((db.prepare("SELECT store_id FROM work_units WHERE project_id = ? AND note IS NOT NULL").all(projectId) as Array<{ store_id: string }>).map((row) => row.store_id));
+  // Units with an open factory assignment (W30 R0 P2 review): the assignment is store-only data, so sync never deletes the unit.
+  const assigned = new Set((db.prepare(
+    "SELECT DISTINCT unit_store_id FROM factory_assignments WHERE project_id = ? AND status NOT IN ('accepted','failed','cancelled')",
+  ).all(projectId) as Array<{ unit_store_id: string }>).map((row) => row.unit_store_id));
   const blockedPaths = new Set(
     report.files.filter((file) => file.action === "conflict" || file.action === "still-in-conflict" || file.action === "unreadable").map((file) => file.path),
   );
@@ -1446,7 +1479,7 @@ function runImports(
     stopped = false;
     for (let index = planned.length - 1; index >= 0; index -= 1) {
       const plan = planned[index]!;
-      const { reasons, claimedUnits } = importGuardReasons(plan, storeUnits, claims, blockedPaths, noted);
+      const { reasons, claimedUnits } = importGuardReasons(plan, storeUnits, claims, blockedPaths, noted, assigned);
       if (reasons.length === 0) continue;
       stopForPerson(plan.view, reasons, [...plan.existing.values()], claimedUnits);
       blockedPaths.add(plan.view.path);
@@ -1739,6 +1772,8 @@ export function storeOnlyData(unit: WorkUnitRecord, hasNote = false): string[] {
  * - A unit leaves the file while it has a live claim, or while the store holds
  *   something the file cannot show. Deleting it would lose that silently.
  * - A unit leaves the file while a unit in a waiting file depends on it.
+ * - The file closes or removes a unit with an open factory assignment, which
+ *   changes only through the unit's claim (W30 R0 P2 review).
  */
 function importGuardReasons(
   plan: PlannedFile,
@@ -1746,6 +1781,7 @@ function importGuardReasons(
   claims: Map<string, LiveClaim>,
   blockedPaths: Set<string>,
   noted: ReadonlySet<string>,
+  assigned: ReadonlySet<string> = new Set(),
 ): { reasons: string[]; claimedUnits: WorkUnitRecord[] } {
   const reasons: string[] = [];
   const claimedUnits: WorkUnitRecord[] = [];
@@ -1756,6 +1792,10 @@ function importGuardReasons(
   for (const unit of plan.document.units) {
     const current = plan.existing.get(unit.coordinate) ?? null;
     if (!current || current.status === "closed") continue;
+    // W30 R0 P2 review: a file never closes a unit with an open factory assignment.
+    if (assigned.has(current.storeId) && mergedStatus(unit, current, plan.base.get(unit.coordinate) ?? null).status === "closed") {
+      reasons.push(openFactoryAssignmentMessage(unit.coordinate));
+    }
     const claim = claims.get(current.storeId);
     if (!claim) continue;
     if (mergedStatus(unit, current, plan.base.get(unit.coordinate) ?? null).status === "closed") {
@@ -1770,6 +1810,8 @@ function importGuardReasons(
       reasons.push(`${coordinate} left the file, and ${held(claim)}.`);
       claimedUnits.push(unit);
     }
+    // W30 R0 P2 review: an open factory assignment changes only through the unit's claim, so the unit stays.
+    if (assigned.has(unit.storeId)) reasons.push(openFactoryAssignmentMessage(coordinate));
     const storeOnly = storeOnlyData(unit, noted.has(unit.storeId));
     if (storeOnly.length > 0) reasons.push(`${coordinate} left the file, and the store holds what the file cannot show: ${storeOnly.join(", ")}.`);
     for (const dependent of storeUnits) {

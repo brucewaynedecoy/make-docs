@@ -12,6 +12,7 @@ import { NO_ACCESS, type OperationAccess } from "./operations/access";
 import { PROJECT_RESOURCE_TYPES, type ProjectResourceType } from "./types";
 import { projectNameProblem } from "./store/project-register";
 import { WorkConfigBlockSchema, workConfigStateFieldProblems } from "./operations/work/work-store/schemas";
+import { FactoryConfigBlockSchema, factoryConfigPathSegment, factoryConfigStateFieldProblems } from "./operations/factory/config-block";
 
 export const PERSONA_PRIMITIVES = ["user", "maintainer"] as const;
 export const RESERVED_PERSONA_SLUGS = new Set(["project", "archive", "artifacts", "library", "playbooks"]);
@@ -127,6 +128,8 @@ export interface MakeDocsConfigDiagnostic {
     | "invalid-project-name"
     | "invalid-work-block"
     | "work-block-state-field"
+    | "invalid-factory-block"
+    | "factory-block-state-field"
     | "missing-required-key"
     | "parse-error"
     | "structural-rename-attempt"
@@ -171,6 +174,9 @@ const TOP_LEVEL_KEYS = new Set([
   // PRD 24 R-CONFIG-WORK-1: the work store intent. W29 R0 P4 admits the block for
   // `projection`, `syncHold`, and `tracker`; PRD 52 owns their meaning.
   "work",
+  // PRD 24 R-CONFIG-WORK-2: the portable factory workflow choices. W30 R0 P2 admits
+  // the block; PRD 53 owns their meaning.
+  "factory",
 ]);
 const LABEL_GROUP_KEYS = new Set(["lifecycle", "documentKinds", "coordinates"]);
 const PERSONA_KEYS = new Set(["slug", "label", "description", "primitive"]);
@@ -415,6 +421,30 @@ export function loadMakeDocsConfig(targetDir: string): LoadedMakeDocsConfig {
         }
         const keyPath = ["work", ...at].join(".");
         diagnostics.push({ code: "invalid-work-block", filePath: configPath, keyPath, message: `Invalid make-docs config at ${configPath} (${keyPath}): ${issue.message}` });
+      }
+    }
+  }
+  if (parsed.factory !== undefined && parsed.factory !== null) {
+    // W30 R0 P2 T8 (PRD 24 R-CONFIG-WORK-3): name each state or secret key with its own words first.
+    const stateFields = factoryConfigStateFieldProblems(parsed.factory);
+    for (const problem of stateFields) {
+      diagnostics.push({ code: "factory-block-state-field", filePath: configPath, keyPath: `factory.${problem.path}`, message: `Invalid make-docs config at ${configPath} (factory.${problem.path}): ${problem.message}` });
+    }
+    const named = new Set(stateFields.map((problem) => problem.path));
+    const factory = FactoryConfigBlockSchema.safeParse(parsed.factory);
+    if (!factory.success) {
+      for (const issue of factory.error.issues) {
+        // A workflow or role name that looks like a token is hidden in the path (W30 R0 P2 review).
+        const at = issue.path.map((segment) => factoryConfigPathSegment(String(segment)));
+        if (issue.code === "unrecognized_keys") {
+          const keys = issue.keys.filter((key) => !named.has([...at, key].join(".")));
+          if (keys.length === 0) continue;
+          const keyPath = ["factory", ...at].join(".");
+          diagnostics.push({ code: "invalid-factory-block", filePath: configPath, keyPath, message: `Invalid make-docs config at ${configPath} (${keyPath}): the factory block does not accept ${keys.map((key) => `"${factoryConfigPathSegment(key)}"`).join(", ")}.` });
+          continue;
+        }
+        const keyPath = ["factory", ...at].join(".");
+        diagnostics.push({ code: "invalid-factory-block", filePath: configPath, keyPath, message: `Invalid make-docs config at ${configPath} (${keyPath}): ${issue.message}` });
       }
     }
   }
