@@ -63,7 +63,10 @@ A project can add its own role, for example a researcher, an analyst, or a write
 
 - `job`: what the role does, in one or two sentences;
 - `capabilities`: the capability IDs it needs, from the [Capability Catalog](#capability-catalog);
-- `returns`: what it hands back, and the evidence that comes with it.
+- `returns`: what it hands back, and the evidence that comes with it;
+- `context`: the context kinds it gets, from the fixed set in [Portable Definition](#portable-definition).
+
+Only a custom role must list its context kinds. The front desk and the foreman need no list, and a builder and a reviewer keep their default lists. The config check refuses a custom role without a list, with a plain message that names the role, for example: `The role "researcher" has no context list. A custom role must list its context kinds, for example [unit-record, requirements].`
 
 A custom role uses a new name. It never replaces a standard role.
 
@@ -194,7 +197,7 @@ Only a `ready` workflow takes new work. A `drifted` workflow escalates before it
 | Proof results | Store | The evidence that a workflow is ready. |
 | File backups | Store record and `.make-docs/backup/factory/` | Undo outside git. See [Backups Outside Git](#backups-outside-git). |
 
-`.make-docs/factory/` holds read-only, gitignored copies of the saved setup. Only Make Docs writes them. Each file starts with a note that it is generated and that edits are lost. The copy of the resolved plan prints the latest revision and says whether it is the `ready` revision. No copy ever holds a grant. `make-docs factory restore` (MCP `factory_restore`, planned) writes them again from the Store. An agent or a person can read the wiring from the copies without a CLI call. Make Docs never reads a copy as input.
+`.make-docs/factory/` holds read-only copies of the saved setup. Only Make Docs writes them. Each file starts with a note that it is generated and that edits are lost. The copy of the resolved plan prints the latest revision and says whether it is the `ready` revision. It reads the integration owner role and the human channel kind from the resolved plan. No copy ever holds a grant. A `.gitignore` file inside the folder holds one line, `*`, and keeps the folder out of git. Make Docs never edits the project root `.gitignore`. `make-docs factory restore` (MCP `factory_restore`, planned) writes them again from the Store. An agent or a person can read the wiring from the copies without a CLI call. Make Docs never reads a copy as input.
 
 No factory record holds a secret or any other item on the [Never-Log List](#never-log-list). Secrets stay in the tools that own them.
 
@@ -246,7 +249,7 @@ The config entry holds:
 
 Each workflow type states its version in its `## Purpose` section, as `Type version: 1`. A type's version goes up by one when its rules change. The config names the type version that the person chose. `make-docs factory workflow save` refuses a version that does not match the type file.
 
-The context of a role is a list of context kinds from this fixed set: `unit-record`, `requirements`, `project-files`, `candidate-result`, `defect-list`, `evidence-links`, and `builder-summary`. A role sees only what it is handed. By default, a builder gets `unit-record`, `requirements`, `project-files`, and `defect-list`. A reviewer gets `unit-record`, `requirements`, `project-files`, `candidate-result`, and `evidence-links`, and never `builder-summary`, so the brief does not steer the reviewer. The list names kinds only. The content is handed over at run time and is never saved.
+The context of a role is a list of context kinds from this fixed set: `unit-record`, `requirements`, `project-files`, `candidate-result`, `defect-list`, `evidence-links`, and `builder-summary`. A role sees only what it is handed. Only a builder and a reviewer have a default list. The front desk and the foreman need no list. A custom role must list its context kinds. By default, a builder gets `unit-record`, `requirements`, `project-files`, and `defect-list`. A reviewer gets `unit-record`, `requirements`, `project-files`, `candidate-result`, and `evidence-links`, and never `builder-summary`, so the brief does not steer the reviewer. The list names kinds only. The content is handed over at run time and is never saved.
 
 The [status moves](#status-moves) are the same for every workflow. A workflow cannot change them. The resolved plan records the version of the move table, so a later change to this contract never changes the moves of a running assignment.
 
@@ -259,6 +262,8 @@ The saved binding holds the choices that setup saved:
 - the human channel account, as a reference that holds no secret;
 - the working-copy method;
 - each known loss that the person accepted.
+
+The integration owner role and the human channel kind live only in the config entry. The saved binding keeps no copy of them. The human channel account reference stays in the Store.
 
 The machine tool rows hold the live tool facts. For each bound tool and each capability that its role needs, the plan takes from them the tool's state (`available`, `missing`, or `blocked`), the proved tool version, the proof result, and the "does not cover" list. See [How the CLI Finds the State](#how-the-cli-finds-the-state).
 
@@ -299,6 +304,7 @@ An assignment links one job to the tool doing it. A job is one work unit, one ro
 - the tool;
 - the tool's task handle, for example a thread ID or a run ID;
 - the lifecycle run ID;
+- the checkout ID of the checkout that `assignment start` named, not a worker's working copy;
 - the status;
 - the time of the last check;
 - the correction round count;
@@ -333,11 +339,11 @@ An assignment moves only along this table. `accepted`, `failed`, and `cancelled`
 | `unknown` | `offered`, `running`, `returned`, `in-review`, `needs-correction`, `failed`, `cancelled` |
 | `accepted`, `failed`, `cancelled` | None |
 
-This is move table version 1. An update that keeps the same status and changes only the last check time is not a move. The CLI refuses any other move with the reason code `illegal-move`, and any change to a final assignment with `final-status`. A job that must run again after a final status gets a new assignment.
+This is move table version 1. Each move to `needs-correction` adds one correction round, also from `unknown`. The one exception is a move from `unknown` when the status before `unknown` was already `needs-correction`. See [Correction Rounds](#correction-rounds). An update that keeps the same status and changes only the last check time is not a move. The CLI refuses any other move with the reason code `illegal-move`, and any change to a final assignment with `final-status`. A job that must run again after a final status gets a new assignment.
 
 ### Correction Rounds
 
-Each assignment has a round count that starts at 0. The count goes up by one on each move from `returned` or `in-review` to `needs-correction`. The CLI refuses a move that would take the count past the round limit of the assignment's plan revision, with the reason code `round-limit-reached`. The foreman then escalates floor event 3.
+Each assignment has a round count that starts at 0. The count goes up by one on each move from `returned` or `in-review` to `needs-correction`. A move from `unknown` to `needs-correction` also adds one, except when the status before `unknown` was already `needs-correction`, as the status history shows. Then the move adds no round. The CLI refuses a move that would take the count past the round limit of the assignment's plan revision, with the reason code `round-limit-reached`. The foreman then escalates floor event 3.
 
 The round count belongs to the job, not to the claim, so it survives a takeover. Only one assignment for each job is open at a time. Parts of one unit with different part labels can run at the same time, and each part has its own count. A new assignment for the same job starts at the round count of the one before it. Only the person can reset the count, through a `once` grant for the action `reset-correction-rounds`. `make-docs factory assignment start` (planned) spends that grant when it starts the new assignment, and the new assignment then starts at 0.
 
@@ -463,7 +469,7 @@ In a folder without git, the factory copies a file to `.make-docs/backup/factory
 
 Make Docs deletes the backups of an assignment when its work is accepted or closed. It deletes any backup older than 30 days. Cleanup runs during normal factory commands. Cleanup never touches installation recovery backups.
 
-A `README.md` in `.make-docs/backup/factory/` tells people and agents the cleanup rule and how to get a file back.
+A `README.md` in `.make-docs/backup/factory/` tells people and agents the cleanup rule and how to get a file back. A `.gitignore` file inside the folder holds one line, `*`, and keeps the folder out of git. Make Docs never edits the project root `.gitignore`.
 
 ## Never-Log List
 
@@ -485,7 +491,7 @@ Drift results, refusals, and status history entries use reason codes. A reason c
 
 Drift codes: `config-changed`, `binding-changed`, `type-changed`, `type-name-clash`, `tool-missing`, `tool-version-changed`, `proof-contradicted`, and `permission-lost`.
 
-Refusal codes: `not-ready`, `claim-not-held`, `illegal-move`, `final-status`, `round-limit-reached`, `assignment-open`, `plan-digest-mismatch`, `proof-missing`, `unknown-capability`, `type-version-mismatch`, `grant-missing`, `grant-out-of-scope`, `grant-spent`, `grant-expired`, and `never-log-field`.
+Refusal codes: `not-ready`, `claim-not-held`, `illegal-move`, `final-status`, `round-limit-reached`, `assignment-open`, `plan-digest-mismatch`, `proof-missing`, `unknown-capability`, `type-version-mismatch`, `grant-missing`, `grant-out-of-scope`, `grant-spent`, `grant-expired`, `never-log-field`, `project-missing`, `project-not-found`, `project-mismatch`, and `project-checkout-unclear`.
 
 Status history codes: `assigned`, `tool-started`, `result-returned`, `sent-to-review`, `review-passed`, `defects-found`, `correction-sent`, `handle-not-found`, `handle-checked`, `taken-over`, `stopped-by-person`, `stopped-by-foreman`, `tool-failed`, `round-limit-reached`, and `scope-changed`.
 
@@ -550,9 +556,62 @@ These commands are planned. They are not in the CLI yet. Each command is also an
 
 Writes use the existing write permission, `expectedVersion`, and Store-unavailable rules.
 
-`make-docs factory status` shows each claimed unit, the tool working on it, its state, and the last check time, in human words first.
+`make-docs factory status` shows one project, and names it. It shows one group for each running factory: grouped by checkout, then by lifecycle run. Several factories can run in one project at once, each in its own worktree. Each checkout group shows its own readiness, from that checkout's config file and type file. A checkout that has an open assignment gets a group, and so does the checkout that the call named or ran in. A checkout that cannot be read shows its readiness as unknown and says why. Each run group shows each claimed unit, the tool working on it, its state, and the last check time, in human words first. `--run <run-id>` shows one lifecycle run.
 
 When a workflow is `ready`, the backlog review "Work on this wave" action sends the wave to the foreman through the front desk. Without a `ready` workflow, that action works as it does today.
+
+## Project Scope
+
+New on 2026-11-23. One Store serves every project on a machine. So each factory command must know what it acts on. These commands are planned, like the rest of this contract.
+
+| Command | Scope | Kind | How it finds the project |
+| --- | --- | --- | --- |
+| `make-docs factory tools save` | Machine | Write | It takes no project. |
+| `make-docs factory workflow save` | Project | Write | Named project only, also for a grant-only save. |
+| `make-docs factory proof save` | Project | Write | Named project only. |
+| `make-docs factory assignment start` | Project | Write | Named project only. |
+| `make-docs factory assignment update` | Project | Write | Named project only. |
+| `make-docs factory restore` | Project | Write | Named project only. |
+| `make-docs factory workflow show` | Project | Read | The named project, or the project of the current folder. |
+| `make-docs factory workflow list` | Project | Read | The named project, or the project of the current folder. |
+| `make-docs factory assignment list` | Project | Read | The named project, or the project of the current folder. |
+| `make-docs factory status` | Project | Read | The named project, or the project of the current folder, with one group for each running factory. See [Commands](#commands). |
+
+The machine records are the tool list, the tool states, and the capability proofs. Every project on the machine uses them. Every other factory record belongs to one project.
+
+### Name the Project
+
+- Name the project in every project write. Use `--target-root <path>` or `--project <name>`. In MCP, use the `targetRoot` or `project` input. A name resolves only through the Store's project register.
+- Never rely on the current folder for a write. A write never falls back to it, even when the folder is a project.
+- A write with no project is refused with `project-missing` and changes nothing. A name that the Store does not know is refused with `project-not-found`. A path and a name that give two different projects are refused with `project-mismatch`.
+- `workflow save`, `proof save`, and `assignment start` read the project's config file and type file. `restore` writes the copies into one checkout. When a name gives no bound checkout or more than one, these writes are refused with `project-checkout-unclear`. Then name the checkout with `--target-root`.
+- Every refusal changes nothing.
+
+### Results Name the Project
+
+- Every factory result, in the CLI and in MCP, says what it acted on. A project result names the project name and the project ID. A machine result says that it acted on this machine. A refusal names the project it refused, or says that no project was named.
+- A read can use the project of the current folder when no project is named. Its output names the project and says whether it was named or taken from the current folder. A read in a folder that is not a project, with no project named, is refused with `project-missing`.
+- Name the project in every message to the person about factory work.
+
+### Factory URIs
+
+Factory URIs are planned. They are not built yet.
+
+| URI | What a read shows |
+| --- | --- |
+| `make-docs://project/<project>/factory/` | The project's workflows, each with its latest and `ready` revision numbers. |
+| `make-docs://project/<project>/factory/workflows/<name>` | The latest saved resolved plan of one workflow: its revision number, its digest, the plan, and whether it is the `ready` revision. |
+| `make-docs://project/<project>/factory/workflows/<name>/revisions/` | The kept revisions, each with its number, digest, and time, and which one is `ready`. |
+| `make-docs://project/<project>/factory/workflows/<name>/revisions/<n>` | One revision. |
+| `make-docs://project/<project>/factory/assignments/` | The open assignments, each with its unit, role, part label, tool, status, round count, last check time, plan revision, and lifecycle run ID. |
+
+- A factory URI names the project in full. The project resolves only through the Store's project register. Nothing in a factory URI comes from the current folder, a target path, or a checkout.
+- No URI shows one job, and no URI uses an `@<digest>` form. Machine records have no URI. Any other path under `factory/` is refused with `resource-not-found`.
+- A factory URI read shows only saved records. It reads no project file, so it cannot show the live readiness state. Each read ends with a note to run `factory status` in a checkout for the live readiness state.
+- An agent's factory URI read uses the harness grant of the folder where the agent works. A Store read grant there allows every project URI. A folder that is not a Make Docs project is refused as `store-not-configured`.
+- That folder rule covers factory URI reads only. Factory MCP tools, reads and writes, keep the normal check of the current machine and project grants and the target scope. The target is the project that the call acts on, also when it is not the project of the folder where the agent works. That project's own grant admits the call: a Store read grant for a read, and a Store write grant for a write. Without the grant, the call is refused as `store-denied`, and the message says how to grant the access.
+- A factory URI read never shows a grant, a private claim ID, file contents, a prompt, a secret, or any other item on the [Never-Log List](#never-log-list).
+- A factory URI read is read-only. It never creates or migrates a Store. Without a usable Store, it returns the typed Store outcome. Then read the `.make-docs/factory/` copies in a checkout of the project.
 
 ## Rule Catalog
 
@@ -631,4 +690,16 @@ Each rule has one row. A planned check names the backlog phase and task that bui
 | `type-fields` | Every workflow type has the standard sections. | [Workflow Type Fields](#workflow-type-fields) | Contract-only. W30 R0 P3 T3 checks a workflow against its type, but no W30 task checks the sections of a type file. |
 | `no-silent-replace` | A project type never replaces a shipped type silently. A clash stops setup and escalates in a run. | [Project-Owned Types](#project-owned-types) | Contract-only. No W30 task checks type names. Setup and the run Skill apply it. |
 | `backlog-review-handoff` | With a `ready` workflow, "Work on this wave" sends the wave to the foreman. Without one, the action works as before. | [Commands](#commands) | Planned in W30 R0 P5 T13 and T14: the backlog review action changes only when a workflow is `ready` (P5 A41, A42). |
-| `status-human-first` | `factory status` shows each claimed unit, its tool, its state, and the last check time in human words first. | [Commands](#commands) | Planned in W30 R0 P3 T8: `factory.status` puts human words before machine detail (P3 A23). |
+| `status-human-first` | `factory status` shows one group for each running factory, by checkout and then by lifecycle run, and each claimed unit, its tool, its state, and the last check time in human words first. | [Commands](#commands) | Planned in W30 R0 P3 T8: `factory.status` puts human words before machine detail (P3 A23). |
+| `machine-commands-no-project` | `factory tools save` takes no project. The machine tool list, tool states, and capability proofs belong to the machine. | [Project Scope](#project-scope) | Planned in W30 R0 P3 T25: each factory operation is tagged machine or project, and `factory.tools.save` takes no project input. |
+| `writes-name-project` | Every project write names its project and never falls back to the current folder. Without a project, it is refused and changes nothing. | [Name the Project](#name-the-project) | Planned in W30 R0 P3 T26 and T27: project writes refuse with `project-missing`, `project-not-found`, `project-mismatch`, or `project-checkout-unclear` and change nothing. |
+| `results-name-project` | Every factory result names the project it acted on, or says that it acted on this machine. | [Results Name the Project](#results-name-the-project) | Planned in W30 R0 P3 T28: every CLI and MCP result fixture names the project or the machine. |
+| `reads-show-project` | A read can use the current folder, and its output names the project and how it was chosen. | [Results Name the Project](#results-name-the-project) | Planned in W30 R0 P3 T29: read output names the project and says whether it was named or taken from the current folder. |
+| `uri-names-project` | A factory URI names its project in full and resolves only through the project register. | [Factory URIs](#factory-uris) | Planned in W30 R0 P3 T30: the resolver accepts only the listed factory paths and never reads the current folder. |
+| `uri-grant-rule` | A factory URI read uses the harness grant of the folder where the agent works. A factory MCP tool call needs the grant of the project that it acts on. | [Factory URIs](#factory-uris) | Planned in W30 R0 P3 T31: a URI read of another project from a granted project folder works, a folder that is not a project gets `store-not-configured`, and a factory MCP call for another project without that project's grant gets `store-denied`. |
+| `uri-never-log` | A factory URI read never shows a grant, a claim ID, file contents, a prompt, or a secret, and never creates or migrates a Store. | [Factory URIs](#factory-uris) | Planned in W30 R0 P3 T32: URI read fixtures with grants and claims show none of them, and a read with no Store creates none. |
+| `skill-names-project` | The run Skill names the project in every factory call and every message. | [Results Name the Project](#results-name-the-project) | Contract-only. The run Skill applies it (W30 R0 P5 T20 and T21). |
+| `custom-role-context` | A custom role lists its context kinds. The front desk and the foreman need no list. | [Custom Roles](#custom-roles) | Planned in W30 R0 P2 T20: the config check refuses a role without a list, with a plain message that names the role. |
+| `printouts-out-of-git` | A `.gitignore` with one line, `*`, inside each factory folder keeps it out of git. Make Docs never edits the project root `.gitignore`. | [Saved Records](#saved-records), [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P2 T11: Make Docs writes the folder `.gitignore` files and leaves the root `.gitignore` unchanged. |
+| `unknown-correction-counts` | A move from `unknown` to `needs-correction` adds one correction round, unless the status before `unknown` was already `needs-correction`. | [Correction Rounds](#correction-rounds) | Planned in W30 R0 P3 T13: `factory.assignment.update` counts that move from the status history. |
+| `status-per-factory` | `factory status` groups one project by checkout and then by lifecycle run, with each checkout's own readiness. `--run` shows one run. | [Commands](#commands) | Planned in W30 R0 P3 T8, T29, and T33: status groups by checkout and run (P3 A23), and `factory.assignment.start` records the checkout ID of the checkout that it named (P3 A83). |

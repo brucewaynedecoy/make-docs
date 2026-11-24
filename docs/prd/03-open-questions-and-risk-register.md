@@ -1468,6 +1468,54 @@ Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same pr
 
 **Resolution**: Closed on 2026-11-23 at the owner's choice of option A. Grants stay in the Store, outside the resolved plan and its digest. `factory workflow show` lists them beside the plan, and no `.make-docs/factory/` copy ever holds a grant. PRD 53 R-FACTORY-24 and R-FACTORY-55, their Requirement History, and the factory contract state the choice. The CLI checks are built in W30 R0 P3 T17, T18, and T20.
 
+### D-073 Scope of `factory status`
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23, with one group for each running factory. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-27, R-FACTORY-51, and R-FACTORY-65 state it. | W30 R0 P3 T8 and T29 build it. W30 R0 P2 adds the checkout ID to the assignment record. |
+
+**Question**: Does `make-docs factory status` show one project or every project on this machine?
+
+**Why it matters**: On 2026-11-23 the owner chose option A for factory project scope: writes name their project, and reads may keep the current folder default and show which project they read. `factory status` is the person's main view. One Store serves every project on a machine, so status could show all of them. But readiness comes from each project's config file and type file, which live in a checkout.
+
+**Recommendation**: Option A: one project. Status works like the other reads. It shows the named project, or the project of the current folder, with the machine tool states that affect that project's workflows. Option B: every project on this machine, grouped and named by project. A person sees all factory work at once, but a project with no bound checkout, or more than one, can show only its saved records, and its readiness stays unknown. Option A is recommended. It matches the other reads and needs no checkout choice for each project. Option B can be added later as a separate option without breaking option A, and that later option would be new behavior.
+
+**To close**: The owner chooses. PRD 53 R-FACTORY-65, the project scope table, the factory contract, and the design state the choice. W30 R0 P3 T29 builds it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A, with one change. Several factories can run in one project at once, each in its own worktree. So `factory status` shows one project, named or taken from the current folder, with one group for each running factory: grouped by checkout, then by lifecycle run. Each checkout group shows its own readiness from that checkout's config file and type file. `--run <run-id>` shows one run. Each assignment records the checkout ID of the checkout that `assignment start` named, not a worker's working copy. A view of every project on this machine may come later as a separate option, as new behavior. PRD 53 R-FACTORY-27, R-FACTORY-51, and R-FACTORY-65, the factory contract, and the design state the choice. W30 R0 P3 T8 and T29 build it.
+
+### D-074 Factory URI Paths
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-66 and [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-1 state the paths. | W30 R0 P3 T30 builds them. |
+
+**Question**: Which paths does the `make-docs://project/<project>/factory/` family use?
+
+**Why it matters**: A URI is a stable identity. Once a path ships, agents and tests rely on it, and it cannot change. The owner chose on 2026-11-23 that factory URIs live under the project URI and name the project in full, resolved only through `project_register`. The exact paths are still open.
+
+**Recommendation**: Option A (recommended): `factory/` lists the workflows with their latest and `ready` revision numbers; `factory/workflows/<name>` shows the latest resolved plan revision; `factory/workflows/<name>/revisions/` lists the kept revisions; `factory/workflows/<name>/revisions/<n>` shows one revision; and `factory/assignments/` lists the open assignments. Machine records get no URI. Option B: the same paths, but a named revision uses `factory/workflows/<name>@<digest>`, and one job also gets `factory/assignments/<unit>/<role>/<part>`. Option A is recommended. A revision number is short and fits the list shape. The `@` form would be new URI syntax, and a digest is 64 characters long. A one-job path needs a unit in one path part, and a role or part name could look like a coordinate part. The `assignments/` list covers the need. In both options, a factory URI read shows only saved records and not the live readiness state, because a project URI names no checkout.
+
+**To close**: The owner approves a path set. PRD 53 R-FACTORY-66, PRD 52 R-WORK-URI-1, the factory contract, and the design state the approved paths as current. W30 R0 P3 T30 builds them.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. The paths are `factory/`, `factory/workflows/<name>` (the latest saved plan), `factory/workflows/<name>/revisions/`, `factory/workflows/<name>/revisions/<n>`, and `factory/assignments/` (the open jobs, each with its lifecycle run ID). No path shows one job, no path uses an `@<digest>` form, and machine records have no URI. A read shows saved records only and ends with a note to run `factory status` in a checkout for the live readiness state. PRD 53 R-FACTORY-66, PRD 52 R-WORK-URI-1, the factory contract, and the design state the paths. W30 R0 P3 T30 builds them.
+
+### D-075 Factory MCP Tools That Name Another Project
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-67 states it. | W30 R0 P3 T31 builds it. |
+
+**Question**: How does the PRD 25 R-ACCESS-6 check admit a factory MCP tool call, for a read or a write, that names a project other than the project of the folder where the agent works?
+
+**Why it matters**: On 2026-11-23 the owner chose option B for the extra scoping ideas. The W29 rule, where the Store read grant of the agent's folder allows every project URI, covers factory URI reads only. Factory MCP tools keep the R-ACCESS-6 check of machine and project grants and target scope. Every project write names its project (PRD 53 R-FACTORY-63), and a read can name one too (R-FACTORY-65). A foreman often works in one folder and serves another project. Some reads also reach outside the agent's folder: for example, `factory_status` reads the config file and type file of other checkouts. R-ACCESS-6 does not yet say which project's grant a named-project call needs.
+
+**Recommendation**: Option A: the named project is the target. R-ACCESS-6 checks a current Store grant for the project that the call names, a read grant for a read and a write grant for a write. Without one, the call is refused as `store-denied`, names that project, and names the step that grants it. Option B: a factory MCP tool may name only the project of the folder where the agent works. A call for another project is refused, and the person uses the CLI or an MCP connection in that project. Option A is recommended. It keeps one policy, it matches "target scope" in R-ACCESS-6, and a foreman can still serve a project from another folder after the person grants it. Both options are new behavior.
+
+**To close**: The owner chooses. PRD 53 R-FACTORY-67, PRD 25 R-ACCESS-6 when its text changes, the factory contract, and W30 R0 P3 T31 state the choice.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. A factory MCP tool call, read or write, is checked under R-ACCESS-6 against the grant of the project that it acts on, also when that project is not the project of the agent's folder. A read needs that project's Store read grant, and a write needs its Store write grant. Without it, the call is refused as `store-denied`, and the message says how to grant the access. PRD 53 R-FACTORY-67, its Integrations line, the factory contract, and the design state the choice. PRD 25 R-ACCESS-6 already checks project grants and target scope, so its text does not change. W30 R0 P3 T31 builds the check. This is new behavior.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

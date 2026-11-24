@@ -25,7 +25,7 @@ One append-only migration after W29's v8 adds the factory tables, each with the 
 - R-MIN rows in PRD 38 for every field before the migration exists. Grants and bindings are Store-only and never committed.
 - `factory:` config block: workflow type, roles needed, capability needs, limits, steps such as preflight, and added escalation events. No grants, IDs, paths, or secrets.
 - Copies: generated, read-only, gitignored files under `.make-docs/factory/`, each with a generated-file note. Never read as input. Written on each factory save and by restore.
-- Add `.make-docs/factory/` to the standard `.gitignore` that setup writes.
+- Keep `.make-docs/factory/` and `.make-docs/backup/factory/` out of git with a `.gitignore` file inside each folder that holds one line, `*`. Make Docs never edits the project root `.gitignore`. This replaced a root `.gitignore` entry at the owner's choice on 2026-11-23, and it is new behavior.
 - Backups: in a folder without git, copy a file to `.make-docs/backup/factory/` before a worker changes it, and record it. Delete an assignment's backups when its work is accepted or closed, and any backup older than 30 days. Write a `README.md` in the backup folder that states this rule and how to get a file back. Never touch installation recovery backups.
 - New on 2026-11-23: the `factory_workflow_plans` table (immutable revisions, `bounded` retention); the part label, the round count, plan revision and digest, and 20-entry status history on assignments; a tool state on machine tool rows; tool version, result, and "does not cover" list on proofs; known losses and the `ready` revision on bindings; scope and expiry on grants; the new portable fields in the `factory:` block; and a printed copy of the latest plan revision.
 

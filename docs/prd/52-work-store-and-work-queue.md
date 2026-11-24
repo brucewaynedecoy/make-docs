@@ -113,7 +113,7 @@ Code anchors:
 
 ### Project resource URIs
 
-- R-WORK-URI-1 (MUST): `make-docs://project/<project>/` is the project-resource URI family. `<project>` is the project name under [PRD 38](38-global-store-and-project-state.md) R-ID-8 or the project ID, resolved through `project_register` under PRD 38 R-REGISTER-2. Every project URI names its project in full. Nothing in a project URI resolves from the current folder, a `--target` path, or a checkout. The current families are `tasks` and `backlog`.
+- R-WORK-URI-1 (MUST): `make-docs://project/<project>/` is the project-resource URI family. `<project>` is the project name under [PRD 38](38-global-store-and-project-state.md) R-ID-8 or the project ID, resolved through `project_register` under PRD 38 R-REGISTER-2. Every project URI names its project in full. Nothing in a project URI resolves from the current folder, a `--target` path, or a checkout. The current families are `tasks`, `backlog`, and `factory`. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-66 owns the `factory` paths under this same rule.
 - R-WORK-URI-2 (MUST): `make-docs://project/<project>/tasks/` lists the project's quick items in number order, with each number, title, status, and close outcome. `make-docs://project/<project>/tasks/<n>` shows one quick item with its title, body, status, close outcome, live claim, and links.
 - R-WORK-URI-3 (MUST): `make-docs://project/<project>/backlog/` lists the project's waves. Each further path part names one coordinate part: `backlog/W29/` lists the revisions of W29, `backlog/W29/R0/` lists its phases, and `backlog/W29/R0/P1/` shows the phase with its stages and tasks. `backlog/W29/R0/P1/S2` shows a stage, and `backlog/W29/R0/P1/T3` shows a task, because a task coordinate does not name its stage. Each read shows the unit's title, status, close outcome, readiness and wait reasons, live claim, links, and its child list. Sync conflicts belong to one checkout (R-WORK-STORE-11), and a project URI names no checkout, so readiness in a project URI read leaves them out, and the read says so.
 - R-WORK-URI-4 (MUST): the resolver accepts any letter case in the project name and the coordinate parts, and a trailing slash or none. The result names the canonical URI: a lower-case project name, upper-case coordinate letters, and a trailing slash on a list. The resolver refuses a number with a leading zero, a quick item number `0`, a query, a fragment, and any part after a task, a stage, or a quick item.
@@ -240,6 +240,22 @@ The work store records units, dependencies, links, claims, the sync ledger, and 
 - Replacement contract: the agent form exists, shares its rule IDs with the catalog, and says what a checkout without a Store records. The catalog holds rules `WORK-RULE-041` to `WORK-RULE-054` for R-WORK-SYNC-8, -9, -12 to -18, R-WORK-QUEUE-8, -19, and R-WORK-STORE-2, -6, -10, -13, R-WORK-URI-6, each with a parity fixture. The doctor's `phase-status-line` check proposes a status line for each phase that the fallback counts as done.
 - Rationale: W29 R0 P5 T1, T2, T7, T9, and T10. T10 is the owner decision of 2026-11-23 on W29 R0 P4 review finding 7.
 - Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
+
+### 2026-11-23 — W30 R0 Factory URI Family
+
+- Affected requirement or section: R-WORK-URI-1.
+- Previous contract: the project-resource URI family had two families, `tasks` and `backlog`, and named no other owner.
+- Replacement contract: R-WORK-URI-1 names the `factory` family that PRD 53 R-FACTORY-66 adds under the same rule. The family is not current until the owner approves its paths (register D-074). The current families stay `tasks` and `backlog`. This is new behavior.
+- Rationale: the owner chose option A for factory project scope on 2026-11-23. Factory URIs name the project in full and resolve only through `project_register`, like every project URI.
+- Source: [Factory design](../designs/2026-11-21-factory.md#factory-uris)
+
+### 2026-11-23 — W30 R0 Factory URI Paths Approved
+
+- Affected requirement or section: R-WORK-URI-1.
+- Previous contract: R-WORK-URI-1 named a pending `factory` family that was not current.
+- Replacement contract: `factory` is a current family, next to `tasks` and `backlog`. PRD 53 R-FACTORY-66 owns its paths. The owner chose option A of register D-074 and closed it. This is new behavior.
+- Rationale: the owner approved the proposed factory URI paths on 2026-11-23.
+- Source: [Factory design](../designs/2026-11-21-factory.md#factory-uris)
 
 ## Source Anchors
 

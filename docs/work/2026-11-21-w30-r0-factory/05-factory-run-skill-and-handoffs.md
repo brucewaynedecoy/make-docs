@@ -28,7 +28,7 @@ The `factory` Skill in `packages/skills/factory/` loads one `ready` workflow and
 - Executor: the implementing agent, with owner feedback invited.
 - Accepted obligation: none.
 
-The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-21, R-FACTORY-24, R-FACTORY-26 to R-FACTORY-48, R-FACTORY-54, R-FACTORY-58, and R-FACTORY-60, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
+The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-21, R-FACTORY-24, R-FACTORY-26 to R-FACTORY-48, R-FACTORY-54, R-FACTORY-58, R-FACTORY-60, and R-FACTORY-63 to R-FACTORY-65, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
 
 ## Current Testing Decisions
 
@@ -135,6 +135,24 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 
 - Stage 1 and P3 Stages 3 and 4.
 
+## Stage 5 - Name the Project
+
+New on 2026-11-23. The owner chose option A for project scope after P1 was done. All of this is new behavior.
+
+### Tasks
+
+- [ ] T20: The run Skill names the project in every factory call, with `--target-root <path>` or `--project <name>`, or the `targetRoot` or `project` MCP input. It never relies on the current folder, for writes and for reads. It takes the project from the workflow it runs, never from the folder where the agent works. On `project-missing`, `project-not-found`, `project-mismatch`, or `project-checkout-unclear`, it stops that call, names the fix, and sends no work (R-FACTORY-63, R-FACTORY-65).
+- [ ] T21: The run Skill names the project in every message to the person: each escalation, the acceptance request, and each status report (R-FACTORY-64).
+
+### Acceptance criteria
+
+- A81: A fixture run started from a folder that is not the project names the project in every factory call and every message, and no call relies on the current folder.
+- A82: On a `project-missing` refusal in a fixture run, the run Skill stops that call, names the fix, and sends no work.
+
+### Dependencies
+
+- Stage 1 and P3 Stage 5.
+
 ### Closeout Notes
 
 - Four testing decisions: Pending.
@@ -144,3 +162,16 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - Explicit human acceptance gate: Pending.
 - Evidence report: Pending.
 - Phase / capability status: Pending.
+
+## Change History
+
+### 2026-11-23 — W30 R0 P5
+
+- Kind: `edit`
+- Affected scope: new Stage 5, tasks T20 and T21 and acceptance A81 and A82, and the governing requirements.
+- Previous scope: the run Skill text did not say how it names a project in a factory call or a message.
+- Replacement scope: the run Skill names the project in every factory call and every message, takes the project from the workflow and never from the current folder, and stops on a project refusal. Existing task and acceptance IDs do not change. This is new behavior.
+- Rationale: a foreman often works in a folder other than the project it runs. A call that relies on the current folder can change the wrong project.
+- PRD decision: `update-existing` — PRD 53 new R-FACTORY-63 to R-FACTORY-65.
+- Owner approval: the owner's decision on 2026-11-23 (option A).
+- Source: [Factory design](../../designs/2026-11-21-factory.md#project-scope)

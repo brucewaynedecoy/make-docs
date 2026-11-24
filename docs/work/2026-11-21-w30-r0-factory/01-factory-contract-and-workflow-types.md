@@ -126,3 +126,36 @@ There are no performance candidates.
 - PRD decision: `update-existing` — PRD 53 R-FACTORY-10, -12, -14, -24 to -28, -41, -52, and new R-FACTORY-53 to R-FACTORY-61; PRD 38 R-MIN rows; PRD 24 R-CONFIG-WORK-2; PRD 04 terms.
 - Owner approval: the owner's review on 2026-11-23.
 - Source: [Factory design](../../designs/2026-11-21-factory.md)
+
+### 2026-11-23 — W30 R0 P1 Project Scope
+
+- Kind: `edit`
+- Affected scope: the factory contract, after P1 was done.
+- Previous scope: the contract did not say how a factory command finds its project or what a result names, and it had no factory URIs.
+- Replacement scope: the contract adds a `## Project Scope` section with the machine and project command table, `### Name the Project`, `### Results Name the Project`, and `### Factory URIs` (proposed paths, pending owner approval). It adds the refusal codes `project-missing`, `project-not-found`, `project-mismatch`, and `project-checkout-unclear`, and eight Rule Catalog rows. The upstream file changed first in `packages/docs/template/`, and the dogfood copy matches it byte for byte. The type references do not change. This is new behavior. P3 and P5 build the checks and the Skill text.
+- Rationale: the owner chose option A for project scope on 2026-11-23.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-52 and new R-FACTORY-62 to R-FACTORY-68.
+- Owner approval: the owner's decision on 2026-11-23 (option A).
+- Source: [Factory design](../../designs/2026-11-21-factory.md#project-scope)
+
+### 2026-11-23 — W30 R0 P1 Owner Answers
+
+- Kind: `edit`
+- Affected scope: the factory contract, after P1 was done.
+- Previous scope: the contract left the `factory status` scope and the factory URI paths open, applied the folder grant rule to factory MCP tools, called the printouts gitignored with no rule on how, did not say where the integration owner role and the channel kind live, did not count a move from `unknown` to `needs-correction`, and gave custom roles no context field.
+- Replacement scope: status shows one project with one group for each running factory, and an assignment records its checkout ID. The approved URI paths are listed, each read ends with a note to run `factory status`, and the folder grant rule covers URI reads only. A `.gitignore` with `*` inside each factory folder keeps it out of git, and Make Docs never edits the root `.gitignore`. The integration owner role and the channel kind live only in config. A move from `unknown` to `needs-correction` counts a round. Custom roles gain a `context` field, and a role other than builder or reviewer must list its context kinds. Four Rule Catalog rows are added. The upstream file changed first in `packages/docs/template/`, and the dogfood copy matches it byte for byte. This is new behavior.
+- Rationale: the owner answered seven open W30 choices on 2026-11-23.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -25, -27, -41, -46, -51, -55, -60, and -65 to -67.
+- Owner approval: the owner's answers on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md#context)
+
+### 2026-11-23 — W30 R0 P1 Last Owner Decisions
+
+- Kind: `edit`
+- Affected scope: the factory contract, after P1 was done.
+- Previous scope: every move from `unknown` to `needs-correction` added a round, every role other than builder or reviewer had to list its context kinds, and factory MCP calls for another project were not decided.
+- Replacement scope: a move from `unknown` to `needs-correction` adds no round when the status before `unknown` was already `needs-correction`. Only a custom role must list its context kinds, and the refusal message says so. A factory MCP call is admitted by the grant of the project that it acts on, and is refused as `store-denied` without it. Three Rule Catalog rows change. The upstream file changed first in `packages/docs/template/`, and the dogfood copy matches it byte for byte. This is new behavior.
+- Rationale: the owner chose option A for all three open items on 2026-11-23.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -41, -60, and -67.
+- Owner approval: the owner's decisions on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md#context)

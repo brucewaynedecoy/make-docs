@@ -34,10 +34,11 @@ Limits:
 | --- | --- | --- | --- | --- | --- | --- |
 | `direct`: setup ends with a plain summary of roles, wake method, human channel, test result, accepted known losses, and open manual steps. | [Design](../../designs/2026-11-21-factory.md), [plan](../../plans/2026-11-21-w30-r0-factory/00-overview.md) | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-13, R-FACTORY-14 | [P4](04-factory-setup-skill.md), [P6](06-proofs-and-acceptance.md) | Two capability proofs, Guided Progress Review | P4 closeout and P6 acceptance | None |
 | `direct`: the person hears only floor events and added events. Each message says what happened, what is needed, and what happens next. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-37, R-FACTORY-38 | [P1](01-factory-contract-and-workflow-types.md), [P5](05-factory-run-skill-and-handoffs.md) | Escalation fixtures, Guided Progress Review of real messages | P5 closeout | None |
-| `direct`: `factory status` shows each claimed unit, its tool, its state, and the last check, in human words first. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-51 | [P3](03-factory-operations.md) | Parity fixtures, Guided Progress Review | P3 closeout | None |
+| `direct`: `factory status` shows each claimed unit, its tool, its state, and the last check, in human words first. Since 2026-11-23, it shows one project, with one group for each running factory, by checkout and then by lifecycle run. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-51 | [P3](03-factory-operations.md) | Parity fixtures, Guided Progress Review | P3 closeout | None |
 | `direct`: at the end of the given scope, the person gets one acceptance request with the reviewed result and evidence. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-39 | [P5](05-factory-run-skill-and-handoffs.md), [P6](06-proofs-and-acceptance.md) | Capability proofs, Human Experience Review | P6 acceptance | None |
 | `direct`: a drifted workflow says so before it takes new work and names the smallest fix. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-33 | [P3](03-factory-operations.md), [P5](05-factory-run-skill-and-handoffs.md) | Drift test that removes a wired tool | P6 acceptance | None |
 | `direct`, new on 2026-11-23: when a tool changes version, or the setup changes without a save, the factory says what changed in plain words, with its reason code, before it takes new work. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-12, R-FACTORY-54 | [P3](03-factory-operations.md) T20 and T21, [P5](05-factory-run-skill-and-handoffs.md) T17 | Drift fixtures (P3 A61), the version drift test (P6 T12), Guided Progress Review of status output | P3 closeout and P6 acceptance | None |
+| `direct`, new on 2026-11-23: every factory result names the project it acted on, or says that it acted on this machine. A write that names no project changes nothing and says how to name one. | Same | [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-63, R-FACTORY-64, R-FACTORY-65 | [P3](03-factory-operations.md) T26 to T29, [P5](05-factory-run-skill-and-handoffs.md) T20 and T21 | Result fixtures (P3 A74 to A77), a fixture run from another folder (P5 A81), Guided Progress Review of status output | P3 and P5 closeout | None |
 
 ## Phase Map
 
@@ -120,3 +121,36 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 53, PRD 38 R-MIN rows, PRD 24 R-CONFIG-WORK-2, and PRD 04 terms. The owner chose option A for two choices on 2026-11-23: register D-071 (the round count carries forward) and D-072 (grants stay outside the plan digest). Both items are closed.
 - Owner approval: the owner's review on 2026-11-23.
 - Source: [Factory design](../../designs/2026-11-21-factory.md)
+
+### 2026-11-23 — W30 R0 Project Scope
+
+- Kind: `edit`
+- Affected scope: P1 (the contract changed after it was done), P3, P5, and the Human Experience Trace.
+- Previous scope: the backlog did not say how a factory command finds its project, what a result names, or how factory URIs resolve.
+- Replacement scope: P1 records the contract's new `## Project Scope` section and four refusal codes in its Change History. P3 adds Stage 5 with T25 to T32 and A74 to A80: machine-level and project-scoped operations, a named project on every write, typed refusals that change nothing, the project or machine in every result, the project in read output, factory URI reads, the grant rule, and the never-log rule on URI reads. P5 adds Stage 5 with T20 and T21 and A81 and A82: the run Skill names the project in every call and message. The trace gains one promise row. Existing task and acceptance IDs do not change. This is new behavior.
+- Rationale: one Store serves every project on a machine, and an agent often works in a folder other than the project it runs. A write that falls back to the current folder can change the wrong project.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-52 and new R-FACTORY-62 to R-FACTORY-68; PRD 52 R-WORK-URI-1. Register D-073 (`factory status` scope) and D-074 (factory URI paths) are open. P3 T29 and T30 wait for them.
+- Owner approval: the owner's decision on 2026-11-23 (option A).
+- Source: [Factory design](../../designs/2026-11-21-factory.md#project-scope)
+
+### 2026-11-23 — W30 R0 Owner Answers
+
+- Kind: `edit`
+- Affected scope: P1 (the contract changed again after it was done), P3, and the Human Experience Trace. P2 also changes, and its builder makes those edits.
+- Previous scope: registers D-073 (`factory status` scope) and D-074 (factory URI paths) were open. The folder grant rule covered factory MCP tools. The backlog had no rule on the printout `.gitignore`, on where the integration owner role and the channel kind live, on a move from `unknown` to `needs-correction`, or on context lists for custom roles.
+- Replacement scope: P1 records the contract changes in its Change History. P3 changes T8, T13, T29, T30, and T31, adds T33 and A83, and updates A23, A57, A78, and A79. P2 must make these changes, and the P2 builder owns them: add the checkout ID to the assignment record; replace T11 and A15 (a root `.gitignore` entry) with a `.gitignore` file holding `*` inside `.make-docs/factory/` and `.make-docs/backup/factory/`, with no edit to the root `.gitignore`; keep the integration owner role and the channel kind out of the Store binding; and add the context list check for roles other than builder and reviewer to T20. The status trace row names the groups. Existing task and acceptance IDs do not change. All of this is new behavior.
+- Rationale: the owner answered seven open W30 choices on 2026-11-23: `A, A, B, A, A, A, A`.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -25, -27, -41, -46, -51, -55, -60, and -65 to -67; PRD 52 R-WORK-URI-1. PRD 38 changes for the assignment and binding rows belong to the P2 builder. PRD 24: `none`, because R-CONFIG-WORK-2 already lists the fields and PRD 53 owns their meaning. Registers D-073 and D-074 are closed. D-075 (factory MCP tool calls, reads and writes, that name another project) is open and blocks only those calls in P3 T31.
+- Owner approval: the owner's answers on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md#context)
+
+### 2026-11-23 — W30 R0 Last Owner Decisions
+
+- Kind: `edit`
+- Affected scope: P1 (the contract changed again after it was done) and P3.
+- Previous scope: three items were open: the round count for a move from `unknown` back to `needs-correction`, whether the front desk and the foreman need a context list, and register D-075.
+- Replacement scope: P1 records the contract changes in its Change History. P3 changes T13, T31, A57, and A79, and T31 no longer waits for D-075. The P2 config check (T20) refuses only a custom role without a context list, and the P2 builder owns that change. Existing task and acceptance IDs do not change. All of this is new behavior.
+- Rationale: the owner chose option A for all three items on 2026-11-23.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -41, -60, and -67. Register D-075 is closed. PRD 25: `none`, because R-ACCESS-6 already checks project grants and target scope.
+- Owner approval: the owner's decisions on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md#context)
