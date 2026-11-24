@@ -1088,9 +1088,9 @@ Covers the tasks of [P6](06-proofs-and-acceptance.md) that an agent can do witho
 
 | Task | State | Proof |
 | --- | --- | --- |
-| T1 Proof A | Open. Owner gate. | The owner picks the real tool, and a real session must start real subagents. This phase ran only the record path. See [Record Path Runs](#record-path-runs). |
+| T1 Proof A | Done on 2026-11-24. The owner accepted the result. | [Proof A](#proof-a-t1-a43). |
 | T2 Proof B | Open. Owner gate. | The owner picks the real tools, and a person must answer one escalation away from the session. This phase ran only the record path. |
-| T3 Real tools named | Open. It follows T1 and T2. | No real tool was used, so this report names none and makes no support claim for any tool combination. |
+| T3 Real tools named | Done for Proof A. Open for Proof B. | [Proof A](#proof-a-t1-a43) names the one real tool. The support claim is limited to that combination. |
 | T4 Drift test | Done. | [Drift Test](#drift-test-t4-a46). |
 | T5 Outside-git test | Done. | [Outside-Git Test](#outside-git-test-t5-a47). |
 | T6 Evidence report | Done. | This report exists, and the [index](00-index.md) links it in `## Usage Notes`. |
@@ -1098,9 +1098,9 @@ Covers the tasks of [P6](06-proofs-and-acceptance.md) that an agent can do witho
 | T8 Tool name search | Done. No hit to fix. | [Tool Name Search](#tool-name-search-t8-a49). |
 | T9 Human Experience Review | Done as an agent review. | [Human Experience Review](#human-experience-review-t9-a50). Four promises are `satisfied` within their limits. Three wait for the real proofs. |
 | T10 Unassisted Goal Testing | Done. The owner decided on 2026-11-24: keep `not-needed-now`. | [P6 Owner Decisions](#p6-owner-decisions-2026-11-24). |
-| T11 Capability tags | Open. It follows T1 and T2. | The record path run lists the capability IDs that it recorded, as a form for the real proofs. |
+| T11 Capability tags | Done for Proof A. Open for Proof B. | [Proof A](#proof-a-t1-a43) lists the capability IDs, the tool version, each proof result, each "does not cover" item, and each accepted known loss. |
 | T12 Version drift test | Done. | [Version Drift Test](#version-drift-test-t12-a71). |
-| T13 Never-log scan | Open. The task says "after both proofs". | The scan is built as a test and ran clean on the record path run. See [Never-Log Scan](#never-log-scan-t13-a72). It must run again on the records of the real proofs. |
+| T13 Never-log scan | Open. The task says "after both proofs". The scan of the Proof A records ran clean; see [Proof A](#proof-a-t1-a43). | The scan is built as a test and ran clean on the record path run. See [Never-Log Scan](#never-log-scan-t13-a72). It must run again on the records of the real proofs. |
 | T14 Rule catalog | Done. | [Rule Catalog](#rule-catalog-t14). |
 | T15, T16 to T19, T20 to T28 | Done before this phase work. | Commits `bb9cf4f1` and `383319ac`. See [Follow-Up Commands](#follow-up-commands) and [Store Lifecycle Fixes](#store-lifecycle-fixes). Not done again. T24's `--reset-rounds` assertion is in `packages/cli/tests/w30-r0-p3-factory-operations.test.ts` ("The --reset-rounds path writes one use row for the spent grant"), and it passes. |
 
@@ -1268,15 +1268,67 @@ The owner answered three choices of round 1 on 2026-11-24.
 
 Each item is open. Nothing here was decided for the owner.
 
-1. Proof A (T1, A43), and with it T3, T11, and T13. The owner picks one real agent tool that can start its own subagents. A session of that tool runs `factory-setup` and then the `factory` Skill on a staged backlog of at least two units, with one correction, and ends with one acceptance request.
+1. Done on 2026-11-24; see [Proof A](#proof-a-t1-a43). It was: Proof A (T1, A43), and with it T3, T11, and T13. The owner picks one real agent tool that can start its own subagents. A session of that tool runs `factory-setup` and then the `factory` Skill on a staged backlog of at least two units, with one correction, and ends with one acceptance request.
 2. Proof B (T2, A44), and with it T3, T11, and T13. The owner picks a real multiplexer and a real human channel that works from a phone. The run needs one `lead-and-specialists` unit and one escalation that the owner answers away from the session.
 3. Guided Progress Review of the real setup summary, status output, escalation messages, and acceptance request from the two proofs. The drift and status samples in this report are ready to read now.
 4. The dogfood install of `factory-setup` in `.agents/skills/`. It needs `make-docs setup skills` or `make-docs update` on the real Store, so the owner runs it.
 5. The explicit human acceptance gate of W30 R0, and the closeout of this phase and of the index. P1 and P2 phase files still say `status: "active"`; their closeout is outside this phase's task list.
-6. Found in round 2, not changed: the fix line of the drift code `proof-contradicted` also gives two steps joined by "or" ("Bind a tool ... that has the capability proved, or prove it again ..."). The owner's decision named the lost tool only. Option A (recommended): treat it the same way, with "prove it again" as the one step in status. Option B: leave it as it is.
+6. Found in round 2, not changed: the fix line of the drift code `proof-contradicted` also gives two steps joined by "or" ("Bind a tool ... that has the capability proved, or prove it again ..."). The owner's decision named the lost tool only. Option A (recommended): treat it the same way, with "prove it again" as the one step in status. Option B: leave it as it is. Owner decision 2026-11-24: option B, leave it as it is.
 
 ### Could Not Do
 
 - Any run with a real tool, a real subagent, or a real message. See items 1 and 2.
 - Any read or write of the real Store.
 
+
+### Proof A (T1, A43)
+
+Date: 2026-11-24. This is a real run: a real agent tool, real subagents, real work, and the owner as the person. It is not a record path run.
+
+Setup of the proof:
+
+- Real tool (T3): T3 Code, version 0.1.10 (`t3 --version`), tool kind `agent-harness`, tool ID `t3-code`. The owner picked it. It filled each role: front desk, foreman, builder, and reviewer. Each builder and each reviewer was a fresh subagent that the lead session started. No other tool was used. The support claim is this one combination only: one agent harness with its own subagents, human channel "wait in session", wake method `person` (R-FACTORY-1, R-FACTORY-10).
+- Store: a separate proof Store in a temporary folder (`MAKE_DOCS_HOME`), at schema 9, by owner decision. The real Store was not read or written.
+- Project: a sample project in a temporary folder, with git, by owner decision. Its backlog `W1 R0` had two phases; P2 depended on P1.
+- CLI: the build of commit `d4540931`.
+
+What ran:
+
+1. `factory-setup`, steps 0 to 6. The owner answered the interview through a choice control: default limits, preflight off, no added event, no grant for `merge`, `deploy`, `publish`, or `spend`, and all five known losses accepted. The workflow type (`staged-backlog`), the human channel, and the wake method came from the definition of Proof A, so setup did not ask for them. `factory tools save` saved one tool with six proofs. `factory workflow save` made plan revision 1. The test task (a fresh builder, then a fresh reviewer that did not build) passed, and `factory proof save` made the workflow `ready`. Setup ended with the summary and started no run.
+2. The `factory` Skill on `W1 R0`, after the owner asked for the run.
+   - P1: claim, lifecycle run, builder assignment, review. The first reviewer returned 2 defects with evidence. The builder's assignment moved to `needs-correction` (round 1 of 3), then `running` with `correction-sent`. A second fresh reviewer passed the correction. The foreman accepted the unit on that evidence, recorded and attached the evidence link, closed the unit, and completed the run.
+   - P2: claim, lifecycle run, builder assignment, review. The reviewer passed it. Correction rounds: 0. Accepted, closed, run completed.
+   - One acceptance request for the whole scope. The owner answered `accept` in the session.
+3. Result against A43: two units completed, one correction, one acceptance request. Met.
+
+The correction was planted, by owner decision (option A on 2026-11-24): the first P1 builder was told to leave out one requirement, so that the proof was sure to show a correction. The reviewer was not told. The reviewer found the planted defect and the missing test on its own.
+
+Capability tags (T11), all for tool `t3-code` at version 0.1.10:
+
+| Capability ID | Result | Does not cover | Exercised in the run by |
+| --- | --- | --- | --- |
+| `read-write-files` | `proved` | Nothing listed | Front desk, foreman |
+| `run-commands` | `proved` | Nothing listed | Foreman, builders, reviewers |
+| `launch-agent` | `proved` | Two agents at the same time | 4 subagent starts in setup, 5 in the run, and 1 correction sent to a builder |
+| `wait-for-agent` | `proved` | A wait longer than one session | Each subagent |
+| `read-agent-result` | `proved` | A long result | Each subagent |
+| `edit-code` | `proved` | A change to an existing file; checks with at least one test | Builders (the correction changed existing files, with 8 tests) |
+
+Not proved, and not claimed: `wake-on-schedule`, `wake-on-event`, `message-person`, `receive-answer`, `isolate-working-copy`. No role depended on one.
+
+Accepted known losses (5): the factory runs only while a session is open; the start-agent proof did not test two agents at the same time; the wait proof did not test a wait longer than one session; the read-result proof did not test a long result; the edit proof made a new file only, and the project had no test then.
+
+Records in the proof Store after the run: 1 machine tool, 6 capability proofs, 1 workflow binding, 1 plan revision, 1 test task result, 5 assignments (2 builders, 3 reviewers, all `accepted`; one builder with round count 1), 0 grants, 0 grant uses, 0 backups.
+
+Never-log scan of the Proof A records (part of T13): a text search of a full dump of the proof Store and of the `.make-docs/factory/` copies for both code words, the scratch text, source text of the work, brief text, and both claim IDs. No hit. T13 stays open until the same scan runs after Proof B.
+
+Findings from the run:
+
+1. `make-docs lifecycle attach-evidence --digest` needs the form `sha256:<64 hex>`. The run Skill does not say so. The first call was refused; nothing changed.
+2. A change to a task checkbox in a phase file changes the unit revision at the next sync. A `work close` with the revision from before is then refused once with a clear message. The run Skill does not tell the foreman to read the revision again after it edits the phase file.
+3. A task handle with a space is refused ("The field taskHandle holds a space"). The Skill does not name that rule.
+4. Foreman error, not a product defect: on P2 the foreman completed the lifecycle run before the unit closed, because the first close was refused (finding 2). The Skill says to close first. The close then worked, and no record was lost.
+5. `work close` writes `status: "complete"` in the phase file. Check this word against the status words that the work store reference lists.
+6. The setup interview used four-question choice dialogs. Each question was one decision, but the person saw four at a time. The Skill says "one decision at a time".
+
+Could not prove in Proof A: parallel units, a wake without the person, a message channel, a working copy for each worker, a grant use, a backup outside git, and an escalation. Proof B covers the message channel and one escalation.
