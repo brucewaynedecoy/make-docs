@@ -1,7 +1,7 @@
 ---
 title: "Phase 4: Factory Setup Skill"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W30 R0 P4"
 source:
   type: "plan"
@@ -121,8 +121,21 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - Four testing decisions: Automated Implementation Testing is selected and done: 24 new tests in `packages/cli/tests/w30-r0-p4-factory-setup-skill.test.ts` cover the bundle and its explicit-use policy (T1), no script and no Python, the tool-agnostic text (A28), the twin checks of commands, MCP tools, flags, reason codes, record values, one-word values and field paths, default context lists, and contract rule IDs, the two-option interview rule, the tools copy as a hint only, the grants file, the example config entry, and fixture runs for A26, A29, A30, A32, A65, A66, and T14, and the two sample summaries (A31, A64). The Skill registry, embedded, catalog, and UI tests list the new Skill. Guided Progress Review is selected and waits for the owner: the interview questions and the closing summary. Performance Testing and Unassisted Goal Testing stay `not-needed-now`.
 - Performance evidence: none. No performance candidate applies.
 - Human Experience Review: the interview asks one decision at a time, recommendation first, and only for preferences and permissions; a Never Ask list keeps out facts that setup finds. Each internal term has plain words beside it. The summary puts the outcome first, then the tool, version, and proof result of each role, the wake method (and says when no tool can wake on its own), the human channel, the test result with the plan revision, each accepted known loss, each grant, and each open manual step in the Do, Why, Required or Optional, Unblocks form. Limit: the samples use neutral placeholders; no live setup with real tools ran in this phase. P6 proves two real setups.
-- Optional experience handoff: none until the owner's review.
-- Explicit human acceptance gate: open. The owner's Guided Progress Review of the interview questions and the closing summary.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: closed. The owner passed the Guided Progress Review of the setup interview and the closing summary on 2026-11-24 (option A), with no change.
 - Evidence report: [W30 R0 Evidence Report, P4](evidence.md#p4-factory-setup-skill).
 - Independent review (2026-11-23): no broken code; eight text and test items. Items 1 to 7 are fixed: the tools copy is a hint only after a restore, the grants file shape and a rerun revoke, at most two options for each question, the one-word and field path check, a wider product name list, the version that a refusal names, and one `store-denied` row. Item 8, an email address accepted in `grantedBy`, is a P3 follow-up. See [Review Fixes](evidence.md#review-fixes-1).
-- Phase / capability status: T1 to T17 are built, and A26 to A32 and A64 to A66 are met by the fixture runs and the twin test. The phase stays `active` until the owner's Guided Progress Review. Capability partial: the run Skill and handoffs (P5) and the proofs and acceptance (P6) remain. Follow-ups: no command reads the machine tool list with its record versions (the owner is deciding on a `factory tools list` read), the CLI accepts an email address in `grantedBy` (P3), and this repository's installed Skill copies do not include `factory-setup` yet, because installing it writes the real Store.
+- Phase / capability status: T1 to T17 are built, and A26 to A32 and A64 to A66 are met by the fixture runs and the twin test. Phase complete: the owner's Guided Progress Review passed on 2026-11-24, and no task is open. Capability partial: the proofs and acceptance (P6) remain. Since the follow-up of 2026-11-23, `make-docs factory tools list` reads the machine tool list with its record versions, and this Skill uses it ([P6](06-proofs-and-acceptance.md) T16). Follow-ups: the CLI accepts an email address in `grantedBy` (P3), and this repository's installed Skill copies do not include `factory-setup` yet, because installing it writes the real Store.
+
+## Change History
+
+### 2026-11-24 — W30 R0 P4 Guided Progress Review Passed
+
+- Kind: `edit`
+- Affected scope: the Closeout Notes and the phase status.
+- Previous scope: the phase waited for the owner's Guided Progress Review of the setup interview and the closing summary, and the phase was `active`.
+- Replacement scope: the review passed: the owner found the samples clear (option A), with no change. The phase status is `completed`, as for the other finished phases. No task is open. Task and acceptance IDs do not change.
+- Rationale: the owner's decision on 2026-11-24.
+- PRD decision: `none`.
+- Owner approval: the owner's decision on 2026-11-24 (option A).
+- Source: [W30 R0 evidence](evidence.md#sample-closing-summary-guided-progress-review-passed)

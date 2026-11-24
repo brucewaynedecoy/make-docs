@@ -104,7 +104,7 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - [ ] T12: Version drift test: report a new version for a wired tool, and show `drifted` with `tool-version-changed`, the re-proof step, and no new work until the proof runs again (R-FACTORY-10, R-FACTORY-12).
 - [ ] T13: After both proofs, scan the Store factory records, the plan revisions, the status history, and the `.make-docs/factory/` copies for file contents, prompts, briefs, environment values, transcripts, and credentials (R-FACTORY-26).
 - [ ] T14: Update the Check column of the factory contract's Rule Catalog for the checks that W29 R0 P4 and W30 R0 P2 and P3 built. Choose a word for a built check, change the W30 R0 P1 test to accept it, and remove the note that rows marked "Planned in W30 R0 P3" are built (template first, then the dogfood and bundled copies). New on 2026-11-23.
-- [ ] T15: Moved from W30 R0 P3 T34 on 2026-11-23: a reviewed removal of a saved workflow, and of a pruned project's workflow rows. It deletes the workflow's backup records first, then its final assignments, then its grants, test task results, plan revisions, and binding. It refuses while an assignment of the workflow is open, and it changes nothing on a refusal (P2 notes 1 and 2). Until it ships, a workflow removed from the config stays `drifted` and takes no new work. New on 2026-11-23.
+- [ ] T15: Moved from W30 R0 P3 T34 on 2026-11-23: a reviewed removal of a saved workflow, and of a pruned project's workflow rows. It deletes the workflow's backup records first, then its final assignments, then its grant use rows (`factory_grant_uses`, added on 2026-11-24), then its grants, test task results, plan revisions, and binding. It refuses while an assignment of the workflow is open, and it changes nothing on a refusal (P2 notes 1 and 2). Until it ships, a workflow removed from the config stays `drifted` and takes no new work. New on 2026-11-23.
 
 ### Acceptance criteria
 
@@ -115,6 +115,30 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 ### Dependencies
 
 - Stage 1.
+
+## Stage 4 - Follow-Up Commands
+
+New on 2026-11-23. The owner approved three follow-up commands after P3 to P5 were built. P3 is completed, so these command tasks are here, and P3 stays closed.
+
+### Tasks
+
+- [x] T16: Add the machine-level read `factory.tools.list` (`make-docs factory tools list`, MCP `factory_tools_list`): the saved tools of this machine, each with its state, its capability proofs, and its record version. It takes no project, ends with "Changes nothing.", and never creates or migrates a Store. The `factory-setup` Skill reads the saved tools through it, and no longer uses the `tools.md` copy as a hint (R-FACTORY-69).
+- [x] T17: Add the project write `factory.file-backup.save` (`make-docs factory file-backup save`, MCP `factory_file_backup_save`): outside git, copy each named file to `.make-docs/backup/factory/` through the P2 backup function and record it for an open assignment, with the private claim ID. In a folder with git, report `not-needed` and change nothing. The run Skill calls it before a worker changes a file outside git, which closes P5 T10 (R-FACTORY-70).
+- [x] T18: Add the project write `factory.grant-use.record` (`make-docs factory grant-use record`, MCP `factory_grant_use_record`): record a grant use on the live claim of a unit whose assignments are all final, with the grant checks of `factory.assignment.save`. T19 records each use. The run Skill's end-of-scope steps use it (R-FACTORY-24, R-FACTORY-71).
+
+- [x] T19: Keep one use row for each recorded grant use, in the new `factory_grant_uses` table of the unreleased schema v9: grant ID, action, scope, work unit, lifecycle run ID, and use time, with no content and no claim ID. Both use commands write the row in the same transaction as the grant check. A revoke keeps the rows, and they stay until the workflow is removed (T15 deletes them with the workflow). `factory workflow show` lists them beside the grants. Remove the two last-use columns from `factory_grants` (R-FACTORY-72). New on 2026-11-24.
+
+### Acceptance criteria
+
+- A84: `factory tools list` gives the same result in CLI JSON and MCP, names this machine, shows each record version, and with no Store returns the typed Store outcome and creates no Store.
+- A85: Outside git, `factory file-backup save` copies and records each file before the change, and a refused call leaves no copy and no record. In a folder with git it reports `not-needed`. No result or record holds file contents or a claim ID.
+- A86: `factory grant-use record` records a use only for the holder of the live claim of a unit whose assignments are all final, refuses with each grant refusal code as `factory assignment save` does, and never shows the claim ID.
+- A87: Setup admits each of the three commands as a native command rule, and each MCP name has at most 26 characters.
+- A88: Two uses of a `standing` grant keep two use rows, a revoke of the grant keeps its rows, callers that race for one `once` grant keep one row, a refused use keeps none, and no copy or factory URI read shows a use row.
+
+### Dependencies
+
+- P2 to P5.
 
 ### Closeout Notes
 
@@ -149,3 +173,25 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - PRD decision: `none`.
 - Owner approval: none needed for a move of an unscheduled follow-up.
 - Source: [W30 R0 P3 evidence](evidence.md#review-fixes)
+
+### 2026-11-23 — W30 R0 Follow-Up Commands
+
+- Kind: `edit`
+- Affected scope: new Stage 4, tasks T16 to T18, and acceptance A84 to A87.
+- Previous scope: no command read the machine's saved tools, saved a backup outside git, or recorded a grant use on a claim with no open assignment.
+- Replacement scope: Stage 4 holds the three follow-up commands, and they are built. P3 is completed, so the tasks are here and P3 is not reopened. Existing task and acceptance IDs do not change. This is new behavior. The owner named the backup command `factory backup save` and gave `factory grant use` as an example. The shipped names are `factory file-backup save` and `factory grant-use record`, because a native command rule refuses the word `backup` and `use` is not an approved end word. The owner confirmed the names on 2026-11-24 (register D-077, option A, closed).
+- Rationale: setup needs record versions that only the Store holds, the backup rule needs a command, and no action outside the default authority may happen without a recorded grant use.
+- PRD decision: `update-existing` — PRD 53 (Operations table, R-FACTORY-24, R-FACTORY-44, R-FACTORY-50, R-FACTORY-63, project scope table, and the new R-FACTORY-69 to R-FACTORY-71), PRD 39 R-RUN-1, PRD 25 R-MCP-PROFILE-2, and PRD 38 (the factory grants and backup records R-MIN rows).
+- Owner approval: the owner's decisions on 2026-11-23.
+- Source: [W30 R0 evidence](evidence.md#follow-up-commands)
+
+### 2026-11-24 — W30 R0 Grant-Use History
+
+- Kind: `edit`
+- Affected scope: new T19 and A88, and the text of T15 and T18.
+- Previous scope: T18 recorded the time and the lifecycle run of the last use on the grant, in two columns of `factory_grants`. T15 did not name grant use rows.
+- Replacement scope: T19 keeps one use row for each recorded grant use in the new `factory_grant_uses` table, and removes the two last-use columns. T15 deletes the use rows with the workflow. Existing task and acceptance IDs do not change. This is new behavior.
+- Rationale: an independent review found that a last-use record loses the earlier uses of a `standing` or a `run` grant. The owner then chose a full history of uses.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-24, R-FACTORY-71, and the new R-FACTORY-72, and PRD 38 (the factory grants row and the new factory grant uses R-MIN row).
+- Owner approval: the owner's decision on 2026-11-24 (option B).
+- Source: [W30 R0 evidence](evidence.md#grant-use-history)

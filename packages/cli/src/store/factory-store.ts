@@ -190,7 +190,7 @@ function checkTime(field: string, value: Date): string {
   return value.toISOString();
 }
 
-function newStoreId(prefix: "fg-" | "fa-"): string {
+function newStoreId(prefix: "fg-" | "fa-" | "fu-"): string {
   return `${prefix}${randomUUID().replaceAll("-", "")}`;
 }
 
@@ -749,7 +749,7 @@ export function saveFactoryGrant(db: StoreDatabase, input: FactoryGrantInput, op
   });
 }
 
-/** Revoke one grant of a project. The row is removed (R-FACTORY-24: retain until the person revokes it). */
+/** Revoke one grant of a project. The row is removed (R-FACTORY-24: retain until the person revokes it). Its use rows stay (R-FACTORY-72). */
 export function revokeFactoryGrant(db: StoreDatabase, projectId: string, grantId: string, options: { expectedVersion: number }): void {
   checkProjectId(db, projectId);
   atomic(db, () => {
@@ -757,6 +757,41 @@ export function revokeFactoryGrant(db: StoreDatabase, projectId: string, grantId
     assertVersion(`Grant ${grantId}`, row ? Number(row.entry_version) : null, options.expectedVersion);
     db.prepare("DELETE FROM factory_grants WHERE grant_id = ? AND entry_version = ?").run(grantId, options.expectedVersion);
   });
+}
+
+/** One recorded use of a grant (R-FACTORY-72). It holds enough of the grant to be read after a revoke. */
+export interface FactoryGrantUseRecord {
+  useId: string;
+  projectId: string;
+  workflowName: string;
+  grantId: string;
+  action: string;
+  scope: FactoryGrantScope;
+  unitStoreId: string;
+  runId: string;
+  usedAt: string;
+}
+
+interface GrantUseRow {
+  use_id: string;
+  project_id: string;
+  workflow_name: string;
+  grant_id: string;
+  action: string;
+  scope: FactoryGrantScope;
+  unit_store_id: string;
+  run_id: string;
+  used_at: string;
+}
+
+function toGrantUse(row: GrantUseRow): FactoryGrantUseRecord {
+  return { useId: row.use_id, projectId: row.project_id, workflowName: row.workflow_name, grantId: row.grant_id, action: row.action, scope: row.scope, unitStoreId: row.unit_store_id, runId: row.run_id, usedAt: row.used_at };
+}
+
+/** Every recorded grant use of one workflow, oldest first, also of a grant that was revoked. */
+export function listFactoryGrantUses(db: StoreDatabase, projectId: string, workflowName: string): FactoryGrantUseRecord[] {
+  checkProjectId(db, projectId);
+  return (db.prepare("SELECT * FROM factory_grant_uses WHERE project_id = ? AND workflow_name = ? ORDER BY used_at, rowid").all(projectId, workflowName) as unknown as GrantUseRow[]).map(toGrantUse);
 }
 
 type GrantUseRefusal = Extract<FactoryRefusalCode, "grant-missing" | "grant-out-of-scope" | "grant-spent" | "grant-expired">;
@@ -785,11 +820,16 @@ function grantUseRefusal(db: StoreDatabase, grant: GrantRow, runId: string | nul
  */
 export function useFactoryGrant(
   db: StoreDatabase,
-  request: { projectId: string; workflowName: string; action: string; runId: string | null; scopes?: readonly FactoryGrantScope[] },
+  request: { projectId: string; workflowName: string; action: string; runId: string; unitStoreId: string; scopes?: readonly FactoryGrantScope[] },
   options: { now?: Date } = {},
-): FactoryGrantRecord {
+): FactoryGrantRecord & { use: FactoryGrantUseRecord } {
   checkProjectId(db, request.projectId);
   const action = checkName("action", request.action);
+  // Every use names its lifecycle run and its work unit, so each use row can be read alone.
+  const runId = checkRunId("runId", request.runId);
+  if (typeof request.unitStoreId !== "string" || request.unitStoreId.length === 0 || request.unitStoreId.length > 160) {
+    refuse("invalid-record", "The grant use names no work unit.", "Give the work unit that the action is for.", { field: "unitStoreId" });
+  }
   const now = (options.now ?? new Date()).toISOString();
   return atomic(db, () => {
     const named = db.prepare("SELECT * FROM factory_grants WHERE project_id = ? AND workflow_name = ? AND action = ? ORDER BY granted_at DESC, grant_id DESC").all(request.projectId, request.workflowName, action) as unknown as GrantRow[];
@@ -807,7 +847,48 @@ export function useFactoryGrant(
       const spent = changes(db.prepare("UPDATE factory_grants SET spent_at = ?, entry_version = entry_version + 1 WHERE grant_id = ? AND spent_at IS NULL").run(now, chosen.grant_id));
       if (spent !== 1) refuse("grant-spent", `The grant for the action ${action} was spent.`, "Ask the person through the human channel.", { action });
     }
-    return toGrant(db.prepare("SELECT * FROM factory_grants WHERE grant_id = ?").get(chosen.grant_id) as unknown as GrantRow);
+    // One row for each use, in the same transaction as the grant check (R-FACTORY-72). A refusal above writes none,
+    // so two callers that race for one once grant leave one row. The row holds no content and no claim ID.
+    const useId = newStoreId("fu-");
+    db.prepare(
+      "INSERT INTO factory_grant_uses (use_id, project_id, workflow_name, grant_id, action, scope, unit_store_id, run_id, used_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    ).run(useId, request.projectId, request.workflowName, chosen.grant_id, action, chosen.scope, request.unitStoreId, runId, now);
+    const grant = toGrant(db.prepare("SELECT * FROM factory_grants WHERE grant_id = ?").get(chosen.grant_id) as unknown as GrantRow);
+    return { ...grant, use: toGrantUse(db.prepare("SELECT * FROM factory_grant_uses WHERE use_id = ?").get(useId) as unknown as GrantUseRow) };
+  });
+}
+
+/**
+ * Record the use of a grant on the live claim of a unit that has no open
+ * assignment (R-FACTORY-71, owner decision 2026-11-23). It is the path for an
+ * action at the end of a scope, such as the merge after the person accepts the
+ * whole scope. Only the holder of the unit's live claim records it, and the
+ * claim ID is checked, never saved. Every assignment of the unit is final, and
+ * one of them ran under the named workflow and lifecycle run, so the run is
+ * never a mistyped one. The grant checks are those of {@link useFactoryGrant}.
+ */
+export function useFactoryGrantOnClaim(
+  db: StoreDatabase,
+  request: { projectId: string; workflowName: string; action: string; runId: string; unitStoreId: string },
+  options: { claimId: string; now?: Date },
+): FactoryGrantRecord & { use: FactoryGrantUseRecord } {
+  const now = options.now ?? new Date();
+  const projectId = checkProjectId(db, request.projectId);
+  const workflowName = checkName("workflowName", request.workflowName);
+  checkName("action", request.action);
+  const runId = checkRunId("runId", request.runId);
+  return atomic(db, () => {
+    const unit = db.prepare("SELECT project_id FROM work_units WHERE store_id = ?").get(request.unitStoreId) as { project_id: string } | undefined;
+    if (!unit || unit.project_id !== projectId) refuse("record-not-found", "The work unit does not exist in this project.", "Sync the work store, then read the unit again.", { unitStoreId: request.unitStoreId });
+    assertClaimHeld(db, request.unitStoreId, options.claimId, now);
+    const rows = db.prepare("SELECT workflow_name, run_id, status FROM factory_assignments WHERE project_id = ? AND unit_store_id = ?").all(projectId, request.unitStoreId) as unknown as Array<{ workflow_name: string; run_id: string; status: FactoryAssignmentStatus }>;
+    if (rows.some((row) => !isFinalAssignmentStatus(row.status))) {
+      refuse("assignment-open", "The unit has an open assignment, so the grant use belongs on that assignment.", "Record the use with make-docs factory assignment save --grant-use <action>, or settle the open assignment first.", { unitStoreId: request.unitStoreId });
+    }
+    if (!rows.some((row) => row.workflow_name === workflowName && row.run_id === runId)) {
+      refuse("record-not-found", `The unit has no assignment of workflow ${workflowName} under lifecycle run ${runId}.`, "Name the workflow and the lifecycle run of the unit's assignments, as make-docs factory assignment list --all shows them.", { field: "runId" });
+    }
+    return useFactoryGrant(db, { projectId, workflowName, action: request.action, runId, unitStoreId: request.unitStoreId }, { now });
   });
 }
 
@@ -982,7 +1063,7 @@ export function startFactoryAssignment(
     let roundCount = previous ? Number(previous.round_count) : 0;
     if (input.resetRounds && roundCount > 0) {
       // Only a once grant resets the count, and this start spends it (R-FACTORY-41). A count of 0 needs no reset, so the grant stays.
-      useFactoryGrant(db, { projectId, workflowName, action: FACTORY_RESET_ROUNDS_ACTION, runId, scopes: ["once"] }, { now });
+      useFactoryGrant(db, { projectId, workflowName, action: FACTORY_RESET_ROUNDS_ACTION, runId, unitStoreId: input.unitStoreId, scopes: ["once"] }, { now });
       roundCount = 0;
     }
     const assignmentId = newStoreId("fa-");

@@ -1,7 +1,7 @@
 ---
 title: "Phase 5: Factory Run Skill and Handoffs"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W30 R0 P5"
 source:
   type: "plan"
@@ -82,7 +82,7 @@ There are no performance candidates.
 
 - [x] T8: Apply the working rules: judge the actual work, never let a reviewer review its own work, do not steer the reviewer, and stop a loop that repeats the same failure (R-FACTORY-40, R-FACTORY-41).
 - [x] T9: Apply one writer per file in each working copy, and name an integration owner for parallel work. Follow the harness's worktree policy and any repository rule that forbids worktrees (R-FACTORY-42, R-FACTORY-43).
-- [ ] T10: Back up files before a change in a folder without git, through the P2 records (R-FACTORY-44).
+- [x] T10: Back up files before a change in a folder without git, through the P2 records (R-FACTORY-44).
 - [x] T11: Send each floor event and each added event to the human channel. Each message says what happened, what is needed, whether it is required, what it blocks, and what happens next (R-FACTORY-37, R-FACTORY-38).
 - [x] T12: Accept each unit inside the given scope on the reviewer's evidence. At the end of the scope, send one acceptance request with the reviewed result and its evidence. Ask for a grant before a merge or deploy (R-FACTORY-39).
 
@@ -157,13 +157,13 @@ New on 2026-11-23. The owner chose option A for project scope after P1 was done.
 
 - Four testing decisions: Automated Implementation Testing is selected and done: `packages/cli/tests/w30-r0-p5-factory-run-skill-and-handoffs.test.ts` has 29 tests: the Skill text, a twin checker that compares each Skill list and table with the code both ways and finds 19 planted misses, fixture runs for A33 to A37, A67 to A69, A81, and A82 with each of the three workflow types, the grant use in the accepting save, more rounds after the limit, takeovers with a new task handle, the floor in config (A38), and the backlog review handoff on both paths (A41, A42). Guided Progress Review is selected and pending: the owner reviews the escalation and acceptance request samples in the evidence report. Performance Testing and Unassisted Goal Testing stay `not-needed-now`.
 - Performance evidence: none. No performance candidate applies.
-- Human Experience Review: each message form starts with the project name and has the five parts of the message rules. The acceptance request lists each accepted unit with its evidence and says that a reviewed unit is not yet accepted. The backlog review Work message names the project. A drifted workflow is explained code by code before any new work. Pending the owner's Guided Progress Review.
+- Human Experience Review: each message form starts with the project name and has the five parts of the message rules. The acceptance request lists each accepted unit with its evidence and says that a reviewed unit is not yet accepted. The backlog review Work message names the project. A drifted workflow is explained code by code before any new work. The owner's Guided Progress Review passed on 2026-11-24.
 - Optional experience handoff: none.
-- Explicit human acceptance gate: open. It waits for the Guided Progress Review.
+- Explicit human acceptance gate: closed. The owner passed the Guided Progress Review of the escalation message and the acceptance request on 2026-11-24 (option A), with no change.
 - Evidence report: [W30 R0 Evidence Report, P5](evidence.md#p5-factory-run-skill-and-handoffs).
-- Phase / capability status: Phase active. T1 to T9 and T11 to T21 are done. A33 to A42, A67 to A69, A81, and A82 are met in fixture runs. T10 is not met: no factory command records a backup outside git. Until the follow-up adds `factory backup save` (the owner's choice), the run Skill stops before any builder job in a folder without git, asks the person, and records the answer in a progress note.
+- Phase / capability status: Phase complete. No task is open. T1 to T21 are done. A33 to A42, A67 to A69, A81, and A82 are met in fixture runs. T10 is met since the follow-up of 2026-11-23: the run Skill saves a backup with `make-docs factory file-backup save` before a worker changes a file in a folder without git ([P6](06-proofs-and-acceptance.md) T17). The interim rule to stop and ask the person is removed. Capability partial: the proofs and acceptance (P6) remain. The owner confirmed the names of the two follow-up commands on 2026-11-24 (register D-077, option A, closed).
 - Independent review: ten items are fixed and tested. See [Review Fixes](evidence.md#p5-review-fixes).
-- Follow-up: grant use on the claim (owner-approved 2026-11-23). A later CLI change records a grant use on the live claim with no open assignment, for an action after the person accepts the whole scope. A follow-up builder adds it after the merge, with `factory tools list` and `factory backup save`, and updates the Skill. Until then, the Skill asks the person and takes no action outside the default authority without a recorded grant use.
+- Follow-up: grant use on the claim (owner-approved 2026-11-23). It is built: `make-docs factory grant-use record` records a grant use on the live claim of a unit whose assignments are all final ([P6](06-proofs-and-acceptance.md) T18). The run Skill's end-of-scope steps use it: keep the claim of the unit that the action belongs to, record the use after the person accepts, act, then close the unit. See [Follow-Up Commands](evidence.md#follow-up-commands).
 - Owner decisions 2026-11-23: `backlog snapshot --factory` and its `factory` key are approved (option A). The packaging file `agents/openai.yaml` keeps its required name as the one accepted exception to the no-vendor-names rule; its contents stay product-neutral.
 - Shared changes outside the factory Skill: the backlog snapshot option `--factory` (MCP `factory: true`) and its `factory` key, the two Work message routes in the live app and the static report, the regenerated app and Skill script bundles, the backlog review Skill text, PRD 51, the floor message for a config key, and the README command and Skill rows.
 
@@ -190,3 +190,25 @@ New on 2026-11-23. The owner chose option A for project scope after P1 was done.
 - PRD decision: `update-existing` — PRD 53 (Operations table, R-FACTORY-24, R-FACTORY-50, project scope table), PRD 39 R-RUN-1, and PRD 38 (factory grants R-MIN row). Register D-076 is closed.
 - Owner approval: the owner's decision on 2026-11-23 (register D-076, option C).
 - Source: [register](../../prd/03-open-questions-and-risk-register.md)
+
+### 2026-11-23 — W30 R0 Follow-Up Commands
+
+- Kind: `edit`
+- Affected scope: T10, T12, T18, and the closeout notes.
+- Previous scope: T10 was open, because no command saved a backup outside git, and the run Skill stopped and asked the person before any builder job in a folder without git. The run Skill had no way to record a grant use after the person accepted a whole scope, so it did not do that action.
+- Replacement scope: T10 is done. The run Skill saves each backup with `make-docs factory file-backup save` before a worker changes a file outside git. For an action at the end of a scope, it keeps the claim of the unit that the action belongs to, records the grant use with `make-docs factory grant-use record` after the person accepts, acts, and then closes the unit. Task and acceptance IDs do not change. This is new behavior.
+- Rationale: the owner approved the three follow-ups on 2026-11-23, and [P6](06-proofs-and-acceptance.md) T16 to T18 built the commands.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-24, R-FACTORY-44, R-FACTORY-50, and the new R-FACTORY-69 to R-FACTORY-71.
+- Owner approval: the owner's decisions on 2026-11-23. The owner confirmed the two command names on 2026-11-24 (register D-077, option A, closed).
+- Source: [W30 R0 evidence](evidence.md#follow-up-commands)
+
+### 2026-11-24 — W30 R0 P5 Guided Progress Review Passed
+
+- Kind: `edit`
+- Affected scope: the Closeout Notes and the phase status.
+- Previous scope: the phase waited for the owner's Guided Progress Review of the escalation message and the acceptance request, and the phase was `active`.
+- Replacement scope: the review passed: the owner found the samples clear (option A), with no change. The phase status is `completed`, as for the other finished phases. T10 is done since the follow-up of 2026-11-23, through `make-docs factory file-backup save`, so no task is open. Task and acceptance IDs do not change.
+- Rationale: the owner's decision on 2026-11-24.
+- PRD decision: `none`.
+- Owner approval: the owner's decision on 2026-11-24 (option A).
+- Source: [W30 R0 evidence](evidence.md#guided-progress-review-samples-passed)

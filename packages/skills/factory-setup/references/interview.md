@@ -62,7 +62,7 @@ Then ask for an optional expiry time, and recommend one for a `standing` grant. 
 Save one working-copy method for each workflow (`worktree-policy`).
 
 1. Read the repository instructions and the person's instructions first. When a rule forbids worktrees, use `none`. Do not ask, and say which rule decided it.
-2. When the folder does not use git, use `none`. A backup command for files outside git is not built yet, so the run Skill stops and asks the person before any builder job starts in a folder without git.
+2. When the folder does not use git, use `none`. There, the run Skill saves a backup of each file before a worker changes it, and the Store records each backup.
 3. Otherwise, when a tool proved `isolate-working-copy`, ask. Recommend a separate working copy for each worker (method `worktree`) when parallel workers can change files at the same time. Otherwise recommend `none`.
 4. When parallel workers can change the same files, the workflow names one integration owner (the role that merges the work and settles conflicts). Recommend the foreman (`one-writer`).
 

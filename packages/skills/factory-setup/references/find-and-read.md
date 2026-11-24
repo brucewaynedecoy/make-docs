@@ -6,13 +6,17 @@ Use this reference for setup Steps 1 and 2. Describe each tool by what it can do
 
 The machine's tool list and its capability proofs are saved once for each machine. Every project on the machine uses them (`machine-records-shared`).
 
-1. Read the bound tools from the Store. When this project already has a workflow, `factory_workflow_show` (or `make-docs factory workflow show <workflow> --target-root <checkout>`) shows each bound tool in its plan, with its state, its version, and each proof result. These facts come from the Store, so you can decide from them.
-2. Get a hint for the other tools. First run `factory_restore`, or `make-docs factory restore --target-root <checkout>`. It writes the `.make-docs/factory/` copies again from the Store. Then read `.make-docs/factory/tools.md`. It lists the tools that are saved on this machine. Use the copy as a hint only, about what to check first. It can be out of date, and it does not show a record version. Never decide from the copy, never copy a proof from it into a save, and never take an `expectedVersion` from it.
-3. A bound tool is current when all of these are true in `factory workflow show`:
-   - the tool is still on the machine, and its state is still `available`;
-   - the tool reports the same version that its proofs name;
+1. Read the saved tools from the Store. Run `factory_tools_list`, or `make-docs factory tools list`. This command acts on this machine and takes no project. It shows each saved tool with its state, its reported version, and its record version (`version`). It shows each capability proof with its tool version, its time, its result, and its "does not cover" list. These facts come from the Store, so you can decide from them. The read changes nothing.
+2. When this project already has a workflow, read which tool each role uses. `factory_workflow_show` (or `make-docs factory workflow show <workflow> --target-root <checkout>`) shows the bound tools, the readiness, and each drift reason code.
+3. A saved tool is current when all of these are true:
+   - you find that the tool is still on the machine, and its saved state is `available`;
+   - the tool reports the same version that its saved proofs name;
    - each capability that a role needs has a `proved` proof for that version.
-4. Reuse a current bound tool and its proofs. Do not prove it again. Prove every other tool before you save it, also when the copy lists it, because a save holds the full list of its proofs.
+4. Reuse a current tool and its proofs. Do not prove it again. Prove every other tool before you save it.
+5. A save holds the full list of a tool's proofs. When you save a tool again, send every proof that still holds, as the read shows it, with each new proof. Use the record version that the read shows as the `expectedVersion`.
+6. Never use the `.make-docs/factory/tools.md` copy as a source. It can be out of date, and it does not show a record version. Never decide from the copy, never copy a proof from it into a save, and never take an `expectedVersion` from it.
+
+When no tool is saved, the read says so. Then find and prove each tool. When the read gives a Store outcome such as `store-unavailable`, stop as in Step 0 of the Skill.
 
 When a saved tool is gone, report it as `missing`. When it lost a permission that it needs, such as an app permission or a sign-in, report it as `blocked`. When it reports a new version, prove it again. See [wire and prove](wire-and-prove.md#a-new-tool-version).
 

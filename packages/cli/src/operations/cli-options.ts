@@ -75,6 +75,8 @@ const ARRAY_FLAGS = [
   "path",
   // W30 R0 P3 factory: `proof save --manual-step`.
   "manual-step",
+  // W30 R0 follow-up: `factory file-backup save --file`.
+  "file",
 ];
 
 /**

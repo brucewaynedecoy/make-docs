@@ -40,7 +40,7 @@ A record holds IDs, short labels, times, digests, and reason codes. A progress n
 
 A claim ID is a private key. A new claim shows it once.
 
-- Pass it only to your own calls that need it: `make-docs work claim` (renew), `work report`, `work close`, `work release`, `factory assignment start`, and `factory assignment save`.
+- Pass it only to your own calls that need it: `make-docs work claim` (renew), `work report`, `work close`, `work release`, `factory assignment start`, `factory assignment save`, `factory file-backup save`, and `factory grant-use record`.
 - Never write it into a record, a note, a brief, a task handle, or a message. Never give it to a builder or a reviewer.
 - A caller that does not hold the live claim is refused with `claim-not-held` (rule `claim-held`).
 
@@ -80,7 +80,9 @@ Never do an action outside the default authority without a recorded grant use.
 3. When the person answers yes, record the answer with a grant-only save: `make-docs factory workflow save <workflow> --grants-json <file> --target-root <checkout>`. The file adds one grant: its action, its scope, the lifecycle run for a `run` grant, an optional expiry time, and who granted it. Suggest the narrowest scope that does the job.
 4. Record the use again. Act only after the CLI records it.
 
-An action after the person accepts the whole scope, when no assignment is open, has no way to record its grant use yet. A later version of the CLI will record that grant use on the live claim. Until then, ask the person, and do not do the action: no action outside the default authority happens without a recorded grant use.
+For an action after the person accepts the whole scope, each assignment is final. Then record the use on the unit's live claim, before the unit closes: `make-docs factory grant-use record <unit> --workflow <workflow> --action <action> --run-id <run-id> --claim-id <claim-id> --project <name>`. The grant checks and the refusal codes are the same. See [An Action at the End of the Scope](run-loop.md#an-action-at-the-end-of-the-scope).
+
+Each recorded use adds one use row to the Store: the grant, the action, the unit, the lifecycle run, and the time. `make-docs factory workflow show <workflow> --project <name>` lists the use rows beside the grants, also after a grant is revoked. A use spends a `once` grant, and it does not change a `standing` or a `run` grant.
 
 A spent or expired grant never changes readiness. It only makes you ask again.
 
@@ -136,4 +138,13 @@ Describe a tool only by the capability IDs that setup proved for it. These are t
 
 In a folder without git, a file must be backed up before a worker changes it, and the Store records each backup with its file, its hash, and its assignment (rule `backup-before-change`). Make Docs cleans up the backups when the work is accepted or closed.
 
-No factory command saves a backup yet. So do not copy files into `.make-docs/backup/factory/` yourself, and never write to the Store directly. Before any builder job starts in a folder without git, stop and ask the person. That is floor event 4: the backup capability is missing. Name the project, and ask the person to choose: work in a separate working copy, or let builders change files without a backup. Record the answer as a progress note, for example: `make-docs work report <unit> --expected-version <n> --claim-id <claim-id> --note "No git: owner allowed changes without backup." --target-root <checkout>`. The note follows the never-log list. Go on only after the answer.
+Save each backup with the CLI. Never copy a file into `.make-docs/backup/factory/` yourself, and never write to the Store directly.
+
+1. Before a builder job starts, and before each correction round, list the files that the job will change. Take them from the unit record, the requirements, and the defect list. A file that a command changes counts too, for example a formatter that the builder runs.
+2. Save the backups for the job's open assignment: `make-docs factory file-backup save <assignment> --file <path> --claim-id <claim-id> --target-root <checkout>` (MCP `factory_file_backup_save`). Give `--file` once for each file. Name the checkout that the assignment runs in.
+3. Tell the builder in its brief to change only the listed files, also through a command that it runs. When the builder must change another file, it stops before that change and returns the names of the files that it still must change. Do not assume that a tool can pause a worker. Then save the backups of those files, and run the job again with the longer list. The assignment stays `running`: record the new task handle with `make-docs factory assignment save <assignment> --expected-version <n> --claim-id <claim-id> --task-handle <handle> --project <name>`. Never give the builder the claim ID.
+4. Read the result. It names each file with one of these words: `backed-up`, `already-backed-up` (the first backup of the file for this assignment stays), or `no-file` (the file does not exist yet, so it needs no backup).
+5. The result `not-needed` means that the folder uses git, and git is the undo there. Nothing changed, and the job can start.
+6. If the CLI refuses the call, nothing changed, and no file was copied. Do not let the worker change the file. Fix what the refusal names, and save the backup again.
+
+The backup folder has a `README.md` that says how to get a file back. Tell the person about it when a result must be undone.

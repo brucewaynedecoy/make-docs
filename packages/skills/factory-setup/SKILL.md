@@ -14,7 +14,7 @@ Read the factory contract first: a valid local `.make-docs/system/contracts/fact
 - Describe every tool by what it can do, never by its name (`tool-agnostic`). In examples, say "tool A" and use tool IDs such as `tool-a`. Records name the tools that were actually used.
 - Ask the person only for preferences and permissions. Never ask for a fact that you can find in the tools, the project, or the Store.
 - Never install, sign in, pay, or change authentication for the person. When a tool needs one of these, list it as a manual step for the person to do.
-- Name the project in every project write, with `--target-root <checkout>` or `--project <name>` (MCP `targetRoot` or `project`). Never rely on the current folder for a write (`writes-name-project`). `make-docs factory tools save` acts on this machine and takes no project (`machine-commands-no-project`).
+- Name the project in every project write, with `--target-root <checkout>` or `--project <name>` (MCP `targetRoot` or `project`). Never rely on the current folder for a write (`writes-name-project`). `make-docs factory tools save` and `make-docs factory tools list` act on this machine and take no project (`machine-commands-no-project`).
 - Never write an item on the never-log list into a record, a config entry, a known loss, a manual step, or a test task line: file contents, prompts or briefs, environment values, transcripts, or credentials such as keys, tokens, or passwords (`never-log`). Use IDs, short labels, times, digests, and reason codes instead.
 - Follow a repository or user rule that forbids worktrees (`worktree-policy`).
 - Never save a grant in the config file or a local copy (`grants-not-committed`).
@@ -27,6 +27,7 @@ Use the MCP tool when your session has it. Otherwise use the CLI command. Each r
 | --- | --- | --- | --- |
 | Read the project's workflows | `factory_workflow_list` | `make-docs factory workflow list` | Project read |
 | Read one workflow, its plan, and its drift | `factory_workflow_show` | `make-docs factory workflow show` | Project read |
+| Read the machine's saved tools and proofs | `factory_tools_list` | `make-docs factory tools list` | Machine read |
 | Save the machine's tools and proofs | `factory_tools_save` | `make-docs factory tools save` | Machine write |
 | Save the workflow's choices, bindings, and grants | `factory_workflow_save` | `make-docs factory workflow save` | Project write |
 | Save the test task result | `factory_proof_save` | `make-docs factory proof save` | Project write |
@@ -56,7 +57,7 @@ When the list shows a saved workflow, this is a rerun. Go to [Rerun](#rerun) aft
 
 ## Step 1: Find the Tools
 
-Find the agent tools on this machine and in the project by capability. Reuse the machine's saved tool list when it is current (`machine-records-shared`). Read [find and read](references/find-and-read.md) for where to look and when the saved list is current.
+Find the agent tools on this machine and in the project by capability. Read the machine's saved tool list with `factory tools list`, and reuse it when it is current (`machine-records-shared`). Read [find and read](references/find-and-read.md) for where to look and when the saved list is current.
 
 ## Step 2: Read Each Tool
 

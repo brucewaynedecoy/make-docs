@@ -320,6 +320,7 @@ describe("W30 R0 P2 schema v9 migration (T2, T5, A9)", () => {
       factory_workflow_plans: ["bounded"],
       factory_workflow_bindings: ["keep"],
       factory_grants: ["keep"],
+      factory_grant_uses: ["keep"],
       factory_assignments: ["keep"],
       factory_proof_results: ["bounded"],
       factory_backups: ["bounded"],
@@ -490,19 +491,19 @@ describe("W30 R0 P2 machine tools, bindings, and grants (T4, T18, T19, A53)", ()
   it("records each grant's action, scope, run, optional expiry, and spent time, and checks each use", () => {
     const ready = readyWorkflow("grants");
     write(ready, (db) => {
-      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-1" }, { now: T0 })).refusal).toBe("grant-missing");
+      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-1", unitStoreId: "unit-1" }, { now: T0 })).refusal).toBe("grant-missing");
       const once = saveFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", scope: "once", runId: null, expiresAt: at(60), grantedBy: "the owner" }, { now: T0 });
       expect(once).toMatchObject({ scope: "once", runId: null, expiresAt: at(60).toISOString(), spentAt: null, grantedBy: "the owner" });
-      expect(useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-1" }, { now: at(1) })).toMatchObject({ grantId: once.grantId, spentAt: at(1).toISOString() });
-      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-1" }, { now: at(2) })).refusal).toBe("grant-spent");
+      expect(useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-1", unitStoreId: "unit-1" }, { now: at(1) })).toMatchObject({ grantId: once.grantId, spentAt: at(1).toISOString() });
+      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-1", unitStoreId: "unit-1" }, { now: at(2) })).refusal).toBe("grant-spent");
 
       saveFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "deploy", scope: "run", runId: "run-1", expiresAt: null, grantedBy: "the owner" }, { now: T0 });
-      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "deploy", runId: "run-2" }, { now: at(1) })).refusal).toBe("grant-out-of-scope");
-      expect(useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "deploy", runId: "run-1" }, { now: at(1) }).spentAt).toBeNull();
+      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "deploy", runId: "run-2", unitStoreId: "unit-1" }, { now: at(1) })).refusal).toBe("grant-out-of-scope");
+      expect(useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "deploy", runId: "run-1", unitStoreId: "unit-1" }, { now: at(1) }).spentAt).toBeNull();
 
       saveFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "publish", scope: "standing", runId: null, expiresAt: at(5), grantedBy: "the owner" }, { now: T0 });
-      expect(useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "publish", runId: null }, { now: at(4) }).scope).toBe("standing");
-      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "publish", runId: null }, { now: at(6) })).refusal).toBe("grant-expired");
+      expect(useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "publish", runId: "run-1", unitStoreId: "unit-1" }, { now: at(4) }).scope).toBe("standing");
+      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "publish", runId: "run-1", unitStoreId: "unit-1" }, { now: at(6) })).refusal).toBe("grant-expired");
 
       expect(refusal(() => saveFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "spend", scope: "run", runId: null, expiresAt: null, grantedBy: "the owner" })).refusal).toBe("invalid-record");
       expect(refusal(() => saveFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "spend", scope: "once", runId: null, expiresAt: null, grantedBy: "token=abcdef123" })).refusal).toBe("never-log-field");
@@ -519,7 +520,7 @@ describe("W30 R0 P2 machine tools, bindings, and grants (T4, T18, T19, A53)", ()
       saveFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", scope: "run", runId: "run-9", expiresAt: null, grantedBy: "the owner" }, { now: T0 });
       db.prepare("INSERT INTO runs (project_id, run_id, run_type, lifecycle_stage, status, checkpoint, version, metadata, started_at, updated_at) VALUES (?, 'run-9', 'lifecycle', 'implementation', 'completed', NULL, 1, '{}', ?, ?)")
         .run(PROJECT_ID, T0.toISOString(), T0.toISOString());
-      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-9" }, { now: at(1) })).refusal).toBe("grant-out-of-scope");
+      expect(refusal(() => useFactoryGrant(db, { projectId: PROJECT_ID, workflowName: "ship", action: "merge", runId: "run-9", unitStoreId: "unit-1" }, { now: at(1) })).refusal).toBe("grant-out-of-scope");
     });
   });
 });
@@ -1042,7 +1043,7 @@ describe("W30 R0 P2 keeps the claim ID private in records and copies", () => {
 });
 
 describe("W30 R0 P2 project scoping (owner decision 2026-11-23)", () => {
-  const PROJECT_SCOPED = ["factory_workflow_plans", "factory_workflow_bindings", "factory_grants", "factory_assignments", "factory_proof_results", "factory_backups"];
+  const PROJECT_SCOPED = ["factory_workflow_plans", "factory_workflow_bindings", "factory_grants", "factory_grant_uses", "factory_assignments", "factory_proof_results", "factory_backups"];
 
   it("puts the project ID on every project-scoped table and none on the machine tables", () => {
     const tables = physical();
@@ -1070,7 +1071,7 @@ describe("W30 R0 P2 project scoping (owner decision 2026-11-23)", () => {
       ["saveFactoryGrant", (db, projectId) => saveFactoryGrant(db, { projectId, workflowName: "ship", action: "deploy", scope: "standing", runId: null, expiresAt: null, grantedBy: "the owner" })],
       ["listFactoryGrants", (db, projectId) => listFactoryGrants(db, projectId, "ship")],
       ["revokeFactoryGrant", (db, projectId) => revokeFactoryGrant(db, projectId, grantId, { expectedVersion: 1 })],
-      ["useFactoryGrant", (db, projectId) => useFactoryGrant(db, { projectId, workflowName: "ship", action: "merge", runId: null })],
+      ["useFactoryGrant", (db, projectId) => useFactoryGrant(db, { projectId, workflowName: "ship", action: "merge", runId: "run-1", unitStoreId: "unit-1" })],
       ["startFactoryAssignment", (db, projectId) => startFactoryAssignment(db, { projectId, workflowName: "ship", checkoutId: ready.checkoutId, unitStoreId: ready.unitStoreId, role: "reviewer", toolId: "tool-b", taskHandle: null, runId: "run-1", currentPlanDigest: ready.planDigest }, { claimId: ready.claimId, now: T0 })],
       ["updateFactoryAssignment", (db, projectId) => updateFactoryAssignment(db, projectId, assignment.assignmentId, { status: "running", reason: "tool-started" }, { claimId: ready.claimId, expectedVersion: 1, now: T0 })],
       ["readFactoryAssignment", (db, projectId) => readFactoryAssignment(db, projectId, assignment.assignmentId)],

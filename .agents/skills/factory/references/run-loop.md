@@ -69,9 +69,10 @@ If a claim ran out, the unit can be taken again only after a check of every open
 ### Start a Job
 
 1. Record the assignment first: `make-docs factory assignment start <unit> --workflow <workflow> --role <role> --run-id <run-id> --claim-id <claim-id> --part <label> --target-root <checkout>`. The new assignment is `offered` under the `ready` plan revision. The CLI refuses with `not-ready` when the workflow is not `ready`, and with `assignment-open` when the job already has an open assignment.
-2. Write the brief from the context kinds that the role's plan lists (rule `role-context`). See [the working rules](working-rules.md#context-for-each-role).
-3. Start the job through the bound tool. Record its task handle and the move: `make-docs factory assignment save <assignment> --expected-version <n> --claim-id <claim-id> --status running --reason tool-started --task-handle <handle> --project <name>`.
-4. If the tool's reply is lost or unclear, move the assignment to `unknown` with reason `handle-not-found`, and settle it as in step 2. Do not start the job again first.
+2. For a builder job in a folder without git, save a backup of each file that the job will change, before the job starts (rule `backup-before-change`). See [the working rules](working-rules.md#backups-outside-git).
+3. Write the brief from the context kinds that the role's plan lists (rule `role-context`). See [the working rules](working-rules.md#context-for-each-role).
+4. Start the job through the bound tool. Record its task handle and the move: `make-docs factory assignment save <assignment> --expected-version <n> --claim-id <claim-id> --status running --reason tool-started --task-handle <handle> --project <name>`.
+5. If the tool's reply is lost or unclear, move the assignment to `unknown` with reason `handle-not-found`, and settle it as in step 2 of the loop. Do not start the job again first.
 
 A job is one unit, one role, and one part label. Give each part of a unit its own part label, such as `research` or `draft`, so that the parts run as separate jobs. A unit with one part uses `main`.
 
@@ -149,11 +150,26 @@ Inside the given scope, accept each unit on the reviewer's evidence (rule `scope
 
 ### An Action Outside the Default Authority
 
-A merge, a deploy, a publish, or spending money is outside the default authority, also inside the scope (rule `grant-for-merge-deploy`). Never do one without a recorded grant use. A grant use is recorded on an open assignment of the unit, so record it before the assignment is final and before the unit closes. After the accept, the CLI refuses it with `final-status`, and after the close with `claim-not-held`.
+A merge, a deploy, a publish, or spending money is outside the default authority, also inside the scope (rule `grant-for-merge-deploy`). Never do one without a recorded grant use. There are two ways to record a grant use, and both make the same grant checks: on an open assignment of the unit, or on the unit's live claim when each of its assignments is final. Both need the live claim, so record the use before the unit closes. After the close, the CLI refuses with `claim-not-held`.
 
 - For the merge or deploy of one unit, record the grant use in the same save that accepts the builder's assignment: `make-docs factory assignment save <assignment> --expected-version <n> --claim-id <claim-id> --status accepted --reason review-passed --grant-use <action> --project <name>`. The move and the grant use are one write. If the CLI refuses the grant, the assignment stays `in-review` and nothing changes. Then do not do the action. Ask the person, as in [the working rules](working-rules.md#grants), and save the accept again with the grant use after the answer.
 - For an action during a job, such as spending money, record the grant use on the open assignment before the action: `make-docs factory assignment save <assignment> --expected-version <n> --claim-id <claim-id> --grant-use <action> --project <name>`.
-- An action after the person accepts the whole scope, when no assignment of the scope is open, has no way to record its grant use yet. A later version of the CLI will record that grant use on the live claim. Until then, ask the person, and do not do the action: no action outside the default authority happens without a recorded grant use. Tell the person that the factory cannot record the grant use for it yet, and what waits for it.
+- For an action that waits for the person's acceptance of the whole scope, such as the merge of the scope, record the grant use on the live claim. See [An Action at the End of the Scope](#an-action-at-the-end-of-the-scope).
+
+### An Action at the End of the Scope
+
+Some actions wait until the person accepts the whole scope. Then each assignment is final, so the grant use goes on the live claim of a unit.
+
+1. Keep the claim of the unit that the action belongs to. For an action on the whole scope, that is the last unit of the scope. Accept its assignments and record its evidence, but do not close the unit and do not complete its lifecycle run yet.
+2. Renew the claim at each check while you wait. If the claim ran out, take it over as in [An Expired Claim](#an-expired-claim).
+3. Send the acceptance request, as in step 6, and wait for the person's answer.
+4. After the person accepts, record the grant use: `make-docs factory grant-use record <unit> --workflow <workflow> --action <action> --run-id <run-id> --claim-id <claim-id> --project <name>` (MCP `factory_grant_use_record`). `<run-id>` is the lifecycle run of the unit's assignments. The result names the grant, the action, the lifecycle run, and the time.
+5. Do the action only after the CLI records the use. Make Docs records the use and never does the action.
+6. Then close the unit and complete its lifecycle run, as in step 4.
+
+The CLI refuses the call with `assignment-open` while an assignment of the unit is open. Then record the use on that assignment, or settle it first. If the CLI refuses with `grant-missing`, `grant-out-of-scope`, `grant-spent`, or `grant-expired`, nothing changed. Do not do the action. Ask the person, as in [the working rules](working-rules.md#grants), and record the use again after the answer.
+
+When no unit of the scope has a live claim any more, the factory cannot record the grant use. Do not do the action. Tell the person which action waits, so that the person can do it.
 
 ## 5. Take the Next Unit
 

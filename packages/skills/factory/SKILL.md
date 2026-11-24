@@ -55,7 +55,8 @@ Read [the working rules](references/working-rules.md). In short:
 - Keep the claim ID private. Give it only to your own calls that need it.
 - Never write file contents, prompts, briefs, environment values, transcripts, or credentials into a factory record or a progress note.
 - Move an assignment only along the move table. The CLI counts the correction rounds.
-- Before an action outside the default authority, such as a merge or a deploy, record the use of a grant on an open assignment of the unit.
+- Before an action outside the default authority, such as a merge or a deploy, record the use of a grant: on an open assignment of the unit, or on the unit's live claim when each of its assignments is final.
+- In a folder without git, save a backup of each file before a worker changes it.
 
 ## Talk to the person
 
@@ -65,4 +66,13 @@ Use the workflow's human channel. The person hears only the five floor events an
 
 At the end of the given scope, send one acceptance request with each accepted unit and its evidence. A reviewed and accepted unit is not the person's acceptance. A Store receipt is never product acceptance (rule `receipt-not-acceptance`).
 
-Never merge, deploy, publish, or spend money without a recorded grant use. For one unit, record the use in the same save that accepts the builder's assignment, before the unit closes. An action after the person accepts the whole scope, when no assignment is open, has no way to record its grant use yet. A later version of the CLI will record that grant use on the live claim. Until then, ask the person, and do not do the action: no action outside the default authority happens without a recorded grant use.
+Never merge, deploy, publish, or spend money without a recorded grant use. For one unit, record the use in the same save that accepts the builder's assignment, before the unit closes.
+
+Some actions wait for the person's acceptance of the whole scope, such as the merge of the scope. For such an action:
+
+1. Keep the claim of the unit that the action belongs to. For an action on the whole scope, that is the last unit of the scope. Accept its assignments, but do not close the unit and do not complete its lifecycle run yet. Renew the claim at each check.
+2. Send the acceptance request, and wait for the person's answer.
+3. After the person accepts, record the grant use on the live claim: `make-docs factory grant-use record <unit> --workflow <workflow> --action <action> --run-id <run-id> --claim-id <claim-id> --project <name>` (MCP `factory_grant_use_record`).
+4. Do the action only after the CLI records the use. Then close the unit and complete its lifecycle run.
+
+If the CLI refuses the grant, do not do the action. Ask the person, as in the Grants section of [the working rules](references/working-rules.md). No action outside the default authority happens without a recorded grant use.

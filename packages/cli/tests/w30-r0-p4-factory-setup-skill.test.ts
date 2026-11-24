@@ -102,6 +102,7 @@ const RULES = contractRuleRows();
 const SETUP_OPERATIONS: readonly FactoryOperationId[] = [
   "factory.workflow.list",
   "factory.workflow.show",
+  "factory.tools.list",
   "factory.tools.save",
   "factory.workflow.save",
   "factory.proof.save",
@@ -227,11 +228,15 @@ describe("W30 R0 P4 factory-setup Skill bundle", () => {
     expect(reference("interview.md").match(/Show two options/g)?.length ?? 0).toBeGreaterThanOrEqual(5);
   });
 
-  it("treats the tools copy as a hint only, after a restore, and never as the source of a record version (T3)", () => {
+  it("reads the saved tools with factory tools list, and never uses the tools copy as a source (T3, R-FACTORY-69)", () => {
     const find = reference("find-and-read.md");
-    expect(find).toContain("make-docs factory restore --target-root <checkout>");
-    expect(find).toContain("Use the copy as a hint only");
+    expect(find).toContain("Run `factory_tools_list`, or `make-docs factory tools list`. This command acts on this machine and takes no project.");
+    expect(find).toContain("Use the record version that the read shows as the `expectedVersion`.");
+    expect(find).toContain("Never use the `.make-docs/factory/tools.md` copy as a source.");
     expect(find).toContain("never take an `expectedVersion` from it");
+    expect(find).not.toMatch(/hint/);
+    expect(reference("interview.md")).not.toMatch(/not built yet|stops and asks/);
+    expect(reference("wire-and-prove.md")).toContain("use the record version (`version`) that `factory tools list` shows for it");
     expect(reference("wire-and-prove.md")).toContain("use the version that the refusal names (`details.currentVersion`)");
   });
 
@@ -665,7 +670,7 @@ describe("W30 R0 P4 factory-setup fixture runs", () => {
     const passed = await call("factory.proof.save", { targetRoot: root, workflow: "main", outcome: "passed", testTask: "A passed test task.", planDigest: saved.revision.planDigest, path: ["builder: tool-a"], manualSteps: [] });
     const shown = await call("factory.workflow.show", { targetRoot: root, workflow: "main" });
     expect(shown.proofs.failed).not.toBeNull();
-    const results = [tools, conflict, saved, failed, passed, shown, await call("factory.workflow.list", { targetRoot: root }), await call("factory.status", { targetRoot: root })];
+    const results = [tools, conflict, await call("factory.tools.list", {}), saved, failed, passed, shown, await call("factory.workflow.list", { targetRoot: root }), await call("factory.status", { targetRoot: root })];
     expect(unknownWordsAndPaths(TEXTS.map((entry) => entry.text), results)).toEqual([]);
     // Planted names that the code does not have must fail.
     expect(unknownWordsAndPaths(["Use `halted`, `webhook`, and `binding.revisionVersion`."], results)).toEqual(["binding.revisionVersion", "halted", "webhook"]);

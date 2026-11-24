@@ -102,6 +102,9 @@ describe("make-docs MCP runtime", () => {
       "factory_assignment_save",
       "factory_assignment_list",
       "factory_restore",
+      "factory_tools_list",
+      "factory_file_backup_save",
+      "factory_grant_use_record",
     ]);
   });
 

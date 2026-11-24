@@ -2,7 +2,7 @@
  * W30 R0 P2 factory tables (PRD 53 R-FACTORY-15, R-FACTORY-23, R-FACTORY-27,
  * R-FACTORY-56 to R-FACTORY-58; PRD 38 R-DB-7).
  *
- * Schema v9 adds eight tables for the factory. This module holds their SQL
+ * Schema v9 adds nine tables for the factory. This module holds their SQL
  * and the map from each physical column to its field phrase in the PRD 38
  * R-MIN register. It imports nothing from the Store, so `database.ts` can use
  * the statements in its migration list. The Store service that reads and
@@ -25,6 +25,7 @@ export const FACTORY_STORE_TABLE_NAMES = [
   "factory_workflow_plans",
   "factory_workflow_bindings",
   "factory_grants",
+  "factory_grant_uses",
   "factory_assignments",
   "factory_proof_results",
   "factory_backups",
@@ -44,7 +45,7 @@ const kebab = (column: string, max = 64) =>
 const oneLine = (column: string, max = 120) =>
   `(length(${column}) BETWEEN 1 AND ${max} AND instr(${column}, char(10)) = 0 AND instr(${column}, char(13)) = 0)`;
 const hexDigest = (column: string) => `(length(${column}) = 64 AND ${column} NOT GLOB '*[^0-9a-f]*')`;
-const storeId = (column: string, prefix: "fg-" | "fa-") =>
+const storeId = (column: string, prefix: "fg-" | "fa-" | "fu-") =>
   `(length(${column}) BETWEEN 11 AND 67 AND substr(${column}, 1, 3) = '${prefix}' AND substr(${column}, 4) NOT GLOB '*[^a-z0-9]*')`;
 const jsonArray = (column: string, maxItems: number, maxBytes = 16384) =>
   `(length(${column}) <= ${maxBytes} AND json_valid(${column}) AND json_type(${column}) = 'array' AND json_array_length(${column}) <= ${maxItems})`;
@@ -133,6 +134,24 @@ export const FACTORY_STORE_V9_STATEMENTS: readonly string[] = Object.freeze([
     CHECK (expires_at IS NULL OR expires_at > granted_at)
   )`,
   `CREATE INDEX idx_factory_grants_workflow ON factory_grants (project_id, workflow_name, action)`,
+  // One row for each recorded use of a grant (R-FACTORY-72, owner decision 2026-11-24). No content and no claim ID.
+  `CREATE TABLE factory_grant_uses (
+    use_id TEXT PRIMARY KEY CHECK ${storeId("use_id", "fu-")},
+    project_id TEXT NOT NULL CHECK ${projectId("project_id")},
+    workflow_name TEXT NOT NULL CHECK ${kebab("workflow_name")},
+    -- No foreign key to factory_grants: a revoke removes the grant row and keeps its use rows. The row holds the
+    -- grant ID, the action, and the scope, so it can be read after a revoke.
+    grant_id TEXT NOT NULL CHECK ${storeId("grant_id", "fg-")},
+    action TEXT NOT NULL CHECK ${kebab("action")},
+    scope TEXT NOT NULL CHECK (scope IN ('once','run','standing')),
+    -- No foreign key to work_units: a use row outlives its unit until the workflow is removed.
+    unit_store_id TEXT NOT NULL CHECK (length(unit_store_id) BETWEEN 1 AND 160),
+    run_id TEXT NOT NULL CHECK (length(run_id) BETWEEN 1 AND 160),
+    used_at TEXT NOT NULL CHECK (${utcTime("used_at")}),
+    -- No cascade: the reviewed workflow removal deletes the use rows itself, before the binding.
+    FOREIGN KEY (project_id, workflow_name) REFERENCES factory_workflow_bindings (project_id, workflow_name)
+  )`,
+  `CREATE INDEX idx_factory_grant_uses_workflow ON factory_grant_uses (project_id, workflow_name, used_at)`,
   // One job (unit, role, part label) run by one tool (R-FACTORY-27, R-FACTORY-28).
   `CREATE TABLE factory_assignments (
     assignment_id TEXT PRIMARY KEY CHECK ${storeId("assignment_id", "fa-")},
@@ -198,6 +217,7 @@ export const FACTORY_STORE_RMIN_ROWS = Object.freeze({
   tools: "Factory machine tools",
   bindings: "Factory workflow bindings",
   grants: "Factory grants",
+  grantUses: "Factory grant uses",
   assignments: "Factory assignments",
   plans: "Factory workflow plans",
   proofs: "Factory proof results",
@@ -272,6 +292,17 @@ export const FACTORY_STORE_COLUMN_REGISTER: Readonly<Record<FactoryStoreTableNam
     granted_by: { row: "grants", phrase: "granting person" },
     granted_at: { row: "grants", phrase: "grant time" },
     entry_version: { row: "grants", phrase: "record version" },
+  },
+  factory_grant_uses: {
+    use_id: { row: "grantUses", phrase: "use ID" },
+    project_id: { row: "grantUses", phrase: "project ID" },
+    workflow_name: { row: "grantUses", phrase: "workflow name" },
+    grant_id: { row: "grantUses", phrase: "grant ID" },
+    action: { row: "grantUses", phrase: "action" },
+    scope: { row: "grantUses", phrase: "scope" },
+    unit_store_id: { row: "grantUses", phrase: "work unit" },
+    run_id: { row: "grantUses", phrase: "lifecycle run ID" },
+    used_at: { row: "grantUses", phrase: "use time" },
   },
   factory_assignments: {
     assignment_id: { row: "assignments", phrase: "assignment ID" },

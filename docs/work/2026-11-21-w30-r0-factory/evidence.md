@@ -558,7 +558,9 @@ Each item is new behavior that no authority fixed.
 - Setup does not run the test task until each known loss is accepted or fixed.
 - The default workflow name is `main`.
 
-### Sample Closing Summary (for Owner Review)
+### Sample Closing Summary (Guided Progress Review, Passed)
+
+On 2026-11-24 the owner reviewed the setup interview and this closing summary, and found both clear (option A). The Guided Progress Review of P4 passed with no change.
 
 This is the smallest-setup sample from `references/summary.md`, with neutral placeholders. The multi-tool sample is in the same file.
 
@@ -584,7 +586,7 @@ Open manual steps. None.
 Next. Ask for the factory skill to run work. Check the factory at any time with make-docs factory status --target-root <checkout>.
 ```
 
-The interview questions for the same review are in `references/interview.md`, The Questions, with one example question.
+The interview questions of the same review are in `references/interview.md`, The Questions, with one example question.
 
 ### Checks
 
@@ -622,7 +624,7 @@ An independent review of P4 on 2026-11-23 found no broken code and eight items i
 
 ### Open for the Owner
 
-- Guided Progress Review of the interview questions and the closing summary (P4 testing decision). Feedback can change both before closeout.
+- None for the Guided Progress Review. It passed on 2026-11-24: the owner found the setup interview and the closing summary clear (option A), with no change.
 
 ## P5 Factory Run Skill and Handoffs
 
@@ -651,7 +653,7 @@ Covers A33 to A42, A67 to A69, A81, and A82 in [P5](05-factory-run-skill-and-han
 | T7 | `run-loop.md` step 5: run `preflight` only when the plan turns the step on. |
 | T8 | `working-rules.md` "Judge and Review", and `run-loop.md` "Correct" (a repeated failure stops before the limit). |
 | T9 | `working-rules.md` "Files and Working Copies"; `run-loop.md` step 4 closes the unit, then integrates it. |
-| T10 | Not met. No factory command records a backup. Before any builder job starts in a folder without git, the Skill stops, asks the person, and records the answer in a `work report --note`. The owner chose to add `factory backup save` in a follow-up. |
+| T10 | Met since the follow-up of 2026-11-23. Before a worker changes a file in a folder without git, the Skill saves a backup with `make-docs factory file-backup save`. The interim rule to stop and ask is removed. See [Follow-Up Commands](#follow-up-commands). At the P5 merge it was not met, because no command recorded a backup. |
 | T11 | `messages.md`: the five floor events, added events, the message parts, and the form; nothing in config can remove a floor event (A38). |
 | T12 | `run-loop.md` step 4 and `messages.md` "Acceptance Request": accept each unit on the reviewer's evidence, and send one request at the end of the scope. A merge or deploy of a unit records its grant use in the same save that accepts the builder's assignment. |
 | T13 to T15 | The snapshot option, the two message routes with the project named, the Skill text, PRD 51, and the regenerated assets above. |
@@ -707,7 +709,9 @@ The same test file drives the real operations as the run Skill says, from a fold
 | A38 | Three workflow keys that try to change the floor are refused with the floor message, and `workflow save` refuses. Another unknown key is refused too. `escalations` entries, whatever their words, are accepted as added events. |
 | A41, A42 | The snapshot has the `factory` key only with a ready workflow; the identities do not change; the live message and the static prompt name the project, the `factory` Skill, and the workflow with the key, and are unchanged without it; a message for one route does not resolve against an open of the other. |
 
-### Guided Progress Review Samples (Pending)
+### Guided Progress Review Samples (Passed)
+
+On 2026-11-24 the owner reviewed the escalation message and the acceptance request below, and found both clear (option A). The Guided Progress Review of P5 passed with no change.
 
 These are the forms from `references/messages.md`, filled for a fixture project. Project `aurora`, workflow `ship`, and the units are placeholders.
 
@@ -788,11 +792,133 @@ All runs used the built CLI where a CLI ran, and a temporary `MAKE_DOCS_HOME`.
 
 ### Open for the Owner
 
-- Guided Progress Review: the owner reviews the two samples above. Feedback can change their wording before closeout.
+- None for the Guided Progress Review. It passed on 2026-11-24: the owner found the escalation message and the acceptance request clear (option A), with no change.
 
 ### P4 and P5 Integration
 
 - P4 merged first, then P5. Conflicts in the root README and this report were settled by hand: the README keeps the P5 `factory` row and the P4 `factory-setup` row, and this report keeps both sections, P4 then P5.
 - One P4 sentence in `packages/skills/factory-setup/references/interview.md` said that Make Docs backs up a file before a worker changes it outside git. No command does that yet, so it now says that the run Skill stops and asks first.
 - Full suite after the merge, counted from the JSON reporter: 3630 tests, 3615 passed, 6 skipped, 9 failed: the 3 known failures (`mcp-app-contract` 2, `w19-r5-skills-command` 1) and 6 P5 tests that read a hidden local harness folder inside the Skill `references/` folder of this checkout. The P5 test now skips hidden entries, and the P4, P5, and embedded Skill tests pass (85 of 85).
-- Owner-approved follow-ups (2026-11-23), built after this merge: `factory tools list`, `factory backup save` (P5 T10), and a grant use on the live claim with no open assignment. The owner's Guided Progress Reviews for P4 and P5 are open.
+- Owner-approved follow-ups (2026-11-23), built after this merge: `factory tools list`, `factory backup save` (P5 T10), and a grant use on the live claim with no open assignment. The owner's Guided Progress Reviews for P4 and P5 were open then. Both passed on 2026-11-24.
+
+## Follow-Up Commands
+
+Built on 2026-11-23 after the P4 and P5 merge, at the owner's three decisions of that day. All of it is new behavior. The backlog tasks are [P6](06-proofs-and-acceptance.md) T16 to T18, because P3 is completed and stays closed. This section also closes [P5](05-factory-run-skill-and-handoffs.md) T10.
+
+### The Three Commands
+
+| Command | MCP tool | Scope | Kind | Access |
+| --- | --- | --- | --- | --- |
+| `make-docs factory tools list` | `factory_tools_list` (18 characters) | This machine. It takes no project. | Read | Store read. No project access. |
+| `make-docs factory file-backup save` | `factory_file_backup_save` (24 characters) | One project, named with `--target-root` or `--project`. It needs one checkout. | Write | Store write and project write. |
+| `make-docs factory grant-use record` | `factory_grant_use_record` (24 characters) | One project, named with `--target-root` or `--project`. | Write | Store write and project read. |
+
+All three are in the `factory` MCP profile and in `all`. Setup admits each one as a native command rule.
+
+### Names (Register D-077, Closed)
+
+The owner named the backup command `factory backup save` (MCP `factory_backup_save`) and gave `factory grant use` as an example. Neither name passes the existing rules:
+
+- The harness access contract refuses the word `backup` anywhere in a native command rule, as it refuses `update` (register D-076). With `factory backup save` as a command rule candidate, the setup check failed: "Command rule make-docs.factory.backup.save cannot approve backup."
+- PRD 39 R-NAME-2 needs an approved end word, and `use` is not one.
+
+The build follows the D-076 precedent, option C: it picks names that the rules admit, and it changes neither the harness access contract nor the approved end words. The names are `factory file-backup save` and `factory grant-use record`. They are not released, so a later rename needs no former-name alias. Register D-077 holds the question and the options. On 2026-11-24 the owner chose option A and kept both names, and D-077 is closed.
+
+### What Each Command Does
+
+- `factory tools list` (R-FACTORY-69) reads the saved tools of this machine in a read-only Store session. It shows each tool with its kind, label, state, reported version, and record version, and each capability proof with its tool version, time, result, and "does not cover" list. The record version is the `expectedVersion` of the next `factory tools save`. Its output ends with "Changes nothing." With no Store, it returns `store-unavailable` and creates no Store. It shows only saved record fields, and each of them passed the never-log check at the save.
+- `factory file-backup save` (R-FACTORY-70) takes an open assignment, one or more `--file` paths, and the private claim ID. Outside git, it copies each file to `.make-docs/backup/factory/<assignment>/` through the P2 function `backupFactoryFileBeforeChange`, and records the file, its hash, and its assignment. The first backup of a file for an assignment stays. A file that does not exist yet needs no backup. Every file of one call is backed up, or none is: a refused call rolls the records back and removes the copies that it made.
+- In a folder with git, `factory file-backup save` returns the result `not-needed` with exit code 0, and changes nothing. It is not a refusal. The reasons: PRD 53 R-FACTORY-44 gives the backup rule only for a folder without git; the P2 function already treats git as an outcome and not as an error; a new refusal would need a new reason code, and the foreman did nothing wrong; and one call tells the foreman whether the folder uses git.
+- `factory grant-use record` (R-FACTORY-71) records a grant use on the live claim of a unit that has no open assignment.
+
+### The Design of the Grant Use on the Claim
+
+The owner asked for the smallest safe form. The choices:
+
+- A separate command, not an option on `factory assignment save`. That command needs an assignment ID and an assignment version, and a final assignment never changes. An option there would need a second input shape with no assignment.
+- The call names the unit, the workflow, the action, and the lifecycle run, and gives the private claim ID. The Store service checks, in one transaction: the unit is in the project; the caller holds the unit's live claim (`claim-not-held`); no assignment of the unit is open (`assignment-open`, with the next step to use `factory assignment save --grant-use`); and one assignment of the unit ran under the named workflow and lifecycle run (`record-not-found`). The last check means that a run grant can never be used through a mistyped run or a unit that never ran a job.
+- The grant checks are the same function, `useFactoryGrant`, that `factory assignment save` calls. So the scope, the expiry, the spend of a `once` grant, the order of grants, and the refusal codes `grant-missing`, `grant-out-of-scope`, `grant-spent`, and `grant-expired` are the same on both paths.
+- The record of a use: the owner asked for the action, the grant, the lifecycle run, and the time, with no content. The grant row already holds the action and the grant ID. The first build kept only the last use, in two columns of `factory_grants`. On 2026-11-24 the owner chose a full history instead, so each use now adds one row to `factory_grant_uses`, and the two columns are removed. See [Grant-Use History](#grant-use-history).
+- A use changes the grant itself only when it spends a `once` grant. A use of a `standing` or a `run` grant no longer changes the grant, so it does not raise its record version. This replaces review fix 7 below.
+- Schema v9 is not released. Its `factory_grants` statement changed in place, with no new schema version. The lead decided on 2026-11-24 to keep this in-place change. The reason: schema versions 7 to 9 exist only on this unreleased branch, and the owner's real Store is at schema 6 from the released 2.0.9. A temporary Store that an older commit of this branch built is not a supported state. PRD 38, the column register, and the table catalog state the tables and columns, and the R-MIN parity test passes.
+- The end of a scope: after a unit closes, its claim is gone. So the run Skill keeps the claim of the unit that the action belongs to, and for an action on the whole scope that is the last unit of the scope. It accepts the unit's assignments, does not close the unit, sends the acceptance request, records the grant use after the person accepts, does the action, and then closes the unit and completes its lifecycle run.
+
+### Skill Changes
+
+- `factory-setup` (`SKILL.md`, `references/find-and-read.md`, `references/wire-and-prove.md`, `references/interview.md`): the Skill reads the saved tools with `factory tools list`, decides from that read, and takes each `expectedVersion` from it. The `tools.md` copy is no longer a hint: the Skill never uses it as a source. The command table has the new machine read. The working-copy text says that the run Skill saves a backup before a worker changes a file outside git.
+- `factory` (`SKILL.md`, `references/run-loop.md`, `references/working-rules.md`), with the installed copy in `.agents/skills/factory/` identical: a new step in "Start a Job" saves the backups before a builder job outside git. "Backups Outside Git" gives the steps and the result words, and the interim rule to stop and ask the person is gone, with the sentence that no command saves a backup. The foreman lists the files from the unit record, the requirements, and the defect list, and the brief tells the builder to name any other file before it changes that file. The builder never gets the claim ID. A new section, "An Action at the End of the Scope", gives the end-of-scope steps, and the blocked follow-up text is gone from all three files.
+
+### Tests
+
+`packages/cli/tests/w30-r0-follow-up-commands.test.ts` has 25 tests, with the four tests of the review fixes and the tests of the grant-use history:
+
+- Registry and names: the three IDs, CLI paths, MCP names of at most 26 characters, the `factory` profile, leaf help, scope, and access. Each command is a native command rule, the setup check passes for every rule, no rule holds a refused word, and a rule named `factory backup save` fails the setup check.
+- `factory tools list`: the tools, proofs, and record versions; the same answer from any folder; no project input; "Changes nothing."; no change to the Store; the record version works as `expectedVersion`; with no Store, `store-unavailable` and no Store folder; no never-log content.
+- `factory file-backup save`: the copy, the record, the folder note and its `.gitignore`; the first backup stays; cleanup on accept; `not-needed` with git; nine refusals that change nothing and leave no copy; a final assignment; another checkout; no file contents and no claim ID in a result or a record.
+- `factory grant-use record`: each grant refusal code; a `once` grant spent once; a `run` grant kept to its own run; an expired grant; the use rows; the first use row; `assignment-open`; nine other refusals that change nothing; a claim that ran out; no claim ID in any output or record; and the same use row through `factory assignment save`.
+- The Skills: the run Skill names both commands and holds no interim text, the installed copy is identical, and a run of the end-of-scope steps works: accept, keep the claim, record the use, close, and then `claim-not-held`.
+- CLI and MCP parity through the built CLI and a granted MCP connection: the read is equal, each refusal is equal, a refusal exits 1, and no output holds a claim ID.
+
+Changed tests: the P4 Skill twin test (the setup commands now include `factory.tools.list`, and the hint test checks the new read), the P2 R-MIN parity list, and the lists and counts of operations and MCP tools in `name-catalog`, `mcp`, `mcp-profiles`, `mcp-derivation`, `operation-domains`, `registry-contract`, and `p3-operation-surfaces`.
+
+### Checks
+
+All runs used the built CLI where a CLI ran, and a temporary `MAKE_DOCS_HOME`. No run read or wrote the real Store.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-follow-up-commands.test.ts`: 25 tests pass.
+- The P2, P3, P4, and P5 factory tests, the name catalog, the W33 tests, the leaf help, the MCP tests, the registry tests, the Skill registry and embedded Skill tests, and the consistency tests: all pass in the full run below, except the two known `mcp-app-contract` tests.
+- `npm run validate:defaults`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its temporary folder.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files.
+- `project markdown validate` on both Skills, the installed copy of the run Skill, the W30 work folder, the contract template, the factory design, the register, and PRD 25, 38, 39, and 53: no finding in the Skills, the work folder, the contract, the design, or PRD 53. It gives 34 findings in the register and PRD 25, 38, and 39. None of them is in a line that this work changed.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 155 test files and 3,670 tests; 3,661 passed, 3 failed, 6 skipped. This is the run after the review fixes and the grant-use history of 2026-11-24. The three are known: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11. `w19-r5-skills-command` passed in this run.
+
+### Guided Progress Reviews (2026-11-24)
+
+The owner's Guided Progress Reviews of P4 and P5 passed on 2026-11-24 (option A), with no change. The P4 and P5 sections above record it, and both phase files are `completed`. P5 has no open task: T10 is done through `factory file-backup save`.
+
+### Follow-Up Review Fixes (2026-11-24)
+
+An independent review found the commands good overall, with seven fixes. All are done.
+
+| Finding | Fix |
+| --- | --- |
+| 2 (MEDIUM). A refused file backup left the backup folder behind when the call created the folder and made no copy. A refusal could show a raw system error or an absolute path. | A refused call removes what it created, also with no copy. The backup function gives its own plain message for each file that it cannot back up, with the path inside the checkout. Any other error gets one plain line. A test uses an unreadable file. |
+| 3 (MEDIUM). The rollback removed the whole folder. | A refused call removes only its own copies. It removes the folder only when it created the folder and the folder holds just `README.md` and `.gitignore`. A test runs two calls and a second job, and the first backup stays. |
+| 4 (LOW). A broken symbolic link was read as "no file". | The backup function looks at the path itself first and refuses a symbolic link, also a broken one, and a path through a linked folder. A test covers the three cases. |
+| 5 (LOW). The Skill assumed that a tool can pause a worker. | The builder stops and returns the names of the files that it still must change. The foreman saves the backups and runs the job again, and the assignment stays `running`. A file that a command changes, such as a formatter, counts too. The source and the installed copy are identical. |
+| 6 (LOW). A CLI call with no `--file` gave a schema error. | The CLI says: "`factory file-backup save` names no file. Give --file <path>." |
+| 7 (LOW). No text said that each grant use raises the record version. | PRD 53 R-FACTORY-71, the contract, and the run Skill said so at first. The grant-use history of 2026-11-24 then removed the cause: a use of a `standing` or a `run` grant no longer changes the grant, so its version does not rise. The texts now say that. |
+| 8 (COSMETIC). `factory tools list` printed two periods after a proof method. | The line drops the period at the end of the method. |
+
+### Owner Decisions (2026-11-24)
+
+- Register D-077: option A. The names `factory file-backup save` and `factory grant-use record` stay, and D-077 is closed.
+- The Guided Progress Reviews of P4 and P5 passed (option A), with no change.
+
+- The record of a grant use: option B, a full history of uses. See [Grant-Use History](#grant-use-history).
+
+### Grant-Use History
+
+The owner first chose to keep the last use only. The reviewer then found an audit gap: a second use of a `standing` or a `run` grant replaced the record of the first use. On 2026-11-24 the owner chose option B, one row for each use. This is new behavior, and it is [P6](06-proofs-and-acceptance.md) T19 and PRD 53 R-FACTORY-72.
+
+- The table: `factory_grant_uses`, in the unreleased schema v9, changed in place. A row holds a use ID, the project ID, the workflow name, the grant ID, the action, the scope, the work unit, the lifecycle run ID, and the use time. It holds no content and no claim ID. Schema v9 now adds nine factory tables.
+- The write: `useFactoryGrant` inserts the row in the same transaction as the grant check. `factory assignment save --grant-use`, `factory grant-use record`, and the `reset-correction-rounds` grant of `factory assignment start` all go through it. A refused use writes no row. Callers that race for one `once` grant leave one row, because only one of them spends the grant.
+- A revoke keeps the rows. The table has no foreign key to `factory_grants`, and each row holds the grant ID, the action, and the scope, so it can be read after the grant row is gone. Its foreign key to the workflow binding has no cascade. P6 T15, the workflow removal, deletes the use rows with the workflow, and T15 now says so.
+- The class: Store-canonical and non-rebuildable, in the `keep` maintenance class. The reason: a use row is the only record that an action outside the default authority was done under a grant. Maintenance never removes it.
+- The guard: the table is in the v9 table list, so it gets the three Store write guard triggers, the v9 expected-table check, and the migration rollback list. A Store without the table is refused as missing a required schema object.
+- The last-use columns: removed. `last_used_at` and `last_used_run_id` held the same facts as the newest use row, for one use only. With them gone, a use of a `standing` or a `run` grant does not change the grant row, and so does not raise its record version.
+- The read: `factory workflow show` lists the use rows beside the grants, as `grantUses` in the machine output and one line for each use in the human output. No `.make-docs/factory/` copy holds a use row. No factory URI read shows one, as for grants.
+- The contract has the new rule row `grant-use-recorded`, in the template and the identical dogfood copy.
+- Tests, in `packages/cli/tests/w30-r0-follow-up-commands.test.ts`: two uses of a `standing` grant, one on each path, keep two rows; a revoke with the version that the person read works and keeps both rows; three callers that use one `once` grant at the same time give one `used` and two `grant-spent`, with one row; a refused use writes no row; the three guard triggers exist and refuse a direct insert and a direct delete; no copy and no URI read holds a use ID or a grant ID. The P2 parity test, the table catalog test, the v9 table lists, and the rollback list name the new table.
+
+### Open for the Owner
+
+- None.
+
+### Follow-Up Integration
+
+- An independent re-check on 2026-11-24 passed the follow-up commands with the built CLI: the refused backup cases, the links, six races of three real CLI processes on one `once` grant (one `used`, two `grant-spent`, one row each time), three uses of a `standing` grant (three rows, grant version unchanged), and a revoke that keeps the rows.
+- Fixed at integration: one stale code comment and two stale phrases in this report.
+- Follow-up for P6: add one test assertion for the use row on the `--reset-rounds` path of `factory assignment start` (the CLI writes it; the re-check saw it).

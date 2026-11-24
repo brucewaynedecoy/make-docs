@@ -50,7 +50,7 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add",
   ],
   // W30 R0 P3 factory tools (PRD 25 R-MCP-PROFILE-8).
-  factory: ["factory_status", "factory_tools_save", "factory_workflow_save", "factory_workflow_show", "factory_workflow_list", "factory_proof_save", "factory_assignment_start", "factory_assignment_save", "factory_assignment_list", "factory_restore"],
+  factory: ["factory_status", "factory_tools_save", "factory_workflow_save", "factory_workflow_show", "factory_workflow_list", "factory_proof_save", "factory_assignment_start", "factory_assignment_save", "factory_assignment_list", "factory_restore", "factory_tools_list", "factory_file_backup_save", "factory_grant_use_record"],
 };
 
 /** W34 R0 P1 tools (PRD 25 R-MCP-PROFILE-11). They landed after W33 R0 and have no former names. */
@@ -58,7 +58,7 @@ const W34_R0_P1_TOOLS = new Set(["check_decomposition", "project_relations_list"
 /** W29 R0 P4 work queue tools (PRD 25 R-MCP-PROFILE). They landed after W33 R0 and have no former names. */
 const W29_R0_P4_TOOLS = new Set(["work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add"]);
 /** W30 R0 P3 factory tools (PRD 25 R-MCP-PROFILE-8). They landed after W33 R0 and have no former names. */
-const W30_R0_P3_TOOLS = new Set(["factory_status", "factory_tools_save", "factory_workflow_save", "factory_workflow_show", "factory_workflow_list", "factory_proof_save", "factory_assignment_start", "factory_assignment_save", "factory_assignment_list", "factory_restore"]);
+const W30_R0_P3_TOOLS = new Set(["factory_status", "factory_tools_save", "factory_workflow_save", "factory_workflow_show", "factory_workflow_list", "factory_proof_save", "factory_assignment_start", "factory_assignment_save", "factory_assignment_list", "factory_restore", "factory_tools_list", "factory_file_backup_save", "factory_grant_use_record"]);
 
 // The W24 inventory under the names before W33 R0 (evidence for W33 R0 P2 A6).
 const PRE_W33_PROFILES: Record<McpProfile, string[]> = {
@@ -115,12 +115,12 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 77 ready tools, including checkout move, with all equal to the intent union", () => {
+  test("assigns all 80 ready tools, including checkout move, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    // 54 before W34 R0 P1, which added 4 (PRD 25 R-MCP-PROFILE-11), W29 R0 P4 added 9, and W30 R0 P3 added 10.
-    expect(names).toHaveLength(77);
-    expect(new Set(names).size).toBe(77);
+    // 54 before W34 R0 P1, which added 4 (PRD 25 R-MCP-PROFILE-11), W29 R0 P4 added 9, W30 R0 P3 added 10, and the W30 R0 follow-up added 3.
+    expect(names).toHaveLength(80);
+    expect(new Set(names).size).toBe(80);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }

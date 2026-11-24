@@ -88,6 +88,18 @@ export function ensureFactoryBackupFolder(projectRoot: string): string {
   return folder;
 }
 
+/**
+ * A file that the factory cannot back up. The message is plain words for a
+ * person: it names the file by its path inside the project, and it never
+ * holds an absolute path or a raw system error.
+ */
+export class FactoryBackupFileError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FactoryBackupFileError";
+  }
+}
+
 export type FactoryBackupOutcome =
   | { status: "inside-git"; record: null }
   | { status: "no-file"; record: null }
@@ -112,29 +124,68 @@ export function backupFactoryFileBeforeChange(
   if (isInsideGitWorkTree(projectRoot)) return { status: "inside-git", record: null };
   const original = path.resolve(projectRoot, request.filePath);
   const relative = path.relative(projectRoot, original);
-  if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) throw new Error(`The file ${request.filePath} is not inside the project folder.`);
-  if (isWithinRoot(path.join(projectRoot, ".make-docs", "backup"), original) || isWithinRoot(path.join(projectRoot, ".make-docs", "factory"), original)) {
-    throw new Error(`The file ${request.filePath} is in a folder that Make Docs owns, so the factory does not back it up.`);
+  if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new FactoryBackupFileError(`The file ${path.basename(original) || "that was named"} is not inside the project folder.`);
   }
-  if (!/^fa-[a-z0-9]{8,64}$/.test(request.assignmentId)) throw new Error("The assignment ID is not a factory assignment ID.");
+  // Messages name the file by its path inside the project, never by an absolute path.
+  const name = relative.split(path.sep).join("/");
+  if (isWithinRoot(path.join(projectRoot, ".make-docs", "backup"), original) || isWithinRoot(path.join(projectRoot, ".make-docs", "factory"), original)) {
+    throw new FactoryBackupFileError(`The file ${name} is in a folder that Make Docs owns, so the factory does not back it up.`);
+  }
+  if (!/^fa-[a-z0-9]{8,64}$/.test(request.assignmentId)) throw new FactoryBackupFileError("The assignment ID is not a factory assignment ID.");
   const existing = readFactoryBackup(db, request.projectId, request.assignmentId, original);
   if (existing) return { status: "already-backed-up", record: existing };
-  if (!existsSync(original)) return { status: "no-file", record: null };
-  if (!lstatSync(original).isFile()) throw new Error(`The file ${request.filePath} is not a regular file.`);
-  assertManagedPathHasNoSymlinks(projectRoot, relative);
+  // Look at the path itself first, so a symbolic link is refused, also a broken one that points at no file.
+  let stat;
+  try {
+    stat = lstatSync(original, { throwIfNoEntry: false });
+  } catch {
+    throw new FactoryBackupFileError(`The file ${name} cannot be read, so the factory cannot back it up.`);
+  }
+  if (!stat) return { status: "no-file", record: null };
+  if (stat.isSymbolicLink()) throw new FactoryBackupFileError(`The file ${name} is a symbolic link, so the factory does not back it up.`);
+  if (!stat.isFile()) throw new FactoryBackupFileError(`The file ${name} is not a regular file.`);
+  try {
+    assertManagedPathHasNoSymlinks(projectRoot, relative);
+  } catch {
+    throw new FactoryBackupFileError(`The path of the file ${name} goes through a symbolic link, so the factory does not back it up.`);
+  }
   const folder = ensureFactoryBackupFolder(projectRoot);
   const backupPath = path.join(folder, request.assignmentId, relative);
-  mkdirSync(path.dirname(backupPath), { recursive: true });
-  const digest = sha256File(original);
-  copyFileSync(original, backupPath);
   try {
-    if (sha256File(backupPath) !== digest) throw new Error(`The backup of ${request.filePath} does not match the original.`);
+    let digest: string;
+    try {
+      mkdirSync(path.dirname(backupPath), { recursive: true });
+      digest = sha256File(original);
+      copyFileSync(original, backupPath);
+      if (sha256File(backupPath) !== digest) throw new FactoryBackupFileError(`The backup of ${name} does not match the original.`);
+    } catch (error) {
+      if (error instanceof FactoryBackupFileError) throw error;
+      // A system error, such as no permission to read the file. The message says so in plain words.
+      throw new FactoryBackupFileError(`The file ${name} cannot be read or copied, so the factory cannot back it up. Check that this account can read the file.`);
+    }
     const record = recordFactoryBackup(db, request.projectId, { assignmentId: request.assignmentId, originalPath: original, backupPath, contentDigest: digest }, options);
     return { status: "backed-up", record };
   } catch (error) {
+    // Remove only what this call made for this file: its copy, and the folders that are empty now.
     rmSync(backupPath, { force: true });
+    removeEmptyFactoryBackupFolders(path.dirname(backupPath), folder);
     throw error;
   }
+}
+
+/**
+ * Remove the backup folder that a refused call created, but only when it
+ * holds nothing except its own `README.md` and `.gitignore`. A folder with a
+ * backup of another call stays as it is.
+ */
+export function removeUnusedFactoryBackupFolder(projectRoot: string): boolean {
+  const folder = factoryBackupFolder(path.resolve(projectRoot));
+  if (!existsSync(folder) || readdirSync(folder).some((entry) => !OWN_FILES.has(entry))) return false;
+  for (const entry of OWN_FILES) rmSync(path.join(folder, entry), { force: true });
+  rmdirSync(folder);
+  removeEmptyFactoryBackupFolders(path.dirname(folder), path.join(path.resolve(projectRoot), ".make-docs"));
+  return true;
 }
 
 export interface FactoryBackupCleanupResult {
@@ -150,7 +201,8 @@ export interface FactoryBackupCleanupResult {
   recordsOnly: string[];
 }
 
-function removeEmptyFolders(folder: string, root: string): void {
+/** Remove a folder and its parents while they are empty, up to and never including `root`. */
+export function removeEmptyFactoryBackupFolders(folder: string, root: string): void {
   let current = folder;
   while (isWithinRoot(root, current) && current !== root) {
     if (!existsSync(current) || readdirSync(current).length > 0) return;
@@ -198,7 +250,7 @@ export function cleanupFactoryBackups(
     if (!reason) continue;
     if (existsSync(record.backupPath) && lstatSync(record.backupPath).isFile()) rmSync(record.backupPath, { force: true });
     deleteFactoryBackupRecord(db, request.projectId, record.backupPath);
-    removeEmptyFolders(path.dirname(record.backupPath), root);
+    removeEmptyFactoryBackupFolders(path.dirname(record.backupPath), root);
     result.removed.push(record.backupPath);
     result.reasons[record.backupPath] = reason;
   }
@@ -213,7 +265,7 @@ export function cleanupFactoryBackups(
       if (stat.isSymbolicLink()) continue;
       if (stat.isDirectory()) {
         sweep(entry);
-        removeEmptyFolders(entry, root);
+        removeEmptyFactoryBackupFolders(entry, root);
         continue;
       }
       if (!stat.isFile() || recorded.has(path.resolve(entry))) continue;

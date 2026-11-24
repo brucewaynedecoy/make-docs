@@ -1530,6 +1530,20 @@ Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same pr
 
 **Resolution**: Closed on 2026-11-23 at the owner's choice of option C. The command is `factory.assignment.save`, `make-docs factory assignment save`, and the MCP tool `factory_assignment_save` (23 characters), with the same behavior. It had never been released, so it has no former-name alias. It is a native command rule candidate again, and setup admits it. The harness access contract does not change. PRD 53, PRD 39, PRD 38, the factory design, the factory contract, the W30 R0 plan, and the backlog state the name. This is new behavior: the name.
 
+### D-077 Names of the Backup and Grant-Use Follow-Up Commands
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-24: keep `factory file-backup save` (MCP `factory_file_backup_save`) and `factory grant-use record` (MCP `factory_grant_use_record`). | None. The W30 R0 follow-up build already uses the names. |
+
+**Question**: Which CLI paths and MCP names do the backup command and the claim-level grant-use command get?
+
+**Why it matters**: On 2026-11-23 the owner approved a backup command named `factory backup save` (MCP `factory_backup_save`), and a grant-use command with `factory grant use` as an example. Neither name passes the existing rules. The harness access contract refuses the word `backup` anywhere in a native command rule, as it refuses `update` (D-076), so setup would refuse every project while `factory backup save` is a command rule candidate. PRD 39 R-NAME-2 needs an approved end word, and `use` is not one.
+
+**Options**: For the backup command, option A is `factory file-backup save` (MCP `factory_file_backup_save`, 24 characters). The word `file-backup` is one hyphenated word under R-NAME-2, it is not the refused word, and it keeps the word that the PRDs use for the record. Option B is `factory file save` (MCP `factory_file_save`), with no trace of the refused word. For the grant-use command, the build uses `factory grant-use record` (MCP `factory_grant_use_record`, 24 characters), with the approved end word `record`. The other way is to add `use` to the approved end words and use `factory grant use`.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option A. The commands are `factory file-backup save` and `factory grant-use record`. The build followed the D-076 precedent, option C: it picked names that the rules admit, and the harness access contract and the approved end words do not change. Neither name had been released, so neither has a former-name alias. PRD 53 R-FACTORY-70 and R-FACTORY-71, PRD 39 R-RUN-1, the factory contract, and both factory Skills state the names. This is new behavior: the names.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

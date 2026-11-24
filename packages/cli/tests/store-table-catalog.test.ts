@@ -76,9 +76,9 @@ describe("W32 R0 P1 table catalog (A1)", () => {
   it("has one entry for each table, in the table name list", () => {
     expect(STORE_TABLE_CATALOG.map((entry) => entry.table)).toEqual([...STORE_TABLE_NAMES]);
     // Schema v7 (W32 R0 P2) made project_register physical, schema v8 (W29 R0 P2) added seven
-    // work store tables, and schema v9 (W30 R0 P2) added eight factory tables, so every catalog
+    // work store tables, and schema v9 (W30 R0 P2 and its follow-up) added nine factory tables, so every catalog
     // table is physical now.
-    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "physical")).toHaveLength(33);
+    expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "physical")).toHaveLength(34);
     expect(STORE_TABLE_CATALOG.filter((entry) => entry.schemaStatus === "planned").map((entry) => entry.table)).toEqual([]);
   });
 

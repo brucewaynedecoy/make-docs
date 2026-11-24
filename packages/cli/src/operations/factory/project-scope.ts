@@ -10,7 +10,9 @@ import type { StoreDatabase } from "../../store/database";
  * W30 R0 P3 Stage 5: project scope (PRD 53 R-FACTORY-62 to R-FACTORY-65,
  * factory contract "Project Scope").
  *
- * Each factory operation is machine-level or project-scoped (T25). A project
+ * Each factory operation is machine-level or project-scoped (T25). The two
+ * machine operations, `factory tools save` and `factory tools list`, take no
+ * project. A project
  * write names its project with `--target-root <path>` or `--project <name>`
  * (MCP `targetRoot` or `project`) and never falls back to the current folder
  * (T26). A project read may use the project of the current folder and says so
@@ -32,6 +34,10 @@ export const FACTORY_OPERATION_IDS = [
   "factory.assignment.save",
   "factory.assignment.list",
   "factory.restore",
+  // W30 R0 follow-up commands (owner decisions 2026-11-23).
+  "factory.tools.list",
+  "factory.file-backup.save",
+  "factory.grant-use.record",
 ] as const;
 export type FactoryOperationId = (typeof FACTORY_OPERATION_IDS)[number];
 
@@ -54,6 +60,10 @@ export const FACTORY_OPERATION_SCOPES: Readonly<Record<FactoryOperationId, Facto
   "factory.assignment.start": { scope: "project", kind: "write", needsCheckout: true },
   "factory.assignment.save": { scope: "project", kind: "write", needsCheckout: false },
   "factory.restore": { scope: "project", kind: "write", needsCheckout: true },
+  // The backup is a file copy in the one checkout that the assignment runs in.
+  "factory.file-backup.save": { scope: "project", kind: "write", needsCheckout: true },
+  "factory.grant-use.record": { scope: "project", kind: "write", needsCheckout: false },
+  "factory.tools.list": { scope: "machine", kind: "read", needsCheckout: false },
   "factory.workflow.show": { scope: "project", kind: "read", needsCheckout: false },
   "factory.workflow.list": { scope: "project", kind: "read", needsCheckout: false },
   "factory.assignment.list": { scope: "project", kind: "read", needsCheckout: false },

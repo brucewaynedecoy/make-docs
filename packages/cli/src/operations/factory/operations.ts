@@ -34,10 +34,13 @@ import {
   factoryAssignmentList,
   factoryAssignmentStart,
   factoryAssignmentSave,
+  factoryBackupSave,
+  factoryGrantUse,
   factoryProjectRefusalResult,
   factoryProofSave,
   factoryRestore,
   factoryStatus,
+  factoryToolsList,
   factoryToolsSave,
   factoryWorkflowList,
   factoryWorkflowSave,
@@ -51,8 +54,8 @@ import {
  * profile and `all`. Each operation checks and records; none launches,
  * schedules, messages, or contacts a tool.
  *
- * Project scope (T25 to T29): `factory tools save` acts on this machine and
- * takes no project. Every other operation acts on one project. A write names
+ * Project scope (T25 to T29): `factory tools save` and `factory tools list`
+ * act on this machine and take no project. Every other operation acts on one project. A write names
  * it with `targetRoot` or `project` and never uses the current folder; a read
  * may use the current folder's project and says so. `resolveTarget` finds the
  * project before the access check, so the grant of that project's own
@@ -62,6 +65,7 @@ import {
 
 const MCP: McpToolMetadata = { profiles: ["factory"], defaultExposure: "deferred" };
 const MACHINE_WRITE_ACCESS: OperationAccess = Object.freeze({ store: "write", project: "none", hostConfig: "none" });
+const MACHINE_READ_ACCESS: OperationAccess = Object.freeze({ store: "read", project: "none", hostConfig: "none" });
 const READ_SUMMARY = "Changes nothing.";
 
 const targetRoot = z.string().min(1).optional()
@@ -181,6 +185,24 @@ const assignmentListInput = z.object({
 }).strict();
 
 const restoreInput = z.object({ targetRoot, project }).strict();
+/** `factory tools list` takes no input: it acts on this machine. */
+const toolsListInput = z.object({}).strict();
+const backupSaveInput = z.object({
+  targetRoot,
+  project,
+  assignmentId: name.describe("The assignment ID of the job whose worker changes the files."),
+  claimId: z.string().optional().describe("Your private claim ID of the unit's live claim. It is checked and never saved or shown."),
+  files: z.array(z.string().min(1).max(4096)).min(1).max(64).describe("Each file to back up before the worker changes it, as a path inside the checkout."),
+}).strict();
+const grantUseInput = z.object({
+  targetRoot,
+  project,
+  unit: z.string().trim().min(1).describe("The claimed work unit: a coordinate such as W29 R0 P4, or a quick item number. Each of its assignments is final."),
+  workflow,
+  action: name.describe("The action that the grant permits, such as merge."),
+  runId: z.string().min(1).describe("The lifecycle run of the unit's assignments."),
+  claimId: z.string().optional().describe("Your private claim ID of the unit's live claim. It is checked and never saved or shown."),
+}).strict();
 const statusInput = z.object({
   targetRoot: readTargetRoot,
   project: readProject,
@@ -338,6 +360,28 @@ export const factoryOperations: OperationDefinition[] = [
     STORE_WRITE_PROJECT_WRITE_ACCESS,
     restoreInput,
     (_input, context, resolved) => factoryRestore(envOf(context), resolved!),
+  ),
+  // W30 R0 follow-up commands (owner decisions 2026-11-23, PRD 53 R-FACTORY-69 to R-FACTORY-71).
+  definition(
+    "factory.tools.list",
+    `List this machine's saved agent tools with their states, capability proofs, and record versions. It takes no project and contacts no tool. ${READ_SUMMARY}`,
+    MACHINE_READ_ACCESS,
+    toolsListInput,
+    (_input, context) => factoryToolsList(envOf(context)),
+  ),
+  definition(
+    "factory.file-backup.save",
+    "Back up files before a worker changes them in a checkout folder without git, and record each file, its digest, and its assignment. In a folder with git, no backup is needed. Only the holder of the unit's claim saves one.",
+    STORE_WRITE_PROJECT_WRITE_ACCESS,
+    backupSaveInput,
+    (input, context, resolved) => factoryBackupSave(envOf(context), resolved!, input),
+  ),
+  definition(
+    "factory.grant-use.record",
+    "Record the use of a grant on the live claim of a unit whose assignments are all final, before an action at the end of a scope. Only the holder of the unit's claim records it.",
+    STORE_WRITE_PROJECT_READ_ACCESS,
+    grantUseInput,
+    (input, context, resolved) => factoryGrantUse(envOf(context), resolved!, input),
   ),
 ];
 

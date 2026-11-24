@@ -233,6 +233,10 @@ export const ADMITTED_OPERATION_IDS = [
   "factory.assignment.save",
   "factory.assignment.list",
   "factory.restore",
+  // W30 R0 follow-up commands (PRD 53 R-FACTORY-69 to R-FACTORY-71).
+  "factory.tools.list",
+  "factory.file-backup.save",
+  "factory.grant-use.record",
 ] as const;
 
 /**
@@ -314,6 +318,9 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "factory.assignment.save": ["factory", "assignment save"],
   "factory.assignment.list": ["factory", "assignment list"],
   "factory.restore": ["factory", "restore"],
+  "factory.tools.list": ["factory", "tools list"],
+  "factory.file-backup.save": ["factory", "file-backup save"],
+  "factory.grant-use.record": ["factory", "grant-use record"],
 };
 
 export function operationDomain(id: string): string {

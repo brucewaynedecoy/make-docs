@@ -98,6 +98,9 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "factory.assignment.save": "factory_assignment_save",
   "factory.assignment.list": "factory_assignment_list",
   "factory.restore": "factory_restore",
+  "factory.tools.list": "factory_tools_list",
+  "factory.file-backup.save": "factory_file_backup_save",
+  "factory.grant-use.record": "factory_grant_use_record",
 };
 
 const SUPPORT_EVIDENCE_REF =

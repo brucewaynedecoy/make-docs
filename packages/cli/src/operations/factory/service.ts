@@ -1,9 +1,11 @@
+import { existsSync, rmSync } from "node:fs";
 import path from "node:path";
 
 import type { StoreDatabase } from "../../store/database";
 import {
   FactoryStoreRefusalError,
   listFactoryAssignments,
+  listFactoryGrantUses,
   listFactoryGrants,
   listFactoryMachineTools,
   listFactoryPlanRevisions,
@@ -22,16 +24,18 @@ import {
   startFactoryAssignment,
   updateFactoryAssignment,
   useFactoryGrant,
+  useFactoryGrantOnClaim,
   type FactoryAssignmentRecord,
   type FactoryGrantRecord,
+  type FactoryGrantUseRecord,
   type FactoryMachineToolRecord,
   type FactoryProofResultRecord,
 } from "../../store/factory-store";
 import { withStoreReadOnlyDatabase, withStoreWriteDatabase } from "../../store/installation-state";
-import { findWorkUnitByCoordinate, listWorkClaims, readWorkUnit } from "../../store/work-store";
+import { checkWorkUnitWriteClaim, findWorkUnitByCoordinate, listWorkClaims, readWorkUnit } from "../../store/work-store";
 import { normalizeWorkUnitReference } from "../work/work-queue/queue";
 import { visibleWorkClaim, workUnitLabel, type WorkVisibleClaim } from "../work/work-queue/readiness";
-import { cleanupFactoryBackups, type FactoryBackupCleanupResult } from "./backups";
+import { backupFactoryFileBeforeChange, cleanupFactoryBackups, FACTORY_BACKUP_RELATIVE_PATH, FactoryBackupFileError, factoryBackupFolder, isInsideGitWorkTree, removeEmptyFactoryBackupFolders, removeUnusedFactoryBackupFolder, type FactoryBackupCleanupResult } from "./backups";
 import { writeFactoryCopies, type FactoryCopiesResult } from "./copies";
 import {
   bindingForPlan,
@@ -213,6 +217,35 @@ export function factoryToolsSave(env: FactoryEnv, input: { tools: FactoryToolSav
   });
 }
 
+/**
+ * `factory tools list` (W30 R0 follow-up, R-FACTORY-69): this machine's saved
+ * tools, each with its state, its capability proofs, and its record version
+ * for `expectedVersion`. It takes no project. It opens a read-only Store
+ * session, so it never creates or migrates a Store, and it contacts no tool.
+ * Each value it shows passed the never-log check when it was saved.
+ */
+export function factoryToolsList(env: FactoryEnv) {
+  const operation = "factory.tools.list" as const;
+  const actedOn = FACTORY_MACHINE_ACTED_ON;
+  return refusable(operation, actedOn, () => {
+    const tools = withStoreReadOnlyDatabase(env.storeRoot, (db) => listFactoryMachineTools(db)).map(toolView);
+    const lines = [
+      tools.length === 0
+        ? "No tool is saved for this machine yet. Save the tools with make-docs factory tools save."
+        : `${count(tools.length, "tool")} saved for this machine. Every project on this machine uses this list.`,
+      ...tools.flatMap((tool) => [
+        `- ${tool.toolId} (${tool.label}): ${tool.kind}, ${tool.state}, version ${tool.reportedVersion ?? "not reported"}, reported ${tool.reportedAt}. Record version ${tool.version}.`,
+        ...(tool.proofs.length === 0 ? ["  No capability proof."] : []),
+        ...tool.proofs.map((proof) => `  - ${proof.capabilityId}: ${proof.result} under version ${proof.toolVersion ?? "not reported"} at ${proof.provedAt}, by: ${proof.method.replace(/[.\s]+$/, "")}. Does not cover: ${proof.notCovered.length ? proof.notCovered.join("; ") : "nothing named"}.`),
+      ]),
+      ...(tools.length === 0 ? [] : ["Give a tool's record version as expectedVersion when you save that tool again."]),
+      "Make Docs ran and contacted no tool.",
+      FACTORY_READ_TAIL,
+    ];
+    return finish({ operation, result: "read" as const, actedOn, tools, lines });
+  });
+}
+
 /* ------------------------------------------------------------------------ */
 /* workflow save (project)                                                  */
 /* ------------------------------------------------------------------------ */
@@ -258,6 +291,16 @@ function grantView(grant: FactoryGrantRecord, now: Date) {
     state,
     version: grant.version,
   };
+}
+
+/** One recorded grant use, as a result shows it: IDs, the action, the scope, the unit, the run, and the time. No content. */
+function grantUseView(db: StoreDatabase, use: FactoryGrantUseRecord) {
+  const unit = readWorkUnit(db, use.unitStoreId);
+  return { useId: use.useId, grantId: use.grantId, action: use.action, scope: use.scope, unit: unit ? workUnitLabel(unit) : use.unitStoreId, runId: use.runId, usedAt: use.usedAt };
+}
+
+function grantUseLine(use: ReturnType<typeof grantUseView>): string {
+  return `- ${use.action}: ${use.scope} grant ${use.grantId}, for ${use.unit}, lifecycle run ${use.runId}, at ${use.usedAt}.`;
 }
 
 function grantLine(grant: ReturnType<typeof grantView>): string {
@@ -659,8 +702,8 @@ export function factoryAssignmentSave(env: FactoryEnv, project: FactoryProjectRe
       }, { claimId: input.claimId ?? "", expectedVersion: input.expectedVersion, now: env.now });
       const grant = input.grantUse === undefined
         ? null
-        : useFactoryGrant(db, { projectId: project.projectId, workflowName: updated.workflowName, action: input.grantUse, runId: updated.runId }, { now: env.now });
-      return { before: current.status, view: factoryAssignmentView(db, updated), grant };
+        : useFactoryGrant(db, { projectId: project.projectId, workflowName: updated.workflowName, action: input.grantUse, runId: updated.runId, unitStoreId: updated.unitStoreId }, { now: env.now });
+      return { before: current.status, view: factoryAssignmentView(db, updated), grant, grantUse: grant ? grantUseView(db, grant.use) : null };
     });
     const cleanup = cleanBackups(env, project, outcome.view.checkoutId);
     const moved = outcome.before !== outcome.view.status;
@@ -680,9 +723,155 @@ export function factoryAssignmentSave(env: FactoryEnv, project: FactoryProjectRe
       moved,
       assignment: outcome.view,
       grant: outcome.grant ? grantView(outcome.grant, env.now) : null,
+      grantUse: outcome.grantUse,
       backupCleanup: cleanup ? { removed: cleanup.removed.length, recordsOnly: cleanup.recordsOnly.length } : null,
       lines,
     });
+  });
+}
+
+/* ------------------------------------------------------------------------ */
+/* backup save and grant use (W30 R0 follow-up, project writes)             */
+/* ------------------------------------------------------------------------ */
+
+export interface FactoryBackupSaveInput {
+  assignmentId: string;
+  claimId?: string;
+  /** Each file, as a path inside the checkout: relative to the checkout folder, or absolute. */
+  files: string[];
+}
+
+/** The claim rule of a factory write that the Store service does not own. The refusal never repeats the claim ID. */
+function assertUnitClaimHeld(db: StoreDatabase, unitStoreId: string, claimId: string | undefined, now: Date): void {
+  if (typeof claimId !== "string" || claimId.length === 0 || checkWorkUnitWriteClaim(db, unitStoreId, claimId, now) !== null) {
+    refuse("claim-not-held", "The caller does not hold the live claim of this work unit.", "Claim the unit with make-docs work claim, or check the claim's task handle before a takeover.", { unitStoreId });
+  }
+}
+
+/**
+ * `factory file-backup save` (W30 R0 follow-up, R-FACTORY-70): before a worker
+ * changes a file in a checkout folder without git, copy the file to
+ * `.make-docs/backup/factory/` and record the file, its digest, and its
+ * assignment, through the P2 backup function. Only the holder of the unit's
+ * live claim saves a backup, for an open assignment, in the checkout that the
+ * assignment runs in.
+ *
+ * In a folder with git the result is `not-needed`, not a refusal: git is the
+ * undo there (R-FACTORY-44), so nothing is copied or recorded, and the call
+ * did no harm. Every file of one call is backed up, or none is: a failure
+ * rolls the records back and removes the copies that this call made.
+ */
+export function factoryBackupSave(env: FactoryEnv, project: FactoryProjectResolution, input: FactoryBackupSaveInput) {
+  const operation = "factory.file-backup.save" as const;
+  const actedOn = factoryProjectActedOn(project);
+  const words = factoryProjectWords(project);
+  return refusable(operation, actedOn, () => {
+    const checkout = project.checkout!;
+    const made: string[] = [];
+    const folder = factoryBackupFolder(checkout.root);
+    const folderExisted = existsSync(folder);
+    try {
+      const outcome = withStoreWriteDatabase(env.storeRoot, (db) => {
+        const assignment = readFactoryAssignment(db, project.projectId, input.assignmentId);
+        if (!assignment) refuse("record-not-found", "The assignment does not exist in this project.", "Read the assignments with make-docs factory assignment list.");
+        assertUnitClaimHeld(db, assignment.unitStoreId, input.claimId, env.now);
+        if (isFinalAssignmentStatus(assignment.status)) {
+          refuse("final-status", `The assignment is ${assignment.status}, which is final, so no worker changes a file for it.`, "Start a new assignment for a job that must run again, then save the backup for that assignment.", { status: assignment.status });
+        }
+        if (assignment.checkoutId !== checkout.checkoutId) {
+          refuse("invalid-record", "The assignment runs in another checkout of this project, so its backups belong in that checkout.", "Name the checkout of the assignment with --target-root <path> (MCP targetRoot).", { field: "targetRoot" });
+        }
+        const view = factoryAssignmentView(db, assignment);
+        if (isInsideGitWorkTree(checkout.root)) return { view, git: true as const, files: [] };
+        const files = input.files.map((file) => {
+          let saved;
+          try {
+            saved = backupFactoryFileBeforeChange(db, { projectRoot: checkout.root, projectId: project.projectId, assignmentId: assignment.assignmentId, filePath: file }, { now: env.now });
+          } catch (error) {
+            if (error instanceof FactoryStoreRefusalError) throw error;
+            // The backup function gives plain words for a file it cannot back up. Any other error gets a plain line too:
+            // never a raw system error, an absolute path, or file contents.
+            const reason = error instanceof FactoryBackupFileError ? error.message : "One of the files cannot be backed up.";
+            refuse("invalid-record", reason, "Name a regular file inside the checkout that this account can read, outside the folders that Make Docs owns.", { field: "file" });
+          }
+          if (saved.status === "backed-up") made.push(saved.record.backupPath);
+          const original = path.resolve(checkout.root, file);
+          return {
+            file: path.relative(checkout.root, original).split(path.sep).join("/"),
+            status: saved.status as "backed-up" | "already-backed-up" | "no-file",
+            backup: saved.record ? path.relative(checkout.root, saved.record.backupPath).split(path.sep).join("/") : null,
+            contentDigest: saved.record?.contentDigest ?? null,
+            backedUpAt: saved.record?.backedUpAt ?? null,
+          };
+        });
+        return { view, git: false as const, files };
+      });
+      const job = `${outcome.view.unit} (${outcome.view.role}, part ${outcome.view.partLabel})`;
+      const base = { operation, actedOn, assignmentId: outcome.view.assignmentId, checkout: { checkoutId: checkout.checkoutId, root: checkout.root } };
+      if (outcome.git) {
+        const lines = [
+          `No backup is needed for ${words}, checkout ${checkout.root}: the folder uses git, and git is the undo there.`,
+          `Make Docs copied no file and recorded no backup for the assignment of ${job}. Nothing changed.`,
+        ];
+        return finish({ ...base, result: "not-needed" as const, git: true, files: [], lines });
+      }
+      const statusWords = { "backed-up": "backed up", "already-backed-up": "already backed up for this assignment, and the first backup stays", "no-file": "no file yet, so no backup is needed" } as const;
+      const lines = [
+        `Saved the backups of ${count(outcome.files.length, "file")} for the assignment of ${job} in ${words}, checkout ${checkout.root}.`,
+        ...outcome.files.map((file) => `- ${file.file}: ${statusWords[file.status]}.${file.backup ? ` Backup ${file.backup}, digest ${file.contentDigest}.` : ""}`),
+        `The backups are in ${FACTORY_BACKUP_RELATIVE_PATH}/, and its README.md says how to get a file back. Make Docs removes them when the work is accepted or closed, or after 30 days.`,
+      ];
+      return finish({ ...base, result: "saved" as const, git: false, files: outcome.files, lines });
+    } catch (error) {
+      // The Store transaction rolled the records back. Remove only the copies that this call made, so no unrecorded
+      // copy stays. A backup of another call is never removed.
+      for (const backupPath of made) {
+        rmSync(backupPath, { force: true });
+        removeEmptyFactoryBackupFolders(path.dirname(backupPath), folder);
+      }
+      // A refused call that created the backup folder removes it again, also when it made no copy, but only when the
+      // folder holds just its own README.md and .gitignore.
+      if (!folderExisted) removeUnusedFactoryBackupFolder(checkout.root);
+      throw error;
+    }
+  });
+}
+
+export interface FactoryGrantUseInput {
+  unit: string;
+  workflow: string;
+  action: string;
+  runId: string;
+  claimId?: string;
+}
+
+/**
+ * `factory grant-use record` (W30 R0 follow-up, R-FACTORY-71): record the use of a
+ * grant on the live claim of a unit whose assignments are all final. It is
+ * for an action at the end of a scope, such as the merge after the person
+ * accepts the whole scope. It needs the claim's private claim ID, checks the
+ * grant exactly as `factory assignment save` does, and adds one use row
+ * (PRD 53 R-FACTORY-72). A unit with an open assignment is
+ * refused with `assignment-open`, because `factory assignment save` records
+ * that use.
+ */
+export function factoryGrantUse(env: FactoryEnv, project: FactoryProjectResolution, input: FactoryGrantUseInput) {
+  const operation = "factory.grant-use.record" as const;
+  const actedOn = factoryProjectActedOn(project);
+  return refusable(operation, actedOn, () => {
+    const outcome = withStoreWriteDatabase(env.storeRoot, (db) => {
+      const unit = unitOf(db, project.projectId, input.unit);
+      const grant = useFactoryGrantOnClaim(db, { projectId: project.projectId, workflowName: input.workflow, action: input.action, runId: input.runId, unitStoreId: unit.storeId }, { claimId: input.claimId ?? "", now: env.now });
+      return { unit: workUnitLabel(unit), grant: grantView(grant, env.now), use: grantUseView(db, grant.use) };
+    });
+    const { grant, use } = outcome;
+    const lines = [
+      `Recorded the use of the ${grant.scope} grant for ${grant.action} on the claim of ${outcome.unit} in ${factoryProjectWords(project)}.`,
+      `Workflow ${input.workflow}, lifecycle run ${input.runId}, at ${use.usedAt}. Grant ID ${grant.grantId}. Use ID ${use.useId}.`,
+      ...(grant.scope === "once" ? ["The once grant is now spent."] : []),
+      "Do the action now. Make Docs did not do it.",
+    ];
+    return finish({ operation, result: "used" as const, actedOn, unit: outcome.unit, workflow: input.workflow, action: grant.action, runId: input.runId, usedAt: use.usedAt, grant, grantUse: use, lines });
   });
 }
 
@@ -775,6 +964,8 @@ export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectReso
       }
       const live = liveStateFor(db, project, input.workflow, checkout, config);
       const grants = listFactoryGrants(db, project.projectId, input.workflow).map((grant) => grantView(grant, env.now));
+      // Every recorded use, also of a revoked grant (R-FACTORY-72). Beside the plan, never in it, and never in a copy.
+      const grantUses = listFactoryGrantUses(db, project.projectId, input.workflow).map((use) => grantUseView(db, use));
       const passed = proofView(readFactoryProofResult(db, project.projectId, input.workflow, "passed"));
       const failed = proofView(readFactoryProofResult(db, project.projectId, input.workflow, "failed"));
       const shownWords = shown
@@ -788,6 +979,8 @@ export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectReso
         shownWords,
         `Grants (beside the plan, never in it): ${grants.length === 0 ? "none." : ""}`,
         ...grants.map(grantLine),
+        `Grant uses (one line for each recorded use, also of a revoked grant): ${grantUses.length === 0 ? "none." : ""}`,
+        ...grantUses.map(grantUseLine),
         ...(passed?.manualSteps.length ? ["Open manual steps:", ...passed.manualSteps.map((step) => `- ${step}`)] : []),
         FACTORY_READ_TAIL,
       ];
@@ -813,6 +1006,7 @@ export function factoryWorkflowShow(env: FactoryEnv, project: FactoryProjectReso
           : null,
         keptRevisions: revisions.map((revision) => revision.revision),
         grants,
+        grantUses,
         proofs: { passed, failed },
         lines,
       });

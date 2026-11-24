@@ -180,7 +180,7 @@ The CLI then compares the current plan's digest with the saved revisions:
 - It matches another saved revision: the workflow is `wired` when each needed role is bound and proved, and `draft` when one is not.
 - It matches no saved revision: the workflow is `drifted`. The result lists each drift reason code from [Reason Codes](#reason-codes).
 
-The CLI never contacts a tool. An agent reports tool facts through `make-docs factory tools save`. It records a gone tool as `missing`. It records a tool that lost a permission it needs, such as an app permission or a sign-in, as `blocked`. Both change the current plan, so they give the drift codes `tool-missing` and `permission-lost`. A grant is not this kind of permission. An expired or spent grant never changes readiness. It only makes the foreman ask the person again.
+The CLI never contacts a tool. An agent reports tool facts through `make-docs factory tools save`, and reads the saved tools with `make-docs factory tools list`. It records a gone tool as `missing`. It records a tool that lost a permission it needs, such as an app permission or a sign-in, as `blocked`. Both change the current plan, so they give the drift codes `tool-missing` and `permission-lost`. A grant is not this kind of permission. An expired or spent grant never changes readiness. It only makes the foreman ask the person again.
 
 Only a `ready` workflow takes new work. A `drifted` workflow escalates before it takes new work. Its message names the broken part and the smallest step that fixes it.
 
@@ -218,7 +218,14 @@ Each grant records:
 | `run` | The one lifecycle run that the grant names, until that run ends. |
 | `standing` | Every run of the workflow, until the person revokes it. |
 
-Before an action outside the default authority, the foreman records the use of a grant (`make-docs factory assignment save`). The CLI refuses the use when no grant names the action, when the planned use is outside the grant's scope, when a `once` grant is spent, or after the expiry time. After a refusal, the foreman asks the person again through the human channel. That request is floor event 1.
+Before an action outside the default authority, the foreman records the use of a grant. There are two ways, and both make the same checks:
+
+- On an open assignment of the unit: `make-docs factory assignment save` with `--grant-use <action>`.
+- On the live claim of a unit whose assignments are all final: `make-docs factory grant-use record`. This is for an action at the end of a scope, such as the merge after the person accepts the whole scope. It names the unit, the workflow, the action, and the lifecycle run of the unit's assignments. It takes the claim's private claim ID. A unit with an open assignment is refused with `assignment-open`, because the first way records that use.
+
+The CLI refuses the use when no grant names the action, when the planned use is outside the grant's scope, when a `once` grant is spent, or after the expiry time. After a refusal, the foreman asks the person again through the human channel. That request is floor event 1.
+
+Each recorded use adds one use row to the Store, in the same write as the grant check. A use row holds the grant ID, the action, the scope, the work unit, the lifecycle run, and the time. It holds no content and no claim ID. A refused use adds no row. A use changes the grant itself only when it spends a `once` grant. Use rows stay until the workflow is removed. A revoke removes the grant and keeps its use rows. `make-docs factory workflow show` lists the use rows beside the grants. No local copy and no factory URI read shows a use row. Make Docs records the use and never does the action. New on 2026-11-24.
 
 `make-docs factory workflow save` writes each grant, at setup and during a run. During a run, after the person answers an escalation, the foreman records the person's answer with a grant-only save. A `run` grant names its lifecycle run. A grant-only save writes or revokes only the grant. It does not resolve the plan, save a revision, or change readiness.
 
@@ -357,7 +364,7 @@ The foreman claims work through the work queue (`make-docs work claim`, MCP `wor
 
 Each claim opens one lifecycle run at stage `implementation` (operation `lifecycle.start`). Each assignment points to that run. Evidence goes in through the existing evidence operations, `work.evidence.record` and `lifecycle.attach-evidence`.
 
-Only the holder of a live claim starts or updates the unit's assignments. `make-docs factory assignment start` and `make-docs factory assignment save` take the claim's private claim ID, as the work queue rules require for a report or a close. A caller that no longer holds the claim is refused. Never write a claim ID into a factory record, a note, or a message. `assignment start` refuses a checkout that is not a bound checkout of the project with `checkout-not-bound`. A unit with an open assignment does not close and does not leave the work store: the work queue refuses with `factory-assignment-open` (PRD 52).
+Only the holder of a live claim starts or updates the unit's assignments. `make-docs factory assignment start`, `make-docs factory assignment save`, `make-docs factory file-backup save`, and `make-docs factory grant-use record` take the claim's private claim ID, as the work queue rules require for a report or a close. A caller that no longer holds the claim is refused. Never write a claim ID into a factory record, a note, or a message. `assignment start` refuses a checkout that is not a bound checkout of the project with `checkout-not-bound`. A unit with an open assignment does not close and does not leave the work store: the work queue refuses with `factory-assignment-open` (PRD 52).
 
 The foreman renews the claim at each check. The work queue rules set the timing: the claimant checks at least every 10 minutes, and a claim lasts 30 minutes by default. So the foreman's wake interval must be shorter than the claim time limit. A wake that comes less often lets the claim expire while the work still runs.
 
@@ -467,6 +474,8 @@ A limit that the person sets can be lower or higher than the default. A limit ne
 
 In a folder without git, the factory copies a file to `.make-docs/backup/factory/` before a worker changes it. The Store records each backup with its file, its hash, and its assignment.
 
+The foreman saves each backup with `make-docs factory file-backup save` (MCP `factory_file_backup_save`). The call names the project, the open assignment, and each file. It takes the claim's private claim ID. The copies go into the checkout that the assignment runs in. The first backup of a file for an assignment is the one that counts, so a later call keeps it. A file that does not exist yet needs no backup. In a folder with git, the result is `not-needed` and nothing changes: git is the undo there. That result is not a refusal. Never copy a file into the backup folder by hand.
+
 Make Docs deletes the backups of an assignment when its work is accepted or closed. It deletes any backup older than 30 days. Cleanup runs during normal factory commands. Cleanup never touches installation recovery backups.
 
 A `README.md` in `.make-docs/backup/factory/` tells people and agents the cleanup rule and how to get a file back. A `.gitignore` file inside the folder holds one line, `*`, and keeps the folder out of git. Make Docs never edits the project root `.gitignore`.
@@ -553,6 +562,11 @@ Each command is also an MCP tool in the `factory` MCP profile. The MCP name is t
 | `make-docs factory assignment save` | `factory_assignment_save` | Changes an assignment's status, round count, or last check time, or records the use of a grant. |
 | `make-docs factory assignment list` | `factory_assignment_list` | Reads assignments. |
 | `make-docs factory restore` | `factory_restore` | Writes the `.make-docs/factory/` copies again, with the latest resolved plan. |
+| `make-docs factory tools list` | `factory_tools_list` | Reads the machine's saved tools, each with its state, its capability proofs, and its record version. |
+| `make-docs factory file-backup save` | `factory_file_backup_save` | Outside git, copies files to `.make-docs/backup/factory/` before a worker changes them, and records each backup. |
+| `make-docs factory grant-use record` | `factory_grant_use_record` | Records the use of a grant on the live claim of a unit whose assignments are all final. |
+
+The last three commands are new on 2026-11-23.
 
 Writes use the existing write permission, `expectedVersion`, and Store-unavailable rules.
 
@@ -567,11 +581,14 @@ New on 2026-11-23. One Store serves every project on a machine. So each factory 
 | Command | Scope | Kind | How it finds the project |
 | --- | --- | --- | --- |
 | `make-docs factory tools save` | Machine | Write | It takes no project. |
+| `make-docs factory tools list` | Machine | Read | It takes no project. |
 | `make-docs factory workflow save` | Project | Write | Named project only, also for a grant-only save. |
 | `make-docs factory proof save` | Project | Write | Named project only. |
 | `make-docs factory assignment start` | Project | Write | Named project only. |
 | `make-docs factory assignment save` | Project | Write | Named project only. |
 | `make-docs factory restore` | Project | Write | Named project only. |
+| `make-docs factory file-backup save` | Project | Write | Named project only. |
+| `make-docs factory grant-use record` | Project | Write | Named project only. |
 | `make-docs factory workflow show` | Project | Read | The named project, or the project of the current folder. |
 | `make-docs factory workflow list` | Project | Read | The named project, or the project of the current folder. |
 | `make-docs factory assignment list` | Project | Read | The named project, or the project of the current folder. |
@@ -584,7 +601,7 @@ The machine records are the tool list, the tool states, and the capability proof
 - Name the project in every project write. Use `--target-root <path>` or `--project <name>`. In MCP, use the `targetRoot` or `project` input. A name resolves only through the Store's project register.
 - Never rely on the current folder for a write. A write never falls back to it, even when the folder is a project.
 - A write with no project is refused with `project-missing` and changes nothing. A name that the Store does not know is refused with `project-not-found`. A path and a name that give two different projects are refused with `project-mismatch`.
-- `workflow save`, `proof save`, and `assignment start` read the project's config file and type file. `restore` writes the copies into one checkout. When a name gives no bound checkout or more than one, these writes are refused with `project-checkout-unclear`. Then name the checkout with `--target-root`.
+- `workflow save`, `proof save`, and `assignment start` read the project's config file and type file. `restore` writes the copies into one checkout, and `file-backup save` writes the backups into one checkout. When a name gives no bound checkout or more than one, these writes are refused with `project-checkout-unclear`. Then name the checkout with `--target-root`.
 - Every refusal changes nothing.
 
 ### Results Name the Project
@@ -642,7 +659,8 @@ Every row marked "Planned in W30 R0 P3" is built as of W30 R0 P3. W30 R0 P6 upda
 | `lost-tool-drifts` | A lost tool always moves the workflow to `drifted`. Only a deliberate unbind moves it to `draft`. | [Readiness](#readiness) | Planned in W30 R0 P3 T9: `factory.status` marks a workflow `drifted` when a bound tool's saved proof no longer holds. |
 | `drift-escalates` | A `drifted` workflow escalates, takes no new work, and names the smallest fix. | [Readiness](#readiness) | Planned in W30 R0 P3 T9: `factory.status` shows `drifted` and the smallest fix. |
 | `grants-not-committed` | A grant never appears in committed config, a local copy, or a resolved plan. | [Saved Records](#saved-records), [Grants](#grants) | Planned in W30 R0 P2 T8: config validation refuses a grant in the `factory:` block. W30 R0 P3 T18 leaves grants out of the plan. |
-| `grant-scope` | A grant use must match the grant's action, scope, and expiry. Outside them, the foreman asks the person again. | [Grants](#grants) | Planned in W30 R0 P3 T17: `factory.assignment.save` refuses a grant use outside its scope, after its expiry, or after a `once` grant is spent. |
+| `grant-scope` | A grant use must match the grant's action, scope, and expiry. Outside them, the foreman asks the person again. | [Grants](#grants) | Planned in W30 R0 P3 T17: `factory.assignment.save` refuses a grant use outside its scope, after its expiry, or after a `once` grant is spent. W30 R0 P6 T18 builds the same check into `factory.grant-use.record`, for a use on the live claim. |
+| `grant-use-recorded` | Each recorded grant use adds one use row, with no content and no claim ID. A revoke keeps the use rows. No copy and no URI read shows them. | [Grants](#grants) | Planned in W30 R0 P6 T19: both use commands write one row in the same write as the grant check, and `factory.workflow.show` lists the rows. |
 | `grant-written` | `factory workflow save` writes each grant, at setup and during a run. A grant-only save changes nothing else. `workflow show` lists grants beside the plan, and no copy holds a grant. | [Grants](#grants) | Planned in W30 R0 P3 T17: a grant-only `factory.workflow.save` writes the grant and saves no plan revision. |
 | `no-secrets` | No secret in config, a local copy, a resolved plan, or a Store record. | [Saved Records](#saved-records) | Planned in W30 R0 P2 T8: config validation refuses a secret in the `factory:` block. W30 R0 P3 T22 checks every factory write. |
 | `copies-not-input` | Make Docs writes the local copies and never reads them as input. | [Saved Records](#saved-records) | Planned in W30 R0 P2 T9 and T10, and P3 T6: Make Docs writes the copies from the Store and reads none of them. |
@@ -681,7 +699,7 @@ Every row marked "Planned in W30 R0 P3" is built as of W30 R0 P3. W30 R0 P6 upda
 | `no-self-authority` | The factory cannot authorize implementation by itself. | [Working Rules](#working-rules) | Contract-only. Authority comes from the person's grants and the accepted backlog. |
 | `preflight-opt-in` | Preflight runs only when the workflow turns it on. | [Optional Steps](#optional-steps) | Contract-only. The run Skill applies it (W30 R0 P5 T7). |
 | `limits-saved` | Each workflow saves its limits. The defaults are 3 correction rounds and no more parallel workers than the tools allow. | [Limits](#limits) | Planned in W30 R0 P2 T7: config validation checks the limits in the `factory:` block. W30 R0 P3 T13 enforces the round limit. The other defaults have no check. |
-| `backup-before-change` | Outside git, copy a file and record its hash before a worker changes it. | [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P2 T12: Make Docs records each backup in the Store. |
+| `backup-before-change` | Outside git, copy a file and record its hash before a worker changes it. | [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P2 T12: Make Docs records each backup in the Store. W30 R0 P6 T17 builds `factory.file-backup.save`, which saves the backup and its record. |
 | `backup-cleanup` | Delete backups on accept or close, and after 30 days. Never touch installation recovery backups. | [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P2 T13: normal factory commands run the cleanup. |
 | `backup-readme` | The backup folder has a `README.md` with the cleanup rule and the recovery steps. | [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P2 T14: Make Docs writes the `README.md`. |
 | `never-log` | Factory records never hold file contents, prompts, briefs, environment values, transcripts, or credentials. | [Never-Log List](#never-log-list) | Planned in W30 R0 P3 T22: every factory write runs the never-log check and refuses with `never-log-field`. |
@@ -691,7 +709,7 @@ Every row marked "Planned in W30 R0 P3" is built as of W30 R0 P3. W30 R0 P6 upda
 | `no-silent-replace` | A project type never replaces a shipped type silently. A clash stops setup and escalates in a run. | [Project-Owned Types](#project-owned-types) | Contract-only. No W30 task checks type names. Setup and the run Skill apply it. |
 | `backlog-review-handoff` | With a `ready` workflow, "Work on this wave" sends the wave to the foreman. Without one, the action works as before. | [Commands](#commands) | Planned in W30 R0 P5 T13 and T14: the backlog review action changes only when a workflow is `ready` (P5 A41, A42). |
 | `status-human-first` | `factory status` shows one group for each running factory, by checkout and then by lifecycle run, and each claimed unit, its tool, its state, and the last check time in human words first. | [Commands](#commands) | Planned in W30 R0 P3 T8: `factory.status` puts human words before machine detail (P3 A23). |
-| `machine-commands-no-project` | `factory tools save` takes no project. The machine tool list, tool states, and capability proofs belong to the machine. | [Project Scope](#project-scope) | Planned in W30 R0 P3 T25: each factory operation is tagged machine or project, and `factory.tools.save` takes no project input. |
+| `machine-commands-no-project` | `factory tools save` and `factory tools list` take no project. The machine tool list, tool states, and capability proofs belong to the machine. | [Project Scope](#project-scope) | Planned in W30 R0 P3 T25: each factory operation is tagged machine or project, and `factory.tools.save` takes no project input. W30 R0 P6 T16 builds `factory.tools.list` the same way. |
 | `writes-name-project` | Every project write names its project and never falls back to the current folder. Without a project, it is refused and changes nothing. | [Name the Project](#name-the-project) | Planned in W30 R0 P3 T26 and T27: project writes refuse with `project-missing`, `project-not-found`, `project-mismatch`, or `project-checkout-unclear` and change nothing. |
 | `results-name-project` | Every factory result names the project it acted on, or says that it acted on this machine. | [Results Name the Project](#results-name-the-project) | Planned in W30 R0 P3 T28: every CLI and MCP result fixture names the project or the machine. |
 | `reads-show-project` | A read can use the current folder, and its output names the project and how it was chosen. | [Results Name the Project](#results-name-the-project) | Planned in W30 R0 P3 T29: read output names the project and says whether it was named or taken from the current folder. |

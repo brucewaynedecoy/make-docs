@@ -582,6 +582,33 @@ Object.assign(RUN_CLI_ADAPTERS, {
     input: { ...optionalText(options, "workflow", "workflow"), all: options.booleans.has("all"), ...factoryProject(options) },
   }),
   "factory.restore": (options: OperationOptions) => ({ input: { ...factoryProject(options) } }),
+  // W30 R0 follow-up commands (PRD 53 R-FACTORY-69 to R-FACTORY-71).
+  "factory.tools.list": () => ({ input: {} }),
+  "factory.file-backup.save": (options: OperationOptions) => {
+    const files = options.arrays.file ?? [];
+    if (files.length === 0) throw new OperationError(`\`${operationPath("factory.file-backup.save")}\` names no file. Give --file <path>.`);
+    return {
+      input: {
+        assignmentId: factoryPositional(options, "factory.file-backup.save"),
+        files,
+        ...optionalText(options, "claim-id", "claimId"),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.grant-use.record": (options: OperationOptions) => {
+    const operation = operationPath("factory.grant-use.record");
+    return {
+      input: {
+        unit: factoryPositional(options, "factory.grant-use.record"),
+        workflow: requiredValue(options, "workflow", operation),
+        action: requiredValue(options, "action", operation),
+        runId: requiredValue(options, "run-id", operation),
+        ...optionalText(options, "claim-id", "claimId"),
+        ...factoryProject(options),
+      },
+    };
+  },
 } satisfies Record<string, RunCliAdapter>);
 
 /** Flags that take a value in one command although the shared parser lists them as booleans. */

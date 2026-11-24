@@ -702,6 +702,49 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
     options: [FACTORY_WRITE_TARGET, FACTORY_WRITE_PROJECT, JSON_OPTION],
     notes: [FACTORY_WRITE_NOTE],
   },
+  // W30 R0 follow-up commands (PRD 53 R-FACTORY-69 to R-FACTORY-71).
+  "factory.tools.list": {
+    summary: "List this machine's saved agent tools with their states, capability proofs, and record versions. It takes no project and contacts no tool. Changes nothing.",
+    usage: "[--json]",
+    options: [JSON_OPTION],
+    notes: ["This command acts on this machine. Every project on this machine uses the same tool list.", "Give a tool's record version as expectedVersion when you save that tool again with factory tools save."],
+  },
+  "factory.file-backup.save": {
+    summary: "Back up files before a worker changes them in a checkout folder without git, and record each file, its digest, and its assignment. In a folder with git, no backup is needed. Only the holder of the unit's claim saves one.",
+    usage: "<assignment> --file <path> [--file <path>] [--claim-id <id>] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<assignment>", text: "The assignment ID of the job whose worker changes the files." }],
+    options: [
+      { name: "--file <path>", text: "A file to back up before the worker changes it, as a path inside the checkout. Repeat it for more files." },
+      FACTORY_CLAIM_ID,
+      FACTORY_WRITE_TARGET,
+      FACTORY_WRITE_PROJECT,
+      JSON_OPTION,
+    ],
+    notes: [
+      FACTORY_WRITE_NOTE,
+      FACTORY_CLAIM_NOTE,
+      "The copies go to .make-docs/backup/factory/ in the checkout that the assignment runs in. In a folder with git the result is not-needed, and nothing changes: git is the undo there.",
+    ],
+  },
+  "factory.grant-use.record": {
+    summary: "Record the use of a grant on the live claim of a unit whose assignments are all final, before an action at the end of a scope. Only the holder of the unit's claim records it.",
+    usage: "<unit> --workflow <name> --action <action> --run-id <run-id> [--claim-id <id>] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<unit>", text: "The claimed work unit: a coordinate such as W29 R0 P4, or a quick item number." }],
+    options: [
+      { name: "--workflow <name>", text: "The workflow that holds the grant." },
+      { name: "--action <action>", text: "The action that the grant permits, such as merge." },
+      { name: "--run-id <run-id>", text: "The lifecycle run of the unit's assignments." },
+      FACTORY_CLAIM_ID,
+      FACTORY_WRITE_TARGET,
+      FACTORY_WRITE_PROJECT,
+      JSON_OPTION,
+    ],
+    notes: [
+      FACTORY_WRITE_NOTE,
+      FACTORY_CLAIM_NOTE,
+      "A unit with an open assignment records its grant use with factory assignment save --grant-use instead. Make Docs records the use and never does the action.",
+    ],
+  },
 };
 
 /** The help entry of one registry operation. Throws when the table has none. */

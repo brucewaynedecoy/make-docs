@@ -502,6 +502,10 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   added("factory.assignment.save", W30, "factory", "factory assignment save"),
   added("factory.assignment.list", W30, "factory", "factory assignment list"),
   added("factory.restore", W30, "factory", "factory restore"),
+  // W30 R0 follow-up commands (owner decisions 2026-11-23).
+  added("factory.tools.list", W30, "factory", "factory tools list"),
+  added("factory.file-backup.save", W30, "factory", "factory file-backup save"),
+  added("factory.grant-use.record", W30, "factory", "factory grant-use record"),
 
   // check
   current("prd.authority.validate", "check", "run prd authority validate", "prd_validate", "check prd", {

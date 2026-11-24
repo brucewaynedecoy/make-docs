@@ -73,7 +73,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     // W29 R0 P4 admits the nine work queue operations (PRD 52 R-WORK-QUEUE-12).
     const w29R0P4Ids = ["status", "sync", "next", "claim", "release", "report", "close", "export", "add"].map((verb) => `work.queue.${verb}`);
     // W30 R0 P3 admits the ten factory operations (PRD 53 R-FACTORY-49).
-    const w30R0P3Ids = ["factory.status","factory.tools.save","factory.workflow.save","factory.workflow.show","factory.workflow.list","factory.proof.save","factory.assignment.start","factory.assignment.save","factory.assignment.list","factory.restore"];
+    const w30R0P3Ids = ["factory.status","factory.tools.save","factory.workflow.save","factory.workflow.show","factory.workflow.list","factory.proof.save","factory.assignment.start","factory.assignment.save","factory.assignment.list","factory.restore","factory.tools.list","factory.file-backup.save","factory.grant-use.record"];
     expect(admitted.filter(entry => w30R0P3Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
       w30R0P3Ids.map(id => ({ id, status: "active" })),
     );
