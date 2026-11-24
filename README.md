@@ -96,7 +96,7 @@ The MCP server gives agents tools and resource reads from the same operation cor
 
 ## Optional Skills
 
-The CLI package embeds these eight first-party Skills. A fresh setup selects none. Use `make-docs setup skills` to select or manage them.
+The CLI package embeds these nine first-party Skills. A fresh setup selects none. Use `make-docs setup skills` to select or manage them.
 
 | Skill | Use |
 | --- | --- |
@@ -105,6 +105,7 @@ The CLI package embeds these eight first-party Skills. A fresh setup selects non
 | `cleanup-docs` | Clean up project documentation. |
 | `decompose-codebase` | Map an existing codebase into PRDs and a rebuild backlog. |
 | `factory` | Coordinate implementation and review when requested. |
+| `factory-setup` | Set up and prove a factory workflow with your own agent tools when requested. |
 | `human-experience` | Review a human-facing result when requested. |
 | `naive-uat` | Guide Unassisted Goal Testing. |
 | `preflight` | Review readiness before execution when requested. |

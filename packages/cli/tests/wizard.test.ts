@@ -467,6 +467,10 @@ describe("selection wizard", () => {
         description: "Coordinate approved backlog work, review, and correction. Explicit use only.",
       },
       {
+        name: "factory-setup",
+        description: "Set up, prove, and save a factory workflow with your own agent tools. Explicit use only.",
+      },
+      {
         name: "naive-uat",
         description: "Thin CLI access to the shared Unassisted Goal Testing workflow.",
       },

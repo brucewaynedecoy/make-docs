@@ -474,6 +474,54 @@
           "installPath": "references/surfaces.md"
         }
       ]
+    },
+    {
+      "name": "factory-setup",
+      "displayName": "Factory Setup",
+      "source": "embedded:factory-setup",
+      "entryPoint": "SKILL.md",
+      "installName": "factory-setup",
+      "description": "Set up, prove, and save a factory workflow with your own agent tools. Explicit use only.",
+      "purposes": [
+        "workflow-execution"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex",
+        "github-copilot"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/find-and-read.md",
+          "installPath": "references/find-and-read.md"
+        },
+        {
+          "source": "references/interview.md",
+          "installPath": "references/interview.md"
+        },
+        {
+          "source": "references/save-and-test.md",
+          "installPath": "references/save-and-test.md"
+        },
+        {
+          "source": "references/summary.md",
+          "installPath": "references/summary.md"
+        },
+        {
+          "source": "references/wire-and-prove.md",
+          "installPath": "references/wire-and-prove.md"
+        }
+      ]
     }
   ]
 }

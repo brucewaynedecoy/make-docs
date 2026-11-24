@@ -487,3 +487,139 @@ On 2026-11-23 the owner chose option C for register D-076: the command that move
 ### Open for the Owner
 
 - None. T11 passed on 2026-11-23, and register D-076 is closed.
+
+## P4 Factory Setup Skill
+
+Covers A26 to A32 and A64 to A66 in [P4](04-factory-setup-skill.md). Evidence date: 2026-11-23. Base commit: `2b03cb46` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. The work is uncommitted in its worktree. Every CLI and test run used a temporary `MAKE_DOCS_HOME`; nothing read or wrote the real Store.
+
+### What Changed
+
+The new first-party Skill `factory-setup` lives in `packages/skills/factory-setup/`. It is explicit-invocation-only (`allow_implicit_invocation: false`), and a fresh setup installs no Skill, so it is off by default. It ships Markdown and metadata only: no script and no Python.
+
+| File | What it holds |
+| --- | --- |
+| `SKILL.md` | The rules that always hold, the MCP-then-CLI command table with the labeled manual path, Step 0 (CLI, Store, and project checks with each fix), the six steps, the rerun, and the finish. |
+| `references/find-and-read.md` | Reuse of the machine's saved tool list and when it is current, where to look by capability, how to read each tool, tool IDs, and what not to ask. |
+| `references/interview.md` | How to ask, what never to ask, the ten questions in order with their recommendations, grants and their scopes, working copies, known losses, and context kinds. |
+| `references/wire-and-prove.md` | The capabilities of each role, the smallest setup and its binding, a multi-tool setup, the proof method for each catalog capability, the proof record, `factory tools save`, and a new tool version. |
+| `references/save-and-test.md` | The config entry, `factory workflow save` and its refusals, the plan revision and digest in plain words, the test task, `factory proof save` and its refusals, and the rerun with each drift code in plain words. |
+| `references/summary.md` | What the closing summary holds and where each fact comes from, the manual step form, and two sample summaries. |
+| `agents/openai.yaml` | Display metadata and the explicit-use policy. |
+
+Shared edits, all additive: one new entry at the end of `packages/cli/skill-registry.json`; the Skill lists in six tests and two scripts; the Skill counts and tables in `README.md`, `packages/cli/README.md`, `packages/skills/README.md`, the user guide on Skills, and the maintainer catalog page (which also gained its missing `backlog-review` row).
+
+### How Each Task Is Met
+
+| Task | Where |
+| --- | --- |
+| T1 | The Skill folder, its registry entry (purpose `workflow-execution`), and the explicit-use policy. |
+| T2, A26 | `SKILL.md` Step 0: a table of each Store outcome and project refusal, what is missing, and the fix. Setup stops and saves nothing. A fixture run with no Store gets `store-unavailable` and creates no Store. |
+| T3 | `find-and-read.md`: the bound tools from `factory workflow show` first, and the restored tools copy as a hint only, then the session's own tools, its MCP servers and Skills, and the instructions that name commands, by capability and by tool kind. No disk scan, no credential files, no outside service. |
+| T4 | `find-and-read.md`, Read Each Tool: help, docs, MCP tool list, and Skills, recorded as catalog capability IDs. A claim is `unproved` until proved. |
+| T5, A27 | `interview.md`: one decision at a time, recommendation first, at most two options, and a Never Ask list of facts setup finds itself. |
+| T6 | `interview.md`, Working Copies: a repository or user rule that forbids worktrees decides `none` with no question. |
+| T7 | `wire-and-prove.md`: roles get tools by proved capabilities, and each proof is `proved`, `unproved`, or `contradicted`. |
+| T8, A29 | `wire-and-prove.md`, The Smallest Setup, with its binding. A fixture run uses that binding and the Skill's own config example and reaches `ready`. |
+| T9 | `save-and-test.md`, Run the Test Task: intake through the front desk, a fresh builder, a fresh reviewer, the foreman's judgment, and the return through the human channel. |
+| T10 | `summary.md`, Manual Steps: Do, Why, Required or Optional, Unblocks, saved with `--manual-step`. |
+| T11, A31 | `save-and-test.md` and `summary.md`. The fixture runs read every summary fact from `factory workflow show`. |
+| T12, A32 | `save-and-test.md`, Rerun. A fixture run changes the reviewer's tool, shows the change, gets `draft` before the new tool is proved, proves it, and reaches `ready` under a new revision. The old digest is refused with `plan-digest-mismatch`. |
+| T13 | `SKILL.md`, `wire-and-prove.md`, and `summary.md`: never install, sign in, pay, or change authentication; list it as a manual step. |
+| T14 | `wire-and-prove.md`, A New Tool Version. A fixture run reports version 1.1, gets `tool-version-changed`, proves again, saves, and reaches `ready`. |
+| T15, A64 | `interview.md`, Known Losses, and the summary. |
+| T16, A65 | `interview.md`, Grants: no grant (recommended) and `once` as the two options, with `standing` named; a `run` grant is asked for during a run. `save-and-test.md` shows the grants file and how a rerun revokes a grant. A fixture run refuses a grant without a scope, and a saved grant shows beside the plan, not in it or in the config. |
+| T17, A66 | `interview.md`, Context Kinds, and `save-and-test.md` steps 2 to 5. The fixture runs save a revision, run the test task under it, and save the proof with the same digest. |
+| A28, A30 | The twin test refuses product names in every Skill file. A multi-tool fixture run fills the same four roles with `tool-c` to `tool-f`, and wakes with `tool-g`. |
+
+### Twin Test
+
+`packages/cli/tests/w30-r0-p4-factory-setup-skill.test.ts` (24 tests after the review fixes) checks that the Skill text and the code agree:
+
+- Bundle: the folder holds exactly the files that the registry declares; explicit use only; no script and no Python; the never-log list is named; no install, sign-in, payment, or authentication change.
+- Tool-agnostic: no Skill file and no registry text names a product, a harness, a provider, a terminal or a multiplexer, a scheduler, a messaging or notification tool, or an agent delegation tool. The list of names can never be complete, and the test says so. P6 T8 still searches the shipped files.
+- Interview: at most two options in one question, and the places that list the other choices.
+- Commands: each of the seven setup operations has its MCP tool before its CLI command in one table row, with the right scope, and the manual path follows. Every `make-docs factory` command and `factory_*` tool that the Skill names exists, and the Skill names no assignment command. Every flag in a command example is in that command's leaf help. Every project write example names `--target-root` or `--project`, and `factory tools save` names neither.
+- Codes and values: every drift code, every refusal and Store outcome that a setup step can meet, every capability ID, context kind, tool kind, tool state, proof result, grant scope, wake method, and shipped type. The proof table rows equal the capability catalog in order. The default context lists equal `FACTORY_DEFAULT_CONTEXT`.
+- Rule IDs: the Skill names each contract rule whose check names W30 R0 P4, and 22 other setup rules. Every kebab-case name in the Skill's inline code is a contract rule ID, a code or value from the code, or one of five listed other names, so a code or rule ID on the Skill side only fails the test. Every one-word value and every field path in inline code must be a string value of the factory record lists, a key of a setup operation's input schema or of the config entry schema, or a key or path of a real result from the fixture runs, or one of nine listed other words. Planted `halted`, `webhook`, and `binding.revisionVersion` fail.
+- The Skill's example config entry passes the config check, has the four standard roles, and holds no grant, tool ID, or path.
+- Fixture runs: A26, a write with no project (`project-missing`, nothing saved), A29 with A66, A30 with A65, A32, T14, a grant-only save that adds and revokes grants with the Skill's own grants file, a grant with no scope, and the two sample summaries (A31, A64).
+
+A planted typo (`tool-mising`), planted product names, and the three planted names above each made the test fail, and each was removed.
+
+### Choices Made in This Phase
+
+Each item is new behavior that no authority fixed.
+
+- The test task adds no work unit and no assignment record, because `factory assignment start` needs a `ready` workflow. It runs through the bound tools with a scratch file that it removes.
+- The smallest setup and the examples bind a `front-desk` role in the config, so the summary names a tool for it. With "wait in session", it needs only `read-write-files`; with a messaging channel, `message-person` and `receive-answer`.
+- A tool that reports no version is a known loss, because the factory cannot see when it changes.
+- Setup recommends no grant first, then `once`, then `standing`, and asks for a `run` grant only during a run, because a run does not exist at setup.
+- A scheduled wake is recommended every 10 minutes, under the 30-minute claim limit.
+- Setup does not run the test task until each known loss is accepted or fixed.
+- The default workflow name is `main`.
+
+### Sample Closing Summary (for Owner Review)
+
+This is the smallest-setup sample from `references/summary.md`, with neutral placeholders. The multi-tool sample is in the same file.
+
+```text
+Factory setup for project <project> is done. Workflow main is ready: it can take new work.
+
+Roles. Tool A (version 1.0) fills every role: it is the front desk and the foreman, and it starts a fresh helper agent for each builder and each reviewer. A reviewer is never the agent that built the work. All five capabilities that these roles need are proved.
+
+Wake. No tool can wake on its own. The factory runs only while you keep a session open. To run it, ask for the factory in a session.
+
+Human channel. Wait in session: when the factory needs a decision, it asks you in the chat and waits for you.
+
+Test task. Tool A took a small request, a fresh builder wrote one line, a separate fresh reviewer checked it, and the result came back to you. It passed under plan revision 1 (digest starting aed0828d14c8, a short fingerprint of the exact saved plan). No capability stays unproved.
+
+Known losses you accepted.
+- No tool can wake on its own, so the factory runs only while a session is open.
+- The file proof did not test files outside the project.
+
+Grants. None. The factory asks you before each merge, deploy, publish, or payment.
+
+Open manual steps. None.
+
+Next. Ask for the factory skill to run work. Check the factory at any time with make-docs factory status --target-root <checkout>.
+```
+
+The interview questions for the same review are in `references/interview.md`, The Questions, with one example question.
+
+### Checks
+
+All runs used the built CLI where a CLI ran, and a temporary `MAKE_DOCS_HOME`.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-p4-factory-setup-skill.test.ts`: 20 tests pass; 24 after the review fixes.
+- Skill tests (`embedded-skills`, `skill-catalog`, `skill-registry`, `w34-r0-p4-skill-scripts-guard`, `skills-ui`, `wizard`, `w34-r0-p2-skill-check-twins`): 105 tests pass. After the review fixes, these with the P4 test and `consistency`: 9 files, 167 tests pass. tsc, the build, `validate:defaults` (53 tests), and `project markdown validate` on the Skill and the W30 backlog (14 files, no findings) pass again.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its temporary folder.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project markdown validate --path packages/skills/factory-setup`: 6 files, no findings.
+- A CLI run of the smallest setup in a temporary project (setup, tools save, workflow save, proof save, a grant save, and workflow show) gave the outputs that the Skill describes. It found that a later `proof save` needs `--expected-version`, so the Skill now names `proofs.passed.version` from `workflow show`.
+- Full suite: `npx vitest run --reporter=json` in `packages/cli`, counted from the JSON report: 153 test files; of 3,597 tests, 3,587 passed, 4 failed, and 6 were skipped. Three failures are the known ones: `mcp-app-contract` (two tests, a Node v26 deprecation warning on stderr) and `p5-migration-safety` fixture 11. The fourth was this phase's: a `cli.test.ts` test that lists the valid Skill names in its refusal message. It now lists `factory-setup` and passes. After that fix, the test "routes reconfigure skill scope and selected-name changes without changing Skills" passed in the full run (9.8 s) but hit its own 15 s limit in three runs alone (16 to 23 s). It also hit the limit with this phase's registry entry removed, so it is the known timeout and not caused by this phase.
+
+### Review Fixes
+
+An independent review of P4 on 2026-11-23 found no broken code and eight items in the text and the test. Each is fixed, except item 8, which is a P3 follow-up.
+
+| Item | Fix |
+| --- | --- |
+| 1 (MEDIUM). Setup decided from the `.make-docs/factory/tools.md` copy, which can be out of date and has no record version. | `find-and-read.md`: decide from `factory workflow show` for bound tools. For the other tools, run `factory restore --target-root <checkout>` first and use the copy as a hint only: never decide from it, never copy a proof from it, and never take an `expectedVersion` from it. Prove every tool that no workflow binds before you save it. The owner is deciding on a `factory tools list` read; it is not built. |
+| 2 (MEDIUM). The grants file had no shape. | `save-and-test.md` shows the `add` and `revoke` lists in one JSON example, says where `grantId` and `expectedVersion` come from, how a rerun revokes and adds grants, and that a grant-only save needs no new test task. A CLI run and a fixture run use that shape. |
+| 3 (MEDIUM). Some questions showed three or more options. | `SKILL.md` and `interview.md` show at most two options: the recommendation and the one best other choice, then say that more exist and where to see them. The workflow type, the human channel, the wake method, a role's tool, the grant scope, and the fix for a loss that is not accepted follow it. |
+| 4 (LOW). The twin test checked only hyphenated names. | It also checks one-word values and field paths against the code and real results. |
+| 5 (LOW). The product name list missed some messaging and terminal names. | The list is wider, and a comment says that it can never be complete. |
+| 6 (LOW). "Read the saved record again" had no command. | `wire-and-prove.md`: use the version that the refusal names (`details.currentVersion`), and never the copy. |
+| 7 (LOW). A `store-not-configured` row cannot occur for a factory call. | It is merged into the `store-denied` row in `SKILL.md` Step 0. |
+| 8 (LOW). The CLI accepts an email address in `grantedBy`. | Not fixed here: a P3 follow-up below. |
+
+### Left for a Follow-Up
+
+- No command reads the machine's tool list with its record versions. Setup uses the `.make-docs/factory/tools.md` copy as a hint only, after a restore, and a `version-conflict` refusal names the current version. The owner is deciding whether to add a `factory tools list` read.
+- P3 follow-up: `factory workflow save` accepts an email address in a grant's `grantedBy` (a CLI run saved `someone@example.com`). The Skill asks for a short label and never an account or an email address, but the CLI does not check it.
+- This repository's installed dogfood Skill copies under `.agents/skills/` do not include `factory-setup` yet. Installing it needs `make-docs setup skills`, which writes the real Store, so this phase did not do it.
+
+### Open for the Owner
+
+- Guided Progress Review of the interview questions and the closing summary (P4 testing decision). Feedback can change both before closeout.

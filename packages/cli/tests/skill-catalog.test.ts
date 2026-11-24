@@ -17,6 +17,7 @@ const ALL_SKILL_NAMES = [
   "decompose-codebase",
   "preflight",
   "factory",
+  "factory-setup",
   "human-experience",
   "naive-uat",
 ];
@@ -90,6 +91,7 @@ describe("skill catalog", () => {
       "cleanup-docs",
       "human-experience",
       "factory",
+      "factory-setup",
       "naive-uat",
       "preflight",
     ]);

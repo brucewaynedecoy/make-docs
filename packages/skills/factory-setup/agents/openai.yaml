@@ -1,0 +1,6 @@
+interface:
+  display_name: "Factory Setup"
+  short_description: "Set up and prove a factory workflow with your tools"
+  default_prompt: "Use $factory-setup to set up and prove a factory workflow for this project."
+policy:
+  allow_implicit_invocation: false

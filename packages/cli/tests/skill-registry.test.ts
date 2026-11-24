@@ -73,6 +73,7 @@ describe("skill registry", () => {
       "preflight",
       "factory",
       "human-experience",
+      "factory-setup",
     ]);
     expect(getSkillRegistryNames(registry)).toEqual([
       "archive-docs",
@@ -80,6 +81,7 @@ describe("skill registry", () => {
       "cleanup-docs",
       "decompose-codebase",
       "factory",
+      "factory-setup",
       "human-experience",
       "naive-uat",
       "preflight",

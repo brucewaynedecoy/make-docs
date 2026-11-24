@@ -241,6 +241,7 @@ const EXPECTED_ALL_SKILLS = [
   "decompose-codebase",
   "preflight",
   "factory",
+  "factory-setup",
   "human-experience",
   "naive-uat",
 ];

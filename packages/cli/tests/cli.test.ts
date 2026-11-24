@@ -1731,10 +1731,12 @@ personas:
         "cleanup-docs",
         "decompose-codebase",
         "factory",
+        "factory-setup",
         "human-experience",
         "naive-uat",
         "preflight",
       ]);
+      expect(manifest?.skillFiles).toContain(".claude/skills/factory-setup");
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/backlog-review");
       expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
@@ -2266,7 +2268,7 @@ personas:
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, backlog-review, cleanup-docs, decompose-codebase, factory, human-experience, naive-uat, preflight.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, backlog-review, cleanup-docs, decompose-codebase, factory, factory-setup, human-experience, naive-uat, preflight.",
       );
     } finally {
       cleanupTempDir(targetDir);

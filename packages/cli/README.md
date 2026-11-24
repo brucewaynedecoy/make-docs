@@ -45,7 +45,7 @@ The global Make Docs Store holds managed install and recovery records. The proje
 
 ## Optional Skills
 
-The package includes eight first-party Skills: `archive-docs`, `backlog-review`, `cleanup-docs`, `decompose-codebase`, `factory`, `human-experience`, `naive-uat`, and `preflight`. A fresh setup installs none of them. Use `make-docs setup skills` to select or manage Skills. The built-in Skills need no separate source download.
+The package includes nine first-party Skills: `archive-docs`, `backlog-review`, `cleanup-docs`, `decompose-codebase`, `factory`, `factory-setup`, `human-experience`, `naive-uat`, and `preflight`. A fresh setup installs none of them. Use `make-docs setup skills` to select or manage Skills. The built-in Skills need no separate source download.
 
 ## Package Contents
 

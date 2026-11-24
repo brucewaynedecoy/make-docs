@@ -164,6 +164,7 @@ describe("skills-only UI", () => {
       "cleanup-docs",
       "human-experience",
       "factory",
+      "factory-setup",
       "naive-uat",
       "preflight",
     ]);

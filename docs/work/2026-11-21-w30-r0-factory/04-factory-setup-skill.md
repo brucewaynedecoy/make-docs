@@ -55,12 +55,12 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T1: Create `packages/skills/factory-setup/` and its registry entry. Keep it explicit-invocation-only and off by default (R-FACTORY-48).
-- [ ] T2: Stop when the CLI or a usable Store is missing. Name which one and the setup step that fixes it (R-FACTORY-3).
-- [ ] T3: Find agent tools on the machine and in the project, by capability: tools that run agents, launch agents, wake on a schedule or event, message the person, or expose MCP servers. Reuse the machine's saved tool list when it is current (R-FACTORY-15).
-- [ ] T4: Read each tool's help, docs, MCP tool list, and Skills. Record what each tool says it can do.
-- [ ] T5: Interview the person for preferences and permissions only: workflow type, human channel, wake method, limits, grants, and optional steps such as preflight. Ask one decision at a time, with a recommendation (R-FACTORY-21, R-FACTORY-35, R-FACTORY-36).
-- [ ] T6: Save the worktree method of each workflow, and obey a repository or user rule that forbids worktrees (R-FACTORY-43).
+- [x] T1: Create `packages/skills/factory-setup/` and its registry entry. Keep it explicit-invocation-only and off by default (R-FACTORY-48).
+- [x] T2: Stop when the CLI or a usable Store is missing. Name which one and the setup step that fixes it (R-FACTORY-3).
+- [x] T3: Find agent tools on the machine and in the project, by capability: tools that run agents, launch agents, wake on a schedule or event, message the person, or expose MCP servers. Reuse the machine's saved tool list when it is current (R-FACTORY-15).
+- [x] T4: Read each tool's help, docs, MCP tool list, and Skills. Record what each tool says it can do.
+- [x] T5: Interview the person for preferences and permissions only: workflow type, human channel, wake method, limits, grants, and optional steps such as preflight. Ask one decision at a time, with a recommendation (R-FACTORY-21, R-FACTORY-35, R-FACTORY-36).
+- [x] T6: Save the worktree method of each workflow, and obey a repository or user rule that forbids worktrees (R-FACTORY-43).
 
 ### Acceptance criteria
 
@@ -76,13 +76,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T7: Give each role a tool by capability. Mark each capability as proved or unproved (R-FACTORY-9, R-FACTORY-10).
-- [ ] T8: Support the smallest setup: one tool that is the front desk and the foreman, with its own subagents as builders and reviewers, and "wait in session" as the channel (R-FACTORY-8, R-FACTORY-36).
-- [ ] T9: Run one small test task from intake to return through the real workflow (R-FACTORY-11).
-- [ ] T10: List each one-time manual step with what the person must do, why, and what it unblocks (R-FACTORY-13).
-- [ ] T11: Save through the P3 operations, then show the closing summary (R-FACTORY-14).
-- [ ] T12: On a rerun, update the same workflow, show what changed, and prove again each boundary that changed (R-FACTORY-16).
-- [ ] T13: Make no install, sign-in, billing, or authentication change on the person's behalf.
+- [x] T7: Give each role a tool by capability. Mark each capability as proved or unproved (R-FACTORY-9, R-FACTORY-10).
+- [x] T8: Support the smallest setup: one tool that is the front desk and the foreman, with its own subagents as builders and reviewers, and "wait in session" as the channel (R-FACTORY-8, R-FACTORY-36).
+- [x] T9: Run one small test task from intake to return through the real workflow (R-FACTORY-11).
+- [x] T10: List each one-time manual step with what the person must do, why, and what it unblocks (R-FACTORY-13).
+- [x] T11: Save through the P3 operations, then show the closing summary (R-FACTORY-14).
+- [x] T12: On a rerun, update the same workflow, show what changed, and prove again each boundary that changed (R-FACTORY-16).
+- [x] T13: Make no install, sign-in, billing, or authentication change on the person's behalf.
 
 ### Acceptance criteria
 
@@ -101,10 +101,10 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 
 ### Tasks
 
-- [ ] T14: For each proof, record the tool version that the tool reports, the proof time, a result of `proved`, `unproved`, or `contradicted`, and a "does not cover" list. When a bound tool reports a new version, run its proofs again before the workflow takes new work (R-FACTORY-10).
-- [ ] T15: Name each known loss, ask the person to accept it, save each accepted one, and list each one in the closing summary (R-FACTORY-14).
-- [ ] T16: Ask for each grant with its action, its scope (`once`, `run`, or `standing`), and an optional expiry. Recommend the narrowest scope that does the job (R-FACTORY-24).
-- [ ] T17: Set each role's context kinds, with the defaults from the contract. Save through `factory workflow save`, show the plan revision and its digest in plain words, run the test task under that revision, and save the proof with that digest (R-FACTORY-55, R-FACTORY-57, R-FACTORY-60).
+- [x] T14: For each proof, record the tool version that the tool reports, the proof time, a result of `proved`, `unproved`, or `contradicted`, and a "does not cover" list. When a bound tool reports a new version, run its proofs again before the workflow takes new work (R-FACTORY-10).
+- [x] T15: Name each known loss, ask the person to accept it, save each accepted one, and list each one in the closing summary (R-FACTORY-14).
+- [x] T16: Ask for each grant with its action, its scope (`once`, `run`, or `standing`), and an optional expiry. Recommend the narrowest scope that does the job (R-FACTORY-24).
+- [x] T17: Set each role's context kinds, with the defaults from the contract. Save through `factory workflow save`, show the plan revision and its digest in plain words, run the test task under that revision, and save the proof with that digest (R-FACTORY-55, R-FACTORY-57, R-FACTORY-60).
 
 ### Acceptance criteria
 
@@ -118,10 +118,11 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing is selected and done: 24 new tests in `packages/cli/tests/w30-r0-p4-factory-setup-skill.test.ts` cover the bundle and its explicit-use policy (T1), no script and no Python, the tool-agnostic text (A28), the twin checks of commands, MCP tools, flags, reason codes, record values, one-word values and field paths, default context lists, and contract rule IDs, the two-option interview rule, the tools copy as a hint only, the grants file, the example config entry, and fixture runs for A26, A29, A30, A32, A65, A66, and T14, and the two sample summaries (A31, A64). The Skill registry, embedded, catalog, and UI tests list the new Skill. Guided Progress Review is selected and waits for the owner: the interview questions and the closing summary. Performance Testing and Unassisted Goal Testing stay `not-needed-now`.
+- Performance evidence: none. No performance candidate applies.
+- Human Experience Review: the interview asks one decision at a time, recommendation first, and only for preferences and permissions; a Never Ask list keeps out facts that setup finds. Each internal term has plain words beside it. The summary puts the outcome first, then the tool, version, and proof result of each role, the wake method (and says when no tool can wake on its own), the human channel, the test result with the plan revision, each accepted known loss, each grant, and each open manual step in the Do, Why, Required or Optional, Unblocks form. Limit: the samples use neutral placeholders; no live setup with real tools ran in this phase. P6 proves two real setups.
+- Optional experience handoff: none until the owner's review.
+- Explicit human acceptance gate: open. The owner's Guided Progress Review of the interview questions and the closing summary.
+- Evidence report: [W30 R0 Evidence Report, P4](evidence.md#p4-factory-setup-skill).
+- Independent review (2026-11-23): no broken code; eight text and test items. Items 1 to 7 are fixed: the tools copy is a hint only after a restore, the grants file shape and a rerun revoke, at most two options for each question, the one-word and field path check, a wider product name list, the version that a refusal names, and one `store-denied` row. Item 8, an email address accepted in `grantedBy`, is a P3 follow-up. See [Review Fixes](evidence.md#review-fixes-1).
+- Phase / capability status: T1 to T17 are built, and A26 to A32 and A64 to A66 are met by the fixture runs and the twin test. The phase stays `active` until the owner's Guided Progress Review. Capability partial: the run Skill and handoffs (P5) and the proofs and acceptance (P6) remain. Follow-ups: no command reads the machine tool list with its record versions (the owner is deciding on a `factory tools list` read), the CLI accepts an email address in `grantedBy` (P3), and this repository's installed Skill copies do not include `factory-setup` yet, because installing it writes the real Store.
