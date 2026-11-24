@@ -91,6 +91,17 @@ describe("make-docs MCP runtime", () => {
       "work_close",
       "work_export",
       "work_add",
+      // W30 R0 P3 factory (PRD 53 R-FACTORY-49).
+      "factory_status",
+      "factory_tools_save",
+      "factory_workflow_save",
+      "factory_workflow_show",
+      "factory_workflow_list",
+      "factory_proof_save",
+      "factory_assignment_start",
+      "factory_assignment_save",
+      "factory_assignment_list",
+      "factory_restore",
     ]);
   });
 

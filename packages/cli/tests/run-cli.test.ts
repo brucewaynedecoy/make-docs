@@ -152,7 +152,8 @@ describe("registry command groups (W18 R11, W33 R0 P2, R-REG-2, R-TOP-1, R-TOP-3
     );
     // The valid-commands listing is derived from the registry.
     await expect(runRunCommand(["work", "fly"])).rejects.toThrow(/make-docs work evidence record/);
-    await expect(runRunCommand(["factory", "status"])).rejects.toThrow(/The factory group has no commands yet/);
+    // W30 R0 P3 admitted the factory commands, so an unknown factory path lists them.
+    await expect(runRunCommand(["factory", "fly"])).rejects.toThrow(/make-docs factory workflow save/);
     await expect(runRunCommand(["playbook", "fly"])).rejects.toThrow(/Unknown make-docs command group: `playbook`/);
   });
 

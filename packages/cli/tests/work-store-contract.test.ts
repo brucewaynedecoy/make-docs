@@ -422,9 +422,11 @@ describe("W29 R0 P1 quick items and project URIs", () => {
 
   it("names the project in every project URI", () => {
     expect(WORK_PROJECT_URI_PREFIX).toBe("make-docs://project/");
-    expect(WORK_PROJECT_URI_FAMILIES).toEqual(["tasks", "backlog"]);
+    // W30 R0 P3 made the factory family current (PRD 52 R-WORK-URI-1); PRD 53 R-FACTORY-66 owns its paths.
+    expect(WORK_PROJECT_URI_FAMILIES).toEqual(["tasks", "backlog", "factory"]);
+    expect(PRD_52).toContain("The current families are `tasks`, `backlog`, and `factory`.");
     for (const family of WORK_PROJECT_URI_FAMILIES) {
-      expect(PRD_52).toContain(`make-docs://project/<project>/${family}/`);
+      if (family !== "factory") expect(PRD_52).toContain(`make-docs://project/<project>/${family}/`);
       expect(parseWorkProjectUri(`make-docs://project/${family}/`).ok).toBe(false);
     }
     const parsed = parseWorkProjectUri("make-docs://project/make-docs/backlog/W29/R0/P1/T3");

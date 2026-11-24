@@ -41,6 +41,7 @@ import { leafHelpEntry } from "./leaf-help-table";
 import { decompositionOperations } from "./decomposition/ops";
 import { projectSkillCheckOperations } from "./project/skill-check-ops";
 import { workQueueOperations } from "./work/work-queue/operations";
+import { factoryOperations } from "./factory/operations";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -87,8 +88,13 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   mutates: OperationMutation;
   /** Exact Store, project, and host-config access needed by this operation. */
   access: OperationAccess;
-  /** Optional read-only sub-operations must obtain their own Store admission. */
-  storeAdmission?: "required" | "optional";
+  /**
+   * Optional read-only sub-operations must obtain their own Store admission.
+   * `handler` (W30 R0 P3): the harness check still runs, and the handler
+   * opens its own Store session with no project folder, because the call acts
+   * on this machine, not on the folder where it runs.
+   */
+  storeAdmission?: "required" | "optional" | "handler";
   status: OperationStatus;
   /** Required for MCP-ready operations; independent of admission and access. */
   mcp?: McpToolMetadata;
@@ -102,7 +108,20 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   inputSchema: ZodType<TInput>;
   /** Active operations have one handler. Pending reservations have none. */
   handler?(input: TInput, context: OperationExecutionContext): TOutput | Promise<TOutput>;
+  /**
+   * W30 R0 P3: find the folder whose harness grant and Store admission apply,
+   * before the access check. A factory call names its project by path or by
+   * name, so the target is that project's checkout, not the current folder
+   * (PRD 53 R-FACTORY-63, R-FACTORY-67). It may instead return a typed refusal
+   * value, which the call returns without any Store admission. `explainDenial`
+   * may restate a Store access refusal, for example to name the project.
+   */
+  resolveTarget?(input: TInput, context: OperationExecutionContext): Promise<OperationTargetResolution> | OperationTargetResolution;
 }
+
+export type OperationTargetResolution =
+  | { targetRoot: string; explainDenial?: (error: StoreAccessStateError) => StoreAccessStateError }
+  | { refusal: JsonValue };
 
 export interface OperationDescriptor {
   id: string;
@@ -110,7 +129,7 @@ export interface OperationDescriptor {
   summary: string;
   mutates: OperationMutation;
   access: OperationAccess;
-  storeAdmission?: "required" | "optional";
+  storeAdmission?: "required" | "optional" | "handler";
   status: OperationStatus;
   pendingLineage?: string;
   cli: OperationCliProjection;
@@ -121,7 +140,7 @@ export interface OperationAccessFact {
   status: OperationStatus;
   cli: OperationCliProjection;
   access: OperationAccess;
-  storeAdmission?: "required" | "optional";
+  storeAdmission?: "required" | "optional" | "handler";
   mcpReady: boolean;
   commandRuleCandidate: boolean;
 }
@@ -203,6 +222,17 @@ export const ADMITTED_OPERATION_IDS = [
   "work.queue.close",
   "work.queue.export",
   "work.queue.add",
+  // W30 R0 P3: the factory (PRD 53 R-FACTORY-49, PRD 39 R-RUN-4).
+  "factory.status",
+  "factory.tools.save",
+  "factory.workflow.save",
+  "factory.workflow.show",
+  "factory.workflow.list",
+  "factory.proof.save",
+  "factory.assignment.start",
+  "factory.assignment.save",
+  "factory.assignment.list",
+  "factory.restore",
 ] as const;
 
 /**
@@ -274,6 +304,16 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "work.queue.close": ["work", "close"],
   "work.queue.export": ["work", "export"],
   "work.queue.add": ["work", "add"],
+  "factory.status": ["factory", "status"],
+  "factory.tools.save": ["factory", "tools save"],
+  "factory.workflow.save": ["factory", "workflow save"],
+  "factory.workflow.show": ["factory", "workflow show"],
+  "factory.workflow.list": ["factory", "workflow list"],
+  "factory.proof.save": ["factory", "proof save"],
+  "factory.assignment.start": ["factory", "assignment start"],
+  "factory.assignment.save": ["factory", "assignment save"],
+  "factory.assignment.list": ["factory", "assignment list"],
+  "factory.restore": ["factory", "restore"],
 };
 
 export function operationDomain(id: string): string {
@@ -348,7 +388,7 @@ export function assertOperationStoreAdmission(
   definition: Pick<OperationDefinition, "id" | "mutates" | "access" | "storeAdmission">,
 ): void {
   const admission = definition.storeAdmission ?? "required";
-  if (admission !== "required" && admission !== "optional") {
+  if (admission !== "required" && admission !== "optional" && admission !== "handler") {
     throw new Error(`Operation ${definition.id} declares unknown Store admission.`);
   }
   if (admission === "optional" && (definition.mutates !== "read" || definition.access.store !== "read")) {
@@ -373,6 +413,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...decompositionOperations,
     ...projectSkillCheckOperations,
     ...workQueueOperations,
+    ...factoryOperations,
   ];
   for (const definition of definitions) {
     if (!OPERATION_ID_PATTERN.test(definition.id)) {
@@ -588,7 +629,19 @@ export async function invokeOperation(
   if (!handler) {
     throw new OperationError(`Active operation \`${id}\` has no handler.`);
   }
-  const targetRoot = operationTargetRoot(parsed.data, context.cwd);
+  let resolved: OperationTargetResolution | null = null;
+  if (definition.resolveTarget) {
+    try {
+      resolved = await definition.resolveTarget(parsed.data, context);
+    } catch (error) {
+      throw scopeStoreAccessFailure(error, id, path.resolve(context.cwd));
+    }
+    if ("refusal" in resolved) {
+      return { operation: id, value: resolved.refusal, provenance: { operation: id, domain: operationDomain(id), source: context.surface } };
+    }
+  }
+  const targetRoot = resolved && "targetRoot" in resolved ? resolved.targetRoot : operationTargetRoot(parsed.data, context.cwd);
+  const explainDenial = resolved && "targetRoot" in resolved ? resolved.explainDenial : undefined;
   if (
     (context.surface === "cli" || context.surface === "mcp") &&
     definition.access.store !== "none" && definition.storeAdmission !== "optional"
@@ -600,25 +653,30 @@ export async function invokeOperation(
       list: listHarnessCommandRules,
       validate: validateRegistryHarnessCommandRules,
     };
-    assertHarnessOperationAllowed({
-      operation: id,
-      required: definition.access,
-      targetRoot,
-      storeRoot: context.storeRoot,
-      route: context.route,
-      callerIdentityRaw: context.callerIdentityRaw,
-      callerReference: context.callerReference,
-      mcpConnectionId: context.mcpConnectionId,
-      mcpConnectionKey: context.mcpConnectionKey,
-      commandRuleAuthority: authority,
-    });
+    try {
+      assertHarnessOperationAllowed({
+        operation: id,
+        required: definition.access,
+        targetRoot,
+        storeRoot: context.storeRoot,
+        route: context.route,
+        callerIdentityRaw: context.callerIdentityRaw,
+        callerReference: context.callerReference,
+        mcpConnectionId: context.mcpConnectionId,
+        mcpConnectionKey: context.mcpConnectionKey,
+        commandRuleAuthority: authority,
+      });
+    } catch (error) {
+      if (explainDenial && error instanceof StoreAccessStateError) throw explainDenial(error);
+      throw error;
+    }
   }
   const run = async () => {
     return (await handler(parsed.data, context)) as JsonValue;
   };
   let value: JsonValue;
   try {
-    value = definition.access.store === "none" || definition.storeAdmission === "optional"
+    value = definition.access.store === "none" || definition.storeAdmission === "optional" || definition.storeAdmission === "handler"
       ? await run()
       : await context.withStoreSession(
           definition.access.store,

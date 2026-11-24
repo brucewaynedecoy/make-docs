@@ -60,7 +60,8 @@ describe("W30 R0 P1 factory resources", () => {
     expect(catalog.resourceTypes.map((entry) => entry.type)).toEqual(["contract", "prompt", "reference", "template"]);
     expect(catalog.resourceTypes.find((entry) => entry.type === "reference")?.include).toContain("factory/workflows/*.md");
     for (const { uri } of resources) {
-      expect(catalog.mcpResources.filter((entry) => entry.uri === uri).map((entry) => entry.profiles), uri).toEqual([["workflow"]]);
+      // W30 R0 P3 added each factory resource to the new factory profile.
+      expect(catalog.mcpResources.filter((entry) => entry.uri === uri).map((entry) => entry.profiles), uri).toEqual([["workflow", "factory"]]);
     }
     for (const { local } of resources) {
       expect(local).not.toMatch(/playbook|protocol/i);

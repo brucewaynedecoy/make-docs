@@ -3915,7 +3915,8 @@ Profiles:
   setup     Install plans, repair, compatibility, and layout.
   workflow  Lifecycle, project context, and work evidence.
   quality   Requirements, performance evidence, and user test checks.
-  backlog   Backlog snapshots and the review cache.
+  backlog   Backlog snapshots, the review cache, and the work queue.
+  factory   Factory setup, workflows, proofs, assignments, status, and copy restore.
   all       All ready tools and native resources.
 
 Behavior:

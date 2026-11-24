@@ -323,3 +323,167 @@ Two more owner decisions, approved on 2026-11-23, refine decisions 3 and 4. Both
 - The final re-check found three small mismatches, fixed at integration: each factory `.gitignore` now holds only the line `*`, as the owner approved (the comment lines are gone, and the copy test expects exactly `*`); PRD 38 and decision 1 above use "the checkout that `assignment start` named, not a worker's working copy"; PRD 53 R-FACTORY-27 and the contract name `checkout-not-bound` and `factory-assignment-open`.
 - PRD 52 R-WORK-STORE-13, R-WORK-QUEUE-9, and R-WORK-SYNC-16 now state the factory assignment close and cleanup rules, with a Requirement History entry.
 - Full suite after the merge, counted from the JSON reporter: 3479 tests, 3469 passed, 6 skipped, 4 failed: the 3 known failures (`mcp-app-contract` 2, `w19-r5-skills-command` 1) and the copy test that still expected the comment lines, since fixed (59 of 59 in that file pass).
+
+## P3 Factory Operations
+
+Covers A19 to A25, A56 to A63, A73 to A80, and A83 in [P3](03-factory-operations.md). Evidence date: 2026-11-23. Base commit: `deac28e7` on `docs/w29-w30-work-store-and-factory`. Node `v26.13.1`. The work is uncommitted in its worktree. Every CLI and test run used a temporary `MAKE_DOCS_HOME`; nothing read or wrote the real Store.
+
+### What Changed
+
+The ten `factory` operations are admitted in the registry, with leaf help, JSON and text output, and MCP tools in the new `factory` profile and `all`. One function for each command lives in `packages/cli/src/operations/factory/service.ts`; the registry definitions, the CLI adapters, and the MCP tools only parse input, so the CLI JSON and the MCP result are the same value. The current plan comes from three live sources in `live-plan.ts`. Project scope lives in `project-scope.ts`, and the factory URIs in `uri.ts`. No operation launches, schedules, messages, or contacts a tool.
+
+| CLI path | MCP name | Scope | Kind | Access |
+| --- | --- | --- | --- | --- |
+| `make-docs factory status [--run <run-id>]` | `factory_status` | Project | Read | Store read, project read |
+| `make-docs factory tools save --tools-json <file>` | `factory_tools_save` | Machine | Write | Store write |
+| `make-docs factory workflow save <workflow>` | `factory_workflow_save` | Project | Write | Store write, project write (copies) |
+| `make-docs factory workflow show <workflow> [--revision <n>]` | `factory_workflow_show` | Project | Read | Store read, project read |
+| `make-docs factory workflow list` | `factory_workflow_list` | Project | Read | Store read, project read |
+| `make-docs factory proof save <workflow>` | `factory_proof_save` | Project | Write | Store write, project write (copies) |
+| `make-docs factory assignment start <unit>` | `factory_assignment_start` | Project | Write | Store write, project read |
+| `make-docs factory assignment save <assignment>` | `factory_assignment_save` | Project | Write | Store write, project write (backup cleanup) |
+| `make-docs factory assignment list` | `factory_assignment_list` | Project | Read | Store read, project read |
+| `make-docs factory restore` | `factory_restore` | Project | Write | Store write, project write (copies) |
+
+Every MCP name has at most 26 characters. Every project command takes `--target-root <path>` or `--project <name>` (MCP `targetRoot` or `project`). `factory tools save` takes neither: its input schema refuses both.
+
+### Owner Decisions, as Built
+
+- Project scope (T25 to T29): `FACTORY_OPERATION_SCOPES` holds the contract's project scope table once, and a test compares it with the table. A project write with no project is `project-missing` before any Store admission, also inside a project folder; the message names both ways to name a project. A name resolves only through `project_register`. `project-not-found`, `project-mismatch`, and `project-checkout-unclear` (a write that reads or writes project files, when the name gives no single checkout) change nothing. A harness grant belongs to one checkout (its config file and its Store record), so a `--project` name with no single checkout is `project-checkout-unclear` for every project command, read or write, and the refusal names `--target-root`. A call with `--target-root` still reads or acts on the whole project. A `--target-root` folder with no project ID, or one that is not a bound checkout, keeps the existing typed refusal (`project-not-identified`, `checkout-not-bound`, `project-not-registered`).
+- Results name what they acted on (T28): every result has `actedOn`, with the project name and ID or `this machine`, and its first line says the same in words. A refusal says which project it refused, or that no project was named.
+- Reads (T29): `workflow show`, `workflow list`, `assignment list`, and `status` use the current folder's project when none is named, and say "taken from the current folder" or "as named". A folder that is not a project gives `project-missing`.
+- `factory status` (T8, T33, register D-073): one project; one group for each checkout that has an open assignment, and one for the checkout that the call named or ran in; each group's readiness comes from that checkout's config file and type file; then one group for each lifecycle run. `--run <run-id>` keeps only the groups with that run. A checkout that cannot be read shows "Readiness: unknown." and why. `assignment start` records the checkout ID of the checkout that it named.
+- Factory URIs (T30, T32, register D-074): `factory/`, `factory/workflows/<name>`, `.../revisions/`, `.../revisions/<n>`, and `factory/assignments/` (each row with its lifecycle run ID) resolve through the shared project URI parser and `project_register`. Any other path under `factory/` is `resource-not-found`. A read shows saved records only, opens a read-only Store session, ends with the note to run `factory status` in a checkout, and shows no grant, claim ID, task handle, file contents, or prompt. Without a Store, the typed Store outcome names the `.make-docs/factory/` copies and no Store is made.
+- Access (T31, register D-075): a factory URI read keeps the W29 rule, the grant of the folder where the agent works. A factory MCP tool that names a project is checked against that project's own checkout: `resolveTarget` finds the project before the access check. Without that project's grant, the call is `store-denied`, names the project, and says to run `make-docs setup --target <checkout>` and grant Store read or Store write. A project with no harness access configuration gives this caller no grant either, so it is also `store-denied` for a factory call. `factory tools save` is admitted by the grant of the folder where it runs.
+- Claim IDs (T24): `assignment start` and `assignment save` take the private claim ID, refuse a call without it or with a wrong one as `claim-not-held`, and no result, record, copy, or URI read shows it (A73 test).
+- Tool-agnostic: code, tests, fixtures, and help use `tool-a` and `tool-b`.
+
+### Choices Made in This Phase
+
+Each item is new behavior that no authority fixed.
+
+- CLI flags: `--tools-json`, `--binding-json`, and `--grants-json` take a JSON file or inline JSON; `--ready` asks for ready; `--reset-rounds`; `--grant-use <action>`; `--part` and `--tool` on `assignment start`; `--all` on `assignment list`. `factory status --run` takes a value although the shared option list holds `--run` as a flag; a per-command value-flag list in `run/cli.ts` does that.
+- A shipped workflow type is read from the installed package, so it is the same file in every checkout on the machine. A project-owned type is read from the checkout.
+- A plan is `wired` only when each role has an `available` tool and each needed capability is `proved` for the version that the tool reports. A passed test task for a plan that is not `wired` is refused as `not-ready`. This closes a gap: before the fix, a passed test task made a `draft` plan `ready`.
+- Drift codes compare the current plan with the latest saved revision, because drift is a change without a save. Per role, only the tool facts count: the tool, its state and version, and the proofs of capabilities that both plans need. A change to proof facts that no other code names is `binding-changed`, because the binding digest covers the machine binding. One tool that fills several roles gives one entry for each code, naming every role.
+- `workflow save` refuses a config entry that lacks a standard role (front desk, foreman, builder, or reviewer) that the type's `## Roles` table names. A row with another name, such as "Specialist" in `lead-and-specialists` or "Unit roles" in `staged-backlog`, names no required role, because the project or the unit's own type chooses those roles.
+- `assignment start` takes the role and the tool from the `ready` plan. The contract has no substitute tool: "pick another tool" means binding it through setup, which saves a new plan that needs its own test task. So a tool other than the role's bound tool is refused, also when it is available and proved.
+- `assignment start` needs a lifecycle run of the project that has not ended.
+- `workflow save --ready` is accepted only when the save gives the `ready` revision's plan, so a save still never makes a new revision `ready`.
+- `assignment save` with no status records a check only (reason code `handle-checked`, no history entry). A move needs `--reason`.
+- Backup cleanup runs during `factory restore` and `factory assignment save`, in the assignment's checkout when that folder is on this machine.
+- `factory tools save` does not write any project's copies; each project's copies update at its next factory save or `factory restore`.
+- The factory contract and its three workflow types are also in the `factory` MCP profile, so that profile has the rules with its tools.
+
+### Shared Code Changes
+
+- `registry.ts`: an optional `resolveTarget` hook on an operation finds the folder whose grant and Store admission apply, or returns a typed refusal value with no Store admission. A new `handler` Store admission kind keeps the harness check and lets the handler open its own Store session; `factory tools save` uses it, because a machine call must not be refused when the folder where it runs holds the Store.
+- `installation-state.ts`: `withStoreWriteDatabase` writes the Store in one transaction with no project folder. It never creates, prepares, or migrates a Store.
+- Native command rules: every factory command is a native command rule candidate, and setup admits each rule. See Rename (Register D-076).
+- `project-uri.ts`: the `factory` family is current (PRD 52 R-WORK-URI-1).
+- `mcp-metadata.ts`, the `make-docs mcp` help, and `system-resources.schema.json` (upstream first, then dogfood): the `factory` profile.
+- The factory contract (upstream first, then dogfood and bundled): the shipped work queue and factory commands, and the factory URIs, are no longer called planned.
+
+### Guided Progress Review Samples (T11, Passed)
+
+These samples are from the built CLI in a temporary project, with `tool-a` and `tool-b`, after the review fixes. `tool-a` fills the foreman and builder roles. The checkout path is shortened to `<aurora checkout>`. On 2026-11-23 the owner reviewed these samples and found the output clear (option A), so T11 passed with no change to the output.
+
+Ready workflow, `make-docs factory status` in the checkout:
+
+```text
+Factory status for project aurora (smoke-project), taken from the current folder.
+Checkout <aurora checkout> (the checkout of this call):
+  Workflow ship: ready: it takes new work. Plan revision 1.
+  Open manual steps:
+    - ship: Approve the app permission.
+  No open assignment.
+Changes nothing.
+```
+
+Busy workflow, after `lifecycle start`, a claim, `assignment start`, and a move to `running`:
+
+```text
+Factory status for project aurora (smoke-project), taken from the current folder.
+Checkout <aurora checkout> (the checkout of this call):
+  Workflow ship: ready: it takes new work. Plan revision 1.
+  Open manual steps:
+    - ship: Approve the app permission.
+  Lifecycle run run-1:
+    - task 1 (builder, part main): tool tool-a (Tool A), running, last check 2026-11-24T02:04:20.751Z; round 0 of 3; claimed by foreman until 2026-11-24T03:04:20.376Z.
+Changes nothing.
+```
+
+Drifted workflow, after `tools save` reported version 1.1 for `tool-a`:
+
+```text
+Factory status for project aurora (smoke-project), taken from the current folder.
+Checkout <aurora checkout> (the checkout of this call):
+  Workflow ship: drifted: something changed without a save, so it takes no new work. Ready revision 1.
+    - tool-version-changed: Tool tool-a for the builder and foreman roles reports version 1.1, but its proof is for version 1.0. Next: Prove tool-a again and save it with make-docs factory tools save, save the workflow, and pass a new test task. If version 1.0 comes back, the workflow is ready again with no new step.
+  Open manual steps:
+    - ship: Approve the app permission.
+  Lifecycle run run-1:
+    - task 1 (builder, part main): tool tool-a (Tool A), running, last check 2026-11-24T02:04:20.751Z; round 0 of 3; claimed by foreman until 2026-11-24T03:04:20.376Z.
+Changes nothing.
+```
+
+A new `assignment start` while the workflow is drifted:
+
+```text
+Refused for project aurora (smoke-project). Workflow ship is not ready, so it takes no new work.
+- tool-version-changed: Tool tool-a for the builder and foreman roles reports version 1.1, but its proof is for version 1.0. Next: Prove tool-a again and save it with make-docs factory tools save, save the workflow, and pass a new test task. If version 1.0 comes back, the workflow is ready again with no new step.
+Next: Check the workflow with factory workflow show and fix what it names.
+Reason code: not-ready. Nothing changed.
+```
+
+### Review Fixes
+
+An independent review of P3 on 2026-11-23 found seven items. Each fix has a test in `packages/cli/tests/w30-r0-p3-factory-operations.test.ts` (describe "W30 R0 P3 review fixes"). The owner then closed register D-076; see Rename (Register D-076).
+
+| Item | Fix |
+| --- | --- |
+| 1 (MEDIUM-HIGH). `assignment start` did not check the role and tool against the ready plan. | It refuses a role that the `ready` plan does not have and a tool that is not the role's bound tool, as `invalid-record` with the field named. The contract and PRD 53 allow no substitute tool, so an available and proved tool that is bound to another role is refused too. The default tool is the bound tool. The old hint "Name the tool with --tool" is gone. |
+| 2 (MEDIUM). `workflow save` did not check the config roles against the type. | It refuses a config entry that lacks a standard role named in the type's `## Roles` table, and names the missing roles. `build-then-review` with only a builder is refused. The contract row `custom-role-fields` now says what the check does (template first, then the dogfood and bundled copies). The test fixtures now have a foreman role. |
+| 3 (LOW-MEDIUM). A config-only change also gave a false `binding-changed`. | Per role, only the tool facts are compared, and drift is measured against the latest saved revision. A change to a role's capabilities in the config gives only `config-changed`. |
+| 4 (LOW). `assignment start` took any run ID. | It refuses a run ID that is not a lifecycle run of the project (`record-not-found`), and a run that is completed, failed, or abandoned (`invalid-record`), so a `run` grant can never outlive a mistyped run. |
+| 5 (LOW). 34 Rule Catalog rows still say "Planned in W30 R0 P3" for built checks. | A sentence after the catalog's first paragraph says that those rows are built as of P3 and that P6 updates the column. P6 T14 records that update. The P1 test vocabulary is unchanged. |
+| 6 (LOW). A workflow removed from the config told the person to run setup again, which cannot remove it. | Its next step says that Make Docs cannot remove a saved workflow yet, how to use it again, and that leaving it changes nothing. P3 T34 records workflow removal as a follow-up. |
+| 7 (LOW). A `--project` call on a project with two or more checkouts used the first checkout by path for the grant check. | A grant belongs to one checkout, so such a call is `project-checkout-unclear` and names `--target-root`. A single checkout is used as before. |
+
+### Checks
+
+All runs are after the review fixes and the rename, with the built CLI where a CLI ran, and a temporary `MAKE_DOCS_HOME`.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass.
+- `npx vitest run tests/w30-r0-p3-factory-operations.test.ts`: 36 tests pass; 37 after the re-check fixes.
+- Re-check fixes (2026-11-23): a merged drift line for a tool that fills several roles now takes its capability and version lists from every merged role and says "roles" in its text and its next step; PRD 38 and the Store table catalog say "assignment start and save"; the `project-checkout-unclear` text says once that a grant belongs to one checkout. After them: tsc and the build pass, the P3 test (37), every W30 test file, consistency, the Store table catalog, and the W32 R0 P4 and P5 Store tests (7 files, 244 tests) pass, and `check prd` passed.
+- `npm run validate:defaults -w packages/cli`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its temporary folder.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project doctor check --exclude docs/work/2026-11-13-w22-r2-portable-checkout-adoption`: no problems in 386 files.
+- A CLI run of the whole flow in a temporary project (setup, tools save, workflow save, proof save, lifecycle start, work add, work claim, assignment start, assignment save, tools save with a new version, assignment start while drifted, and a factory URI read) gave the samples above. No output showed the claim ID.
+- The related groups, counted from the full JSON report: every W29, W30, W33, and W34 test file, the Store, MCP, resource, and setup tests, the name catalog, consistency, the registry contract, the operation domains, the P3 operation surfaces, the work store contract, `cli.test.ts`, and `run-cli.test.ts`: 43 files, 1,793 tests, all pass except the two known `mcp-app-contract` failures.
+- `npx vitest run --reporter=json` in `packages/cli`, counted from the JSON report, after the review fixes and the rename: 152 test files, 150 passed and 2 failed. Of 3,575 tests, 3,566 passed, 3 failed, and 6 were skipped. The three failures are the known ones: `mcp-app-contract` (two tests, a Node v26 deprecation warning on stderr) and `p5-migration-safety` fixture 11. Before the rename, after the review fixes, the run had 3,574 tests with the same three failures.
+- History of this phase's checks: the first full run had three more failures from this phase (the top-level help text, `factory --help`, and an unknown `factory` path still expected "no commands yet"); those tests now expect the factory commands. During the first build, setup failed for every project with "Command rule make-docs.factory.assignment.update cannot approve update." That led to register D-076, which the owner closed with the rename. After the rename, the name catalog test found that the end word `update` was no longer used, so it left the list of end words.
+
+### Rename (Register D-076)
+
+On 2026-11-23 the owner chose option C for register D-076: the command that moves an assignment, records a check, or records a grant use is `factory assignment save`, with the operation ID `factory.assignment.save` and the MCP tool `factory_assignment_save` (23 characters). Its behavior does not change. The name was never released, so the name catalog has no former name and no migration alias for it.
+
+- Why: the harness access contract refuses the word `update` anywhere in a native command rule, so that no rule can approve `make-docs update`. While the command ended with that word, setup refused every project. A first workaround kept the command out of the native command rule candidates. With `save`, an approved end word, the workaround is gone: every factory command is a native command rule candidate again, and the harness access contract did not change.
+- Code: the registry, the name catalog, the leaf help, the CLI adapter, the MCP tool and its `factory` profile, the service function (`factoryAssignmentSave`), and the tests use the new name. The Store service function `updateFactoryAssignment` keeps its internal name; it is no command.
+- Test: "admits factory assignment save as a native command rule, and every rule passes the setup check (register D-076)" checks the rule `make-docs.factory.assignment.save` with the prefix `factory assignment save`, runs the setup check of the harness access contract on every rule, checks that no rule holds `update`, and checks that every factory operation has a rule. The MCP tests also run real setup with a generic MCP client grant, which builds and checks every rule.
+- Docs: PRD 53, PRD 39 R-RUN-1, and PRD 38 have Requirement History entries "2026-11-23 — W30 R0 P3 Assignment Save". The factory design, the factory contract (template first, then the dogfood and bundled copies), the W30 R0 plan, and the P3 and P5 phase files use the new name, and the backlog index and both phase files record the rename in their Change History. PRD 52 names the command only in a Requirement History rationale, and `work-store.md` does not name it, so neither changed.
+- Kept: the old name stays only in history: Requirement History and Change History lines, the W33 R0 evidence table of planned names, the W30 R0 P2 evidence and history record, and the account of the setup failure in the checks below.
+
+### Left for a Follow-Up
+
+- P3 T34: a command that removes a workflow, and a reviewed removal of a pruned project's workflow rows (P2 notes 1 and 2). P3 adds no removal command. Such a command must delete the workflow's backup records first, then its final assignments, refuse while an assignment is open, and run before `project_register` drops the project.
+- P6 T14: the factory contract's Rule Catalog still says "Planned in W30 R0 P3" for the checks that P3 built, with a note that they are built. The W30 R0 P1 test allows only "Planned in" or "Contract-only", so the column needs a word for a built check first.
+- `workflow save` checks the standard roles of the type, not the capabilities that the type's `## Roles` table lists for each role, and not the "Specialist" row of `lead-and-specialists`.
+- `assignment start` checks that its lifecycle run exists and has not ended, not that it is at stage `implementation` (rule `claim-opens-run` is contract-only).
+- A name that resolves to a project is read from the Store before the access check, so a caller without a grant can learn whether a project name exists.
+- CLI and MCP parity is tested on every read and on a refusal of each save operation; a successful save is tested once on each surface, not compared byte for byte.
+
+### Open for the Owner
+
+- None. T11 passed on 2026-11-23, and register D-076 is closed.

@@ -218,6 +218,11 @@ export const FACTORY_REFUSAL_CODES = [
   "grant-spent",
   "grant-expired",
   "never-log-field",
+  // W30 R0 P3 T27: project scope (R-FACTORY-63).
+  "project-missing",
+  "project-not-found",
+  "project-mismatch",
+  "project-checkout-unclear",
 ] as const;
 export type FactoryRefusalCode = (typeof FACTORY_REFUSAL_CODES)[number];
 

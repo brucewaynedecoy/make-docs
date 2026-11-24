@@ -103,6 +103,8 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - [ ] T11: Tag each proof case in the evidence with the capability IDs it exercised, the tool version each tool reported, and each proof result. List each "does not cover" item and each accepted known loss (R-FACTORY-10, R-FACTORY-14, R-FACTORY-53).
 - [ ] T12: Version drift test: report a new version for a wired tool, and show `drifted` with `tool-version-changed`, the re-proof step, and no new work until the proof runs again (R-FACTORY-10, R-FACTORY-12).
 - [ ] T13: After both proofs, scan the Store factory records, the plan revisions, the status history, and the `.make-docs/factory/` copies for file contents, prompts, briefs, environment values, transcripts, and credentials (R-FACTORY-26).
+- [ ] T14: Update the Check column of the factory contract's Rule Catalog for the checks that W29 R0 P4 and W30 R0 P2 and P3 built. Choose a word for a built check, change the W30 R0 P1 test to accept it, and remove the note that rows marked "Planned in W30 R0 P3" are built (template first, then the dogfood and bundled copies). New on 2026-11-23.
+- [ ] T15: Moved from W30 R0 P3 T34 on 2026-11-23: a reviewed removal of a saved workflow, and of a pruned project's workflow rows. It deletes the workflow's backup records first, then its final assignments, then its grants, test task results, plan revisions, and binding. It refuses while an assignment of the workflow is open, and it changes nothing on a refusal (P2 notes 1 and 2). Until it ships, a workflow removed from the config stays `drifted` and takes no new work. New on 2026-11-23.
 
 ### Acceptance criteria
 
@@ -123,3 +125,27 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - Explicit human acceptance gate: Pending.
 - Evidence report: Pending.
 - Phase / capability status: Pending.
+
+## Change History
+
+### 2026-11-23 — W30 R0 P3 Review Follow-Up
+
+- Kind: `edit`
+- Affected scope: new T14.
+- Previous scope: P6 had no task for the Rule Catalog Check column.
+- Replacement scope: T14 updates the Check column for the built checks. Until then, a note in the contract says that rows marked "Planned in W30 R0 P3" are built. Existing task and acceptance IDs do not change.
+- Rationale: an independent review of W30 R0 P3 on 2026-11-23 (item 5).
+- PRD decision: `none`.
+- Owner approval: none needed for a follow-up record.
+- Source: [W30 R0 P3 evidence](evidence.md#review-fixes)
+
+### 2026-11-23 — W30 R0 P3 T34 Moved to P6 T15
+
+- Kind: `edit`
+- Affected scope: P3 T34 and new P6 T15.
+- Previous scope: P3 T34 held the reviewed workflow removal follow-up, but P3 is completed, so the work queue reads it as closed and would not offer T34.
+- Replacement scope: P6 T15 holds the same follow-up, and P3 T34 points to it.
+- Rationale: keep the follow-up on the work queue after P3 closed (W30 R0 P3 integration).
+- PRD decision: `none`.
+- Owner approval: none needed for a move of an unscheduled follow-up.
+- Source: [W30 R0 P3 evidence](evidence.md#review-fixes)

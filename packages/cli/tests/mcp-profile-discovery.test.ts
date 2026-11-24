@@ -24,7 +24,8 @@ import { cleanupTempDir, createTempDir } from "./helpers";
 const EXPECTED_COUNTS: Record<McpServerProfile, number> = {
   // W34 R0 P1 added 2 setup, 1 workflow, and 2 quality tools (PRD 25 R-MCP-PROFILE-11).
   // W29 R0 P4 added the 9 work queue tools to workflow and backlog.
-  core: 9, setup: 25, workflow: 24, quality: 13, backlog: 14, all: 67,
+  // W30 R0 P3 added the 10 factory tools to factory.
+  core: 9, setup: 25, workflow: 24, quality: 13, backlog: 14, factory: 10, all: 77,
 };
 
 async function withClient<T>(
@@ -143,7 +144,7 @@ describe("W24 R0 P2 filtered MCP discovery", () => {
   test.each(["unknown", "Core", "", "core,setup", null, 0, true, ["core"], {}])(
     "rejects invalid runtime profile %j before startup or direct dispatch", async (profile) => {
       const options = { profile: profile as McpServerProfile };
-      const message = "Allowed profiles: core, setup, workflow, quality, backlog, all";
+      const message = "Allowed profiles: core, setup, workflow, quality, backlog, factory, all";
       const createContext = vi.spyOn(context, "createExecutionContext");
       expect(() => parseMcpServerProfile(profile)).toThrow(message);
       expect(() => createMakeDocsMcpServer(options)).toThrow(message);

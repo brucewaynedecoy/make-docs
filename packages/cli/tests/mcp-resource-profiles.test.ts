@@ -43,10 +43,12 @@ const EXPECTED: Record<McpServerProfile, string[]> = {
   workflow: [URI.common, URI.work],
   quality: [URI.common, URI.verify, URI.overlap],
   backlog: [URI.common, URI.work, URI.backlog],
+  factory: [URI.common],
   all: Object.values(URI),
 };
 const SHIPPED_COUNTS: Record<McpServerProfile, number> = {
-  core: 7, setup: 8, workflow: 53, quality: 34, backlog: 9, all: 68,
+  // W30 R0 P3: the factory contract and the three workflow types are in the factory profile.
+  core: 7, setup: 8, workflow: 53, quality: 34, backlog: 9, factory: 4, all: 68,
 };
 const wireUris = (profile: McpServerProfile, native: string[]) => [...native,
   ...(profile === "all" || profile === "backlog" ? [BACKLOG_REVIEW_UI_RESOURCE.uri] : [])].sort();
@@ -173,9 +175,9 @@ describe("W24 R0 P3 native MCP resource profiles", () => {
     const invoke = vi.spyOn(registry, "invokeOperation");
     const createContext = vi.spyOn(context, "createExecutionContext");
     const options = { profile: "unknown" as McpServerProfile };
-    await expect(listNativeMcpResources(root, options)).rejects.toThrow("core, setup, workflow, quality, backlog, all");
-    await expect(readNativeMcpResource(URI.common, root, options)).rejects.toThrow("core, setup, workflow, quality, backlog, all");
-    expect(() => createMakeDocsMcpServer(options)).toThrow("core, setup, workflow, quality, backlog, all");
+    await expect(listNativeMcpResources(root, options)).rejects.toThrow("core, setup, workflow, quality, backlog, factory, all");
+    await expect(readNativeMcpResource(URI.common, root, options)).rejects.toThrow("core, setup, workflow, quality, backlog, factory, all");
+    expect(() => createMakeDocsMcpServer(options)).toThrow("core, setup, workflow, quality, backlog, factory, all");
     expect(load).not.toHaveBeenCalled();
     expect(invoke).not.toHaveBeenCalled();
     expect(createContext).not.toHaveBeenCalled();

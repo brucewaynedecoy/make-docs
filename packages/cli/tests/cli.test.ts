@@ -2397,7 +2397,7 @@ Groups:
   work         Run the work queue, sync the work store, find work items, and record work evidence.
   backlog      Read the backlog, use its review cache, and open the review app.
   lifecycle    Start, track, and finish lifecycle runs.
-  factory      Run approved backlog work through workers and review. No commands yet.
+  factory      Run approved backlog work through workers and review.
   check        Check PRDs, decomposition output, performance evidence, and user test records. Changes nothing.
   mcp          Serve Make Docs tools to agents over MCP.
   update       Update the installed make-docs tool.
@@ -2473,7 +2473,8 @@ Use --help or -h with a group to list its commands.
         );
         expect(found, `${group}: ${full}`).toBe(true);
       }
-      if (group === "factory") expect(output).toContain("This group has no commands yet.");
+      // W30 R0 P3 admitted the factory commands.
+      if (group === "factory") expect(output).not.toContain("This group has no commands yet.");
       expect(output).not.toMatch(/make-docs run\b/);
     },
   );

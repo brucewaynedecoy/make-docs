@@ -47,6 +47,14 @@ const EXPECTED_VERSION: LeafHelpItem = {
   name: "--expected-version <n>",
   text: "The run version you last read. The change stops if the run changed since then.",
 };
+const FACTORY_WRITE_TARGET: LeafHelpItem = { name: "--target-root <path>", text: "The project checkout to act on." };
+const FACTORY_WRITE_PROJECT: LeafHelpItem = { name: "--project <name>", text: "The project to act on, by its name in the Store's project register." };
+const FACTORY_READ_TARGET: LeafHelpItem = { name: "--target-root <path>", text: "The project checkout to read. The default is the project of this folder." };
+const FACTORY_READ_PROJECT: LeafHelpItem = { name: "--project <name>", text: "The project to read, by its name in the Store's project register. The default is the project of this folder." };
+const FACTORY_CLAIM_ID: LeafHelpItem = { name: "--claim-id <id>", text: "Your private claim ID of the unit's live claim." };
+const FACTORY_WRITE_NOTE = "Name the project with --target-root or --project. This write never uses the current folder, and a refusal changes nothing.";
+const FACTORY_READ_NOTE = "Without --target-root or --project, it reads the project of this folder and says so.";
+const FACTORY_CLAIM_NOTE = "The claim ID is checked and never saved or shown. Keep it private, like a key.";
 const REVIEW_DIGEST: LeafHelpItem = { name: "--review <digest>", text: "The review digest from the preview you approved." };
 
 function lifecycleVersioned(summary: string, extraUsage = "", extraOptions: LeafHelpItem[] = []): LeafHelpEntry {
@@ -583,6 +591,115 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
       TARGET_ROOT,
       JSON_OPTION,
     ],
+  },
+  // W30 R0 P3 factory commands (PRD 53). A write names its project; a read may use the current folder's.
+  "factory.status": {
+    summary: "Show one project's factory: one group for each checkout that runs one, then each lifecycle run, with readiness, claimed units, tools, states, and last checks. Changes nothing.",
+    usage: "[--run <run-id>] [--target-root <path>] [--project <name>] [--json]",
+    options: [{ name: "--run <run-id>", text: "Show only this lifecycle run." }, FACTORY_READ_TARGET, FACTORY_READ_PROJECT, JSON_OPTION],
+    notes: [FACTORY_READ_NOTE],
+  },
+  "factory.tools.save": {
+    summary: "Check and save this machine's agent tools and their capability proofs, as the agent reports them. It takes no project and contacts no tool.",
+    usage: "--tools-json <file> [--json]",
+    options: [
+      { name: "--tools-json <file>", text: "A JSON file, or inline JSON, with the list of tools: each with toolId, kind, label, state, reportedVersion, capabilities, proofs, and expectedVersion (null for a new tool)." },
+      JSON_OPTION,
+    ],
+    notes: ["This command acts on this machine. Every project on this machine uses the same tool list."],
+  },
+  "factory.workflow.save": {
+    summary: "Check and save one workflow's choices and tool bindings, and save a new plan revision when the plan changed; or write or revoke grants only.",
+    usage: "<workflow> [--expected-version <n>] [--binding-json <file>] [--grants-json <file>] [--ready] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<workflow>", text: "The workflow name, as the factory block of the config names it." }],
+    options: [
+      { name: "--expected-version <n>", text: "The workflow version that you read. Leave it out for a new workflow or a grant-only save." },
+      { name: "--binding-json <file>", text: "A JSON file, or inline JSON, with roles, worktreeMethod, channelRef, wakeMethod, wakeRef, and knownLosses. Leave it out for a grant-only save." },
+      { name: "--grants-json <file>", text: "A JSON file, or inline JSON, with grants to add and grants to revoke. Grants are never part of the plan." },
+      { name: "--ready", text: "Ask for ready. It is refused unless a passed test task ran under the plan that this save gives." },
+      FACTORY_WRITE_TARGET,
+      FACTORY_WRITE_PROJECT,
+      JSON_OPTION,
+    ],
+    notes: [FACTORY_WRITE_NOTE],
+  },
+  "factory.workflow.show": {
+    summary: "Show one workflow's latest or named plan revision, its live readiness and drift reasons, and its grants beside the plan. Changes nothing.",
+    usage: "<workflow> [--revision <n>] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<workflow>", text: "The workflow name." }],
+    options: [{ name: "--revision <n>", text: "A kept plan revision. The default is the latest." }, FACTORY_READ_TARGET, FACTORY_READ_PROJECT, JSON_OPTION],
+    notes: [FACTORY_READ_NOTE],
+  },
+  "factory.workflow.list": {
+    summary: "List one project's factory workflows with their live readiness. Changes nothing.",
+    usage: "[--target-root <path>] [--project <name>] [--json]",
+    options: [FACTORY_READ_TARGET, FACTORY_READ_PROJECT, JSON_OPTION],
+    notes: [FACTORY_READ_NOTE],
+  },
+  "factory.proof.save": {
+    summary: "Save a test task result for the current plan, and make that plan revision the ready revision when the test task passed.",
+    usage: "<workflow> --outcome <passed|failed> --test-task <text> --plan-digest <digest> --path <text> [--manual-step <text>] [--expected-version <n>] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<workflow>", text: "The workflow name." }],
+    options: [
+      { name: "--outcome <passed|failed>", text: "The test task result." },
+      { name: "--test-task <text>", text: "The test task, as one short line." },
+      { name: "--plan-digest <digest>", text: "The plan digest that the test task ran under, from workflow save or workflow show." },
+      { name: "--path <text>", text: "One step of the path that the test task exercised. Repeat it for each step." },
+      { name: "--manual-step <text>", text: "One open manual step. Repeat it for each step." },
+      { name: "--expected-version <n>", text: "The version of the last result with this outcome. Leave it out for the first one." },
+      FACTORY_WRITE_TARGET,
+      FACTORY_WRITE_PROJECT,
+      JSON_OPTION,
+    ],
+    notes: [FACTORY_WRITE_NOTE],
+  },
+  "factory.assignment.start": {
+    summary: "Record a new assignment of one job to a tool, under the ready plan revision, in the checkout that the call names. Only the holder of the unit's claim starts it.",
+    usage: "<unit> --workflow <name> --role <name> --run-id <id> [--claim-id <id>] [--part <name>] [--tool <name>] [--task-handle <text>] [--reset-rounds] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<unit>", text: "A coordinate such as W29 R0 P4, or a quick item number such as 7." }],
+    options: [
+      { name: "--workflow <name>", text: "The workflow that runs the job." },
+      { name: "--role <name>", text: "The role of the job, such as builder or reviewer." },
+      { name: "--run-id <id>", text: "The lifecycle run of the claim: a run of this project that has not ended." },
+      FACTORY_CLAIM_ID,
+      { name: "--part <name>", text: "The part label of the job. The default is main." },
+      { name: "--tool <name>", text: "The tool doing the job. It must be the tool that the ready plan binds to the role, which is the default." },
+      { name: "--task-handle <text>", text: "A handle that another agent can check, such as a task ID." },
+      { name: "--reset-rounds", text: "Spend a once grant for reset-correction-rounds, so this assignment starts at round 0." },
+      FACTORY_WRITE_TARGET,
+      FACTORY_WRITE_PROJECT,
+      JSON_OPTION,
+    ],
+    notes: [FACTORY_WRITE_NOTE, FACTORY_CLAIM_NOTE],
+  },
+  "factory.assignment.save": {
+    summary: "Move an assignment along the status move table, record a check, or record the use of a grant. Only the holder of the unit's claim updates it.",
+    usage: "<assignment> --expected-version <n> [--claim-id <id>] [--status <status>] [--reason <code>] [--task-handle <text>] [--grant-use <action>] [--target-root <path>] [--project <name>] [--json]",
+    arguments: [{ name: "<assignment>", text: "The assignment ID from assignment start or assignment list." }],
+    options: [
+      { name: "--expected-version <n>", text: "The assignment version that you read." },
+      FACTORY_CLAIM_ID,
+      { name: "--status <status>", text: "The new status. Leave it out to record a check only." },
+      { name: "--reason <code>", text: "The status history reason code of a move, from the factory contract." },
+      { name: "--task-handle <text>", text: "A new task handle." },
+      { name: "--grant-use <action>", text: "Record the use of a grant for this action, such as merge." },
+      FACTORY_WRITE_TARGET,
+      FACTORY_WRITE_PROJECT,
+      JSON_OPTION,
+    ],
+    notes: [FACTORY_WRITE_NOTE, FACTORY_CLAIM_NOTE],
+  },
+  "factory.assignment.list": {
+    summary: "List one project's open factory assignments, or every assignment. Changes nothing.",
+    usage: "[--workflow <name>] [--all] [--target-root <path>] [--project <name>] [--json]",
+    options: [{ name: "--workflow <name>", text: "Only this workflow." }, { name: "--all", text: "Also list final assignments." }, FACTORY_READ_TARGET, FACTORY_READ_PROJECT, JSON_OPTION],
+    notes: [FACTORY_READ_NOTE],
+  },
+  "factory.restore": {
+    summary: "Write the .make-docs/factory/ copies of one checkout again from the Store, with the latest plan revisions and no grant.",
+    usage: "[--target-root <path>] [--project <name>] [--json]",
+    options: [FACTORY_WRITE_TARGET, FACTORY_WRITE_PROJECT, JSON_OPTION],
+    notes: [FACTORY_WRITE_NOTE],
   },
 };
 

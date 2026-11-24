@@ -785,7 +785,7 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     columns: ["project_id", "workflow_name", "revision", "plan_digest", "plan_json", "config_digest", "binding_digest", "created_at"],
     purpose: "Immutable resolved plan revisions of each project workflow, as canonical JSON with its SHA-256 digest (R-FACTORY-56). A trigger refuses any change to a saved row, and a unique key allows one revision for each digest.",
     writers: ["factory-store.ts saveFactoryPlanRevision, for factory workflow save; it adds a revision only when no kept revision has its digest, and removes older revisions in the same write"],
-    readers: ["factory-store.ts readFactoryPlanRevision and listFactoryPlanRevisions, for proof save, assignment start and update, workflow show, status, restore, and drift"],
+    readers: ["factory-store.ts readFactoryPlanRevision and listFactoryPlanRevisions, for proof save, assignment start and save, workflow show, status, restore, and drift"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.plans, classCell: "Store-canonical and non-rebuildable" }],
     rowClasses: [{

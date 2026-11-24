@@ -5,6 +5,7 @@ import type { StoreDatabase } from "../../../store/database.js";
 import { WORK_PROJECT_URI_PREFIX, parseWorkProjectUri, type WorkProjectUriTarget } from "../work-store/project-uri.js";
 import type { WorkLink, WorkUnitKind, WorkUnitRecord } from "../work-store/schemas.js";
 import { renderWorkTasksList } from "./queue.js";
+import { FactoryUriNotFound, readFactoryUri, type FactoryUriData } from "../../factory/uri.js";
 import {
   WorkReadiness,
   compareWorkCoordinates,
@@ -94,7 +95,8 @@ export interface WorkQuickItemView {
 export type WorkProjectResourceData =
   | { family: "tasks"; kind: "list"; items: Array<Pick<WorkQuickItemView, "uri" | "number" | "label" | "title" | "status" | "closeOutcome">> }
   | { family: "tasks"; kind: "item"; item: WorkQuickItemView }
-  | { family: "backlog"; kind: "list" | "unit"; unit: WorkProjectUnitView | null; children: WorkProjectUnitView[] };
+  | { family: "backlog"; kind: "list" | "unit"; unit: WorkProjectUnitView | null; children: WorkProjectUnitView[] }
+  | FactoryUriData;
 
 export interface WorkProjectResourceRead {
   schemaVersion: 1;
@@ -283,6 +285,15 @@ function readTarget(
   target: WorkProjectUriTarget,
   now: Date,
 ): { text: string; data: WorkProjectResourceData } {
+  if (target.family === "factory") {
+    // W30 R0 P3 T30: the factory family reads only saved factory records.
+    try {
+      return readFactoryUri(db, { projectId, projectLabel, base, canonical, path: target.path });
+    } catch (error) {
+      if (error instanceof FactoryUriNotFound) throw notFound(canonical, error.part, error.message);
+      throw error;
+    }
+  }
   const units = listWorkUnits(db, projectId);
   const view = new ProjectView(base, units, listWorkClaims(db, projectId), now);
   if (target.family === "tasks") {
@@ -336,7 +347,7 @@ export function readWorkProjectResource(uri: string, env: { storeRoot: string; n
     throw new WorkProjectUriError(
       "invalid-resource-uri",
       `${parsed.reason} The URI ${uri} is not a valid project URI.`,
-      "Write make-docs://project/<project>/tasks/, .../tasks/<n>, or .../backlog/ with coordinate parts such as W29/R0/P1/T3.",
+      "Write make-docs://project/<project>/tasks/, .../tasks/<n>, .../backlog/ with coordinate parts such as W29/R0/P1/T3, or .../factory/.",
       uri,
       null,
     );

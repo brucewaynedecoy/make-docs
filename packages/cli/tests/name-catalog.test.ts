@@ -125,13 +125,17 @@ function fixture(overrides: Partial<NameCatalogEntry>): NameCatalogEntry {
 }
 
 describe("W33 R0 P1 name catalog", () => {
-  it("lists 61 current operations, 6 hand-defined tools, and 10 planned operations", () => {
+  it("lists 71 current operations, 6 hand-defined tools, and no planned operations", () => {
     const currentOperations = NAME_CATALOG.filter((item) => item.kind === "operation" && item.status === "current");
     const tools = NAME_CATALOG.filter((item) => item.kind === "hand-defined-tool");
     const plannedOperations = NAME_CATALOG.filter((item) => item.status === "planned");
     expect(currentOperations).toHaveLength(ADMITTED_OPERATION_IDS.length);
-    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more, and W29 R0 P4 landed 9.
-    expect(currentOperations).toHaveLength(61);
+    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more, W29 R0 P4 landed 9, and W30 R0 P3 landed 10.
+    expect(currentOperations).toHaveLength(71);
+    expect(currentOperations.filter((item) => item.addedBy === "W30 R0").map((item) => item.newCli).sort()).toEqual([
+      "factory assignment list", "factory assignment save", "factory assignment start", "factory proof save", "factory restore",
+      "factory status", "factory tools save", "factory workflow list", "factory workflow save", "factory workflow show",
+    ]);
     expect(currentOperations.filter((item) => item.addedBy === "W29 R0").map((item) => item.newCli).sort()).toEqual([
       "work add", "work claim", "work close", "work export", "work next", "work release", "work report", "work status", "work sync",
     ]);
@@ -151,7 +155,7 @@ describe("W33 R0 P1 name catalog", () => {
     const byWave = (wave: string) => plannedOperations.filter((item) => item.plannedBy === wave).length;
     expect({ w29: byWave("W29 R0"), w30: byWave("W30 R0"), w31: byWave("W31 R0"), w32: byWave("W32 R0"), w34: byWave("W34 R0") }).toEqual({
       w29: 0,
-      w30: 10,
+      w30: 0,
       w31: 0,
       w32: 0,
       w34: 0,
@@ -464,9 +468,11 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     expect(checkNameCatalogCoverage([...NAME_CATALOG, extraTool], sources)).toEqual([
       "Catalog tool ghost_tool is not a hand-defined MCP tool.",
     ]);
-    const landed: NameCatalogSources = { ...sources, registeredOperationIds: [...sources.registeredOperationIds, "factory.status"] };
-    expect(checkNameCatalogCoverage(NAME_CATALOG, landed)).toContain(
-      "Catalog operation factory.status is planned but the registry holds it. Mark it current.",
+    // No planned entry is left since W30 R0 P3, so a fixture plays one.
+    const plannedFactory = fixture({ id: "factory.ghost.save", group: "factory", newCli: "factory ghost save" });
+    const landed: NameCatalogSources = { ...sources, registeredOperationIds: [...sources.registeredOperationIds, "factory.ghost.save"] };
+    expect(checkNameCatalogCoverage([...NAME_CATALOG, plannedFactory], landed)).toContain(
+      "Catalog operation factory.ghost.save is planned but the registry holds it. Mark it current.",
     );
     const renamed = NAME_CATALOG.map((item) => (item.id === "lifecycle.show" ? { ...item, currentMcp: "show" } : item));
     expect(checkNameCatalogCoverage(renamed, sources)).toEqual([

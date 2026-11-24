@@ -11,6 +11,7 @@ import {
   STORE_WRITE_PROJECT_WRITE_ACCESS,
 } from "../access";
 import { runWorkStoreRead, workProjectFilesNextStep } from "../work/work-queue/files-fallback";
+import { factoryUriFilesNextStep } from "../factory/uri";
 import {
   WorkProjectUriError,
   isWorkProjectUri,
@@ -249,6 +250,11 @@ function projectPartOf(uri: string): string {
   return uri.slice("make-docs://project/".length).split("/")[0]?.toLowerCase() || "<project>";
 }
 
+/** The family part of a project URI, without parsing the rest. */
+function uriFamilyOf(uri: string): string {
+  return uri.slice("make-docs://project/".length).split("/")[1]?.toLowerCase() ?? "";
+}
+
 async function readProjectHandler(
   input: z.infer<typeof resourceReadInput>,
   context: OperationExecutionContext,
@@ -270,7 +276,8 @@ async function readProjectHandler(
         access: STORE_READ_PROJECT_READ_ACCESS,
         root,
         context,
-        filesStep: workProjectFilesNextStep(projectPartOf(input.uri)),
+        // A factory URI points to the .make-docs/factory/ copies (PRD 53 R-FACTORY-68); a work URI to the docs/work/ files.
+        filesStep: uriFamilyOf(input.uri) === "factory" ? factoryUriFilesNextStep(projectPartOf(input.uri)) : workProjectFilesNextStep(projectPartOf(input.uri)),
         session: false,
         projectUri: true,
       },

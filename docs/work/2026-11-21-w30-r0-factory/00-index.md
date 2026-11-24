@@ -165,3 +165,14 @@ This handoff is advisory-default-but-overridable: it is authoritative unless the
 - PRD decision: `update-existing` — PRD 53 R-FACTORY-25 and R-FACTORY-46 (W30 R0 Owner Answers entry).
 - Owner approval: the owner's decision on 2026-11-23.
 - Source: [W30 R0 P2 evidence](evidence.md#owner-decisions-of-2026-11-23)
+
+### 2026-11-23 — W30 R0 P3 Assignment Save
+
+- Kind: `edit`
+- Affected scope: the W30 R0 plan for P3 and the P3 and P5 phase files, where they name the assignment command.
+- Previous scope: the command that moves an assignment, records a check, or records a grant use was named with the end word `update`.
+- Replacement scope: the command is `factory assignment save` (`factory.assignment.save`, MCP `factory_assignment_save`), with the same behavior. Task and acceptance IDs do not change. This is new behavior: the name.
+- Rationale: a native command rule refuses the word `update`, so setup failed for every project while the command ended with it.
+- PRD decision: `update-existing` — PRD 53 (Operations table, R-FACTORY-24, R-FACTORY-50, project scope table), PRD 39 R-RUN-1, and PRD 38 (factory grants R-MIN row). Register D-076 is closed.
+- Owner approval: the owner's decision on 2026-11-23 (register D-076, option C).
+- Source: [register](../../prd/03-open-questions-and-risk-register.md)

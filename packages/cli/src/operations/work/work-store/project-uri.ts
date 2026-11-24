@@ -8,7 +8,7 @@
  */
 
 export const WORK_PROJECT_URI_PREFIX = "make-docs://project/";
-export const WORK_PROJECT_URI_FAMILIES = ["tasks", "backlog"] as const;
+export const WORK_PROJECT_URI_FAMILIES = ["tasks", "backlog", "factory"] as const;
 export type WorkProjectUriFamily = (typeof WORK_PROJECT_URI_FAMILIES)[number];
 
 /** Lower-case letters, digits, and hyphens; starts with a letter; at most 64 characters. */
@@ -28,10 +28,41 @@ const BACKLOG_PARTS = [
 ] as const;
 const LEAF_LETTERS = ["S", "T"] as const;
 
+/**
+ * A factory path (W30 R0 P3 T30, PRD 53 R-FACTORY-66). `unlisted` is any other
+ * path under `factory/`: the reader refuses it with `resource-not-found`.
+ */
+export type WorkFactoryUriPath =
+  | { kind: "index" }
+  | { kind: "workflow"; workflow: string }
+  | { kind: "revisions"; workflow: string }
+  | { kind: "revision"; workflow: string; revision: number }
+  | { kind: "assignments" }
+  | { kind: "unlisted"; part: string };
+
 export type WorkProjectUriTarget =
   | { family: "tasks"; item: null }
   | { family: "tasks"; item: string }
-  | { family: "backlog"; coordinate: string | null; isList: boolean };
+  | { family: "backlog"; coordinate: string | null; isList: boolean }
+  | { family: "factory"; path: WorkFactoryUriPath };
+
+const FACTORY_WORKFLOW_NAME = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+
+/** The approved factory paths. Any other path under `factory/` is `unlisted`. */
+function parseFactoryPath(base: string, tail: readonly string[], trailingSlash: boolean): { canonical: string; path: WorkFactoryUriPath } {
+  const unlisted = (part: string) => ({ canonical: `${base}${tail.join("/")}${trailingSlash ? "/" : ""}`, path: { kind: "unlisted" as const, part } });
+  if (tail.length === 0) return { canonical: base, path: { kind: "index" } };
+  if (tail[0] === "assignments" && tail.length === 1) return { canonical: `${base}assignments/`, path: { kind: "assignments" } };
+  if (tail[0] !== "workflows" || tail.length < 2) return unlisted(tail[0]!);
+  const workflow = tail[1]!;
+  if (!FACTORY_WORKFLOW_NAME.test(workflow) || workflow.length > 64) return unlisted(workflow);
+  const at = `${base}workflows/${workflow}`;
+  if (tail.length === 2) return { canonical: at, path: { kind: "workflow", workflow } };
+  if (tail[2] !== "revisions") return unlisted(tail[2]!);
+  if (tail.length === 3) return { canonical: `${at}/revisions/`, path: { kind: "revisions", workflow } };
+  if (tail.length === 4 && /^[1-9]\d*$/.test(tail[3]!)) return { canonical: `${at}/revisions/${tail[3]}`, path: { kind: "revision", workflow, revision: Number(tail[3]) } };
+  return unlisted(tail.slice(3).join("/"));
+}
 
 export type WorkProjectUriParse =
   | {
@@ -116,6 +147,11 @@ export function parseWorkProjectUri(uri: unknown): WorkProjectUriParse {
       project,
       target: { family, coordinate: coordinate.length === 0 ? null : coordinate.join(" "), isList },
     };
+  }
+
+  if (family === "factory") {
+    const factory = parseFactoryPath(base, tail, trailingSlash);
+    return { ok: true, canonical: factory.canonical, project, target: { family, path: factory.path } };
   }
 
   return refuse(`The family must be one of: ${WORK_PROJECT_URI_FAMILIES.join(", ")}.`);

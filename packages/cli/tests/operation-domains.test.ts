@@ -45,6 +45,8 @@ describe("operation domain modules", () => {
       "uat",
       // W34 R0 P1 (PRD 39 R-SKILL-CHECK-1).
       "decomposition",
+      // W30 R0 P3 (PRD 53).
+      "factory",
     ]);
 
     const identifiers = domains.flatMap((domain) => domain.commands.map((command) => command.id));
@@ -113,6 +115,17 @@ describe("operation domain modules", () => {
       "uat.finding.validate",
       "uat.result.validate",
       "decomposition.output.validate",
+      // W30 R0 P3 factory (PRD 53).
+      "factory.status",
+      "factory.tools.save",
+      "factory.workflow.save",
+      "factory.workflow.show",
+      "factory.workflow.list",
+      "factory.proof.save",
+      "factory.assignment.start",
+      "factory.assignment.save",
+      "factory.assignment.list",
+      "factory.restore",
     ]);
     expect(new Set(identifiers).size).toBe(identifiers.length);
 
@@ -163,6 +176,12 @@ describe("operation domain modules", () => {
       "lifecycle.complete",
       "lifecycle.fail",
       "lifecycle.abandon",
+      "factory.tools.save",
+      "factory.workflow.save",
+      "factory.proof.save",
+      "factory.assignment.start",
+      "factory.assignment.save",
+      "factory.restore",
     ]);
 
     const prunedNames = [

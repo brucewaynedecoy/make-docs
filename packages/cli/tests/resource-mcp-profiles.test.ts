@@ -56,7 +56,7 @@ describe("system-resource MCP profile metadata", () => {
     expect(result.value["ui://make-docs/backlog-review/v1.html"]).toBeUndefined();
   });
 
-  it("requires the same five intent values in the shipped schema", () => {
+  it("requires the same six intent values in the shipped schema", () => {
     const schema = JSON.parse(readFileSync(path.join(upstreamRoot, schemaPath), "utf8"));
     expect(schema.required).toContain("mcpResources");
     expect(schema.properties.mcpResources.items).toEqual({ $ref: "#/$defs/mcpResource" });

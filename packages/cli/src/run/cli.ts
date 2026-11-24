@@ -50,7 +50,7 @@ type RunCliAdapter = (options: OperationOptions) => RunCliInvocation;
  * The top-level groups (PRD 39 R-TOP-1) whose commands this dispatcher runs.
  * They held the old `make-docs run` tree. `project`, `resource`, and
  * `setup store` keep their own routers in `root-operations.ts` and
- * `setup-store.ts`. `factory` has no commands yet.
+ * `setup-store.ts`. `factory` holds the W30 R0 P3 factory commands.
  */
 export const OPERATION_GROUPS = ["work", "backlog", "lifecycle", "factory", "check"] as const;
 export type OperationGroup = (typeof OPERATION_GROUPS)[number];
@@ -491,6 +491,101 @@ Object.assign(RUN_CLI_ADAPTERS, {
   }),
 } satisfies Record<string, RunCliAdapter>);
 
+/* W30 R0 P3 factory adapters (PRD 53). */
+
+/** A project call names its project with --target-root or --project (R-FACTORY-63). */
+function factoryProject(options: OperationOptions): Record<string, string> {
+  return { ...optionalPathValue(options, "target-root", "targetRoot"), ...optionalText(options, "project", "project") };
+}
+
+function factoryOptionalVersion(options: OperationOptions, operationId: string): { expectedVersion?: number | null } {
+  return options.values["expected-version"] === undefined ? {} : { expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath(operationId)) };
+}
+
+function factoryPositional(options: OperationOptions, operationId: string): string {
+  return requiredPositionals(options, operationPath(operationId)).join(" ");
+}
+
+Object.assign(RUN_CLI_ADAPTERS, {
+  "factory.status": (options: OperationOptions) => ({ input: { ...factoryProject(options), ...optionalText(options, "run", "run") } }),
+  "factory.tools.save": (options: OperationOptions) => {
+    // The file holds the tool list, or an object with the list under `tools`, as the MCP input does.
+    const payload = parseJsonPayload(requiredValue(options, "tools-json", operationPath("factory.tools.save")), "tools-json");
+    const tools = payload !== null && typeof payload === "object" && !Array.isArray(payload) && "tools" in payload ? payload.tools : payload;
+    return { input: { tools } };
+  },
+  "factory.workflow.save": (options: OperationOptions) => {
+    const binding = options.values["binding-json"];
+    const grants = options.values["grants-json"];
+    return {
+      input: {
+        workflow: factoryPositional(options, "factory.workflow.save"),
+        ...factoryOptionalVersion(options, "factory.workflow.save"),
+        ...(binding === undefined ? {} : { binding: parseJsonPayload(binding, "binding-json") }),
+        ...(grants === undefined ? {} : { grants: parseJsonPayload(grants, "grants-json") }),
+        ...(options.booleans.has("ready") ? { readiness: "ready" } : {}),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.workflow.show": (options: OperationOptions) => {
+    const revision = optionalPositiveInteger(options, "revision", operationPath("factory.workflow.show"));
+    return { input: { workflow: factoryPositional(options, "factory.workflow.show"), ...(revision === undefined ? {} : { revision }), ...factoryProject(options) } };
+  },
+  "factory.workflow.list": (options: OperationOptions) => ({ input: { ...factoryProject(options) } }),
+  "factory.proof.save": (options: OperationOptions) => {
+    const operation = operationPath("factory.proof.save");
+    return {
+      input: {
+        workflow: factoryPositional(options, "factory.proof.save"),
+        outcome: requiredValue(options, "outcome", operation),
+        testTask: requiredValue(options, "test-task", operation),
+        planDigest: requiredValue(options, "plan-digest", operation),
+        path: options.arrays.path ?? [],
+        manualSteps: options.arrays["manual-step"] ?? [],
+        ...factoryOptionalVersion(options, "factory.proof.save"),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.assignment.start": (options: OperationOptions) => {
+    const operation = operationPath("factory.assignment.start");
+    return {
+      input: {
+        unit: factoryPositional(options, "factory.assignment.start"),
+        workflow: requiredValue(options, "workflow", operation),
+        role: requiredValue(options, "role", operation),
+        runId: requiredValue(options, "run-id", operation),
+        ...optionalText(options, "claim-id", "claimId"),
+        ...optionalText(options, "part", "partLabel"),
+        ...optionalText(options, "tool", "toolId"),
+        ...optionalText(options, "task-handle", "taskHandle"),
+        resetRounds: options.booleans.has("reset-rounds"),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.assignment.save": (options: OperationOptions) => ({
+    input: {
+      assignmentId: factoryPositional(options, "factory.assignment.save"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("factory.assignment.save")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "status", "status"),
+      ...optionalText(options, "reason", "reason"),
+      ...optionalText(options, "task-handle", "taskHandle"),
+      ...optionalText(options, "grant-use", "grantUse"),
+      ...factoryProject(options),
+    },
+  }),
+  "factory.assignment.list": (options: OperationOptions) => ({
+    input: { ...optionalText(options, "workflow", "workflow"), all: options.booleans.has("all"), ...factoryProject(options) },
+  }),
+  "factory.restore": (options: OperationOptions) => ({ input: { ...factoryProject(options) } }),
+} satisfies Record<string, RunCliAdapter>);
+
+/** Flags that take a value in one command although the shared parser lists them as booleans. */
+const COMMAND_VALUE_FLAGS: Readonly<Record<string, readonly string[]>> = { "factory.status": ["run"] };
+
 function parseUatPayload(raw: string): Record<string, unknown> {
   const value = parseJsonPayload(raw, "payload-json");
   if (value === null || typeof value !== "object" || Array.isArray(value)) throw new OperationError("UAT --payload-json must contain an object.");
@@ -692,7 +787,7 @@ export function adaptRunCliArgv(argv: string[]): AdaptedRunCliInvocation {
       `Operation \`${operationId}\` is registered but has no CLI adapter; add one in src/run/cli.ts.`,
     );
   }
-  const options = parseOperationOptions(rest);
+  const options = parseOperationOptions(rest, COMMAND_VALUE_FLAGS[operationId] ?? []);
   return {
     id,
     operationId,
@@ -762,8 +857,8 @@ export async function runRunCommand(
 
 /** Explicit validators report their complete result and then fail the CLI. */
 function setValidationExitCode(operationId: string, value: JsonValue): void {
-  // A refused work queue change prints its result and exits 1 (W29 R0 P4).
-  if (operationId.startsWith("work.queue.") && value !== null && typeof value === "object" && !Array.isArray(value) &&
+  // A refused work queue or factory call prints its result and exits 1 (W29 R0 P4, W30 R0 P3).
+  if ((operationId.startsWith("work.queue.") || operationId.startsWith("factory.")) && value !== null && typeof value === "object" && !Array.isArray(value) &&
       (value.result === "refused" || value.accepted === false)) {
     process.exitCode = 1;
     return;

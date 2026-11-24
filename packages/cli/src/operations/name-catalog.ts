@@ -9,7 +9,7 @@
  * W34 R0 P1 added four Skill check entries (PRD 39 R-SKILL-CHECK). They
  * landed after W33 R0, so they have no former names and name the Wave that
  * added them in `addedBy`. W29 R0 P4 landed the nine planned `work.queue.*`
- * entries the same way.
+ * entries the same way, and W30 R0 P3 the ten planned `factory.*` entries.
  *
  * W33 R0 P2 built the command tree and the MCP names from it, so every
  * current entry's current names are its new names. `formerCli` and
@@ -92,7 +92,6 @@ export const NAME_END_WORDS: readonly NameEndWord[] = [
   { word: "start", form: "verb" },
   { word: "status", form: "exception", note: "PRD 52 and PRD 53 name `work status` and `factory status`: show the status." },
   { word: "sync", form: "verb" },
-  { word: "update", form: "verb" },
   { word: "validate", form: "verb" },
   { word: "verify", form: "verb" },
   { word: "write", form: "verb" },
@@ -493,16 +492,16 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   current("lifecycle.abandon", "lifecycle", "run lifecycle abandon", "lifecycle_abandon", "lifecycle abandon"),
 
   // factory
-  planned("factory.status", W30, "factory", "factory status"),
-  planned("factory.tools.save", W30, "factory", "factory tools save"),
-  planned("factory.workflow.save", W30, "factory", "factory workflow save"),
-  planned("factory.workflow.show", W30, "factory", "factory workflow show"),
-  planned("factory.workflow.list", W30, "factory", "factory workflow list"),
-  planned("factory.proof.save", W30, "factory", "factory proof save"),
-  planned("factory.assignment.start", W30, "factory", "factory assignment start"),
-  planned("factory.assignment.update", W30, "factory", "factory assignment update"),
-  planned("factory.assignment.list", W30, "factory", "factory assignment list"),
-  planned("factory.restore", W30, "factory", "factory restore"),
+  added("factory.status", W30, "factory", "factory status"),
+  added("factory.tools.save", W30, "factory", "factory tools save"),
+  added("factory.workflow.save", W30, "factory", "factory workflow save"),
+  added("factory.workflow.show", W30, "factory", "factory workflow show"),
+  added("factory.workflow.list", W30, "factory", "factory workflow list"),
+  added("factory.proof.save", W30, "factory", "factory proof save"),
+  added("factory.assignment.start", W30, "factory", "factory assignment start"),
+  added("factory.assignment.save", W30, "factory", "factory assignment save"),
+  added("factory.assignment.list", W30, "factory", "factory assignment list"),
+  added("factory.restore", W30, "factory", "factory restore"),
 
   // check
   current("prd.authority.validate", "check", "run prd authority validate", "prd_validate", "check prd", {

@@ -87,6 +87,17 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "work.queue.close": "work_close",
   "work.queue.export": "work_export",
   "work.queue.add": "work_add",
+  // W30 R0 P3 (PRD 53 R-FACTORY-49).
+  "factory.status": "factory_status",
+  "factory.tools.save": "factory_tools_save",
+  "factory.workflow.save": "factory_workflow_save",
+  "factory.workflow.show": "factory_workflow_show",
+  "factory.workflow.list": "factory_workflow_list",
+  "factory.proof.save": "factory_proof_save",
+  "factory.assignment.start": "factory_assignment_start",
+  "factory.assignment.save": "factory_assignment_save",
+  "factory.assignment.list": "factory_assignment_list",
+  "factory.restore": "factory_restore",
 };
 
 const SUPPORT_EVIDENCE_REF =

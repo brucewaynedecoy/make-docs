@@ -1516,6 +1516,20 @@ Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same pr
 
 **Resolution**: Closed on 2026-11-23 at the owner's choice of option A. A factory MCP tool call, read or write, is checked under R-ACCESS-6 against the grant of the project that it acts on, also when that project is not the project of the agent's folder. A read needs that project's Store read grant, and a write needs its Store write grant. Without it, the call is refused as `store-denied`, and the message says how to grant the access. PRD 53 R-FACTORY-67, its Integrations line, the factory contract, and the design state the choice. PRD 25 R-ACCESS-6 already checks project grants and target scope, so its text does not change. W30 R0 P3 T31 builds the check. This is new behavior.
 
+### D-076 Native Command Rule for the Assignment Command
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option C on 2026-11-23: rename the command to `factory assignment save` (MCP `factory_assignment_save`). | W30 R0 P3 applies the rename. |
+
+**Question**: Should a native command rule (a harness permission rule for a CLI command) be able to approve the command that moves a factory assignment, records a check, or records a grant use?
+
+**Why it matters**: The harness access contract refuses the word `update` anywhere in a command rule, so that no rule can ever approve `make-docs update`, the self-update command. The command was planned with the end word `update`. While it was a command rule candidate, setup refused every project. W30 R0 P3 first removed it from the command rule candidates, so an agent that uses native command rules could not record an assignment move through the CLI.
+
+**Options**: Option A kept that safe default and used MCP for assignment moves. Option B refused `update` only as the first word of a command rule, which changed the harness access contract. Option C renamed the command to `factory assignment save`, with an approved end word.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option C. The command is `factory.assignment.save`, `make-docs factory assignment save`, and the MCP tool `factory_assignment_save` (23 characters), with the same behavior. It had never been released, so it has no former-name alias. It is a native command rule candidate again, and setup admits it. The harness access contract does not change. PRD 53, PRD 39, PRD 38, the factory design, the factory contract, the W30 R0 plan, and the backlog state the name. This is new behavior: the name.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

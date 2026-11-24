@@ -50,6 +50,10 @@ const BOOLEAN_FLAGS = [
   "no-quick-items",
   // W29 R0 P4 second pass: `backlog snapshot --work-store` asks for the store-mode facts.
   "work-store",
+  // W30 R0 P3 factory: `workflow save --ready`, `assignment start --reset-rounds`, and `assignment list --all`.
+  "ready",
+  "reset-rounds",
+  "all",
 ];
 
 const ARRAY_FLAGS = [
@@ -67,9 +71,16 @@ const ARRAY_FLAGS = [
   // W29 R0 P4 work queue: `work report --met-gate` and `work export --path`.
   "met-gate",
   "path",
+  // W30 R0 P3 factory: `proof save --manual-step`.
+  "manual-step",
 ];
 
-export function parseOperationOptions(argv: string[]): OperationOptions {
+/**
+ * `valueFlags` names flags that take a value in one command even where the
+ * shared list treats them as booleans: `factory status --run <run-id>`
+ * (W30 R0 P3, register D-073).
+ */
+export function parseOperationOptions(argv: string[], valueFlags: readonly string[] = []): OperationOptions {
   const positionals: string[] = [];
   const values: Record<string, string> = {};
   const arrays: Record<string, string[]> = {};
@@ -82,7 +93,7 @@ export function parseOperationOptions(argv: string[]): OperationOptions {
       continue;
     }
     const key = arg.slice(2);
-    if (BOOLEAN_FLAGS.includes(key)) {
+    if (BOOLEAN_FLAGS.includes(key) && !valueFlags.includes(key)) {
       booleans.add(key);
       continue;
     }

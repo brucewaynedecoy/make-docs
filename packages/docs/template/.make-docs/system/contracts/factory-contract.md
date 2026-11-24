@@ -19,7 +19,7 @@ This contract is the agent form of the factory rules. Where the CLI checks a rul
 - The CLI and MCP operations never launch, schedule, message, or contact a tool. They check and record. An agent does the work through the tools that setup wired.
 - Waking and messaging belong to the person's tools. The factory never grows into a scheduler or a relay.
 
-The factory commands and the work queue commands in this contract are planned. They are not in the CLI yet. A reader who tries them gets an unknown-command error until they ship.
+The work queue commands and the factory commands in this contract are in the CLI, and each one is also an MCP tool.
 
 ## Parts
 
@@ -180,7 +180,7 @@ The CLI then compares the current plan's digest with the saved revisions:
 - It matches another saved revision: the workflow is `wired` when each needed role is bound and proved, and `draft` when one is not.
 - It matches no saved revision: the workflow is `drifted`. The result lists each drift reason code from [Reason Codes](#reason-codes).
 
-The CLI never contacts a tool. An agent reports tool facts through `make-docs factory tools save` (planned). It records a gone tool as `missing`. It records a tool that lost a permission it needs, such as an app permission or a sign-in, as `blocked`. Both change the current plan, so they give the drift codes `tool-missing` and `permission-lost`. A grant is not this kind of permission. An expired or spent grant never changes readiness. It only makes the foreman ask the person again.
+The CLI never contacts a tool. An agent reports tool facts through `make-docs factory tools save`. It records a gone tool as `missing`. It records a tool that lost a permission it needs, such as an app permission or a sign-in, as `blocked`. Both change the current plan, so they give the drift codes `tool-missing` and `permission-lost`. A grant is not this kind of permission. An expired or spent grant never changes readiness. It only makes the foreman ask the person again.
 
 Only a `ready` workflow takes new work. A `drifted` workflow escalates before it takes new work. Its message names the broken part and the smallest step that fixes it.
 
@@ -197,7 +197,7 @@ Only a `ready` workflow takes new work. A `drifted` workflow escalates before it
 | Proof results | Store | The evidence that a workflow is ready. |
 | File backups | Store record and `.make-docs/backup/factory/` | Undo outside git. See [Backups Outside Git](#backups-outside-git). |
 
-`.make-docs/factory/` holds read-only copies of the saved setup. Only Make Docs writes them. Each file starts with a note that it is generated and that edits are lost. The copy of the resolved plan prints the latest revision and says whether it is the `ready` revision. It reads the integration owner role and the human channel kind from the resolved plan. No copy ever holds a grant. A `.gitignore` file inside the folder holds one line, `*`, and keeps the folder out of git. Make Docs never edits the project root `.gitignore`. `make-docs factory restore` (MCP `factory_restore`, planned) writes them again from the Store. An agent or a person can read the wiring from the copies without a CLI call. Make Docs never reads a copy as input.
+`.make-docs/factory/` holds read-only copies of the saved setup. Only Make Docs writes them. Each file starts with a note that it is generated and that edits are lost. The copy of the resolved plan prints the latest revision and says whether it is the `ready` revision. It reads the integration owner role and the human channel kind from the resolved plan. No copy ever holds a grant. A `.gitignore` file inside the folder holds one line, `*`, and keeps the folder out of git. Make Docs never edits the project root `.gitignore`. `make-docs factory restore` (MCP `factory_restore`) writes them again from the Store. An agent or a person can read the wiring from the copies without a CLI call. Make Docs never reads a copy as input.
 
 No factory record holds a secret or any other item on the [Never-Log List](#never-log-list). Secrets stay in the tools that own them.
 
@@ -218,9 +218,9 @@ Each grant records:
 | `run` | The one lifecycle run that the grant names, until that run ends. |
 | `standing` | Every run of the workflow, until the person revokes it. |
 
-Before an action outside the default authority, the foreman records the use of a grant (`make-docs factory assignment update`, planned). The CLI refuses the use when no grant names the action, when the planned use is outside the grant's scope, when a `once` grant is spent, or after the expiry time. After a refusal, the foreman asks the person again through the human channel. That request is floor event 1.
+Before an action outside the default authority, the foreman records the use of a grant (`make-docs factory assignment save`). The CLI refuses the use when no grant names the action, when the planned use is outside the grant's scope, when a `once` grant is spent, or after the expiry time. After a refusal, the foreman asks the person again through the human channel. That request is floor event 1.
 
-`make-docs factory workflow save` (planned) writes each grant, at setup and during a run. During a run, after the person answers an escalation, the foreman records the person's answer with a grant-only save. A `run` grant names its lifecycle run. A grant-only save writes or revokes only the grant. It does not resolve the plan, save a revision, or change readiness.
+`make-docs factory workflow save` writes each grant, at setup and during a run. During a run, after the person answers an escalation, the foreman records the person's answer with a grant-only save. A `run` grant names its lifecycle run. A grant-only save writes or revokes only the grant. It does not resolve the plan, save a revision, or change readiness.
 
 Setup recommends the narrowest scope that does the job. Grants are not part of the resolved plan, so a new or spent grant never needs a new test task. `make-docs factory workflow show` lists the grants beside the plan, never inside it.
 
@@ -345,7 +345,7 @@ This is move table version 1. Each move to `needs-correction` adds one correctio
 
 Each assignment has a round count that starts at 0. The count goes up by one on each move from `returned` or `in-review` to `needs-correction`. A move from `unknown` to `needs-correction` also adds one, except when the status before `unknown` was already `needs-correction`, as the status history shows. Then the move adds no round. The CLI refuses a move that would take the count past the round limit of the assignment's plan revision, with the reason code `round-limit-reached`. The foreman then escalates floor event 3.
 
-The round count belongs to the job, not to the claim, so it survives a takeover. Only one assignment for each job is open at a time. Parts of one unit with different part labels can run at the same time, and each part has its own count. A new assignment for the same job starts at the round count of the one before it. Only the person can reset the count, through a `once` grant for the action `reset-correction-rounds`. `make-docs factory assignment start` (planned) spends that grant when it starts the new assignment, and the new assignment then starts at 0.
+The round count belongs to the job, not to the claim, so it survives a takeover. Only one assignment for each job is open at a time. Parts of one unit with different part labels can run at the same time, and each part has its own count. A new assignment for the same job starts at the round count of the one before it. Only the person can reset the count, through a `once` grant for the action `reset-correction-rounds`. `make-docs factory assignment start` spends that grant when it starts the new assignment, and the new assignment then starts at 0.
 
 ### Status History
 
@@ -353,17 +353,17 @@ Each assignment keeps its 20 newest status changes. Each entry holds the status,
 
 ## Claims and Lifecycle Runs
 
-The foreman claims work through the work queue (`make-docs work claim`, MCP `work_claim`, planned). It can claim a wave, a phase, a stage, or a task. The default is a phase.
+The foreman claims work through the work queue (`make-docs work claim`, MCP `work_claim`). It can claim a wave, a phase, a stage, or a task. The default is a phase.
 
 Each claim opens one lifecycle run at stage `implementation` (operation `lifecycle.start`). Each assignment points to that run. Evidence goes in through the existing evidence operations, `work.evidence.record` and `lifecycle.attach-evidence`.
 
-Only the holder of a live claim starts or updates the unit's assignments. `make-docs factory assignment start` and `make-docs factory assignment update` (planned) take the claim's private claim ID, as the work queue rules require for a report or a close. A caller that no longer holds the claim is refused. Never write a claim ID into a factory record, a note, or a message. `assignment start` refuses a checkout that is not a bound checkout of the project with `checkout-not-bound`. A unit with an open assignment does not close and does not leave the work store: the work queue refuses with `factory-assignment-open` (PRD 52).
+Only the holder of a live claim starts or updates the unit's assignments. `make-docs factory assignment start` and `make-docs factory assignment save` take the claim's private claim ID, as the work queue rules require for a report or a close. A caller that no longer holds the claim is refused. Never write a claim ID into a factory record, a note, or a message. `assignment start` refuses a checkout that is not a bound checkout of the project with `checkout-not-bound`. A unit with an open assignment does not close and does not leave the work store: the work queue refuses with `factory-assignment-open` (PRD 52).
 
 The foreman renews the claim at each check. The work queue rules set the timing: the claimant checks at least every 10 minutes, and a claim lasts 30 minutes by default. So the foreman's wake interval must be shorter than the claim time limit. A wake that comes less often lets the claim expire while the work still runs.
 
-If a foreman stops and its claim expires, another foreman can take the unit only after it checks every open task handle of that unit. Takeover follows the work queue rules in `make-docs://system/reference/work-store.md` (planned). A takeover is refused while a handle shows the work still running. When the old claim has no task handle, a takeover is refused, and a person releases the claim instead (`make-docs work release`, MCP `work_release`, planned). A takeover keeps each assignment of the unit, with its round count and its plan revision.
+If a foreman stops and its claim expires, another foreman can take the unit only after it checks every open task handle of that unit. Takeover follows the work queue rules in `make-docs://system/reference/work-store.md`. A takeover is refused while a handle shows the work still running. When the old claim has no task handle, a takeover is refused, and a person releases the claim instead (`make-docs work release`, MCP `work_release`). A takeover keeps each assignment of the unit, with its round count and its plan revision.
 
-A quick item comes straight from a request through the front desk. The front desk adds it with `make-docs work add` (MCP `work_add`, planned). It is a task-level unit with no design, plan, or PRD. The foreman still routes it by capability, so a small job can still go to a separate agent. Large work goes through the full lifecycle.
+A quick item comes straight from a request through the front desk. The front desk adds it with `make-docs work add` (MCP `work_add`). It is a task-level unit with no design, plan, or PRD. The foreman still routes it by capability, so a small job can still go to a separate agent. Large work goes through the full lifecycle.
 
 ## The Loop
 
@@ -372,8 +372,8 @@ Each time the foreman wakes, it runs these steps in order:
 1. Sync the work queue and read the workflow's readiness. If the workflow is `drifted`, escalate and take no new work.
 2. Check each open assignment through its task handle. Settle `unknown` assignments first. Renew claims.
 3. Judge returned work. Inspect the actual result. Send it to a reviewer who did not build it. Return defects for correction within the limit.
-4. Accept each unit inside the given scope on the reviewer's evidence. Close it in the work queue (`make-docs work close`, MCP `work_close`, planned). Integrate it.
-5. Take the next ready unit (`make-docs work next`, MCP `work_next`, planned) if the scope and the limits allow. Run preflight first when the workflow turns that step on. Choose the team and assign the jobs under the `ready` plan revision.
+4. Accept each unit inside the given scope on the reviewer's evidence. Close it in the work queue (`make-docs work close`, MCP `work_close`). Integrate it.
+5. Take the next ready unit (`make-docs work next`, MCP `work_next`) if the scope and the limits allow. Run preflight first when the workflow turns that step on. Choose the team and assign the jobs under the `ready` plan revision.
 6. Escalate each floor event. At the end of the given scope, ask the person to accept.
 
 Worker completion returns control to the foreman. The person does not restart the run after each unit.
@@ -539,7 +539,7 @@ A project type uses the same [fields](#workflow-type-fields) as a shipped type. 
 
 ## Commands
 
-These commands are planned. They are not in the CLI yet. Each command is also an MCP tool in the `factory` MCP profile. The MCP name is the command path joined by underscores.
+Each command is also an MCP tool in the `factory` MCP profile. The MCP name is the command path joined by underscores.
 
 | Command | MCP tool | Effect |
 | --- | --- | --- |
@@ -550,7 +550,7 @@ These commands are planned. They are not in the CLI yet. Each command is also an
 | `make-docs factory workflow list` | `factory_workflow_list` | Reads all workflows. |
 | `make-docs factory proof save` | `factory_proof_save` | Saves a test task result for one plan revision. Makes it the `ready` revision when the proof passed. |
 | `make-docs factory assignment start` | `factory_assignment_start` | Records a new assignment under the `ready` plan revision. |
-| `make-docs factory assignment update` | `factory_assignment_update` | Changes an assignment's status, round count, or last check time, or records the use of a grant. |
+| `make-docs factory assignment save` | `factory_assignment_save` | Changes an assignment's status, round count, or last check time, or records the use of a grant. |
 | `make-docs factory assignment list` | `factory_assignment_list` | Reads assignments. |
 | `make-docs factory restore` | `factory_restore` | Writes the `.make-docs/factory/` copies again, with the latest resolved plan. |
 
@@ -562,7 +562,7 @@ When a workflow is `ready`, the backlog review "Work on this wave" action sends 
 
 ## Project Scope
 
-New on 2026-11-23. One Store serves every project on a machine. So each factory command must know what it acts on. These commands are planned, like the rest of this contract.
+New on 2026-11-23. One Store serves every project on a machine. So each factory command must know what it acts on.
 
 | Command | Scope | Kind | How it finds the project |
 | --- | --- | --- | --- |
@@ -570,7 +570,7 @@ New on 2026-11-23. One Store serves every project on a machine. So each factory 
 | `make-docs factory workflow save` | Project | Write | Named project only, also for a grant-only save. |
 | `make-docs factory proof save` | Project | Write | Named project only. |
 | `make-docs factory assignment start` | Project | Write | Named project only. |
-| `make-docs factory assignment update` | Project | Write | Named project only. |
+| `make-docs factory assignment save` | Project | Write | Named project only. |
 | `make-docs factory restore` | Project | Write | Named project only. |
 | `make-docs factory workflow show` | Project | Read | The named project, or the project of the current folder. |
 | `make-docs factory workflow list` | Project | Read | The named project, or the project of the current folder. |
@@ -595,8 +595,6 @@ The machine records are the tool list, the tool states, and the capability proof
 
 ### Factory URIs
 
-Factory URIs are planned. They are not built yet.
-
 | URI | What a read shows |
 | --- | --- |
 | `make-docs://project/<project>/factory/` | The project's workflows, each with its latest and `ready` revision numbers. |
@@ -617,6 +615,8 @@ Factory URIs are planned. They are not built yet.
 
 Each rule has one row. A planned check names the backlog phase and task that builds it. A planned check is not built yet. Until it ships, the agent follows the contract text. A contract-only row says why no check applies.
 
+Every row marked "Planned in W30 R0 P3" is built as of W30 R0 P3. W30 R0 P6 updates the Check column.
+
 | Rule ID | Rule | Contract section | Check |
 | --- | --- | --- | --- |
 | `tool-agnostic` | Describe tools by capability, never by name. | [Boundary](#boundary) | Contract-only. It is a writing rule. W30 R0 P6 T8 searches the shipped files for tool names. |
@@ -625,7 +625,7 @@ Each rule has one row. A planned check names the backlog phase and task that bui
 | `never-launches` | The CLI and MCP operations check and record. They never launch, schedule, or message. | [Boundary](#boundary) | Planned in W30 R0 P3 T2: `factory.tools.save` runs and contacts no tool. P3 A22 tests that no operation starts a process or opens a network connection. |
 | `smallest-setup` | One tool with `read-write-files`, `run-commands`, `launch-agent`, `wait-for-agent`, and `read-agent-result` fills every role, with fresh subagents as builders and reviewers. | [Smallest Setup](#smallest-setup) | Contract-only. The setup Skill applies it (W30 R0 P4 T8). |
 | `reviewer-not-builder` | A reviewer never reviews work it built. | [Roles](#roles), [Working Rules](#working-rules) | Contract-only. No record names the session that built a candidate. |
-| `custom-role-fields` | A custom role names its job, capabilities, and returns. | [Custom Roles](#custom-roles) | Planned in W30 R0 P3 T3: `factory.workflow.save` checks a workflow against its type and the capability catalog. |
+| `custom-role-fields` | A custom role names its job, capabilities, and returns. | [Custom Roles](#custom-roles) | Planned in W30 R0 P3 T3: `factory.workflow.save` checks that the config has each standard role that the workflow type's `## Roles` table names, and that each capability ID is in the catalog. The config check requires each role's job, capabilities, and returns. |
 | `custom-role-new-name` | A custom role uses a new name and never replaces a standard role. | [Custom Roles](#custom-roles) | Contract-only. No W30 task checks role names. |
 | `match-by-capability` | A role is given to a tool for its proved capabilities. | [Capability Catalog](#capability-catalog) | Planned in W30 R0 P3 T3: `factory.workflow.save` checks a workflow against the capability catalog. |
 | `unproved-stays-visible` | A capability setup could not prove stays `unproved`. A failed proof is `contradicted`. | [Capability Catalog](#capability-catalog) | Planned in W30 R0 P3 T2: `factory.tools.save` checks the shape of each capability proof. |
@@ -642,7 +642,7 @@ Each rule has one row. A planned check names the backlog phase and task that bui
 | `lost-tool-drifts` | A lost tool always moves the workflow to `drifted`. Only a deliberate unbind moves it to `draft`. | [Readiness](#readiness) | Planned in W30 R0 P3 T9: `factory.status` marks a workflow `drifted` when a bound tool's saved proof no longer holds. |
 | `drift-escalates` | A `drifted` workflow escalates, takes no new work, and names the smallest fix. | [Readiness](#readiness) | Planned in W30 R0 P3 T9: `factory.status` shows `drifted` and the smallest fix. |
 | `grants-not-committed` | A grant never appears in committed config, a local copy, or a resolved plan. | [Saved Records](#saved-records), [Grants](#grants) | Planned in W30 R0 P2 T8: config validation refuses a grant in the `factory:` block. W30 R0 P3 T18 leaves grants out of the plan. |
-| `grant-scope` | A grant use must match the grant's action, scope, and expiry. Outside them, the foreman asks the person again. | [Grants](#grants) | Planned in W30 R0 P3 T17: `factory.assignment.update` refuses a grant use outside its scope, after its expiry, or after a `once` grant is spent. |
+| `grant-scope` | A grant use must match the grant's action, scope, and expiry. Outside them, the foreman asks the person again. | [Grants](#grants) | Planned in W30 R0 P3 T17: `factory.assignment.save` refuses a grant use outside its scope, after its expiry, or after a `once` grant is spent. |
 | `grant-written` | `factory workflow save` writes each grant, at setup and during a run. A grant-only save changes nothing else. `workflow show` lists grants beside the plan, and no copy holds a grant. | [Grants](#grants) | Planned in W30 R0 P3 T17: a grant-only `factory.workflow.save` writes the grant and saves no plan revision. |
 | `no-secrets` | No secret in config, a local copy, a resolved plan, or a Store record. | [Saved Records](#saved-records) | Planned in W30 R0 P2 T8: config validation refuses a secret in the `factory:` block. W30 R0 P3 T22 checks every factory write. |
 | `copies-not-input` | Make Docs writes the local copies and never reads them as input. | [Saved Records](#saved-records) | Planned in W30 R0 P2 T9 and T10, and P3 T6: Make Docs writes the copies from the Store and reads none of them. |
@@ -655,9 +655,9 @@ Each rule has one row. A planned check names the backlog phase and task that bui
 | `plan-is-data` | The resolved plan has no steps, conditions, joins, or code. The CLI never reads it to decide what to do next. | [Data, Not a Program](#data-not-a-program) | Contract-only. It is a design rule. The plan schema in W30 R0 P3 T18 has no step fields to check. |
 | `assignment-fields` | An assignment holds its fields and no prompt, transcript, or task graph. | [Assignments](#assignments) | Planned in W30 R0 P2 T3 and T17: the Store assignment record has only these fields. |
 | `assignment-status` | Status is one of the nine values. | [Assignments](#assignments) | Planned in W30 R0 P2 T3: the Store assignment record accepts only these values. |
-| `status-moves` | An assignment moves only along the move table. A final status never changes. | [Status Moves](#status-moves) | Planned in W30 R0 P3 T12: `factory.assignment.update` refuses other moves with `illegal-move` and `final-status`. |
-| `round-limit` | The CLI counts correction rounds for each job (unit, role, and part label) and refuses a move past the limit. The count survives a takeover. | [Correction Rounds](#correction-rounds) | Planned in W30 R0 P3 T13: `factory.assignment.update` refuses with `round-limit-reached`, and `factory.assignment.start` refuses a second open assignment for one job and spends a reset grant. |
-| `status-history` | Each assignment keeps its 20 newest status changes, each with a reason code and no free text. | [Status History](#status-history) | Planned in W30 R0 P3 T14: `factory.assignment.update` adds the entry and keeps the 20 newest. |
+| `status-moves` | An assignment moves only along the move table. A final status never changes. | [Status Moves](#status-moves) | Planned in W30 R0 P3 T12: `factory.assignment.save` refuses other moves with `illegal-move` and `final-status`. |
+| `round-limit` | The CLI counts correction rounds for each job (unit, role, and part label) and refuses a move past the limit. The count survives a takeover. | [Correction Rounds](#correction-rounds) | Planned in W30 R0 P3 T13: `factory.assignment.save` refuses with `round-limit-reached`, and `factory.assignment.start` refuses a second open assignment for one job and spends a reset grant. |
+| `status-history` | Each assignment keeps its 20 newest status changes, each with a reason code and no free text. | [Status History](#status-history) | Planned in W30 R0 P3 T14: `factory.assignment.save` adds the entry and keeps the 20 newest. |
 | `unknown-first` | Check an `unknown` assignment's handle before any other step. | [Assignments](#assignments), [The Loop](#the-loop) | Contract-only. Only an agent can check a task handle. The run Skill applies it (W30 R0 P5 T5). |
 | `claim-held` | Only the holder of a live claim starts or updates the unit's assignments. | [Claims and Lifecycle Runs](#claims-and-lifecycle-runs) | Planned in W30 R0 P3 T5 and T24: `factory.assignment.start` and `.update` take the private claim ID and refuse a caller that no longer holds the claim. |
 | `claim-opens-run` | Each claim opens one lifecycle run at stage `implementation`. | [Claims and Lifecycle Runs](#claims-and-lifecycle-runs) | Contract-only. The run Skill opens the run (W30 R0 P5 T4). No W30 task makes `factory.assignment.start` check the run's stage. |
@@ -701,5 +701,5 @@ Each rule has one row. A planned check names the backlog phase and task that bui
 | `skill-names-project` | The run Skill names the project in every factory call and every message. | [Results Name the Project](#results-name-the-project) | Contract-only. The run Skill applies it (W30 R0 P5 T20 and T21). |
 | `custom-role-context` | A custom role lists its context kinds. The front desk and the foreman need no list. | [Custom Roles](#custom-roles) | Planned in W30 R0 P2 T20: the config check refuses a role without a list, with a plain message that names the role. |
 | `printouts-out-of-git` | A `.gitignore` with one line, `*`, inside each factory folder keeps it out of git. Make Docs never edits the project root `.gitignore`. | [Saved Records](#saved-records), [Backups Outside Git](#backups-outside-git) | Planned in W30 R0 P2 T11: Make Docs writes the folder `.gitignore` files and leaves the root `.gitignore` unchanged. |
-| `unknown-correction-counts` | A move from `unknown` to `needs-correction` adds one correction round, unless the status before `unknown` was already `needs-correction`. | [Correction Rounds](#correction-rounds) | Planned in W30 R0 P3 T13: `factory.assignment.update` counts that move from the status history. |
+| `unknown-correction-counts` | A move from `unknown` to `needs-correction` adds one correction round, unless the status before `unknown` was already `needs-correction`. | [Correction Rounds](#correction-rounds) | Planned in W30 R0 P3 T13: `factory.assignment.save` counts that move from the status history. |
 | `status-per-factory` | `factory status` groups one project by checkout and then by lifecycle run, with each checkout's own readiness. `--run` shows one run. | [Commands](#commands) | Planned in W30 R0 P3 T8, T29, and T33: status groups by checkout and run (P3 A23), and `factory.assignment.start` records the checkout ID of the checkout that it named (P3 A83). |

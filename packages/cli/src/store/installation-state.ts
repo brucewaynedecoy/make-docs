@@ -455,6 +455,62 @@ export function withStoreReadOnlyDatabase<T>(storeRoot: string, fn: (db: StoreDa
         release();
     }
 }
+/**
+ * Write the Store in one transaction with no project folder (W30 R0 P3). A
+ * factory write names its project by project ID, or acts on the machine, so
+ * this write checks only the Store paths. It never creates, prepares, or
+ * migrates a Store: a Store that is absent or not at the current schema is
+ * refused before any file is made. Lock contention maps to the typed Store
+ * outcome, and any error rolls the transaction back.
+ */
+export function withStoreWriteDatabase<T>(storeRoot: string, fn: (db: StoreDatabase) => T): T {
+    const store = validateStoreStatePaths(canonicalInstallationPath(storeRoot));
+    const databasePath = getStoreDatabasePath(store);
+    if (!lstatSync(databasePath, { throwIfNoEntry: false }))
+        return fail('store-unavailable', 'The Store is absent. Nothing was changed. Run make-docs setup in a project first.');
+    const c = classifyStoreCheckpoint9State(store);
+    if (c.state === 'supported-legacy')
+        fail('store-unavailable', `The Store uses supported legacy schema ${c.schemaVersion}. Nothing was changed. ${STORE_LEGACY_SCHEMA_NEXT_ACTION}`, undefined, STORE_LEGACY_SCHEMA_NEXT_ACTION);
+    if (c.state !== 'supported-current')
+        fail('store-unavailable', 'issue' in c && c.issue ? formatStoreIssue(c.issue) : `Store is ${c.state}.`, 'issue' in c ? c.issue : undefined);
+    const release = acquireStoreAccess(store);
+    let db: StoreDatabase;
+    try {
+        db = openStoreSqliteConnection(databasePath, {}, 'write');
+    }
+    catch (e) {
+        release();
+        throw e;
+    }
+    try {
+        try {
+            db.exec('BEGIN IMMEDIATE');
+            try {
+                const result = fn(db);
+                db.exec('COMMIT');
+                return result;
+            }
+            catch (error) {
+                try {
+                    db.exec('ROLLBACK');
+                }
+                catch {
+                    // The transaction may already be closed.
+                }
+                throw error;
+            }
+        }
+        catch (error) {
+            if (!isSqliteContention(error))
+                throw error;
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'write Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+        }
+    }
+    finally {
+        db.close();
+        release();
+    }
+}
 function validateStoreStatePaths(store: string): string {
     for (const suffix of ['store.db', 'store.db-wal', 'store.db-shm', 'store-access.lock', 'removal.lock', 'installation-bootstrap.lock', 'installation-lease-recovery.lock']) {
         const child = path.join(store, suffix);

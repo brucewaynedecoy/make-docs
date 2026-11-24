@@ -82,7 +82,8 @@
     {
       "uri": "make-docs://system/contract/factory-contract.md",
       "profiles": [
-        "workflow"
+        "workflow",
+        "factory"
       ]
     },
     {
@@ -278,19 +279,22 @@
     {
       "uri": "make-docs://system/reference/factory/workflows/build-then-review.md",
       "profiles": [
-        "workflow"
+        "workflow",
+        "factory"
       ]
     },
     {
       "uri": "make-docs://system/reference/factory/workflows/lead-and-specialists.md",
       "profiles": [
-        "workflow"
+        "workflow",
+        "factory"
       ]
     },
     {
       "uri": "make-docs://system/reference/factory/workflows/staged-backlog.md",
       "profiles": [
-        "workflow"
+        "workflow",
+        "factory"
       ]
     },
     {

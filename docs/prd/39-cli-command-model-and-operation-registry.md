@@ -122,7 +122,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Registry Group Surface (R-RUN)
 
-- R-RUN-1 (MUST): `run` is not a top-level group. The registry group surface is the `work`, `backlog`, `lifecycle`, `factory`, and `check` groups, and it exposes only registry operations. Each former `run` path is a hidden migration alias under R-MIG-1. It contains active `check` commands for `prd`, `decomposition`, `performance-evidence`, `uat scenario`, `uat persona`, `uat target`, `uat evidence`, `uat finding`, and `uat result`, active `work` commands for `item resolve`, `evidence record`, `evidence read`, `status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`, active `backlog` commands for `snapshot`, `cache lookup`, `cache write`, `review open`, and `review refresh`, active `lifecycle` commands for `start`, `show`, `list`, `checkpoint`, `pause`, `resume`, `attach-evidence`, `complete`, `fail`, and `abandon`, and planned `factory` commands for `status`, `tools save`, `workflow save`, `workflow show`, `workflow list`, `proof save`, `assignment start`, `assignment update`, `assignment list`, and `restore`.
+- R-RUN-1 (MUST): `run` is not a top-level group. The registry group surface is the `work`, `backlog`, `lifecycle`, `factory`, and `check` groups, and it exposes only registry operations. Each former `run` path is a hidden migration alias under R-MIG-1. It contains active `check` commands for `prd`, `decomposition`, `performance-evidence`, `uat scenario`, `uat persona`, `uat target`, `uat evidence`, `uat finding`, and `uat result`, active `work` commands for `item resolve`, `evidence record`, `evidence read`, `status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`, active `backlog` commands for `snapshot`, `cache lookup`, `cache write`, `review open`, and `review refresh`, active `lifecycle` commands for `start`, `show`, `list`, `checkpoint`, `pause`, `resume`, `attach-evidence`, `complete`, `fail`, and `abandon`, and active `factory` commands for `status`, `tools save`, `workflow save`, `workflow show`, `workflow list`, `proof save`, `assignment start`, `assignment save`, `assignment list`, and `restore`.
 - R-RUN-2 (MUST NOT): wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, closeout judgment, generation judgment, and other derivation-heavy workflow policy are not registry operations or group commands. The deterministic readiness, claim, report, close, and sync rules of [PRD 52](52-work-store-and-work-queue.md) are not workflow policy in this sense and are admitted operations.
 - R-RUN-3 (MUST): lifecycle adapters preserve the PRD 38 transition matrix without transport-specific changes. `show` and `list` read every status. `checkpoint` accepts `active` and `paused`. `attach-evidence` accepts every status but cannot change status or reopen a terminal run. `pause` accepts `active`; `resume` accepts `paused`; `complete` accepts `active`; and `fail` and `abandon` accept `active` or `paused`. Terminal runs reject checkpoints and later status transitions. CLI and MCP adapters return the same typed invalid-transition outcome for the same input.
 - R-RUN-4 (MUST): the work queue operations use identifiers `work.queue.status`, `work.queue.sync`, `work.queue.next`, `work.queue.claim`, `work.queue.release`, `work.queue.report`, `work.queue.close`, `work.queue.export`, and `work.queue.add`, with CLI paths `make-docs work <verb>` and MCP names `work_<verb>`. The factory operations use identifiers under `factory.*`, with CLI paths `make-docs factory <noun> <verb>` or `make-docs factory <verb>`, and MCP names that join the same words with underscores, for example `factory_workflow_save`. Exact flags follow [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md). Writes use the shared write permission, `expectedVersion`, and typed Store results.
@@ -810,6 +810,22 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: the doctor also has `phase-open-under-completed-index`. Its fix sets the status line to `completed` only when every task in the phase is checked; otherwise the finding is report only. It never touches a path on the sync hold list. The index status still does not close its phases.
 - Rationale: the owner's decision of 2026-11-23 on W29 R0 P6 FOLLOW-UP-P6-CLOSED-PARENT, option B: keep the no-cascade rule, give a done phase the right next action, and give the doctor a reviewed fix for the files.
 - Source: [W29 R0 P6 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#follow-ups)
+
+### 2026-11-23 — W30 R0 P3
+
+- Affected requirement or section: R-RUN-1.
+- Previous contract: R-RUN-1 listed `factory status`, `tools save`, `workflow save`, `workflow show`, `workflow list`, `proof save`, `assignment start`, `assignment update`, `assignment list`, and `restore` as planned `factory` commands.
+- Replacement contract: the ten factory commands are active `factory` commands, with MCP names `factory_status` to `factory_restore` under R-RUN-4, in the `factory` MCP profile.
+- Rationale: W30 R0 P3 admitted the ten operations in the registry.
+- Source: [W30 R0 P3 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#p3-factory-operations)
+
+### 2026-11-23 — W30 R0 P3 Assignment Save
+
+- Affected requirement or section: R-RUN-1.
+- Previous contract: R-RUN-1 listed `assignment update` among the active `factory` commands.
+- Replacement contract: R-RUN-1 lists `assignment save`. Its MCP name is `factory_assignment_save` under R-RUN-4, with 23 characters. The name was never released, so it has no migration alias under R-MIG-1. This is new behavior: the name.
+- Rationale: a native command rule refuses the word `update`, and `save` is an approved end word under R-NAME-2.
+- Source: the owner's decision of 2026-11-23 on [register](03-open-questions-and-risk-register.md) D-076, option C.
 
 ## Source Anchors
 

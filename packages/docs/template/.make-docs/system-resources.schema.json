@@ -134,7 +134,7 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": {
-            "enum": ["core", "setup", "workflow", "quality", "backlog"]
+            "enum": ["core", "setup", "workflow", "quality", "backlog", "factory"]
           }
         }
       }

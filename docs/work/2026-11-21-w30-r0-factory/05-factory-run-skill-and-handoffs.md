@@ -123,7 +123,7 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 - [ ] T16: Move each assignment only along the status move table, and never change a final assignment. When the CLI refuses a move with `round-limit-reached`, stop and escalate floor event 3 with the evidence (R-FACTORY-28, R-FACTORY-41).
 - [ ] T17: Run each assignment under the plan revision it names. Give each part of a unit its own part label, so the parts run as separate jobs. After a takeover, load that exact revision and go on with the same round count. Take no new work when the workflow is `drifted`, and explain each drift reason code in plain words (R-FACTORY-12, R-FACTORY-54, R-FACTORY-58).
 - [ ] T18: Before an action outside the default authority, record the use of a grant. When the CLI refuses it, ask the person again through the human channel, and record the answer with a grant-only `factory workflow save` (R-FACTORY-24).
-- [ ] T19: Hand each role only the context kinds that its plan lists. Never write file contents, prompts, briefs, environment values, transcripts, or credentials into a factory record. Apply the same rule to the progress note of `make-docs work report --note`. Send the private claim ID to `factory assignment start` and `update`, and never write it into a record, a note, or a message. Use a reason code for each status change (R-FACTORY-26, R-FACTORY-54, R-FACTORY-60).
+- [ ] T19: Hand each role only the context kinds that its plan lists. Never write file contents, prompts, briefs, environment values, transcripts, or credentials into a factory record. Apply the same rule to the progress note of `make-docs work report --note`. Send the private claim ID to `factory assignment start` and `save`, and never write it into a record, a note, or a message. Use a reason code for each status change (R-FACTORY-26, R-FACTORY-54, R-FACTORY-60).
 
 ### Acceptance criteria
 
@@ -175,3 +175,14 @@ New on 2026-11-23. The owner chose option A for project scope after P1 was done.
 - PRD decision: `update-existing` — PRD 53 new R-FACTORY-63 to R-FACTORY-65.
 - Owner approval: the owner's decision on 2026-11-23 (option A).
 - Source: [Factory design](../../designs/2026-11-21-factory.md#project-scope)
+
+### 2026-11-23 — W30 R0 P3 Assignment Save
+
+- Kind: `edit`
+- Affected scope: the task text that names the assignment command.
+- Previous scope: the command that moves an assignment, records a check, or records a grant use was named with the end word `update`.
+- Replacement scope: the command is `factory assignment save` (`factory.assignment.save`, MCP `factory_assignment_save`), with the same behavior. Task and acceptance IDs do not change. This is new behavior: the name.
+- Rationale: a native command rule refuses the word `update`, so setup failed for every project while the command ended with it.
+- PRD decision: `update-existing` — PRD 53 (Operations table, R-FACTORY-24, R-FACTORY-50, project scope table), PRD 39 R-RUN-1, and PRD 38 (factory grants R-MIN row). Register D-076 is closed.
+- Owner approval: the owner's decision on 2026-11-23 (register D-076, option C).
+- Source: [register](../../prd/03-open-questions-and-risk-register.md)
