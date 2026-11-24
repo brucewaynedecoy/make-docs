@@ -430,16 +430,16 @@
           "installPath": "agents/openai.yaml"
         },
         {
-          "source": "references/profiles.md",
-          "installPath": "references/profiles.md"
+          "source": "references/messages.md",
+          "installPath": "references/messages.md"
         },
         {
-          "source": "references/store.md",
-          "installPath": "references/store.md"
+          "source": "references/run-loop.md",
+          "installPath": "references/run-loop.md"
         },
         {
-          "source": "references/work-methods.md",
-          "installPath": "references/work-methods.md"
+          "source": "references/working-rules.md",
+          "installPath": "references/working-rules.md"
         }
       ]
     },

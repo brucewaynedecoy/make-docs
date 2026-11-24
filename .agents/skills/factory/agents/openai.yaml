@@ -1,6 +1,6 @@
 interface:
   display_name: "Factory"
-  short_description: "Coordinate backlog work, review, and correction"
-  default_prompt: "Use $factory to complete the selected backlog work with subagents."
+  short_description: "Run a ready factory workflow on backlog work"
+  default_prompt: "Use $factory to run the ready factory workflow of a named project."
 policy:
   allow_implicit_invocation: false

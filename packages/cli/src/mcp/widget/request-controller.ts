@@ -121,7 +121,7 @@ export function createBacklogRequestController(options: BacklogControllerOptions
     let prepared;
     try { prepared = await withBrowserHashes(() => {
       const resolution = resolveBacklogLiveAction(input, envelope, snapshot);
-      return { resolution, message: resolution.state === "resolved" ? createBacklogActionMessage(resolution.action) : null };
+      return { resolution, message: resolution.state === "resolved" ? createBacklogActionMessage(resolution.action, envelope) : null };
     }); }
     catch { return reject("invalid-action-context"); }
     const { resolution, message } = prepared;

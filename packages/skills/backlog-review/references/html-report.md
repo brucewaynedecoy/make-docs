@@ -74,6 +74,8 @@ The expanded wave panel uses the fixed three-column `Facts`, `Inference`, and `R
 
 Below those columns, icon-only `Explain this wave` and `Work on this wave` controls match the live review buttons. Their accessible names and tooltips identify each action. Explain asks for goals, current status, open work, and a recommendation. Work includes the saved recommended action when one exists. Both prompts name the source record and tell the receiving agent to check current facts and user authority. The saved file sends no message and starts no work. Copy during the click, with a hidden browser-command path and a Clipboard API path. Show only brief success or failure feedback after a click. Do not show a prompt field or repeated help text. Hide these controls in print.
 
+When the report's snapshot has a `factory` key, the copied Work prompt names the project and asks the receiving agent to use the `factory` Skill and to hand the wave to the front desk of the ready factory workflow. Without that key, the Work prompt is as before.
+
 Attention icons use the fixed report mapping: `conflict` is error/red, `attention` is warning/amber, and all other record or backlog findings are info/blue.
 
 ## Verify the result

@@ -623,3 +623,176 @@ An independent review of P4 on 2026-11-23 found no broken code and eight items i
 ### Open for the Owner
 
 - Guided Progress Review of the interview questions and the closing summary (P4 testing decision). Feedback can change both before closeout.
+
+## P5 Factory Run Skill and Handoffs
+
+Covers A33 to A42, A67 to A69, A81, and A82 in [P5](05-factory-run-skill-and-handoffs.md). Evidence date: 2026-11-23. Base commit: `2b03cb46` on `docs/w29-w30-work-store-and-factory`. The work is uncommitted in its worktree. Every CLI and test run used a temporary `MAKE_DOCS_HOME`; nothing read or wrote the real Store. P4 ran in parallel in another worktree, so this phase did not touch `packages/skills/factory-setup/`.
+
+### What Changed
+
+- The `factory` Skill (`packages/skills/factory/`, and its installed copy `.agents/skills/factory/`) is new text. `SKILL.md` names the project, loads the workflow, its type, and the factory contract, refuses a workflow that is not `ready` with the fix for each state, and lists the six loop steps. Three references replace the profiles, the old Store reference, and the old work methods: `references/run-loop.md` (each loop step with its CLI command and MCP tool, `unknown` assignments, the claim time, takeover, the move table, the status history codes, more rounds after the limit, the accept and close order, actions outside the default authority, claim sizes, parts, quick items, preflight, and a wave from backlog review), `references/working-rules.md` (judging, separate review, context kinds, the never-log list, claim IDs, plan revisions and drift codes, grant scopes and grant uses, refusal codes, capability IDs, files and working copies, and backups outside git), and `references/messages.md` (the floor, the message rules, the escalation form with two examples, project refusals, the acceptance request, and the status report). The Skill names no tool, vendor, or product. `agents/openai.yaml` keeps `allow_implicit_invocation: false`.
+- The registry entry of `factory` lists the three new references. Its description did not change. No other Skill entry changed.
+- The escalation floor in config (T11, A38): an `escalations` entry can only add an event, and nothing in the config can remove a floor event. The schema already refuses every unknown workflow key. A workflow key about the floor or escalations, such as `skipEscalations`, `escalationFloor`, or `disabledEvents`, now gets a plain message: the five floor events always reach the person, and a workflow can only add events. `workflow save` then refuses, because the config is not valid. The first build also refused an `escalations` entry by its first word, such as "Skip". The review found that this refused valid added events and missed real tries, so that check is gone.
+- The backlog review handoff (T13 to T15): `backlog snapshot --factory` (MCP `factory: true`) adds a `factory` key with the ready workflows and the project, only when a workflow of the project is `ready` in a bound checkout with a usable Store. The readiness comes from the same live plan as `factory status`. In every other case the snapshot is the same as without the option. The key is a routing fact, so it changes no snapshot or model identity, and a refresh keeps working. With the key, "Work on this wave" in the live app and the copied Work prompt of the static report name the project ("in project aurora", or the project ID when the project has no name) and ask the agent to use the `factory` Skill and to hand the wave to the front desk of the ready workflow. Without it, both are byte for byte as before. The key's project and workflow names have a fixed form, so no project prose enters the message. The backlog review Skill asks for the key, runs the snapshot again without the option when an older CLI refuses it, and takes the project from the key.
+- PRD 51: R-BACKLOG-SNAPSHOT-1, -13, and -24 name the option, and new R-BACKLOG-SNAPSHOT-34 states the `factory` key. A Requirement History entry marks it new behavior, which the owner approved on 2026-11-23 (option A).
+- `README.md` and `packages/cli/README.md` no longer say that `factory` has no commands, and the root README's Skill row describes the run Skill.
+- Regenerated: `packages/cli/src/mcp/widget/static-renderer.js`, `packages/cli/src/mcp/assets/backlog-review-v1.html` and `.ts` (`node packages/cli/scripts/build-mcp-app-assets.mjs`), and `packages/skills/backlog-review/scripts/agent-contract.mjs` and `report-contract.mjs` (`node packages/cli/scripts/build-backlog-presentation.mjs --all`). The byte-match tests pass.
+
+### How Each Task Is Met
+
+| Task | How |
+| --- | --- |
+| T1 | `SKILL.md` "Load the workflow": read the workflow with `factory workflow show`, its type, and the contract; refuse any state but `ready`, with the fix for `draft`, `wired`, `drifted`, and no workflow. |
+| T2 | `profiles.md`, `store.md`, and `work-methods.md` are gone. The Skill runs only when it is named. |
+| T3 | `SKILL.md` "Run the loop" and `run-loop.md` steps 1 to 6, in the contract's order. |
+| T4 | `run-loop.md` step 5: claim at the plan's claim size, the default `phase`; one `lifecycle start --stage implementation` for each claim; evidence through `work evidence record` and `lifecycle attach-evidence`. |
+| T5 | `run-loop.md` step 2: settle `unknown` first through the handle; send again only when the job never started, after the move to `offered`; a takeover, also of your own expired claim, names the old claim's handle check and a new task handle. |
+| T6 | `run-loop.md` "Quick Items": `work add`, then route by capability. |
+| T7 | `run-loop.md` step 5: run `preflight` only when the plan turns the step on. |
+| T8 | `working-rules.md` "Judge and Review", and `run-loop.md` "Correct" (a repeated failure stops before the limit). |
+| T9 | `working-rules.md` "Files and Working Copies"; `run-loop.md` step 4 closes the unit, then integrates it. |
+| T10 | Not met. No factory command records a backup. Before any builder job starts in a folder without git, the Skill stops, asks the person, and records the answer in a `work report --note`. The owner chose to add `factory backup save` in a follow-up. |
+| T11 | `messages.md`: the five floor events, added events, the message parts, and the form; nothing in config can remove a floor event (A38). |
+| T12 | `run-loop.md` step 4 and `messages.md` "Acceptance Request": accept each unit on the reviewer's evidence, and send one request at the end of the scope. A merge or deploy of a unit records its grant use in the same save that accepts the builder's assignment. |
+| T13 to T15 | The snapshot option, the two message routes with the project named, the Skill text, PRD 51, and the regenerated assets above. |
+| T16 | `run-loop.md` "Status Moves" (the table is the code's table), "Correct" (`round-limit-reached` escalates floor event 3), and "More Rounds After the Limit" (a `once` grant, the old assignment `cancelled`, a new start with `--reset-rounds`). |
+| T17 | `run-loop.md` "Start a Job" (part labels), "An Expired Claim" (load the named revision, the same round count), and `working-rules.md` "Plan Revisions" (a drift code table). |
+| T18 | `run-loop.md` "An Action Outside the Default Authority" and `working-rules.md` "Grants": record the use on an open assignment, ask again on a refusal, record the answer with a grant-only `workflow save`, then save again with the use. |
+| T19 | `working-rules.md` "Context for Each Role", "Never Log", and "Claim IDs"; a reason code on each move. |
+| T20 | `SKILL.md` "Name the project": `--project` or `--target-root` on every factory call, the checkout path on every work and lifecycle call, and the project refusals stop the call. |
+| T21 | `SKILL.md` and `messages.md`: every message form starts with the project name, and a project refusal names the project of the run. |
+
+### Twin Test
+
+`packages/cli/tests/w30-r0-p5-factory-run-skill-and-handoffs.test.ts` has one checker, `twinProblems`, that compares each list and table of the Skill with the code both ways: the found values must equal the code's values, in order, so a missing value and an extra value both fail.
+
+| Skill list or table | Code |
+| --- | --- |
+| Status history codes (`run-loop.md`) | `FACTORY_STATUS_HISTORY_CODES` |
+| Drift codes (`working-rules.md`) | `FACTORY_DRIFT_CODES` |
+| Refusal codes (`working-rules.md`) | `FACTORY_REFUSAL_CODES` |
+| Project refusal codes (`messages.md`) | the `project-` codes of `FACTORY_REFUSAL_CODES` |
+| Grant scopes (`working-rules.md`) | `FACTORY_GRANT_SCOPES` |
+| The reset action | `FACTORY_RESET_ROUNDS_ACTION` |
+| Claim sizes and the default (`run-loop.md`) | `FACTORY_CLAIM_SIZES` and the config default |
+| `--handle` values (`run-loop.md`) | `WORK_HANDLE_OBSERVATIONS` |
+| Capability IDs (`working-rules.md`) | `FACTORY_CAPABILITY_IDS` |
+| Claim time (`run-loop.md`) | `WORK_CLAIM_POLICY` |
+| The move table (`run-loop.md`) | `FACTORY_STATUS_MOVES` |
+| Builder and reviewer context, and the context kinds | `FACTORY_DEFAULT_CONTEXT` and `FACTORY_CONTEXT_KINDS` |
+| Each `--reason` and "reason" code | `FACTORY_STATUS_HISTORY_CODES` |
+| Each `make-docs` command with placeholders | a current admitted command; each flag is in its leaf help, and each required flag of its leaf usage is given |
+| Each MCP tool name | a current MCP name |
+
+A second test plants 19 misses in a copy of the Skill text, one for each kind above and more: a missing or extra history code, a renamed drift code, a missing or extra refusal code, a renamed project refusal, a missing grant scope, a renamed reset action, a missing claim size, a changed default claim size, a missing handle value, a missing capability, a changed claim time, a changed move, an extra context kind, a missing required flag, an unknown flag, an unknown reason, and an unknown command. The checker finds each one. Other tests check that every Rule Catalog row whose check names W30 R0 P5 is named in the run Skill or the backlog review Skill, that every rule ID they name is in the catalog, and that every factory, work, and lifecycle command names the project or the checkout.
+
+The first build checked only that the Skill named each code that the code has, and that the codes it named exist. It did not compare each list both ways, did not check grant scopes, claim sizes, handle values, capability IDs, the claim time, or required flags, and did not test planted misses. The review found that; this section replaces that claim.
+
+### Fixture Runs
+
+The same test file drives the real operations as the run Skill says, from a folder that is not the project, with `tool-a` and `tool-b`:
+
+| Case | Shows |
+| --- | --- |
+| A33 | A `wired` workflow names the test task step, and `assignment start` refuses with `not-ready`. |
+| A34, A81 | One unit completes with each of the three types: builder, separate reviewer on `tool-b`, accept, and close. `lead-and-specialists` runs the parts `research` and `draft` as separate jobs. Every factory call names the project, every work call names the checkout, and no factory or lifecycle record holds the claim ID. |
+| `factory-assignment-open` | `work close` refuses while an assignment is open. |
+| A35 | After a lost reply, the assignment is `unknown`, a second start is refused with `assignment-open`, and the handle check moves it to `running`. One builder job exists. |
+| A36, A67 | After the claim time, a takeover with the old handle seen as `running` is refused, and one with `stopped` works. The new foreman loads revision 1 and goes on at round 1. The old claim ID is refused. The new foreman then takes over its own expired claim from itself, with a new task handle. |
+| Task handle at takeover | A takeover without `--task-handle` works, but the next takeover is refused because no handle is left to check. |
+| A37, A67, T16 | With a round limit of 1, the second correction is refused with `round-limit-reached`, and the escalation has all six parts. After the person allows more rounds: a `once` grant for `reset-correction-rounds`, the old assignment `cancelled` with `round-limit-reached`, and a new start with `--reset-rounds` at round 0. The grant is spent, so a second reset is refused. |
+| A68, T18 | Unit 1 is accepted and merged in one save with a `once` merge grant, which is spent. A grant use after the accept is refused with `final-status`, and after the close with `claim-not-held`. For unit 2, the accept with the grant use is refused with `grant-spent`, the assignment stays `in-review`, and the person is asked again. After a grant-only save, the same accept works. Two merges happen, each with a recorded use. |
+| A69 | The plan lists the reviewer's context kinds, without `builder-summary`. A task handle that holds a key is refused with `never-log-field`, and the value is in no result and no record. |
+| A82 | `assignment start` with no project is refused with `project-missing`, names both ways to name a project, and changes nothing. |
+| A38 | Three workflow keys that try to change the floor are refused with the floor message, and `workflow save` refuses. Another unknown key is refused too. `escalations` entries, whatever their words, are accepted as added events. |
+| A41, A42 | The snapshot has the `factory` key only with a ready workflow; the identities do not change; the live message and the static prompt name the project, the `factory` Skill, and the workflow with the key, and are unchanged without it; a message for one route does not resolve against an open of the other. |
+
+### Guided Progress Review Samples (Pending)
+
+These are the forms from `references/messages.md`, filled for a fixture project. Project `aurora`, workflow `ship`, and the units are placeholders.
+
+A correction loop at its limit (floor event 3):
+
+```text
+Project aurora: the fix for phase 3 stopped after 3 correction rounds.
+
+What happened: The reviewer found the same defect three times. The export still drops the last row of the data file. The CLI refused a fourth round (code round-limit-reached: the job used its limit of correction rounds).
+What I need: Choose one: allow 3 more rounds, or change the requirement for the last row.
+Required or optional: Required. The factory cannot accept phase 3 without it.
+What it blocks: Phase 3, and phase 4, which needs the export.
+After you answer: The factory sends the defect back with your choice, or records the new requirement. Then it reviews the fix again.
+```
+
+The acceptance request at the end of a wave (floor event 5):
+
+```text
+Project aurora: wave W7 R0 is ready for you to accept.
+
+What happened: The factory finished wave W7 R0. A separate reviewer checked each unit against its requirements.
+- Phase 1: the export writes every row of the data file. Correction rounds: 1. Evidence: docs/work/2042-06-01-w7-r0-export/evidence.md#p1.
+- Phase 2: the summary matches each number in the data file. Correction rounds: 0. Evidence: docs/work/2042-06-01-w7-r0-export/evidence.md#p2.
+Open limits: none.
+What I need: Accept the result, or name what to change.
+Required or optional: Required. The work is reviewed, but it is not accepted until you accept it.
+What it blocks: Wave W8 R0, which waits for this wave.
+After you answer: On accept, the factory records your answer and ends the run. On a change, it opens the change as new work and tells you the plan.
+```
+
+### Choices Made in This Phase
+
+Each item is new behavior that no authority fixed.
+
+- A reviewer job is its own assignment for the same unit and part. Its review moves `returned`, then `in-review` while the foreman checks that the review covers the actual result, then `accepted` with `review-passed` or `defects-found`.
+- The foreman records an assignment before it starts the job, so a lost reply leaves an `unknown` record to check, never a job with no record.
+- The merge or deploy of one unit records its grant use in the same save that accepts the builder's assignment. The CLI makes the move and the use one write, so a refused grant leaves the assignment `in-review`.
+- The snapshot option is `--factory` (MCP `factory: true`), and the key is `factory`, with `readyWorkflows` and `project`. The key is left out of the snapshot and model identity.
+- With two or more ready workflows, the Work message names them all and asks the person to choose.
+- The Work message names the project by its name, or by its ID when it has no name. Both have a fixed form.
+- A workflow key about the floor or escalations gets the floor message in place of the plain unknown-key refusal.
+
+### P5 Review Fixes
+
+An independent review of P5 on 2026-11-23 found ten items. Each fix has a test in the P5 test file.
+
+| Item | Fix |
+| --- | --- |
+| 1 (HIGH). A grant use after the accept is refused with `final-status`, and after the close with `claim-not-held`. | The merge or deploy of a unit records its grant use in the same save that accepts the builder's assignment. A refused grant leaves it `in-review`. The end-of-scope case is a follow-up: grant use on the claim (owner-approved 2026-11-23). Until it lands, the Skill asks the person and does not act there. |
+| 2 (MEDIUM). The handoff message said "in this project". | The live message and the static prompt name the project from the key. The backlog review Skill takes the project from the key. |
+| 3 (MEDIUM). The twin test did not compare each list both ways. | One checker compares 15 kinds of lists and tables both ways, and a test plants 19 misses. |
+| 4 (MEDIUM). The Skill did not say how to go on after the person allows more rounds. | A `once` grant, the old assignment `cancelled` with `round-limit-reached`, and a new start with `--reset-rounds`, tested against the operations. |
+| 5 (MEDIUM). PRD 51 did not name the option. | R-BACKLOG-SNAPSHOT-1, -13, -24, and new -34, with Requirement History. The owner approved them on 2026-11-23. |
+| 6 (LOW-MEDIUM). An older CLI refuses `--factory`. | The backlog review Skill runs the snapshot again without the option. |
+| 7 (LOW). Takeover and order details. | A takeover gives a new `--task-handle` and names the old claim's handle check; your own expired claim is taken over from yourself; an `unknown` job that never started moves to `offered`, not a new start; the unit closes, then integrates; a project refusal message names the project. |
+| 8. The entry-word check refused valid added events. | Removed. An `escalations` entry only adds an event; only keys get the floor message. |
+| 9. The READMEs said `factory` has no commands. | Fixed in `README.md` and `packages/cli/README.md`. |
+| 10. T10. | The Skill stops before any builder job in a folder without git, asks, and records the answer in a `work report --note`. T10 stays open. |
+
+### Checks
+
+All runs used the built CLI where a CLI ran, and a temporary `MAKE_DOCS_HOME`.
+
+- `npx tsc --noEmit -p .` in `packages/cli`: pass. `npm run build`: pass, with the app asset check.
+- `npx vitest run tests/w30-r0-p5-factory-run-skill-and-handoffs.test.ts`: 29 tests pass, with the 19 planted misses found.
+- The backlog review, bundle byte-match, app, snapshot, Skill registry, embedded Skill, Skill catalog, wizard, consistency, leaf help, name catalog, work store, CLI, and every W29 and W30 test file (37 files, 1,266 tests): all pass except the two known `mcp-app-contract` tests.
+- `npm run validate:defaults`: 53 tests pass.
+- `bash scripts/check-instruction-routers.sh`: pass, run outside the sandbox because the sandbox blocks its temporary folder.
+- `check prd`: passed. `project paths validate`: `valid: true`, no failing findings. `project markdown validate` on the changed Skill files, the installed copy, the backlog review Skill, the W30 work folder, PRD 51, and both READMEs: one finding, at PRD 51 line 228, which was there at the base commit.
+- `npx vitest run --reporter=json` in `packages/cli`, with a private report file, counted from the JSON report: 153 test files and 3,605 tests; 3,594 passed, 5 failed, 6 skipped. Three are known: `mcp-app-contract` (two tests) and `p5-migration-safety` fixture 11. `w19-r5-skills-command` is the known flaky test. `embedded-skills` failed once because the Skill text was edited while the run went on, after the last build. After a new build, those two files and the P5, Skill registry, Skill catalog, and backlog app files pass (7 files, 195 tests).
+
+### Owner Decisions (2026-11-23)
+
+- `backlog snapshot --factory` and the `factory` key: approved (option A). PRD 51 R-BACKLOG-SNAPSHOT-1, -13, -24, and -34 are owner-approved new behavior.
+- Follow-up: grant use on the claim (owner-approved 2026-11-23, option A). The CLI will let a grant use be recorded on the live claim with no open assignment, for an action after the person accepts the whole scope. This phase does not build it. A follow-up builder adds it after the merge, together with `factory tools list` and `factory backup save`, and then updates the Skill text. Until then, the Skill asks the person and takes no action outside the default authority without a recorded grant use.
+- T10: `factory backup save` comes in that same follow-up. T10 stays open until then.
+- Vendor names: the owner accepted one exception to the no-vendor-names rule. The packaging file `agents/openai.yaml` keeps the name that the packaging requires. Its contents stay product-neutral, and the tool-agnostic test reads them.
+
+### Open for the Owner
+
+- Guided Progress Review: the owner reviews the two samples above. Feedback can change their wording before closeout.
+
+### P4 and P5 Integration
+
+- P4 merged first, then P5. Conflicts in the root README and this report were settled by hand: the README keeps the P5 `factory` row and the P4 `factory-setup` row, and this report keeps both sections, P4 then P5.
+- One P4 sentence in `packages/skills/factory-setup/references/interview.md` said that Make Docs backs up a file before a worker changes it outside git. No command does that yet, so it now says that the run Skill stops and asks first.
+- Full suite after the merge, counted from the JSON reporter: 3630 tests, 3615 passed, 6 skipped, 9 failed: the 3 known failures (`mcp-app-contract` 2, `w19-r5-skills-command` 1) and 6 P5 tests that read a hidden local harness folder inside the Skill `references/` folder of this checkout. The P5 test now skips hidden entries, and the P4, P5, and embedded Skill tests pass (85 of 85).
+- Owner-approved follow-ups (2026-11-23), built after this merge: `factory tools list`, `factory backup save` (P5 T10), and a grant use on the live claim with no open assignment. The owner's Guided Progress Reviews for P4 and P5 are open.

@@ -57,13 +57,13 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T1: Replace the `factory` Skill text. It loads the workflow, its type, and the factory contract. It refuses a workflow that is not `ready` and names the fix (R-FACTORY-12, R-FACTORY-33).
-- [ ] T2: Remove the profiles reference and the old Store reference. Keep the Skill explicit-invocation-only (R-FACTORY-48).
-- [ ] T3: Run the loop: sync, check assignments through their handles, renew claims, judge returned work, review with a separate reviewer, correct within the limit, accept units inside the given scope, close them, take the next ready unit, and escalate (R-FACTORY-32, R-FACTORY-34).
-- [ ] T4: Claim a wave, phase, stage, or task, with phase as the default. Open one lifecycle run at stage `implementation` per claim. Record evidence through the existing evidence and lifecycle evidence operations (R-FACTORY-29, R-FACTORY-30).
-- [ ] T5: Check an `unknown` assignment through its handle before any other step. Never send work again after an unclear handoff (R-FACTORY-28, R-FACTORY-41).
-- [ ] T6: Route quick items from the front desk by capability, like any other unit (R-FACTORY-31).
-- [ ] T7: Run preflight before a claim only when the workflow turns that step on (R-FACTORY-21).
+- [x] T1: Replace the `factory` Skill text. It loads the workflow, its type, and the factory contract. It refuses a workflow that is not `ready` and names the fix (R-FACTORY-12, R-FACTORY-33).
+- [x] T2: Remove the profiles reference and the old Store reference. Keep the Skill explicit-invocation-only (R-FACTORY-48).
+- [x] T3: Run the loop: sync, check assignments through their handles, renew claims, judge returned work, review with a separate reviewer, correct within the limit, accept units inside the given scope, close them, take the next ready unit, and escalate (R-FACTORY-32, R-FACTORY-34).
+- [x] T4: Claim a wave, phase, stage, or task, with phase as the default. Open one lifecycle run at stage `implementation` per claim. Record evidence through the existing evidence and lifecycle evidence operations (R-FACTORY-29, R-FACTORY-30).
+- [x] T5: Check an `unknown` assignment through its handle before any other step. Never send work again after an unclear handoff (R-FACTORY-28, R-FACTORY-41).
+- [x] T6: Route quick items from the front desk by capability, like any other unit (R-FACTORY-31).
+- [x] T7: Run preflight before a claim only when the workflow turns that step on (R-FACTORY-21).
 
 ### Acceptance criteria
 
@@ -80,11 +80,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T8: Apply the working rules: judge the actual work, never let a reviewer review its own work, do not steer the reviewer, and stop a loop that repeats the same failure (R-FACTORY-40, R-FACTORY-41).
-- [ ] T9: Apply one writer per file in each working copy, and name an integration owner for parallel work. Follow the harness's worktree policy and any repository rule that forbids worktrees (R-FACTORY-42, R-FACTORY-43).
+- [x] T8: Apply the working rules: judge the actual work, never let a reviewer review its own work, do not steer the reviewer, and stop a loop that repeats the same failure (R-FACTORY-40, R-FACTORY-41).
+- [x] T9: Apply one writer per file in each working copy, and name an integration owner for parallel work. Follow the harness's worktree policy and any repository rule that forbids worktrees (R-FACTORY-42, R-FACTORY-43).
 - [ ] T10: Back up files before a change in a folder without git, through the P2 records (R-FACTORY-44).
-- [ ] T11: Send each floor event and each added event to the human channel. Each message says what happened, what is needed, whether it is required, what it blocks, and what happens next (R-FACTORY-37, R-FACTORY-38).
-- [ ] T12: Accept each unit inside the given scope on the reviewer's evidence. At the end of the scope, send one acceptance request with the reviewed result and its evidence. Ask for a grant before a merge or deploy (R-FACTORY-39).
+- [x] T11: Send each floor event and each added event to the human channel. Each message says what happened, what is needed, whether it is required, what it blocks, and what happens next (R-FACTORY-37, R-FACTORY-38).
+- [x] T12: Accept each unit inside the given scope on the reviewer's evidence. At the end of the scope, send one acceptance request with the reviewed result and its evidence. Ask for a grant before a merge or deploy (R-FACTORY-39).
 
 ### Acceptance criteria
 
@@ -101,9 +101,9 @@ There are no performance candidates.
 
 ### Tasks
 
-- [ ] T13: Update the backlog review "Work on this wave" action so that it sends the wave to the foreman through the front desk when a workflow is `ready` (R-FACTORY-47).
-- [ ] T14: Keep the action's current behavior when no workflow is `ready`.
-- [ ] T15: Regenerate the affected Skill bundles and app assets, and add tests for both paths.
+- [x] T13: Update the backlog review "Work on this wave" action so that it sends the wave to the foreman through the front desk when a workflow is `ready` (R-FACTORY-47).
+- [x] T14: Keep the action's current behavior when no workflow is `ready`.
+- [x] T15: Regenerate the affected Skill bundles and app assets, and add tests for both paths.
 
 ### Acceptance criteria
 
@@ -120,10 +120,10 @@ New on 2026-11-23. The owner approved these changes after P1 was done.
 
 ### Tasks
 
-- [ ] T16: Move each assignment only along the status move table, and never change a final assignment. When the CLI refuses a move with `round-limit-reached`, stop and escalate floor event 3 with the evidence (R-FACTORY-28, R-FACTORY-41).
-- [ ] T17: Run each assignment under the plan revision it names. Give each part of a unit its own part label, so the parts run as separate jobs. After a takeover, load that exact revision and go on with the same round count. Take no new work when the workflow is `drifted`, and explain each drift reason code in plain words (R-FACTORY-12, R-FACTORY-54, R-FACTORY-58).
-- [ ] T18: Before an action outside the default authority, record the use of a grant. When the CLI refuses it, ask the person again through the human channel, and record the answer with a grant-only `factory workflow save` (R-FACTORY-24).
-- [ ] T19: Hand each role only the context kinds that its plan lists. Never write file contents, prompts, briefs, environment values, transcripts, or credentials into a factory record. Apply the same rule to the progress note of `make-docs work report --note`. Send the private claim ID to `factory assignment start` and `save`, and never write it into a record, a note, or a message. Use a reason code for each status change (R-FACTORY-26, R-FACTORY-54, R-FACTORY-60).
+- [x] T16: Move each assignment only along the status move table, and never change a final assignment. When the CLI refuses a move with `round-limit-reached`, stop and escalate floor event 3 with the evidence (R-FACTORY-28, R-FACTORY-41).
+- [x] T17: Run each assignment under the plan revision it names. Give each part of a unit its own part label, so the parts run as separate jobs. After a takeover, load that exact revision and go on with the same round count. Take no new work when the workflow is `drifted`, and explain each drift reason code in plain words (R-FACTORY-12, R-FACTORY-54, R-FACTORY-58).
+- [x] T18: Before an action outside the default authority, record the use of a grant. When the CLI refuses it, ask the person again through the human channel, and record the answer with a grant-only `factory workflow save` (R-FACTORY-24).
+- [x] T19: Hand each role only the context kinds that its plan lists. Never write file contents, prompts, briefs, environment values, transcripts, or credentials into a factory record. Apply the same rule to the progress note of `make-docs work report --note`. Send the private claim ID to `factory assignment start` and `save`, and never write it into a record, a note, or a message. Use a reason code for each status change (R-FACTORY-26, R-FACTORY-54, R-FACTORY-60).
 
 ### Acceptance criteria
 
@@ -141,8 +141,8 @@ New on 2026-11-23. The owner chose option A for project scope after P1 was done.
 
 ### Tasks
 
-- [ ] T20: The run Skill names the project in every factory call, with `--target-root <path>` or `--project <name>`, or the `targetRoot` or `project` MCP input. It never relies on the current folder, for writes and for reads. It takes the project from the workflow it runs, never from the folder where the agent works. On `project-missing`, `project-not-found`, `project-mismatch`, or `project-checkout-unclear`, it stops that call, names the fix, and sends no work (R-FACTORY-63, R-FACTORY-65).
-- [ ] T21: The run Skill names the project in every message to the person: each escalation, the acceptance request, and each status report (R-FACTORY-64).
+- [x] T20: The run Skill names the project in every factory call, with `--target-root <path>` or `--project <name>`, or the `targetRoot` or `project` MCP input. It never relies on the current folder, for writes and for reads. It takes the project from the workflow it runs, never from the folder where the agent works. On `project-missing`, `project-not-found`, `project-mismatch`, or `project-checkout-unclear`, it stops that call, names the fix, and sends no work (R-FACTORY-63, R-FACTORY-65).
+- [x] T21: The run Skill names the project in every message to the person: each escalation, the acceptance request, and each status report (R-FACTORY-64).
 
 ### Acceptance criteria
 
@@ -155,13 +155,17 @@ New on 2026-11-23. The owner chose option A for project scope after P1 was done.
 
 ### Closeout Notes
 
-- Four testing decisions: Pending.
-- Performance evidence: Pending.
-- Human Experience Review: Pending.
-- Optional experience handoff: Pending.
-- Explicit human acceptance gate: Pending.
-- Evidence report: Pending.
-- Phase / capability status: Pending.
+- Four testing decisions: Automated Implementation Testing is selected and done: `packages/cli/tests/w30-r0-p5-factory-run-skill-and-handoffs.test.ts` has 29 tests: the Skill text, a twin checker that compares each Skill list and table with the code both ways and finds 19 planted misses, fixture runs for A33 to A37, A67 to A69, A81, and A82 with each of the three workflow types, the grant use in the accepting save, more rounds after the limit, takeovers with a new task handle, the floor in config (A38), and the backlog review handoff on both paths (A41, A42). Guided Progress Review is selected and pending: the owner reviews the escalation and acceptance request samples in the evidence report. Performance Testing and Unassisted Goal Testing stay `not-needed-now`.
+- Performance evidence: none. No performance candidate applies.
+- Human Experience Review: each message form starts with the project name and has the five parts of the message rules. The acceptance request lists each accepted unit with its evidence and says that a reviewed unit is not yet accepted. The backlog review Work message names the project. A drifted workflow is explained code by code before any new work. Pending the owner's Guided Progress Review.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: open. It waits for the Guided Progress Review.
+- Evidence report: [W30 R0 Evidence Report, P5](evidence.md#p5-factory-run-skill-and-handoffs).
+- Phase / capability status: Phase active. T1 to T9 and T11 to T21 are done. A33 to A42, A67 to A69, A81, and A82 are met in fixture runs. T10 is not met: no factory command records a backup outside git. Until the follow-up adds `factory backup save` (the owner's choice), the run Skill stops before any builder job in a folder without git, asks the person, and records the answer in a progress note.
+- Independent review: ten items are fixed and tested. See [Review Fixes](evidence.md#p5-review-fixes).
+- Follow-up: grant use on the claim (owner-approved 2026-11-23). A later CLI change records a grant use on the live claim with no open assignment, for an action after the person accepts the whole scope. A follow-up builder adds it after the merge, with `factory tools list` and `factory backup save`, and updates the Skill. Until then, the Skill asks the person and takes no action outside the default authority without a recorded grant use.
+- Owner decisions 2026-11-23: `backlog snapshot --factory` and its `factory` key are approved (option A). The packaging file `agents/openai.yaml` keeps its required name as the one accepted exception to the no-vendor-names rule; its contents stay product-neutral.
+- Shared changes outside the factory Skill: the backlog snapshot option `--factory` (MCP `factory: true`) and its `factory` key, the two Work message routes in the live app and the static report, the regenerated app and Skill script bundles, the backlog review Skill text, PRD 51, the floor message for a config key, and the README command and Skill rows.
 
 ## Change History
 

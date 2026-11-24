@@ -27,7 +27,7 @@ Run `npx @brucewaynedecoy/make-docs@latest <group> --help` to list a group's com
 | `work` | Find work items and record work evidence. |
 | `backlog` | Read the backlog, use its review cache, and open the review app. |
 | `lifecycle` | Start, track, and finish lifecycle runs. |
-| `factory` | Run approved backlog work through workers and review. No commands yet. |
+| `factory` | Run approved backlog work through workers and review. Check and save the setup, workflows, proofs, and assignments. |
 | `check` | Check PRDs, performance evidence, and user test records. Changes nothing. |
 | `mcp` | Serve Make Docs tools to agents over MCP. |
 | `update` | Update the installed make-docs tool. |

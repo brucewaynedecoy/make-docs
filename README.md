@@ -84,7 +84,7 @@ The CLI has eleven top-level groups, one for each capability. Run `make-docs <gr
 | `work` | Find work items and record work evidence. |
 | `backlog` | Read the backlog, use its review cache, and open the review app. |
 | `lifecycle` | Start, track, and finish lifecycle runs. |
-| `factory` | Run approved backlog work through workers and review. No commands yet. |
+| `factory` | Run approved backlog work through workers and review. Check and save the setup, workflows, proofs, and assignments. |
 | `check` | Check PRDs, performance evidence, and user test records. Changes nothing. |
 | `mcp` | Serve Make Docs tools to agents over MCP. |
 | `update` | Update the installed make-docs tool. |
@@ -104,7 +104,7 @@ The CLI package embeds these nine first-party Skills. A fresh setup selects none
 | `backlog-review` | Review the work backlog and explain current focus and attention. |
 | `cleanup-docs` | Clean up project documentation. |
 | `decompose-codebase` | Map an existing codebase into PRDs and a rebuild backlog. |
-| `factory` | Coordinate implementation and review when requested. |
+| `factory` | Run a ready factory workflow on approved backlog work when requested. |
 | `factory-setup` | Set up and prove a factory workflow with your own agent tools when requested. |
 | `human-experience` | Review a human-facing result when requested. |
 | `naive-uat` | Guide Unassisted Goal Testing. |

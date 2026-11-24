@@ -225,6 +225,10 @@ export function factoryConfigStateFieldProblems(value: unknown): FactoryConfigFi
         visit(child, keyPath, pattern === "" ? key : `${pattern}.${key}`);
         continue;
       }
+      if (pattern === "workflows.*" && floorEventKey(key)) {
+        problems.push({ path: keyPath, message: `factory.${keyPath} ${FACTORY_FLOOR_REFUSAL}` });
+        continue;
+      }
       const hit = forbiddenFactoryKey(key);
       if (hit) {
         problems.push({
@@ -236,6 +240,29 @@ export function factoryConfigStateFieldProblems(value: unknown): FactoryConfigFi
   };
   visit(value, "", "");
   return problems;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Escalation floor (W30 R0 P5 T11, A38)                                    */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * The five floor events always reach the person (PRD 53 R-FACTORY-37). The
+ * block has no key that turns an event off: `escalations` only adds events,
+ * and the schema refuses every other key. A workflow key about the floor or
+ * escalations, such as `skipEscalations` or `escalationFloor`, gets this
+ * message in place of the plain unknown-key refusal. The run Skill sends every
+ * floor event in any case.
+ */
+export const FACTORY_FLOOR_REFUSAL =
+  "tries to change the escalation floor. The five floor events always reach the person, and nothing in the config can remove one. A workflow can only add events, in escalations. Remove the key.";
+
+const FLOOR_KEY_WORDS = ["floor", "escalation", "escalate", "event"];
+
+function floorEventKey(key: string): boolean {
+  if (key === "escalations") return false;
+  const forms = nameWords(key).map((word) => word.toLowerCase().replace(/s$/, ""));
+  return forms.some((word) => FLOOR_KEY_WORDS.includes(word));
 }
 
 /** Parse a `factory` block. An absent or null block keeps the default: no factory workflow (R-CONFIG-WORK-4). */

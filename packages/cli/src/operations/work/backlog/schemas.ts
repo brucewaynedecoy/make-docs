@@ -307,6 +307,24 @@ export const BacklogWorkStoreFactSchema = z
   })
   .strict();
 
+/**
+ * W30 R0 P5 T13 (PRD 51 R-BACKLOG-APP-18, PRD 53 R-FACTORY-47): the ready
+ * factory workflows of the project in this checkout. The snapshot holds the
+ * key only when it was asked for and at least one workflow is `ready`, so a
+ * project without a ready workflow gets the same snapshot as before. It is a
+ * routing fact, not a source fact, so it never changes the snapshot identity.
+ */
+export const BacklogFactoryFactSchema = z
+  .object({
+    readyWorkflows: z.array(z.string().regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).max(64)).min(1).max(16),
+    // Both forms are fixed, so the Work message can name the project without project prose (R-ID-8 for the name).
+    project: z.object({
+      id: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/),
+      name: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/).nullable(),
+    }).strict(),
+  })
+  .strict();
+
 export const WorkPhaseFactSchema = z
   .object({
     phasePath: repositoryRelativePath,
@@ -636,6 +654,7 @@ export const BacklogSnapshotV1Schema = z
     records: z.array(BacklogWorkRecordV1Schema),
     diagnostics: z.array(BacklogDiagnosticSchema),
     workStore: BacklogWorkStoreFactSchema.optional(),
+    factory: BacklogFactoryFactSchema.optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -1232,6 +1251,7 @@ export const AgentResponseSemanticExpectationSchema = z
 export type DiagnosticSeverity = z.infer<typeof DiagnosticSeveritySchema>;
 export type WorkStoreReadinessFact = z.infer<typeof WorkStoreReadinessFactSchema>;
 export type BacklogWorkStoreFact = z.infer<typeof BacklogWorkStoreFactSchema>;
+export type BacklogFactoryFact = z.infer<typeof BacklogFactoryFactSchema>;
 export type WaveStatus = z.infer<typeof WaveStatusSchema>;
 export type WorkScope = z.infer<typeof WorkScopeSchema>;
 export type EvidenceReference = z.infer<typeof EvidenceReferenceSchema>;

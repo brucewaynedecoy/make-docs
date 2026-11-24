@@ -80,8 +80,9 @@ function hash(value: unknown): string {
   return createHash("sha256").update(canonicalJson(value)).digest("hex");
 }
 
+/** The factory key is a routing fact, not a source fact, so it never changes an identity (W30 R0 P5 T13). */
 function stableSnapshot(snapshot: BacklogSnapshotV1) {
-  const { generatedAt: _generatedAt, ...facts } = snapshot;
+  const { generatedAt: _generatedAt, factory: _factory, ...facts } = snapshot;
   return facts;
 }
 

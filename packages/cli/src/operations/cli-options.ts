@@ -50,6 +50,8 @@ const BOOLEAN_FLAGS = [
   "no-quick-items",
   // W29 R0 P4 second pass: `backlog snapshot --work-store` asks for the store-mode facts.
   "work-store",
+  // W30 R0 P5: `backlog snapshot --factory` adds the project's ready factory workflows.
+  "factory",
   // W30 R0 P3 factory: `workflow save --ready`, `assignment start --reset-rounds`, and `assignment list --all`.
   "ready",
   "reset-rounds",

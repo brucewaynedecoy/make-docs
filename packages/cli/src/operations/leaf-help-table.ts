@@ -130,10 +130,11 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
   },
   "work.backlog.snapshot": {
     summary: "Read every live and archived work record into one backlog snapshot. Changes nothing.",
-    usage: "--target-root <project> [--work-store] [--json]",
+    usage: "--target-root <project> [--work-store] [--factory] [--json]",
     options: [
       REQUIRED_TARGET_PROJECT,
       { name: "--work-store", text: "Also read the work store when it is the authority, and add readiness facts. Without it, the snapshot reads the docs/work/ files." },
+      { name: "--factory", text: "Also name the project's ready factory workflows, so that Work on this wave hands a wave to the factory. Without a ready workflow, the snapshot is the same as without this option." },
       JSON_OPTION,
     ],
   },
