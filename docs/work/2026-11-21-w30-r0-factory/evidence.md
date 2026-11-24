@@ -1331,4 +1331,13 @@ Findings from the run:
 5. `work close` writes `status: "complete"` in the phase file. Check this word against the status words that the work store reference lists.
 6. The setup interview used four-question choice dialogs. Each question was one decision, but the person saw four at a time. The Skill says "one decision at a time".
 
+Fixes after the run (owner approved on 2026-11-24):
+
+- Finding 1: fixed. Step 4 of `packages/skills/factory/references/run-loop.md` names the digest form, and the leaf help of `lifecycle attach-evidence` names it too (`packages/cli/src/operations/leaf-help-table.ts`). `work evidence record` has no digest flag.
+- Finding 2: fixed. Step 4 of the same reference tells the foreman to run `make-docs work sync` and then read the unit revision again with `make-docs work next --json` after an edit to the unit's file and before `work close`.
+- Finding 3: fixed. Step 2 of the same reference states the task handle form where the task handle is first used. `factory assignment start` and `factory assignment save` refuse white space. `work claim` checks only that the handle is not empty.
+- Finding 5: no change. `complete` is a listed status word for closed and done in `packages/docs/template/.make-docs/system/references/work-store.md`, and the doctor checks read it as completed.
+- Finding 6: clarified. `packages/skills/factory-setup/references/interview.md` now says that a dialog shows one question, also when the choice control can show more.
+- Finding 4 needed no product change. Tests: `packages/cli/tests/w30-r0-p5-factory-run-skill-and-handoffs.test.ts` and `packages/cli/tests/w30-r0-p4-factory-setup-skill.test.ts`.
+
 Could not prove in Proof A: parallel units, a wake without the person, a message channel, a working copy for each worker, a grant use, a backup outside git, and an escalation. Proof B covers the message channel and one escalation.

@@ -33,6 +33,8 @@ Do this before you take new work: at the start of a run, and before step 5 at ea
 
 List them: `make-docs factory assignment list --workflow <workflow> --project <name>` (MCP `factory_assignment_list`).
 
+A task handle is the ID that the bound tool gives a job, for example `task-1234`. It is an ID, not text for a person. For `make-docs factory assignment start` and `make-docs factory assignment save`, `--task-handle` takes one line of at most 1024 characters with no space, no tab, and no other white space. It must not look like a credential or an environment setting, such as `NAME=value` or `$NAME`. The CLI refuses another value and names the field, never the value. `make-docs work claim --task-handle` checks only that the handle is not empty. Use the same form there, so that one handle fits each command.
+
 Settle each `unknown` assignment before any other step (rule `unknown-first`). An assignment is `unknown` when the factory lost track of the job, for example a lost reply from the tool. Check its task handle through the bound tool:
 
 | What the handle check shows | Move |
@@ -155,8 +157,9 @@ The CLI refuses another move with `illegal-move`, and a change to a final assign
 Inside the given scope, accept each unit on the reviewer's evidence (rule `scope-acceptance`):
 
 1. Accept the builder's assignment: `make-docs factory assignment save <assignment> --expected-version <n> --claim-id <claim-id> --status accepted --reason review-passed --project <name>`.
-2. Record the evidence: `make-docs work evidence record <unit> --kind <kind> --payload-json <file> --repo-root <checkout>` (MCP `work_evidence_record`), then `make-docs lifecycle attach-evidence --run-id <run-id> --expected-version <n> --evidence-id <id> --kind <kind> --project-path <path> --repo-root <checkout>` (MCP `lifecycle_attach_evidence`). Evidence is a link, not content.
+2. Record the evidence: `make-docs work evidence record <unit> --kind <kind> --payload-json <file> --repo-root <checkout>` (MCP `work_evidence_record`), then `make-docs lifecycle attach-evidence --run-id <run-id> --expected-version <n> --evidence-id <id> --kind <kind> --project-path <path> --repo-root <checkout>` (MCP `lifecycle_attach_evidence`). Give `--project-path` or `--external-reference`, never both. The optional `--digest <digest>` takes only the form `sha256:` and then 64 lower-case hex characters. The CLI refuses another form, and nothing changes. `work evidence record` has no digest flag and no such rule. Evidence is a link, not content.
 3. Close the unit: `make-docs work close <unit> --expected-version <n> --claim-id <claim-id> --target-root <checkout>` (MCP `work_close`). The work queue refuses with `factory-assignment-open` while an assignment of the unit is open. Settle that assignment first. Never close a unit with an open assignment.
+   - `<n>` is the current unit revision. An edit to the unit's work file, such as a checked task box, raises the unit revision at the next sync. So after each edit to that file, and before `work close`, apply the sync and read the revision again: first `make-docs work sync --target-root <checkout>` (MCP `work_sync`), then `make-docs work next --level <claim-size> --claimant <you> --target-root <checkout> --json` (MCP `work_next`). `work next` alone only checks the sync, so it still shows the old revision. Your claimed unit is in the `waiting` list, because you hold its claim, and its `revision` field is the number to use. A close with an old revision is refused with `version-conflict`, and the unit stays open and claimed.
 4. Integrate the result. When parallel workers changed the same file in separate working copies, the integration owner of the plan merges the work (rule `one-writer`).
 5. When the claimed unit is closed, complete its lifecycle run: `make-docs lifecycle complete --run-id <run-id> --expected-version <n> --repo-root <checkout>`.
 

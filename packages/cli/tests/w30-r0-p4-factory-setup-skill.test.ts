@@ -224,6 +224,8 @@ describe("W30 R0 P4 factory-setup Skill bundle", () => {
     expect(SKILL_MD).toContain("Show at most two options: the recommendation and the one best other choice.");
     const interview = reference("interview.md");
     expect(interview).toContain("Show at most two options in one question: your recommendation and the one best other choice");
+    // Proof A finding 6: a dialog that can hold several questions still shows one.
+    expect(interview).toContain("Ask one decision at a time. When a choice control can show more than one question in one dialog, still show one question in each dialog.");
     for (const section of ["Workflow Types section", "Waking section", "Grants section"]) expect(interview, section).toContain(section);
     expect(reference("interview.md").match(/Show two options/g)?.length ?? 0).toBeGreaterThanOrEqual(5);
   });

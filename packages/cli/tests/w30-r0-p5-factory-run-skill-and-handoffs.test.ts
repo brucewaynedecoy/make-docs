@@ -13,6 +13,7 @@ import {
   FACTORY_CAPABILITY_IDS,
   FACTORY_CLAIM_SIZES,
   FACTORY_GRANT_SCOPES,
+  FACTORY_HANDLE_MAX,
   FACTORY_RESET_ROUNDS_ACTION,
   FACTORY_CONTEXT_KINDS,
   FACTORY_DEFAULT_CONTEXT,
@@ -20,6 +21,7 @@ import {
   FACTORY_REFUSAL_CODES,
   FACTORY_STATUS_HISTORY_CODES,
   FACTORY_STATUS_MOVES,
+  factoryHandleProblem,
 } from "../src/operations/factory/records";
 import { leafHelpEntry } from "../src/operations/leaf-help-table";
 import { NAME_CATALOG } from "../src/operations/name-catalog";
@@ -410,6 +412,27 @@ describe("W30 R0 P5 run Skill text", () => {
     for (const word of ["codex", "claude", "openai", "anthropic", "gpt", "gemini", "copilot", "cursor", "tmux", "slack", "telegram", "discord", "whatsapp", "imessage", "cron", "launchd", "vscode", "jetbrains", "github", "ollama", "llama"]) {
       expect(text.toLowerCase(), word).not.toMatch(new RegExp(`\\b${word}\\b`));
     }
+  });
+
+  it("names the digest form, the task handle form, and the revision read before a close (Proof A findings 1 to 3)", () => {
+    const loop = skillFileMap()["references/run-loop.md"] ?? "";
+    // Finding 1: the digest form is the one that the operation's schema takes.
+    expect(loop).toContain("takes only the form `sha256:` and then 64 lower-case hex characters");
+    const attach = getOperation("lifecycle.attach-evidence").inputSchema;
+    const evidence = { runId: "run-1", expectedVersion: 1, evidenceId: "ev-1", evidenceKind: "test-run", projectPath: "docs/a.md" };
+    expect(attach.safeParse({ ...evidence, digest: `sha256:${"a".repeat(64)}` }).success).toBe(true);
+    expect(attach.safeParse({ ...evidence, digest: "a".repeat(64) }).success).toBe(false);
+    expect(attach.safeParse({ ...evidence, digest: `sha256:${"A".repeat(64)}` }).success).toBe(false);
+    // Finding 2: the foreman reads the unit revision again before a close.
+    expect(loop).toContain("apply the sync and read the revision again: first `make-docs work sync --target-root <checkout>` (MCP `work_sync`), then `make-docs work next --level <claim-size> --claimant <you> --target-root <checkout> --json`");
+    expect(loop).toContain("Your claimed unit is in the `waiting` list");
+    // Finding 3: the task handle form is the one that the factory record check takes.
+    expect(loop).toContain(`at most ${FACTORY_HANDLE_MAX} characters with no space, no tab, and no other white space`);
+    expect(factoryHandleProblem("task-1234")).toBeNull();
+    expect(factoryHandleProblem("task 1234")).toBe("spaces");
+    expect(factoryHandleProblem("task\t1234")).toBe("spaces");
+    expect(factoryHandleProblem("NAME=value")).toBe("environment");
+    expect(factoryHandleProblem("x".repeat(FACTORY_HANDLE_MAX + 1))).toBe("too-long");
   });
 
   it("agrees with the code in every list and table, both ways (twin)", () => {

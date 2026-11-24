@@ -414,7 +414,7 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
       { name: "--kind <kind>", text: "The kind of evidence." },
       { name: "--project-path <path>", text: "Where the evidence is in the project." },
       { name: "--external-reference <ref>", text: "Where the evidence is outside the project." },
-      { name: "--digest <sha256>", text: "The evidence file's SHA-256 digest." },
+      { name: "--digest <sha256>", text: "The evidence file's SHA-256 digest, in the form sha256:<64 lower-case hex characters>." },
     ],
   ),
   "lifecycle.complete": lifecycleVersioned("Mark a lifecycle run as done."),

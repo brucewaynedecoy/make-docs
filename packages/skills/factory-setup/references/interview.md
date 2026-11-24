@@ -4,7 +4,7 @@ Use this reference for setup Step 3. The interview asks for preferences and perm
 
 ## How to Ask
 
-- Ask one decision at a time.
+- Ask one decision at a time. When a choice control can show more than one question in one dialog, still show one question in each dialog.
 - Put your recommendation first, with its main reason.
 - Show at most two options in one question: your recommendation and the one best other choice, each with what it changes. When more choices exist, say so in one line and name where the person can see them, such as a section of the factory contract. List them only when the person asks.
 - Use a choice control when your session has one. Otherwise use a short list.
