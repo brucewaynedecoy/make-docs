@@ -13,7 +13,7 @@ The machine's tool list and its capability proofs are saved once for each machin
    - the tool reports the same version that its saved proofs name;
    - each capability that a role needs has a `proved` proof for that version.
 4. Reuse a current tool and its proofs. Do not prove it again. Prove every other tool before you save it.
-5. A save holds the full list of a tool's proofs. When you save a tool again, send every proof that still holds, as the read shows it, with each new proof. Use the record version that the read shows as the `expectedVersion`.
+5. A save holds the full list of a tool's proofs. When you save a tool again, send every proof that still holds, as the read shows it, with each new proof. Use the record version that the read shows as the `expectedVersion`. A save that changes a proof can drift another workflow that binds the tool, so read [wire and prove](wire-and-prove.md#before-you-save-a-tool-again) first.
 6. Never use the `.make-docs/factory/tools.md` copy as a source. It can be out of date, and it does not show a record version. Never decide from the copy, never copy a proof from it into a save, and never take an `expectedVersion` from it.
 
 When no tool is saved, the read says so. Then find and prove each tool. When the read gives a Store outcome such as `store-unavailable`, stop as in Step 0 of the Skill.

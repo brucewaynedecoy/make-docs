@@ -38,7 +38,7 @@ factory:
 ```
 
 - `typeVersion` is the number on the type file's `Type version: N` line (`type-version`). The CLI refuses another number with `type-version-mismatch`.
-- `humanChannel` is the channel kind, such as `wait-in-session` or `messaging-tool`. It is never an account.
+- `humanChannel` is the channel kind: one short name for how the factory reaches the person. It is never an account. The CLI has no fixed list of kinds. It refuses a workflow without this field, and it accepts any name of at most 64 characters that starts with a lower-case letter, uses only lower-case letters, digits, and single hyphens, and does not look like a key or a token. The CLI saves the kind in the plan and prints it in the local copy. No other check reads it. Use `wait-in-session` for "wait in session". For a tool, use the kind of the tool that is the channel, such as `messaging-tool` or `agent-harness`. A change of the value after a save gives the drift code `config-changed`.
 - Add `integrationOwner: <role>` when parallel workers can change the same files. Add `limits.parallelWorkers`, `gates`, and `escalations` only when the person chose them.
 - Leave out `context` for the standard roles, so they keep the contract defaults (`role-context`). A custom role must list its context kinds (`custom-role-context`).
 - The block holds portable choices only. Never put a tool ID, a path, an account, a digest, a grant, or a never-log item in it (`grants-not-committed`, `no-secrets`).

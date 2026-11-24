@@ -43,9 +43,9 @@ Custom roles: ask only when the person wants a role that the workflow type does 
 
 ## Grants
 
-A grant (a permission for one kind of action outside the default authority) lets the foreman act without asking first. Ask about each action that the workflow can need: `merge`, `deploy`, `publish`, and `spend`. Ask about one action at a time.
+A grant (a permission for one kind of action outside the default authority) lets the foreman act without asking first. The actions are `merge`, `deploy`, `publish`, and `spend`. Ask only about the actions that this workflow's work can need. For each other action, say in one line that setup saves no grant for it, and do not ask. Ask about one action at a time.
 
-For each action, ask for its scope, and recommend the narrowest scope that does the job (`grant-scope`). Show two options: no grant (recommended) and `once`. Then say that a `standing` grant is also possible, and that the Grants section of `make-docs://system/contract/factory-contract.md` explains each scope. When the person asked for a grant that holds for every run, show `standing` with an expiry time (recommended, because it is the narrowest scope that does that job) and `once` as the other choice. The scopes are:
+For each action that you ask about, ask for its scope, and recommend the narrowest scope that does the job (`grant-scope`). Show two options: no grant (recommended) and `once`. Then say that a `standing` grant is also possible, and that the Grants section of `make-docs://system/contract/factory-contract.md` explains each scope. When the person asked for a grant that holds for every run, show `standing` with an expiry time (recommended, because it is the narrowest scope that does that job) and `once` as the other choice. The scopes are:
 
 | Choice | What it means | When to recommend it |
 | --- | --- | --- |
@@ -73,6 +73,7 @@ A known loss is something that the workflow runs without:
 - a capability that no tool could prove;
 - each item on a proof's "does not cover" list;
 - no way to wake on its own;
+- a human channel whose alert the proof could not show: the test message arrived only because the person opened the channel. For the person, this means that a person who is away gets no signal, so work that needs them waits until they open the channel;
 - a tool that reports no version, so the factory cannot see when it changes.
 
 Name each known loss in plain words, and say what it means for the person. Ask the person to accept it. When one proof has several "does not cover" lines, show them together, and let the person accept all of them or name the ones they do not accept. For a loss that the person does not accept, show two fixes: the one that you recommend and the one best other fix. The fixes are another tool, another proof, or a smaller workflow. When a third fix is possible, say so. Setup does not run the test task until each known loss is accepted or fixed. Save each accepted loss as one short line, at most 120 characters, in the binding's `knownLosses` list.

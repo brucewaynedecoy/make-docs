@@ -36,7 +36,7 @@ The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestra
 | --- | --- | --- |
 | Automated Implementation Testing | selected | Full suite, package build, installed Skills, resources, and operations parity. |
 | Performance Testing | not-needed-now | No performance candidate applies. |
-| Guided Progress Review | selected | Owner review of the real setup summary, status, escalation messages, and acceptance request from the two proofs. |
+| Guided Progress Review | selected | Owner review of the real setup summary, status, escalation messages, and acceptance request from the two proofs. Passed on 2026-11-24: the owner read the two real setup summaries, the merge escalation, and the two acceptance requests, and said "they were clear". The owner passed the status samples in the P3 review. See the [evidence report](evidence.md#p6-owner-decisions-2026-11-24). |
 | Unassisted Goal Testing | not-needed-now | Reassessed in T10. The owner decided on 2026-11-24 to keep `not-needed-now`: the P4 Guided Progress Review passed the setup interview and the closing summary, and no normal-use discoverability question about first setup is open that can change a current decision. See the [evidence report](evidence.md#p6-owner-decisions-2026-11-24). |
 
 There are no performance candidates.
@@ -178,13 +178,14 @@ New on 2026-11-24. The owner audited the factory tables and decided each finding
 
 ### Closeout Notes
 
-- Four testing decisions: Pending. Automated Implementation Testing ran (see the evidence report). Guided Progress Review waits for the two proofs and the owner. Unassisted Goal Testing stays `not-needed-now`, by the owner's decision of 2026-11-24 (T10).
+- Four testing decisions: recorded. Automated Implementation Testing ran (see the evidence report). Guided Progress Review: the owner passed it on 2026-11-24, on the real outputs of both proofs. Unassisted Goal Testing stays `not-needed-now`, by the owner's decision of 2026-11-24 (T10).
 - Performance evidence: none applies. There is no performance candidate.
-- Human Experience Review: recorded on 2026-11-24 as an agent review, in the [evidence report](evidence.md#human-experience-review-t9-a50). Four promises are `satisfied` within their limits. Three have `insufficient evidence` until the two proofs run.
+- Human Experience Review: recorded on 2026-11-24 as an agent review, in the [evidence report](evidence.md#human-experience-review-t9-a50). Four promises are `satisfied` within their limits. The other three had `insufficient evidence` until the two proofs ran. They were judged again on 2026-11-24, after both proofs and the owner's Guided Progress Review: each is `satisfied` within its recorded limits. The push alert limit of the Proof B channel stays a recorded known loss.
 - Optional experience handoff: Pending. It follows the two proofs.
 - Explicit human acceptance gate: Pending. The owner accepts W30 R0.
 - Evidence report: [P6 Proofs and Acceptance](evidence.md#p6-proofs-and-acceptance).
-- Phase / capability status: `active`. Open: T1, T2, T3, T11, and T13. Each one waits for the owner. See [P6 Open for the Owner](evidence.md#p6-open-for-the-owner).
+- Phase / capability status: `active`. Each task is done. Open: the explicit human acceptance gate, and the owner's install step for the dogfood copy of `factory-setup`. See [P6 Open for the Owner](evidence.md#p6-open-for-the-owner).
+- Proof B findings: the owner chose on 2026-11-24 to fix the Skill text gaps now. The push alert limit stays a recorded known loss. See "Fixes after the run" in [Proof B](evidence.md#proof-b-t2-a44).
 
 ## Change History
 

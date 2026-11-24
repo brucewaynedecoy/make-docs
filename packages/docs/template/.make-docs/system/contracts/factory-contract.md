@@ -263,7 +263,7 @@ The config entry holds:
 - the other limits;
 - whether the preflight step is on;
 - the integration owner role;
-- the human channel kind, for example a messaging tool or "wait in session".
+- the human channel kind: one short name for how the factory reaches the person, for example `wait-in-session` or `messaging-tool`. It is never an account. The config check has no fixed list of kinds. It accepts any name of at most 64 characters that starts with a lower-case letter, uses only lower-case letters, digits, and single hyphens, and does not look like a key or a token.
 
 Each workflow type states its version in its `## Purpose` section, as `Type version: 1`. A type's version goes up by one when its rules change. The config names the type version that the person chose. `make-docs factory workflow save` refuses a version that does not match the type file.
 

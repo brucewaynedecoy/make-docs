@@ -49,7 +49,7 @@ Prove each capability of each tool that you bind to a role. Use the method in th
 | `read-agent-result` | Read the result through the handle. Check that it holds the code word that the brief asked for. |
 | `wake-on-schedule` | Set one wake a short time ahead. Check that the woken session started and wrote one line to a scratch file. Remove the test wake. |
 | `wake-on-event` | Cause one test event. Check that the woken session started and wrote one line to a scratch file. |
-| `message-person` | Send one test message through the channel. Ask the person whether they got it. |
+| `message-person` | Send one test message through the channel. Ask the person whether they got it, and whether an alert told them or they opened the channel themselves. When no alert told them, put "an alert to the person" on the "does not cover" list. |
 | `receive-answer` | Ask the person to answer the test message with a code word. Check that the exact code word came back. |
 | `isolate-working-copy` | Make a working copy, change a file in it, show that the main copy did not change, and remove the working copy. |
 | `edit-code` | Make one given small change. Show that the diff holds only that change and that the project's checks ran. |
@@ -76,6 +76,23 @@ make-docs factory tools save --tools-json <file>
 ```
 
 The file holds a list of tools. Each tool has `toolId`, `kind`, `label`, `state` (`available`, `missing`, or `blocked`), `reportedVersion`, `capabilities`, `proofs`, and `expectedVersion`. Use `null` as the `expectedVersion` of a new tool. For a tool that the Store already holds, use the record version (`version`) that `factory tools list` shows for it, or that the last save result gives for it. Never take it from the `.make-docs/factory/tools.md` copy. When the save is refused with `version-conflict`, use the version that the refusal names (`details.currentVersion`), and retry with the full list of proofs that you ran in this setup. A free-text value is one line of at most 120 characters. The CLI refuses a value that looks like a credential or an environment setting with `never-log-field`, and names the field, never the value.
+
+## Before You Save a Tool Again
+
+Every project on this machine uses the same tool records (`machine-records-shared`). So a save of a tool that the Store already holds can make a `ready` workflow `drifted`, in this project or in another one. This happens when the workflow binds the tool to a role and the save changes a tool fact that the workflow's plan holds:
+
+- the tool's state or its reported version;
+- for a capability that the role needs: the proof result, the tool version of the proof, or the "does not cover" list. A result that changes to `contradicted` gives the reason code `proof-contradicted`. A proof tool version that is not the version that the tool reports gives `tool-version-changed`. Each other change of this kind gives `binding-changed`: a new "does not cover" list, a result that changes to `unproved`, a proof tool version of `null`, or a proof that the save leaves out.
+
+A new proof time or a new method line alone does not drift a workflow. A proof of a capability that no role of that workflow needs does not drift it.
+
+Before you save the tool again:
+
+1. Read which workflows bind it. For each project that `make-docs project list` shows, run `make-docs factory workflow list --project <name>`. Then run `make-docs factory workflow show <workflow> --project <name> --json` for each saved workflow. In that JSON, `binding.roles` shows the tool of each role. When a project has no name, use its project ID as the `--project` value, or name its checkout with `--target-root <checkout>`.
+2. Tell the person which of those workflows the save will drift. Say that each one takes no new work until it is saved again and passes a new test task.
+3. Offer the [rerun](save-and-test.md#rerun) of each one after the save. When the person does not want that, do not change a fact that those workflows hold, or stop and save nothing.
+
+When the old facts are saved again, the plan matches the `ready` revision again, and the workflow is `ready` with no new step.
 
 ## A New Tool Version
 

@@ -29,6 +29,7 @@ import {
   FACTORY_DEFAULT_CONTEXT,
   FACTORY_DRIFT_CODES,
   FACTORY_GRANT_SCOPES,
+  FACTORY_NAME_MAX,
   FACTORY_PROOF_RESULTS,
   FACTORY_READINESS_STATES,
   FACTORY_REFUSAL_CODES,
@@ -660,6 +661,77 @@ describe("W30 R0 P4 factory-setup fixture runs", () => {
     const shown = await call("factory.workflow.show", { targetRoot: root, workflow: "main" });
     expect(shown.live.readiness).toBe("ready");
     expect(summaryFacts(shown).roles.foreman).toEqual({ tool: "tool-a", version: "1.1", results: ["proved"] });
+  });
+
+  it("warns before a second save of a tool, and states the drift rule as the code applies it (Proof B finding 2)", async () => {
+    const wire = reference("wire-and-prove.md");
+    const section = wire.slice(wire.indexOf("## Before You Save a Tool Again"), wire.indexOf("## A New Tool Version"));
+    expect(section).toContain("a save of a tool that the Store already holds can make a `ready` workflow `drifted`, in this project or in another one");
+    expect(section).toContain("- for a capability that the role needs: the proof result, the tool version of the proof, or the \"does not cover\" list. A result that changes to `contradicted` gives the reason code `proof-contradicted`. A proof tool version that is not the version that the tool reports gives `tool-version-changed`. Each other change of this kind gives `binding-changed`: a new \"does not cover\" list, a result that changes to `unproved`, a proof tool version of `null`, or a proof that the save leaves out.");
+    expect(section).toContain("In that JSON, `binding.roles` shows the tool of each role. When a project has no name, use its project ID as the `--project` value, or name its checkout with `--target-root <checkout>`.");
+    expect(section).toContain("A new proof time or a new method line alone does not drift a workflow. A proof of a capability that no role of that workflow needs does not drift it.");
+    expect(section).toContain("Tell the person which of those workflows the save will drift.");
+    expect(section).toContain("Offer the [rerun](save-and-test.md#rerun) of each one after the save.");
+    expect(reference("find-and-read.md")).toContain("read [wire and prove](wire-and-prove.md#before-you-save-a-tool-again) first");
+
+    const root = project(CONFIG.factory);
+    const first = await call("factory.tools.save", { tools: [tool("tool-a", FIVE)] });
+    await saveAndProve(root, SMALLEST_BINDING);
+    let version = first.tools[0].version as number;
+    const readiness = async () => (await call("factory.workflow.show", { targetRoot: root, workflow: "main" })).live as Value;
+    const resave = async (change: (entry: ReturnType<typeof tool>) => void) => {
+      const entry = tool("tool-a", FIVE, "1.0", version);
+      change(entry);
+      const saved = await call("factory.tools.save", { tools: [entry] });
+      expect(saved.result, JSON.stringify(saved)).toBe("saved");
+      version = saved.tools[0].version as number;
+    };
+    // A new proof time and a new method line alone: no drift.
+    await resave((entry) => { for (const proof of entry.proofs) { proof.provedAt = "2042-06-16T12:00:00.000Z"; proof.method = "Ran the proof again."; } });
+    expect((await readiness()).readiness).toBe("ready");
+    // A proof of a capability that no role of the workflow needs: no drift.
+    await resave((entry) => {
+      entry.capabilities.push("edit-code");
+      entry.proofs.push({ capabilityId: "edit-code", method: "Made one small change.", toolVersion: "1.0", provedAt: NOW.toISOString(), result: "proved", notCovered: ["a change to an existing file"] });
+    });
+    expect((await readiness()).readiness).toBe("ready");
+    // A changed "does not cover" list of a capability that a role needs: drifted with binding-changed.
+    await resave((entry) => { entry.proofs.find((proof) => proof.capabilityId === "launch-agent")!.notCovered = ["more than two agents at the same time"]; });
+    const drifted = await readiness();
+    expect(drifted.readiness).toBe("drifted");
+    expect(drifted.drift.map((entry: Value) => entry.code)).toEqual(["binding-changed"]);
+    // A result that changes to contradicted, for a capability that a role needs: proof-contradicted.
+    await resave((entry) => { entry.proofs.find((proof) => proof.capabilityId === "launch-agent")!.result = "contradicted"; });
+    expect((await readiness()).drift.map((entry: Value) => entry.code)).toEqual(["proof-contradicted"]);
+    // A proof tool version that is not the reported version: tool-version-changed.
+    await resave((entry) => { entry.proofs.find((proof) => proof.capabilityId === "launch-agent")!.toolVersion = "0.9"; });
+    expect((await readiness()).drift.map((entry: Value) => entry.code)).toEqual(["tool-version-changed"]);
+    // A proof that the save leaves out, and a proof tool version of null: binding-changed.
+    await resave((entry) => { entry.proofs = entry.proofs.filter((proof) => proof.capabilityId !== "launch-agent"); });
+    expect((await readiness()).drift.map((entry: Value) => entry.code)).toEqual(["binding-changed"]);
+    await resave((entry) => { (entry.proofs.find((proof) => proof.capabilityId === "launch-agent")! as { toolVersion: string | null }).toolVersion = null; });
+    expect((await readiness()).drift.map((entry: Value) => entry.code)).toEqual(["binding-changed"]);
+    // The old facts, saved again: ready with no new step.
+    await resave(() => {});
+    expect((await readiness()).readiness).toBe("ready");
+  });
+
+  it("states the grants question, the channel kind rule, and the alert known loss (Proof B findings 1, 4, and 5)", () => {
+    const interview = reference("interview.md");
+    expect(interview).toContain("Ask only about the actions that this workflow's work can need. For each other action, say in one line that setup saves no grant for it, and do not ask. Ask about one action at a time.");
+    expect(interview).not.toContain("each action that the workflow can need");
+    expect(interview).toContain("a human channel whose alert the proof could not show: the test message arrived only because the person opened the channel.");
+    expect(interview).toContain("a person who is away gets no signal");
+    expect(reference("wire-and-prove.md")).toContain("whether an alert told them or they opened the channel themselves");
+
+    const save = reference("save-and-test.md");
+    expect(save).toContain(`The CLI has no fixed list of kinds. It refuses a workflow without this field, and it accepts any name of at most ${FACTORY_NAME_MAX} characters that starts with a lower-case letter, uses only lower-case letters, digits, and single hyphens, and does not look like a key or a token.`);
+    expect(CONTRACT).toContain(`The config check has no fixed list of kinds. It accepts any name of at most ${FACTORY_NAME_MAX} characters that starts with a lower-case letter, uses only lower-case letters, digits, and single hyphens, and does not look like a key or a token.`);
+    expect(FACTORY_NAME_MAX).toBe(64);
+    const base = CONFIG.factory.workflows.main;
+    const check = (humanChannel: unknown) => FactoryWorkflowDefinitionSchema.safeParse({ ...base, humanChannel }).success;
+    for (const kind of ["wait-in-session", "messaging-tool", "agent-harness", "a", `${"abcdefg-".repeat(7)}abcdefgh`]) expect(check(kind), kind).toBe(true);
+    for (const kind of [undefined, "", "Wait", "1-way", "two--hyphens", "end-", "has space", `${"abcdefg-".repeat(7)}abcdefghi`, "a".repeat(32)]) expect(check(kind), String(kind)).toBe(false);
   });
 
   it("names only one-word values and field paths that the code or a real result knows (twin check)", async () => {
