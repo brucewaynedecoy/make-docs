@@ -1089,8 +1089,8 @@ Covers the tasks of [P6](06-proofs-and-acceptance.md) that an agent can do witho
 | Task | State | Proof |
 | --- | --- | --- |
 | T1 Proof A | Done on 2026-11-24. The owner accepted the result. | [Proof A](#proof-a-t1-a43). |
-| T2 Proof B | Open. Owner gate. | The owner picks the real tools, and a person must answer one escalation away from the session. This phase ran only the record path. |
-| T3 Real tools named | Done for Proof A. Open for Proof B. | [Proof A](#proof-a-t1-a43) names the one real tool. The support claim is limited to that combination. |
+| T2 Proof B | Done on 2026-11-24. The owner accepted the result. | [Proof B](#proof-b-t2-a44). |
+| T3 Real tools named | Done. | [Proof A](#proof-a-t1-a43) and [Proof B](#proof-b-t2-a44) name the real tools. The support claims are limited to those two combinations. |
 | T4 Drift test | Done. | [Drift Test](#drift-test-t4-a46). |
 | T5 Outside-git test | Done. | [Outside-Git Test](#outside-git-test-t5-a47). |
 | T6 Evidence report | Done. | This report exists, and the [index](00-index.md) links it in `## Usage Notes`. |
@@ -1098,9 +1098,9 @@ Covers the tasks of [P6](06-proofs-and-acceptance.md) that an agent can do witho
 | T8 Tool name search | Done. No hit to fix. | [Tool Name Search](#tool-name-search-t8-a49). |
 | T9 Human Experience Review | Done as an agent review. | [Human Experience Review](#human-experience-review-t9-a50). Four promises are `satisfied` within their limits. Three wait for the real proofs. |
 | T10 Unassisted Goal Testing | Done. The owner decided on 2026-11-24: keep `not-needed-now`. | [P6 Owner Decisions](#p6-owner-decisions-2026-11-24). |
-| T11 Capability tags | Done for Proof A. Open for Proof B. | [Proof A](#proof-a-t1-a43) lists the capability IDs, the tool version, each proof result, each "does not cover" item, and each accepted known loss. |
+| T11 Capability tags | Done. | [Proof A](#proof-a-t1-a43) and [Proof B](#proof-b-t2-a44) list the capability IDs, the tool versions, each proof result, each "does not cover" item, and each accepted known loss. |
 | T12 Version drift test | Done. | [Version Drift Test](#version-drift-test-t12-a71). |
-| T13 Never-log scan | Open. The task says "after both proofs". The scan of the Proof A records ran clean; see [Proof A](#proof-a-t1-a43). | The scan is built as a test and ran clean on the record path run. See [Never-Log Scan](#never-log-scan-t13-a72). It must run again on the records of the real proofs. |
+| T13 Never-log scan | Done on 2026-11-24, after both proofs. No hit. | [Never-Log Scan After Both Proofs](#never-log-scan-after-both-proofs-t13-a72). |
 | T14 Rule catalog | Done. | [Rule Catalog](#rule-catalog-t14). |
 | T15, T16 to T19, T20 to T28 | Done before this phase work. | Commits `bb9cf4f1` and `383319ac`. See [Follow-Up Commands](#follow-up-commands) and [Store Lifecycle Fixes](#store-lifecycle-fixes). Not done again. T24's `--reset-rounds` assertion is in `packages/cli/tests/w30-r0-p3-factory-operations.test.ts` ("The --reset-rounds path writes one use row for the spent grant"), and it passes. |
 
@@ -1269,7 +1269,7 @@ The owner answered three choices of round 1 on 2026-11-24.
 Each item is open. Nothing here was decided for the owner.
 
 1. Done on 2026-11-24; see [Proof A](#proof-a-t1-a43). It was: Proof A (T1, A43), and with it T3, T11, and T13. The owner picks one real agent tool that can start its own subagents. A session of that tool runs `factory-setup` and then the `factory` Skill on a staged backlog of at least two units, with one correction, and ends with one acceptance request.
-2. Proof B (T2, A44), and with it T3, T11, and T13. The owner picks a real multiplexer and a real human channel that works from a phone. The run needs one `lead-and-specialists` unit and one escalation that the owner answers away from the session.
+2. Done on 2026-11-24; see [Proof B](#proof-b-t2-a44). It was: Proof B (T2, A44), and with it T3, T11, and T13. The owner picks a real multiplexer and a real human channel that works from a phone. The run needs one `lead-and-specialists` unit and one escalation that the owner answers away from the session.
 3. Guided Progress Review of the real setup summary, status output, escalation messages, and acceptance request from the two proofs. The drift and status samples in this report are ready to read now.
 4. The dogfood install of `factory-setup` in `.agents/skills/`. It needs `make-docs setup skills` or `make-docs update` on the real Store, so the owner runs it.
 5. The explicit human acceptance gate of W30 R0, and the closeout of this phase and of the index. P1 and P2 phase files still say `status: "active"`; their closeout is outside this phase's task list.
@@ -1341,3 +1341,68 @@ Fixes after the run (owner approved on 2026-11-24):
 - Finding 4 needed no product change. Tests: `packages/cli/tests/w30-r0-p5-factory-run-skill-and-handoffs.test.ts` and `packages/cli/tests/w30-r0-p4-factory-setup-skill.test.ts`.
 
 Could not prove in Proof A: parallel units, a wake without the person, a message channel, a working copy for each worker, a grant use, a backup outside git, and an escalation. Proof B covers the message channel and one escalation.
+
+### Proof B (T2, A44)
+
+Date: 2026-11-24. This is a real run: real tools, real agent sessions, real work, and the owner as the person. It used the same proof Store and the same sample project as Proof A, and the build of commit `e5098655`.
+
+Setup of the proof:
+
+- Real tools (T3), both picked by the owner:
+  - T3 Code, version 0.1.10, tool ID `t3-code`: the multiplexer. It starts separate agent sessions, also at the same time, waits for each one, reads each result, and starts the idle lead session again when a session finishes. Role: foreman.
+  - Claude Code, version 2.1.327, tool ID `claude-code`: the agent in each session, and the human channel. Its chat opens on a phone, through the multiplexer's phone app or the agent's own phone app. Roles: front desk, builder (the specialists), and reviewer.
+  - The owner first named another phone channel. Setup could not find a command, a connector, or an app for it on the machine, and it installs nothing and signs in to nothing for the person, so the owner picked the second tool above.
+- The support claim is this one combination only: one multiplexer of agent sessions with one agent tool, human channel "the agent's chat, opened on a phone", wake method `event` (R-FACTORY-1, R-FACTORY-10).
+
+What ran:
+
+1. `factory-setup` for a second workflow, `team`, of type `lead-and-specialists`. The owner answered the interview in single-question dialogs: wake method `event`, default limits, preflight off, no added event, no merge grant, the agent tool for the specialists and the reviewer, and all five known losses accepted. Setup did not ask for `deploy`, `publish`, or `spend`, because the unit can need only a merge. Proofs that ran: two agents at the same time; a wake of the idle lead session by a finished agent; an edit of an existing file with 16 tests; one test message through the chat; and the exact code word back from the person, on the phone by the person's word. `factory tools save` saved two tools (7 and 5 proofs). `factory workflow save` made plan revision 1 of `team`. The test task passed, and the workflow became `ready`. Setup ended with the summary and started no run.
+2. The `factory` Skill on `W2 R0`, after the owner asked for the run.
+   - One unit, two parts. The foreman recorded one assignment for each part (`code` and `docs`) and started both specialists at the same time. Each finished session started the lead session again. The foreman checked each actual result and joined the parts.
+   - A reviewer that built no part checked the joined result and ran the usage example. It passed. Correction rounds: 0.
+   - The last task was the merge of the unit's branch. The accept with `--grant-use merge` was refused ("No grant names the action merge"), and the assignment stayed `in-review`. The foreman sent floor event 1 through the human channel.
+   - The owner answered `once` from the phone, away from the session (the owner confirmed the device). The foreman saved a `once` grant with a grant-only save, saved the accept with the grant use in one write, and only then merged the branch. The grant shows as spent, with one use row.
+   - The foreman recorded and attached the evidence, ran `work sync`, read the unit revision again, closed the unit, and completed the run. This order is the one that the Proof A fixes added, and it worked the first time.
+   - One acceptance request. The owner accepted.
+3. Result against A44: one `lead-and-specialists` unit completed, and the person answered one escalation away from the session. Met.
+
+Capability tags (T11):
+
+| Tool and version | Capability ID | Result | Does not cover |
+| --- | --- | --- | --- |
+| `t3-code` 0.1.10 | `read-write-files`, `run-commands` | `proved` | Nothing listed |
+| `t3-code` 0.1.10 | `launch-agent` | `proved` (new proof: two agents at the same time) | More than two agents at the same time |
+| `t3-code` 0.1.10 | `wait-for-agent` | `proved` | A wait longer than one session |
+| `t3-code` 0.1.10 | `read-agent-result` | `proved` | A long result |
+| `t3-code` 0.1.10 | `edit-code` | `proved` | A change to an existing file; checks with at least one test |
+| `t3-code` 0.1.10 | `wake-on-event` | `proved` | A wake after the app closed or the machine started again |
+| `claude-code` 2.1.327 | `read-write-files`, `run-commands`, `edit-code` | `proved` | Nothing listed |
+| `claude-code` 2.1.327 | `message-person` | `proved` | A push alert to the phone; which device the person used |
+| `claude-code` 2.1.327 | `receive-answer` | `proved` | Which device the person used |
+
+Not proved, and not claimed: `wake-on-schedule` and `isolate-working-copy`. No role depended on one.
+
+Accepted known losses (5): the wake works only while the session stays open; no push alert was proved, and the factory cannot see which device the person answers from; the wait proof did not test a wait longer than one session; the read-result proof did not test a long result; the parallel proof tested two agents at the same time, not more.
+
+Findings from the run:
+
+1. The push alert did not go out, at setup and at the escalation. The alert tool skipped it both times because it counted the session as active. The escalation reached the owner through the chat on the phone. The known loss covers this, but a person who is truly away gets no signal. This is the main limit of this channel.
+2. The new proofs for `t3-code` made the Proof A workflow `main` say `drifted` with `binding-changed`. This is correct by the contract: a changed proof needs a save and a new test task. It means that a second workflow on the same machine can drift the first one. The setup Skill does not warn about that.
+3. The fix line of `binding-changed` gives two steps joined by "or" ("Undo the change ..., or save the workflow ..."). The owner chose on 2026-11-24 to leave the like line of `proof-contradicted`; this is one more line of the same kind.
+4. `humanChannel: agent-harness` was accepted as the channel kind. The setup reference names `wait-in-session` and `messaging-tool` as examples only. Say which kinds are valid.
+5. The setup reference tells the interview to ask about `merge`, `deploy`, `publish`, and `spend`, "each action that the workflow can need". In Proof A setup asked all four; in Proof B it asked only for `merge`. The text allows both readings.
+6. The proof cannot show the person's device. It rests on the person's word, as the "does not cover" list says.
+
+Could not prove in Proof B: a correction in a multi-part unit, a wake by schedule, a working copy for each worker, more than two parallel sessions, a run that goes on after the app closes, and a push alert.
+
+### Never-Log Scan After Both Proofs (T13, A72)
+
+Date: 2026-11-24, after both proofs. Scope: a full dump of the proof Store, the 30 rows of the factory tables on their own, and the three `.make-docs/factory/` copies.
+
+- Records: 2 machine tools, 12 capability proofs, 2 workflow bindings, 2 plan revisions, 2 test task results, 8 assignments (all `accepted`), 1 grant (spent), 1 grant use, 0 backups.
+- Searched for: all seven code words of the two proofs, the scratch texts, source text of the work, usage example text, brief text, requirement text, all three claim IDs, and the words for credentials.
+- Factory rows and factory copies: no hit. The only match of a credential pattern was the letters "sk-" inside task handles of the form `t3-task-<id>`, which are IDs.
+- Outside the factory tables, the work store holds the task titles of the backlog. That is the work store's own design, not a factory record.
+- All three claim IDs are gone from the Store after the close of each unit.
+
+Result: clean. A72 is met for the records of both proofs.
