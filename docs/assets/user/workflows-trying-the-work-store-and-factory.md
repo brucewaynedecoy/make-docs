@@ -1103,24 +1103,9 @@ Only Make Docs writes the Store. Do not edit `store.db` with another program.
 
 **Why:** the command tree changed. Every capability now has its own top-level group, and `run` is no longer a group. Your old habits keep working for two minor releases, and each old name tells you the new one.
 
-**Do:**
+**Do:** run three old names from the table below. Run the old path check name from the tenth row, with `> /dev/null` at the end. Run the old lifecycle name from the sixth row, with `list` as the command and `> /dev/null` at the end. Then run the old group name alone: `make-docs`, then the word `run`.
 
-```bash
-make-docs project path-hygiene validate > /dev/null
-make-docs run lifecycle list > /dev/null
-make-docs run
-```
-
-**You see:**
-
-```text
-make-docs: `make-docs project path-hygiene validate` is now `make-docs project paths validate`. The old name stops working in 2.3.0.
-make-docs: `make-docs run lifecycle list` is now `make-docs lifecycle list`. The old name stops working in 2.3.0.
-`make-docs run` is no longer a command group. Its commands moved to the `work`, `backlog`, `lifecycle`, and `check` groups. Run `make-docs --help` to see every group.
-```
-
-The old name runs the same command. In 2.3.0 it returns `command-renamed` with the new name. In 2.4.0 it is gone.
-
+<!-- make-docs:former-names -->
 | Old name | New name |
 | --- | --- |
 | `make-docs run work item resolve` | `make-docs work item resolve` |
@@ -1135,6 +1120,10 @@ The old name runs the same command. In 2.3.0 it returns `command-renamed` with t
 | `make-docs project path-hygiene validate` and `repair` | `make-docs project paths validate` and `repair` |
 | `make-docs project checkout-move preview` and `apply` | `make-docs project move preview` and `apply` |
 | `make-docs project checkout-register preview` and `apply` | `make-docs project checkout preview` and `apply` |
+
+**You see:** each old name runs the same command. First it prints one line that names the new command and says that the old name stops working in 2.3.0. The old group name alone prints that it is no longer a command group, and it names the `work`, `backlog`, `lifecycle`, and `check` groups.
+
+In 2.3.0 an old name returns `command-renamed` with the new name. In 2.4.0 it is gone.
 
 Each MCP tool name is now its command path after `make-docs`, joined with underscores, such as `work_status` or `factory_workflow_show`.
 

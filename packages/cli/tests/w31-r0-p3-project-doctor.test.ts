@@ -452,9 +452,9 @@ describe("W31 R0 P3 reviewer findings", () => {
   it("fails closed for an --exclude path in the wrong letter case, so nothing in that folder changes (fix 1)", async () => {
     registerProject();
     const wrong = "Docs/Work/2026-01-02-W2-R0-EXCLUDED";
-    const caseBlind = existsSync(path.join(root, wrong));
-    expect(() => checkProjectDoctor(root, [wrong])).toThrow(caseBlind ? "does not match the exact letter case" : "does not exist in the project");
-    expect(() => checkProjectDoctor(root, [`${SAMPLE}/01-PHASE.md`])).toThrow(caseBlind ? "does not match the exact letter case" : "does not exist in the project");
+    // The doctor reads each folder and compares names itself, so the message is the same on every file system.
+    expect(() => checkProjectDoctor(root, [wrong])).toThrow("does not match the exact letter case");
+    expect(() => checkProjectDoctor(root, [`${SAMPLE}/01-PHASE.md`])).toThrow("does not match the exact letter case");
     const before = snapshot(root);
     const check = checkProjectDoctor(root, [EXCLUDED]);
     expect(() => fixProjectDoctor({ projectRoot: root, review: check.reviewDigest, exclusions: [wrong], storeRoot: store })).toThrow(/letter case|does not exist/);
