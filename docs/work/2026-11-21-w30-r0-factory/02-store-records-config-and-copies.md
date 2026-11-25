@@ -1,7 +1,7 @@
 ---
 title: "Phase 2: Store Records, Config, and Copies"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W30 R0 P2"
 source:
   type: "plan"
@@ -130,7 +130,7 @@ There are no performance candidates.
 - Performance evidence: none. No performance candidate applies.
 - Human Experience Review: the copies and the backup `README.md` say in plain words that they are generated, that edits are lost, how to get a file back, and when backups go. The resolved plan copy says whether it is the `ready` revision. A refusal names the field, never the value. No interactive surface ships in P2; P3 reviews status output.
 - Optional experience handoff: none.
-- Explicit human acceptance gate: open. The owner accepts the phase.
+- Explicit human acceptance gate: closed. The owner accepted W30 R0 on 2026-11-24, and this phase with it.
 - Evidence report: [W30 R0 Evidence Report, P2](evidence.md#p2-store-records-config-and-copies).
 - Independent review: one HIGH finding (factory records removed by cascade when sync deleted a unit) and six smaller ones are fixed and tested. Review finding 4, the `unknown` to `needs-correction` round gap, and the custom role context choice stay open for the owner. See [Independent Review Fixes](evidence.md#independent-review-fixes).
 - Re-check: closing a unit while its factory assignment is open is refused everywhere (`work close`, `--accept-deletion`, and a sync close from the file), and the open-assignment sync conflict has a clear message, a working `--keep-store`, and a refused `--keep-file`. See [Re-check Fixes](evidence.md#re-check-fixes).

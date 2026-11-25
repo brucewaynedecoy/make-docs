@@ -1,7 +1,7 @@
 ---
 title: "Phase 6: Proofs and Acceptance"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W30 R0 P6"
 source:
   type: "plan"
@@ -181,10 +181,10 @@ New on 2026-11-24. The owner audited the factory tables and decided each finding
 - Four testing decisions: recorded. Automated Implementation Testing ran (see the evidence report). Guided Progress Review: the owner passed it on 2026-11-24, on the real outputs of both proofs. Unassisted Goal Testing stays `not-needed-now`, by the owner's decision of 2026-11-24 (T10).
 - Performance evidence: none applies. There is no performance candidate.
 - Human Experience Review: recorded on 2026-11-24 as an agent review, in the [evidence report](evidence.md#human-experience-review-t9-a50). Four promises are `satisfied` within their limits. The other three had `insufficient evidence` until the two proofs ran. They were judged again on 2026-11-24, after both proofs and the owner's Guided Progress Review: each is `satisfied` within its recorded limits. The push alert limit of the Proof B channel stays a recorded known loss.
-- Optional experience handoff: Pending. It follows the two proofs.
-- Explicit human acceptance gate: Pending. The owner accepts W30 R0.
+- Optional experience handoff: none. No handoff was asked for.
+- Explicit human acceptance gate: closed. The owner accepted W30 R0 on 2026-11-24, after both proofs and the Guided Progress Review.
 - Evidence report: [P6 Proofs and Acceptance](evidence.md#p6-proofs-and-acceptance).
-- Phase / capability status: `active`. Each task is done. Open: the explicit human acceptance gate, and the owner's install step for the dogfood copy of `factory-setup`. See [P6 Open for the Owner](evidence.md#p6-open-for-the-owner).
+- Phase / capability status: `completed`. Each task is done. One step waits for the release, by the owner's decision of 2026-11-24: the install of the dogfood copy of `factory-setup` in `.agents/skills/` with `make-docs update` on the real Store. The real Store is at schema 6, and the unreleased CLI moves it to schema 9. See [P6 Open for the Owner](evidence.md#p6-open-for-the-owner).
 - Proof B findings: the owner chose on 2026-11-24 to fix the Skill text gaps now. The push alert limit stays a recorded known loss. See "Fixes after the run" in [Proof B](evidence.md#proof-b-t2-a44).
 
 ## Change History

@@ -1,7 +1,7 @@
 ---
 title: "Phase 1: Factory Contract and Workflow Types"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W30 R0 P1"
 source:
   type: "plan"
@@ -110,7 +110,7 @@ There are no performance candidates.
 - Optional experience handoff: none.
 - Explicit human acceptance gate: none in this phase. The owner reviews the new choices listed in the evidence report.
 - Evidence report: [P1 Factory Contract and Workflow Types](evidence.md#p1-factory-contract-and-workflow-types), with the design decision map for T12 and A7.
-- Phase / capability status: implementation complete and uncommitted, on `4daaf18f`. A1 to A8 have evidence. The factory and work queue commands named in the resources are planned, not built.
+- Phase / capability status: `completed`. The owner accepted W30 R0 on 2026-11-24. The first build was on `4daaf18f`. A1 to A8 have evidence. The factory and work queue commands named in the resources are built since then, in W29 R0 and in P3.
 - Waits for: nothing. P1 could start any time.
 - Next: P2 waits for all of [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md).
 

@@ -161,7 +161,7 @@ New on 2026-11-23. The owner chose option A for project scope after P1 was done.
 - [x] T31: Apply the PRD 25 R-ACCESS-2 grant rule to factory URI reads only: the harness grant of the folder where the agent works decides, and a Store read grant there allows every project URI. A folder that is not a Make Docs project is refused as `store-not-configured`, with no setup step for that folder. Factory MCP tools, reads and writes, keep the PRD 25 R-ACCESS-6 check of project grants and target scope. The target is the project that the call acts on, also when it is not the project of the agent's folder. That project's own grant admits the call: a Store read grant for a read, and a Store write grant for a write. Without it, refuse the call as `store-denied`, name the project, and say how to grant the access (R-FACTORY-67, register D-075).
 - [x] T32: A factory URI read never shows a grant, a private claim ID, file contents, a prompt, a secret, or any other never-log item. It opens a read-only Store session and never creates or migrates a Store. Without a usable Store, it returns the typed Store outcome and names the `.make-docs/factory/` copies as the next step (R-FACTORY-68).
 - [x] T33: `assignment start` records the checkout ID of the checkout that it named, not a worker's working copy. The write already needs that one bound checkout (R-FACTORY-27, register D-073). New on 2026-11-23.
-- [ ] T34: Moved to [P6 T15](06-proofs-and-acceptance.md) on 2026-11-23, so the work queue still offers it after this phase closed.
+- [x] T34: Moved to [P6 T15](06-proofs-and-acceptance.md) on 2026-11-23, so the work queue still offered it after this phase closed. P6 T15 was built on 2026-11-24.
 
 ### Acceptance criteria
 

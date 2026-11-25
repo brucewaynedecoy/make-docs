@@ -1274,15 +1274,20 @@ The owner made two last text decisions on 2026-11-24.
 - The guidance for the `humanChannel` value in `packages/skills/factory-setup/references/save-and-test.md` (use `wait-in-session` for "wait in session", and for a tool use the kind of the tool that is the channel): option A, keep it.
 - The fix lines that name two ways joined by "or" (`proof-contradicted`, `binding-changed`, and `config-changed`): option A. Leave all three lines. Correct the contract sentence, the Rule Catalog row `drift-escalates`, and PRD 53 R-FACTORY-33, so that the one-step rule names the lost tool only. No output changed. The PRD has a Requirement History entry.
 
+The owner closed W30 R0 on 2026-11-24.
+
+- The dogfood install of `factory-setup` in `.agents/skills/`: option A. Wait until the release. The real Store is at schema 6, and the unreleased CLI moves it to schema 9. W30 R0 closes without this step.
+- The explicit human acceptance gate of W30 R0: option A, accept. P1, P2, P6, and the index are `completed`.
+
 ### P6 Open for the Owner
 
-Items 1, 2, and 3 are done. Items 4 and 5 are open. Item 6 is decided. Nothing here was decided for the owner.
+Items 1, 2, and 3 are done. Item 4 waits for the release, by owner decision. Items 5 and 6 are decided. Nothing here was decided for the owner.
 
 1. Done on 2026-11-24; see [Proof A](#proof-a-t1-a43). It was: Proof A (T1, A43), and with it T3, T11, and T13. The owner picks one real agent tool that can start its own subagents. A session of that tool runs `factory-setup` and then the `factory` Skill on a staged backlog of at least two units, with one correction, and ends with one acceptance request.
 2. Done on 2026-11-24; see [Proof B](#proof-b-t2-a44). It was: Proof B (T2, A44), and with it T3, T11, and T13. The owner picks a real multiplexer and a real human channel that works from a phone. The run needs one `lead-and-specialists` unit and one escalation that the owner answers away from the session.
 3. Done on 2026-11-24; see [P6 Owner Decisions](#p6-owner-decisions-2026-11-24). The owner passed the two real setup summaries, the merge escalation, and the two acceptance requests. It was: Guided Progress Review of the real setup summary, status output, escalation messages, and acceptance request from the two proofs. The drift and status samples in this report are ready to read now.
-4. The dogfood install of `factory-setup` in `.agents/skills/`. It needs `make-docs setup skills` or `make-docs update` on the real Store, so the owner runs it.
-5. The explicit human acceptance gate of W30 R0, and the closeout of this phase and of the index. P1 and P2 phase files still say `status: "active"`; their closeout is outside this phase's task list.
+4. The dogfood install of `factory-setup` in `.agents/skills/`. It needs `make-docs setup skills` or `make-docs update` on the real Store, so the owner runs it. Owner decision 2026-11-24: wait until the release.
+5. Done on 2026-11-24: the owner accepted W30 R0. It was: The explicit human acceptance gate of W30 R0, and the closeout of this phase and of the index. P1 and P2 phase files still say `status: "active"`; their closeout is outside this phase's task list.
 6. Found in round 2, not changed: the fix line of the drift code `proof-contradicted` also gives two steps joined by "or" ("Bind a tool ... that has the capability proved, or prove it again ..."). The owner's decision named the lost tool only. Option A (recommended): treat it the same way, with "prove it again" as the one step in status. Option B: leave it as it is. Owner decision 2026-11-24: option B, leave it as it is. That decision named the `proof-contradicted` line only. Open: Proof B found one more line of the same kind, the fix line of `binding-changed` ("Undo the change ..., or save the workflow ..."), and the fix line of `config-changed` has the same text. Neither line was changed. Owner decision 2026-11-24, later the same day: option A, leave all three lines and correct the contract text; see [P6 Owner Decisions](#p6-owner-decisions-2026-11-24).
 
 ### Could Not Do

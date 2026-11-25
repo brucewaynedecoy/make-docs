@@ -1,7 +1,7 @@
 ---
 title: "W30 R0 Factory"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W30 R0"
 follow_on:
   route: "implementation-loop"
