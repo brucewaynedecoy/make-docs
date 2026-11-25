@@ -74,7 +74,7 @@ function widget(embedded = true) {
     postMessage: parent.postMessage,
   };
   if (!embedded) window.parent = window;
-  const script = readProofHtml().match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  const script = readProofHtml().match(/<script>([\s\S]*?)<\/script>/i)?.[1];
   if (!script) throw new Error("Missing proof script");
   runInNewContext(script, {
     window, document: { getElementById: (id: string) => elements.get(id) },
