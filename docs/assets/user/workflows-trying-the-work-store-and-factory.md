@@ -599,7 +599,7 @@ Changes nothing.
 ```
 
 ```text
-This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store. Only operation 'work.queue.claim' stopped. Independent Store-free work can continue. Next: Run make-docs setup to create the Store, then run this command again. Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store.
+This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store. Only operation 'work.queue.claim' stopped. Independent Store-free work can continue. Next: Run make-docs setup to create the Store, then run this command again. Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot --target-root . in the checkout, which reads them without the Store.
 ```
 
 No folder is made at `no-store`. Without a Store there are no claims. Two people can pick the same unit, so talk first.
@@ -1172,7 +1172,7 @@ MAKE_DOCS_HOME="$HOME/make-docs-practice/no-store" make-docs lifecycle start --s
 **You see:** each command exits with code 1.
 
 ```text
-This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store. Only operation 'work.queue.add' stopped. Independent Store-free work can continue. Next: Run make-docs setup to create the Store, then run this command again. Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store.
+This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store. Only operation 'work.queue.add' stopped. Independent Store-free work can continue. Next: Run make-docs setup to create the Store, then run this command again. Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot --target-root . in the checkout, which reads them without the Store.
 ```
 
 ```text

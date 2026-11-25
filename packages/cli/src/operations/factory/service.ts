@@ -1183,8 +1183,10 @@ export function factoryWorkflowClean(env: FactoryEnv, project: FactoryProjectRes
       } as FactoryJsonValue);
       return { facts, backups, reviewDigest };
     };
-    const countLines = (counts: Record<(typeof FACTORY_REMOVAL_ORDER)[number], number>, dropped = 0) => FACTORY_REMOVAL_ORDER.map((table) =>
-      `- ${count(counts[table], FACTORY_REMOVAL_WORDS[table])}${table !== "factory_backups" ? "" : dropped === 0 ? ", each with its backup file" : `: ${counts[table] - dropped} with ${counts[table] - dropped === 1 ? "its" : "their"} backup file, and ${dropped} dropped with no file`}.`);
+    // The assignment count of the Store holds every assignment. An open one is not final, and the removal never deletes
+    // it: it refuses while one is open. So the review line counts only the final ones, and the refusal line names the open ones.
+    const countLines = (counts: Record<(typeof FACTORY_REMOVAL_ORDER)[number], number>, dropped = 0, open = 0) => FACTORY_REMOVAL_ORDER.map((table) =>
+      `- ${count(table === "factory_assignments" ? counts[table] - open : counts[table], FACTORY_REMOVAL_WORDS[table])}${table !== "factory_backups" ? "" : dropped === 0 ? ", each with its backup file" : `: ${counts[table] - dropped} with ${counts[table] - dropped === 1 ? "its" : "their"} backup file, and ${dropped} dropped with no file`}.`);
     const openLine = (state: ReturnType<typeof read>) => `${count(state.facts.openAssignments, "assignment")} of this workflow ${state.facts.openAssignments === 1 ? "is" : "are"} open. Finish or cancel each one with make-docs factory assignment save first.`;
     // A file that is still on this machine, in a folder that is not a bound checkout. A record whose files are not
     // found on this computer does not stop the removal (register D-078, option B): the review lists it, and the removal drops it.
@@ -1241,7 +1243,7 @@ export function factoryWorkflowClean(env: FactoryEnv, project: FactoryProjectRes
       const blocked = blockers(state);
       const lines = [
         `Review: removing saved workflow ${input.workflow} from ${words} would delete these Store records, in this order:`,
-        ...countLines(state.facts.counts, state.backups.dropped.length),
+        ...countLines(state.facts.counts, state.backups.dropped.length, state.facts.openAssignments),
         ...backupLines(state),
         ...(blocked.length ? ["The removal is refused now:", ...blocked.map((line) => `- ${line}`)] : []),
         configLine,

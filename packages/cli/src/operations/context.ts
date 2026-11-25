@@ -298,7 +298,7 @@ export function createExecutionContext(
  * this); it is repeated here so that the session does not load the work code.
  */
 export const WORK_FILES_STEP =
-  "Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store.";
+  "Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot --target-root . in the checkout, which reads them without the Store.";
 
 function createProductionStoreSession(explicitStoreRoot?: string): OperationStoreSession {
   return async <T>(

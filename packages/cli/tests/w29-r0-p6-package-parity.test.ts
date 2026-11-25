@@ -8,11 +8,12 @@ import { workAuthority, workClaim, workClose, workNext, workReport, workStatus, 
 import { WORK_FILES_STEP, createExecutionContext } from "../src/operations/context";
 import { getOperation, invokeOperation } from "../src/operations/registry";
 import { StoreAccessStateError } from "../src/operations/store-access";
-import { WORK_FILES_NEXT_STEP } from "../src/operations/work/work-queue/files-fallback";
+import { WORK_FILES_NEXT_STEP, workProjectFilesNextStep } from "../src/operations/work/work-queue/files-fallback";
 import { WORK_QUEUE_OPERATION_IDS } from "../src/operations/work/work-queue/operations";
 import { checkProjectDoctor, fixProjectDoctor } from "../src/operations/project/doctor";
 import { indexRecordedStatus, scanPhaseOpenUnderCompletedIndex } from "../src/operations/project/doctor/phase-open-under-completed-index";
 import { platform } from "../src/platform";
+import { adaptRunCliArgv } from "../src/run/cli";
 import { getInstallationCheckoutId } from "../src/store/installation-state";
 import { listWorkUnits, readWorkStore } from "../src/store/work-store";
 import type { WorkUnitRecord } from "../src/operations/work/work-store/schemas";
@@ -265,6 +266,22 @@ describe("W29 R0 P6 register D-069, option B: a write command with no Store crea
 
   it("the session's files step is the work read's files step", () => {
     expect(WORK_FILES_STEP).toBe(WORK_FILES_NEXT_STEP);
+  });
+
+  // A next step must work as written: `backlog snapshot` refuses without --target-root.
+  it.each([
+    ["the work read's files step", WORK_FILES_NEXT_STEP],
+    ["the project URI read's files step", workProjectFilesNextStep("aurora")],
+  ])("the command that %s names is accepted as written", (_name, step) => {
+    const named = /run make-docs (backlog snapshot[^,]*?) (?:in the checkout|there),/.exec(step);
+    expect(named, step).not.toBeNull();
+    const argv = named![1]!.split(" ");
+    expect(argv).toEqual(["backlog", "snapshot", "--target-root", "."]);
+    const adapted = adaptRunCliArgv(argv);
+    expect(adapted.operationId).toBe("work.backlog.snapshot");
+    // The adapter resolves `.` to the current folder.
+    expect(adapted.invocation.input).toEqual({ targetRoot: path.resolve(".") });
+    expect(() => adaptRunCliArgv(["backlog", "snapshot"])).toThrow("requires --target-root");
   });
 
   it("a read with no Store keeps its earlier words and creates no Store", async () => {

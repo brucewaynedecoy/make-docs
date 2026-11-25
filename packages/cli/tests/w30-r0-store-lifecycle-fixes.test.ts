@@ -296,6 +296,10 @@ describe("W30 R0 Store lifecycle fixes: factory workflow clean (finding 1)", () 
     const blocked = await call("factory.workflow.clean", { targetRoot: root, workflow: "ship" });
     expect(blocked).toMatchObject({ result: "reviewed", removable: false, openAssignments: 1, actedOn: { kind: "project", projectName: "aurora", projectId: PROJECT_ID } });
     expect(blocked.lines.join("\n")).toContain("1 assignment of this workflow is open");
+    // The one assignment is open, so the review counts no final assignment. The record count still holds every assignment.
+    expect(blocked.lines).toContain("- 0 final assignments.");
+    expect(blocked.lines.join("\n")).not.toContain("1 final assignment");
+    expect(blocked.counts.factory_assignments).toBe(1);
     expect(blocked.lines.at(-1)).toBe("This review changed nothing.");
     expect(dump()).toBe(before);
     // The removal itself refuses while the assignment is open, with the digest of that review.

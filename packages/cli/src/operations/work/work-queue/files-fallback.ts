@@ -21,11 +21,11 @@ export const WORK_FILE_AUTHORITY_ROOTS = ["docs/work/", ".make-docs/archive/work
 
 /** The plain next step of a work read in a checkout without a usable Store. */
 export const WORK_FILES_NEXT_STEP =
-  "Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot, which reads them without the Store.";
+  "Until the Store is usable, the docs/work/ files are the authority. Read them directly, or run make-docs backlog snapshot --target-root . in the checkout, which reads them without the Store.";
 
 /** The plain next step of a project URI read without a usable Store (R-WORK-URI-6). */
 export function workProjectFilesNextStep(project: string): string {
-  return `Until the Store is usable, read the docs/work/ files of project ${project} directly in a checkout of it, or run make-docs backlog snapshot there, which reads them without the Store.`;
+  return `Until the Store is usable, read the docs/work/ files of project ${project} directly in a checkout of it, or run make-docs backlog snapshot --target-root . there, which reads them without the Store.`;
 }
 
 /** The same typed Store outcome, with a next step that also names the docs/work/ files. */
