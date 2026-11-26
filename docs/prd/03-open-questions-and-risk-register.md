@@ -1590,6 +1590,22 @@ Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same pr
 
 **Resolution**: Closed on 2026-11-24 at the owner's choice of option A. A checkout folder can be a symbolic link: the person registered it, so Make Docs follows it to the real folder. Below the checkout folder, each part of a backup path is still read without following a link, and a link there is refused with `backup-path-unsafe` in the removal and kept as `unsafe-path` in cleanup. The build did this before the decision, so no code changed. The factory contract states the rule.
 
+### D-081 Setup Writes the Name of a New Project
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose on 2026-11-25: when setup creates the config of a new project, it also writes the proposed `projectName`. An existing config is never given a name. | None. The build and its tests are done. |
+
+**Question**: Does setup write the proposed project name, or does it only show it?
+
+**Why it matters**: A project with no name has no readable project URI, and each new project needed one hand edit of `.make-docs/config.yaml`. The W29 R0 P5 decision kept setup from writing the name, because a write would turn every setup of an existing project into a config change.
+
+**Options**: Option A writes the proposed name only when setup creates the config of a new project, and never changes a config that exists. Option B keeps the proposal only.
+
+**Resolution**: Closed on 2026-11-25 at the owner's choice of option A. This is new behavior. A new project gets its name at once. Setup already writes the config of a new project for the first time, so this is no surprise change. Existing projects stay unchanged, `projectName` stays optional, and a project with no name keeps working. The owner did not choose the rules that follow. The build chose them to keep the decision safe: Setup never fails because of the name. Before it plans the write, setup reads the Store register when it can read the Store. When another project holds the name, or the folder name gives no usable name, setup writes no name, finishes, and tells the person to choose a name and add `projectName` to the config. With no readable Store, setup writes the name, and the next Store write for the project refuses a held name with a typed next action. After the write, setup reads the register once more and tells the person when another project took the name in between. A folder that the Store still records from an earlier setup is not a new project, so setup shows the proposal there and writes no name. [PRD 38](38-global-store-and-project-state.md) R-ID-8 states the rule.
+
+**Evidence**: `packages/cli/tests/setup-new-project-name.test.ts` proves each case with a temporary Store: a new project gets the name, an existing config with no name does not change, a folder with no usable name gets no name, a name that another project holds is not written and setup completes, a dry run writes nothing, and a linked git worktree uses the folder name of its main checkout. The code is in `packages/cli/src/store/project-register.ts` (`decideProjectNameForNewConfig`), `packages/cli/src/store/installation-state.ts` (`findProjectNameHolderForSetup`), and `packages/cli/src/cli.ts`.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?

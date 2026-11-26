@@ -13,6 +13,7 @@ import {
 } from "./compatibility";
 import {
   getConfigRenderingLabels,
+  getMakeDocsConfigPath,
   loadMakeDocsConfigOrThrow,
   planProjectHarnessIntegrationWrite,
   type MakeDocsConfig,
@@ -76,10 +77,19 @@ import {
   ProjectNameTakenError,
   type StoreCompatibilityBridgePreview,
 } from "./store";
-import { describeProjectNameForSetup } from "./store/project-register";
+import {
+  addProjectNameToNewConfig,
+  decideProjectNameForNewConfig,
+  describeNewProjectNameForSetup,
+  describeProjectNameForSetup,
+  newProjectNameNextAction,
+  readDeclaredProjectName,
+  type NewProjectNameDecision,
+} from "./store/project-register";
 import {
   readInstallationStatus,
   readDeclarativeProjectId,
+  findProjectNameHolderForSetup,
   previewInstallationCheckoutMove,
   applyInstallationCheckoutMove,
   type CheckoutMovePreview,
@@ -408,6 +418,9 @@ async function runResolvedCli(
   priorProjectMutationApplied: boolean,
 ): Promise<void> {
   const argv = resolvedLaunch.argv;
+  // One run decides the name of a new project once. An earlier run in this process must not leak in.
+  setupNewProjectName = null;
+  setupNewProjectNameRefused = false;
   if (argv[0] === "--version" || argv[0] === "-v") {
     output.write(`${readPackageMeta().version}\n`);
     return;
@@ -1256,6 +1269,16 @@ async function runResolvedCli(
   let plannedConfigContent = typeof plannedConfigValue === "string"
     ? plannedConfigValue
     : Buffer.from(plannedConfigValue).toString("utf8");
+  // PRD 38 R-ID-8: setup writes the proposed name only into the config that it
+  // creates for a new project. A config that exists is never given a name.
+  const planNewProjectName = (): NewProjectNameDecision | null =>
+    freshInstallTarget && !existsSync(getMakeDocsConfigPath(targetDir))
+      ? decideProjectNameForNewConfig(targetDir, name => findProjectNameHolderForSetup(targetDir, name, storeRoot))
+      : null;
+  setupNewProjectName = planNewProjectName();
+  if (setupNewProjectName?.state === "write") {
+    plannedConfigContent = addProjectNameToNewConfig(plannedConfigContent, setupNewProjectName.name);
+  }
   let projectHarnessConfig = planProjectHarnessIntegrationWrite({
     targetDir,
     reviewed: reviewedHarnessIntegrations,
@@ -1403,6 +1426,10 @@ async function runResolvedCli(
     plannedConfigContent = typeof plannedConfigValue === "string"
       ? plannedConfigValue
       : Buffer.from(plannedConfigValue).toString("utf8");
+    setupNewProjectName = planNewProjectName();
+    if (setupNewProjectName?.state === "write") {
+      plannedConfigContent = addProjectNameToNewConfig(plannedConfigContent, setupNewProjectName.name);
+    }
     projectHarnessConfig = planProjectHarnessIntegrationWrite({
       targetDir,
       reviewed: reviewedHarnessIntegrations,
@@ -1924,6 +1951,20 @@ async function runResolvedCli(
       manifest: applied.manifest,
       targetDir,
     });
+  }
+
+  // PRD 38 R-ID-8: say what setup did about the name of a new project. A name
+  // problem never fails setup.
+  if (setupNewProjectName?.state === "write" && readSetupWrittenProjectName(targetDir) === setupNewProjectName.name) {
+    // Another project can take the name between the plan and the write. The Store then keeps no name for this project.
+    setupNewProjectNameRefused = findProjectNameHolderForSetup(targetDir, setupNewProjectName.name, storeRoot) !== null;
+    if (!jsonOutput) {
+      output.write(setupNewProjectNameRefused
+        ? `Project name: setup wrote projectName: ${setupNewProjectName.name} to .make-docs/config.yaml, but another project in this Store holds that name. ${SETUP_NAME_REFUSED_NEXT_ACTION}\n`
+        : `Project name: setup wrote projectName: ${setupNewProjectName.name} to .make-docs/config.yaml. You can change it in that file.\n`);
+    }
+  } else if (setupNewProjectName?.state === "skip" && !jsonOutput) {
+    output.write(`${describeNewProjectNameForSetup(setupNewProjectName).replace("Setup writes no name", "Setup wrote no name")}\n`);
   }
 
   const appliedSkillChangesLeft = skillChangesLeftNow();
@@ -2886,13 +2927,66 @@ function storePrerequisiteFailureAction(error: unknown): string {
   return "Correct the reported Store prerequisite, then run `make-docs setup` again to review a new exact bridge plan.";
 }
 
-/** The project name, or the name that setup proposes, for the setup JSON result (W29 R0 P5 T8). */
-function setupProjectNameJson(targetRoot: string): { name: string | null; nameProposal: { name: string; source: string } | null } {
+/**
+ * What this setup run decided about the name of a new project (PRD 38 R-ID-8).
+ * It is null when the config exists, so setup writes no name.
+ */
+let setupNewProjectName: NewProjectNameDecision | null = null;
+/** True when the Store did not keep the name that this setup run wrote. */
+let setupNewProjectNameRefused = false;
+
+interface SetupProjectNameWriteJson {
+  /** `planned`: setup will write the name. `written`: the config has it. `skipped`: setup writes no name. */
+  state: "planned" | "written" | "skipped";
+  name: string | null;
+  reason?: "no-usable-name" | "name-taken";
+  nextAction?: string;
+}
+
+const SETUP_NAME_REFUSED_NEXT_ACTION = "Choose another projectName in .make-docs/config.yaml, then run `make-docs setup` again.";
+
+/**
+ * The project name fields of the setup JSON result (W29 R0 P5 T8).
+ * `name` is the name in the config now. `nameProposal` is the name that setup
+ * proposes for a config that exists, and does not write. `nameWrite` is set
+ * only for a new project: it says what setup does about the name in the config
+ * that it creates. `nameProposal` is then null.
+ */
+function setupProjectNameJson(targetRoot: string): {
+  name: string | null;
+  nameProposal: { name: string; source: string } | null;
+  nameWrite: SetupProjectNameWriteJson | null;
+} {
   const described = describeProjectNameForSetup(targetRoot);
+  const decision = setupNewProjectName;
+  let nameWrite: SetupProjectNameWriteJson | null = null;
+  if (decision?.state === "write") {
+    nameWrite = {
+      state: described.name === decision.name ? "written" : "planned",
+      name: decision.name,
+      ...(setupNewProjectNameRefused ? { reason: "name-taken" as const, nextAction: SETUP_NAME_REFUSED_NEXT_ACTION } : {}),
+    };
+  } else if (decision) {
+    nameWrite = { state: "skipped", name: decision.name, reason: decision.reason, nextAction: newProjectNameNextAction(decision)! };
+  }
   return {
     name: described.name,
-    nameProposal: described.proposal ? { name: described.proposal.name, source: described.proposal.source } : null,
+    // For a new project, `nameWrite` says what setup does. A proposal is only for a config that exists.
+    nameProposal: !decision && described.proposal
+      ? { name: described.proposal.name, source: described.proposal.source }
+      : null,
+    nameWrite,
   };
+}
+
+/** The `projectName` in the config now, or null when there is none or the config cannot be read. */
+function readSetupWrittenProjectName(targetRoot: string): string | null {
+  try {
+    const declared = readDeclaredProjectName(targetRoot);
+    return declared.state === "named" ? declared.name : null;
+  } catch {
+    return null;
+  }
 }
 
 function writeCanonicalSetupResult(input: {
@@ -3202,8 +3296,9 @@ function printPlan(options: {
         : []),
       `Selection source: ${selectionSource}`,
       `Project surface: ${selectedCapabilities.join(", ") || "none"}`,
-      // W29 R0 P5 T8 (PRD 38 R-ID-8): setup shows the name, or proposes one. It does not write it.
-      describeProjectNameForSetup(targetDir).text,
+      // PRD 38 R-ID-8: setup shows the name. For a new project it writes the proposed name
+      // into the new config. For a config that exists it only proposes one.
+      setupNewProjectName ? describeNewProjectNameForSetup(setupNewProjectName) : describeProjectNameForSetup(targetDir).text,
       `Local resource projection: ${selectedResourceTypes === undefined ? "legacy install (not yet selected)" : selectedResourceTypes.join(", ") || "none"}`,
       "Resource provider reads need no Store access.",
       "Local copies reduce CLI dependence. They do not grant harness or Store access.",

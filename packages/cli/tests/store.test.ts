@@ -226,10 +226,14 @@ describe("local bootstrap independence (R-STORE-3, R-KEEP-2)", () => {
       for (const relativePath of filesWithout) {
         const left = readFileSync(path.join(targetWithoutStore, relativePath), "utf8")
           .replace(ISO_TIMESTAMP_RE, "TIMESTAMP")
-          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"').replace(/projectId: [0-9a-f-]+/g, 'projectId: PROJECT_ID');
+          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"').replace(/projectId: [0-9a-f-]+/g, 'projectId: PROJECT_ID')
+          // Setup writes the folder name as the name of a new project, and the two folders differ.
+          .replace(/projectName: [a-z0-9-]+/g, 'projectName: PROJECT_NAME');
         const right = readFileSync(path.join(targetWithStore, relativePath), "utf8")
           .replace(ISO_TIMESTAMP_RE, "TIMESTAMP")
-          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"').replace(/projectId: [0-9a-f-]+/g, 'projectId: PROJECT_ID');
+          .replace(PROJECT_ID_LINE_RE, '"projectId": "PROJECT_ID"').replace(/projectId: [0-9a-f-]+/g, 'projectId: PROJECT_ID')
+          // Setup writes the folder name as the name of a new project, and the two folders differ.
+          .replace(/projectName: [a-z0-9-]+/g, 'projectName: PROJECT_NAME');
         expect(right, `content mismatch for ${relativePath}`).toBe(left);
       }
     } finally {

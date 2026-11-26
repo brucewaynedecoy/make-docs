@@ -11,7 +11,7 @@ import { parseManagedBlock } from '../managed-block';
 import type { InstallManifest, ManifestFileEntry } from '../types';
 import { getCanonicalSkillDirectory, getHarnessSkillDirectory } from '../skill-paths';
 import { platform, PlatformOperationError, type FileMutationGuard } from '../platform';
-import { listRegisteredProjects, recordProjectInRegister, type ProjectListResult, type ProjectNameConflict } from './project-register';
+import { findOtherProjectWithName, listRegisteredProjects, recordProjectInRegister, type ProjectListResult, type ProjectNameConflict, type ProjectNameHolder } from './project-register';
 import { findInstallationLocks } from './root-path-match';
 export class InstallationStateError extends Error {
     /** `nextAction`, when set, is the one step that the scoped Store error names (for example `make-docs setup` for a legacy schema). */
@@ -1847,6 +1847,30 @@ export function readProjectRegisterList(projectRoot: string, storeRoot?: string)
     if (c.state !== 'supported-current')
         fail('store-unavailable', 'issue' in c && c.issue ? formatStoreIssue(c.issue) : `Store is ${c.state}.`, 'issue' in c ? c.issue : undefined);
     return withInstallationDatabase(root, db => listRegisteredProjects(db), { storeRoot: store, readOnly: true });
+}
+
+/**
+ * The other project that holds `name` in this Store, or null (PRD 38 R-ID-8).
+ * Setup uses it before it writes a proposed name into the config of a new
+ * project, and again after the write. Reads only. It never creates a Store, a
+ * checkout, or a register row. A project with a checkout at `projectRoot` is
+ * this project, not another one.
+ *
+ * It returns null when the Store cannot answer: the Store is absent, on an
+ * older schema, or cannot be read. The name is then written, and the next
+ * Store write for the project refuses a held name with a typed next action.
+ */
+export function findProjectNameHolderForSetup(projectRoot: string, name: string, storeRoot?: string): ProjectNameHolder | null {
+    try {
+        const root = canonicalInstallationPath(projectRoot);
+        const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
+        if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
+            return null;
+        return withInstallationDatabase(root, db => findOtherProjectWithName(db, name, root), { storeRoot: store, readOnly: true });
+    }
+    catch {
+        return null;
+    }
 }
 
 /**

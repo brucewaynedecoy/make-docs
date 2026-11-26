@@ -57,8 +57,9 @@ function gitProject(name: string): string {
 function setProjectName(root: string, name: string): void {
   const file = path.join(root, ".make-docs/config.yaml");
   const text = readFileSync(file, "utf8");
-  // Setup writes a flow-style YAML map. Add the key as its first entry.
-  writeFileSync(file, text.replace(/^\{\n/, `{\n  projectName: ${name},\n`));
+  // Setup writes a flow-style YAML map, with the name of a new project in it.
+  // Replace that name, and add the key as the first entry.
+  writeFileSync(file, text.replace(/^\s*projectName:.*\n/m, "").replace(/^\{\n/, `{\n  projectName: ${name},\n`));
 }
 
 function count(text: string, part: string): number {
