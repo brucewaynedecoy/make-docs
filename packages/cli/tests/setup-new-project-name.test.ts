@@ -11,7 +11,7 @@
  * No test reads or writes the real Store: each run sets `MAKE_DOCS_HOME` to a
  * folder inside the test's own temporary folder.
  */
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -20,7 +20,7 @@ import { parse as parseYaml } from "yaml";
 import { runCli } from "../src/cli";
 import { setTTY } from "./helpers";
 import { loadMakeDocsConfig } from "../src/config";
-import { findProjectNameHolderForSetup, readProjectRegisterList } from "../src/store/installation-state";
+import { findProjectNameHolderForSetup, readInstallationManifest, readProjectRegisterList } from "../src/store/installation-state";
 import {
   addProjectNameToNewConfig,
   decideProjectNameForNewConfig,
@@ -113,6 +113,35 @@ describe("setup writes the name of a new project", () => {
     expect(result.status).toBe("complete");
     expect(result.project).toMatchObject({ name: null, nameProposal: { name: "garden", source: "checkout-folder" }, nameWrite: null });
     expect(readFileSync(configPath(garden), "utf8")).toBe(unnamed);
+  });
+
+  it.each([true, false])("keeps a legacy install unnamed during transfer (config present: %s)", async (hasConfig) => {
+    const { root, store } = workspace();
+    const source = folder(root, "source");
+    expect((await setup(store, source, "--yes")).status).toBe("complete");
+    const legacy = folder(root, "legacy");
+    cpSync(source, legacy, { recursive: true });
+    const manifest = readInstallationManifest(source, store)!;
+    delete manifest.projectId;
+    const manifestPath = path.join(legacy, ".make-docs", "manifest.json");
+    writeFileSync(manifestPath, JSON.stringify(manifest));
+    if (hasConfig) writeFileSync(configPath(legacy), "{}\n");
+    else rmSync(configPath(legacy));
+
+    const preview = await setup(store, legacy, "--dry-run");
+    expect(preview.status).toBe("planned");
+    expect(preview.project).toMatchObject({ name: null, nameWrite: null });
+    expect(existsSync(configPath(legacy))).toBe(hasConfig);
+    expect(existsSync(manifestPath)).toBe(true);
+
+    const result = await setup(store, legacy, "--yes");
+    expect(result.status).toBe("complete");
+    expect(result.project).toMatchObject({ name: null, nameWrite: null });
+    expect(readConfig(legacy)).not.toHaveProperty("projectName");
+    expect(readConfig(legacy).projectId).not.toBe(readConfig(source).projectId);
+    expect(existsSync(manifestPath)).toBe(false);
+    expect(readInstallationManifest(legacy, store)?.projectId).toBe(readConfig(legacy).projectId);
+    expect(registerNames(legacy, store)).toEqual(expect.arrayContaining(["source", null]));
   });
 
   it("writes no name and completes when the folder name gives no usable name", async () => {
