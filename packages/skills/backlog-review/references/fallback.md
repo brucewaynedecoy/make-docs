@@ -28,7 +28,7 @@ When these fields are partial, use only the values that can be read safely and s
 
 For a supported index, use its `## Phase Map` as phase authority. Follow safe local Markdown links to numbered phase files. Do not interpret an unlinked phase as part of the record. Report broken, unsafe, mismatched, and unlinked phase evidence.
 
-Read task checkboxes, dependencies, blockers, recorded source links, and distinct closeout facts only from the supported index and its linked phases. Keep task completion, accepted closeout, commit evidence, closed history, release, and archive as separate signals.
+Read task checkboxes, dependencies, blockers, recorded source links, and distinct closeout facts only from the supported index and its linked phases. Keep task completion, accepted closeout, commit evidence, closed history, release, and archive as separate signals. A task ID is `t` or `T` and a number. Both mean the same ID. Report it with `T`.
 
 ## Collect dates
 

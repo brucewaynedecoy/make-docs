@@ -1,8 +1,9 @@
 import { OperationError } from "./types";
+import { withCliRenamedTo } from "./migration-aliases";
 
 /**
  * Shared argv-parsing helpers for the CLI operation surfaces: the registry
- * derived `make-docs run` tree (`src/run/cli.ts`) and the legacy pruned
+ * derived command groups (`src/run/cli.ts`) and the legacy pruned
  * cluster dispatcher (`src/operations/cli.ts`). Parsing only — no operation
  * logic lives here.
  */
@@ -37,6 +38,24 @@ const BOOLEAN_FLAGS = [
   // `--last` selects the project's most recent run at every `--run-id`
   // acceptor (W18 R12 P3; PRD 39 R-RUNID-1).
   "last",
+  // W29 R0 P4 work queue: `work sync` settle choices and dry run, `work report`, and `work next`.
+  "dry-run",
+  "keep-file",
+  "keep-store",
+  "restore",
+  "accept-deletion",
+  "reimport",
+  "remove-file",
+  "clear-blockers",
+  "no-quick-items",
+  // W29 R0 P4 second pass: `backlog snapshot --work-store` asks for the store-mode facts.
+  "work-store",
+  // W30 R0 P5: `backlog snapshot --factory` adds the project's ready factory workflows.
+  "factory",
+  // W30 R0 P3 factory: `workflow save --ready`, `assignment start --reset-rounds`, and `assignment list --all`.
+  "ready",
+  "reset-rounds",
+  "all",
 ];
 
 const ARRAY_FLAGS = [
@@ -51,9 +70,21 @@ const ARRAY_FLAGS = [
   "source",
   "support-evidence-ref",
   "precondition",
+  // W29 R0 P4 work queue: `work report --met-gate` and `work export --path`.
+  "met-gate",
+  "path",
+  // W30 R0 P3 factory: `proof save --manual-step`.
+  "manual-step",
+  // W30 R0 follow-up: `factory file-backup save --file`.
+  "file",
 ];
 
-export function parseOperationOptions(argv: string[]): OperationOptions {
+/**
+ * `valueFlags` names flags that take a value in one command even where the
+ * shared list treats them as booleans: `factory status --run <run-id>`
+ * (W30 R0 P3, register D-073).
+ */
+export function parseOperationOptions(argv: string[], valueFlags: readonly string[] = []): OperationOptions {
   const positionals: string[] = [];
   const values: Record<string, string> = {};
   const arrays: Record<string, string[]> = {};
@@ -66,7 +97,7 @@ export function parseOperationOptions(argv: string[]): OperationOptions {
       continue;
     }
     const key = arg.slice(2);
-    if (BOOLEAN_FLAGS.includes(key)) {
+    if (BOOLEAN_FLAGS.includes(key) && !valueFlags.includes(key)) {
       booleans.add(key);
       continue;
     }
@@ -86,7 +117,8 @@ export function parseOperationOptions(argv: string[]): OperationOptions {
 }
 
 export function printJson(value: unknown): void {
-  process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+  // An old CLI path adds `renamedTo` to its JSON result (PRD 39 R-MIG-1).
+  process.stdout.write(`${JSON.stringify(withCliRenamedTo(value), null, 2)}\n`);
 }
 
 export function requiredPositionals(options: OperationOptions, operation: string): string[] {

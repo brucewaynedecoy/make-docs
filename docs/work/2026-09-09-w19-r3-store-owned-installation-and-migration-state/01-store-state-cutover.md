@@ -14,7 +14,7 @@ source:
 
 Remove the split between the global Store and project-local installation state. This phase delivers the complete boundary, safe legacy transfer, public status and recovery, shipped guidance, and package/dogfood proof.
 
-**Accepted and closed, 2026-09-09:** The user explicitly accepted the W19 R3 closeout and authorized its commit. All tasks t1-t25 are complete. Implementation, package proof, reviewed live transfer, final checks, and installed CLI status are recorded below. W20 and W21 remain paused for the next owner-requested interrupt package.
+**Accepted and closed, 2026-09-09:** The user explicitly accepted the W19 R3 closeout and authorized its commit. All tasks T1-T25 are complete. Implementation, package proof, reviewed live transfer, final checks, and installed CLI status are recorded below. W20 and W21 remain paused for the next owner-requested interrupt package.
 
 ## Overview
 
@@ -22,7 +22,7 @@ Use five stages inside one phase. Store readiness comes before project writes. A
 
 The [plan](../../plans/2026-09-09-w19-r3-store-owned-installation-and-migration-state/01-store-state-cutover.md) supplies ordering and V1-V8. The [design](../../designs/2026-09-09-store-owned-installation-and-migration-state.md) supplies D1-D9 and HX-1 through HX-4. Current PRDs below constrain implementation. Do not add a generic event engine, new Phase runner, broad cleanup command, or replacement local state directory.
 
-The public commands below trace to PRD 39 R-STATE-1/2 and t8/t9. They passed packaged-command proof and are present in the installed CLI:
+The public commands below trace to PRD 39 R-STATE-1/2 and T8/T9. They passed packaged-command proof and are present in the installed CLI:
 
 ```text
 make-docs project state status [--target-root <path>] [--json]
@@ -45,35 +45,35 @@ make-docs project state recover <operation-id> --rollback [--target-root <path>]
 
 | Authority | Work | Verification |
 | --- | --- | --- |
-| PRD 38 R-BND-1/2, R-STORE-1..4, R-DB-1..5, R-ID-1/2 | t2-t5 | V1-V3: one external state owner, safe bootstrap, no false ownership across checkouts. |
-| PRD 05 R-INSTALL-STORE-1/2; PRD 38 R-MIR-1, R-LIFE-5; PRD 24 R-CONFIG-STATE-1..3 | t6-t10 | V1, V4, V6: shared writers, final ledger commit, preserved config, truthful status/recovery. |
-| PRD 18 R-MIG-STORE-1..3; PRD 38 R-XFER-1..6 | t7, t9, t11-t14 | V3-V6: safe writer controls, transfer, cleanup, supported CLI boundary, and scoped recovery. |
-| PRD 38 R-PS-4/5/6, R-MIR-2/3, R-LIFE-1..4, R-PRIV-1/2, R-KEEP-1/2 | t3, t7, t9, t12, t16 | V2-V5: protected lifecycle/legacy evidence, private state, separate cleanup authority, and local knowledge. |
-| PRD 38 R-PS-8, R-TEST-7 | t10, t16-t18 | V2, V7: ordinary work continues when the CLI or optional capture is unavailable; no false capture, direct Store writes, local fallback, or queued writes. Required CLI operation recording still fails safely. |
-| PRD 39 R-MIG-4, R-STATE-1..5 | t8-t10, t14, t18 | V5-V6: common CLI/MCP operations, exact modes, read-only status and preview, typed outcomes. |
-| PRD 15 R-ROUTER-STATE-1; PRD 17 R-RESOURCE-STATE-1; PRD 21 R-LOCAL-STATE-1; PRDs 02/09/10 | t15-t19, t21-t22 | V1, V7-V8: active guidance, all caller paths, package output, and dogfood agree. |
-| PRD 38 R-TEST-1..7 | t5, t10, t15-t19 | V1-V8: full-tree, failure, identity, privacy, supported legacy, preservation, and package checks. |
-| HX-1: local state stays absent after transfer | t13, t15-t20 | V1, V5, V8: reviewed removal and later repeat/update file inventories. |
-| HX-2: one clear status/recovery path | t8-t10, t18, t20 | V6, V8: packaged plain/JSON output shows result, trust, pending work, and safe next step. |
-| HX-3: failure keeps user files and recovery evidence | t3-t5, t7, t9, t16, t20 | V2-V4, V6: failure and recovery results preserve content and do not invent ownership. |
-| HX-4: knowledge, settings, and backup copies remain available | t6, t11-t13, t19-t20 | V5, V8: exact transfer inventory and before/after content checks. |
+| PRD 38 R-BND-1/2, R-STORE-1..4, R-DB-1..5, R-ID-1/2 | T2-T5 | V1-V3: one external state owner, safe bootstrap, no false ownership across checkouts. |
+| PRD 05 R-INSTALL-STORE-1/2; PRD 38 R-MIR-1, R-LIFE-5; PRD 24 R-CONFIG-STATE-1..3 | T6-T10 | V1, V4, V6: shared writers, final ledger commit, preserved config, truthful status/recovery. |
+| PRD 18 R-MIG-STORE-1..3; PRD 38 R-XFER-1..6 | T7, T9, T11-T14 | V3-V6: safe writer controls, transfer, cleanup, supported CLI boundary, and scoped recovery. |
+| PRD 38 R-PS-4/5/6, R-MIR-2/3, R-LIFE-1..4, R-PRIV-1/2, R-KEEP-1/2 | T3, T7, T9, T12, T16 | V2-V5: protected lifecycle/legacy evidence, private state, separate cleanup authority, and local knowledge. |
+| PRD 38 R-PS-8, R-TEST-7 | T10, T16-T18 | V2, V7: ordinary work continues when the CLI or optional capture is unavailable; no false capture, direct Store writes, local fallback, or queued writes. Required CLI operation recording still fails safely. |
+| PRD 39 R-MIG-4, R-STATE-1..5 | T8-T10, T14, T18 | V5-V6: common CLI/MCP operations, exact modes, read-only status and preview, typed outcomes. |
+| PRD 15 R-ROUTER-STATE-1; PRD 17 R-RESOURCE-STATE-1; PRD 21 R-LOCAL-STATE-1; PRDs 02/09/10 | T15-T19, T21-T22 | V1, V7-V8: active guidance, all caller paths, package output, and dogfood agree. |
+| PRD 38 R-TEST-1..7 | T5, T10, T15-T19 | V1-V8: full-tree, failure, identity, privacy, supported legacy, preservation, and package checks. |
+| HX-1: local state stays absent after transfer | T13, T15-T20 | V1, V5, V8: reviewed removal and later repeat/update file inventories. |
+| HX-2: one clear status/recovery path | T8-T10, T18, T20 | V6, V8: packaged plain/JSON output shows result, trust, pending work, and safe next step. |
+| HX-3: failure keeps user files and recovery evidence | T3-T5, T7, T9, T16, T20 | V2-V4, V6: failure and recovery results preserve content and do not invent ownership. |
+| HX-4: knowledge, settings, and backup copies remain available | T6, T11-T13, T19-T20 | V5, V8: exact transfer inventory and before/after content checks. |
 
 ## Source Obligations, Scenarios, And Findings
 
 - Finding: [D-031](../../prd/03-open-questions-and-risk-register.md#d-031-migration-state-remains-in-the-project-despite-the-store-boundary), open until accepted runtime proof closes it.
 - Existing interrupt-specific obligations: none. Existing O-001/O-002 cover other work and are not changed here.
-- Unassisted Goal Testing: `not-needed-now` at drafting. Planned fault tests and public CLI evidence address current uncertainty. Reassess a material discoverability gap at t20 under PRD 50; do not invent a scenario or future obligation now.
+- Unassisted Goal Testing: `not-needed-now` at drafting. Planned fault tests and public CLI evidence address current uncertainty. Reassess a material discoverability gap at T20 under PRD 50; do not invent a scenario or future obligation now.
 - Performance Testing: `not-needed-now`. No current performance target or decision justifies a benchmark. Lock correctness and bounded retries are functional safety checks.
 
 ## Stage 1 - Store Foundation
 
 ### Tasks
 
-- [x] t1: Record the user's backlog acceptance and the current branch, HEAD, dirty-file allowlist, installed CLI identity, and Store health. Confirm the protected files and intended implementation scope. Preserve current work and the W20 pause.
-- [x] t2: Trace live state readers and writers from manifest, migration, setup/reconfigure, update, resource/project-surface ensure, selected Skills, conflicts, backup/restore, removal, registry, and MCP callers. Map every field to project knowledge, permitted content, or one Store owner. Identify obsolete fields to discard without losing useful records.
-- [x] t3: Add the smallest typed Store schema and service for installation records, checkout bindings, pending operations, locks, and transfer provenance. Reuse current transactions and schema journal. Keep schema changes distinct from project progress. Preserve general lifecycle receipt meaning, current evidence, opaque `playbook_runs`, and unrelated project rows.
-- [x] t4: Validate external Store roots and derived paths through canonical path and symlink checks. Implement Store bootstrap locking before tables or project identity exist. Bind checkout-scoped writer ownership after identity resolution. Handle moved paths, shared project IDs, clones, conflicting bindings, active writers, and unproven stale writers without guessing ownership.
-- [x] t5: Add focused tests for Store readiness before any project write, missing/damaged/newer Store refusal, safe fresh initialization versus reviewed adoption, root/override rejection, pre-identity races, same-checkout exclusion, and distinct checkout bindings. Prove repository/resource reads remain available without Store writes.
+- [x] T1: Record the user's backlog acceptance and the current branch, HEAD, dirty-file allowlist, installed CLI identity, and Store health. Confirm the protected files and intended implementation scope. Preserve current work and the W20 pause.
+- [x] T2: Trace live state readers and writers from manifest, migration, setup/reconfigure, update, resource/project-surface ensure, selected Skills, conflicts, backup/restore, removal, registry, and MCP callers. Map every field to project knowledge, permitted content, or one Store owner. Identify obsolete fields to discard without losing useful records.
+- [x] T3: Add the smallest typed Store schema and service for installation records, checkout bindings, pending operations, locks, and transfer provenance. Reuse current transactions and schema journal. Keep schema changes distinct from project progress. Preserve general lifecycle receipt meaning, current evidence, opaque `playbook_runs`, and unrelated project rows.
+- [x] T4: Validate external Store roots and derived paths through canonical path and symlink checks. Implement Store bootstrap locking before tables or project identity exist. Bind checkout-scoped writer ownership after identity resolution. Handle moved paths, shared project IDs, clones, conflicting bindings, active writers, and unproven stale writers without guessing ownership.
+- [x] T5: Add focused tests for Store readiness before any project write, missing/damaged/newer Store refusal, safe fresh initialization versus reviewed adoption, root/override rejection, pre-identity races, same-checkout exclusion, and distinct checkout bindings. Prove repository/resource reads remain available without Store writes.
 
 ### Acceptance criteria
 
@@ -85,17 +85,17 @@ make-docs project state recover <operation-id> --rollback [--target-root <path>]
 ### Dependencies
 
 - User review and acceptance of the backlog, satisfied on 2026-09-09. The implementation plan was accepted before work began.
-- Validated current PRDs and the bounded writer map from t2.
+- Validated current PRDs and the bounded writer map from T2.
 
 ## Stage 2 - Writer and Manifest Cutover
 
 ### Tasks
 
-- [x] t6: Route every mapped live caller through the Store service. Move effective installation selections, versions, hashes, ownership, provenance, conflict decisions, and recovery metadata to the Store. Keep declarative project ID and desired settings in local config. Preserve existing fields and comments. Reject unsupported or conflicting config instead of replacing it.
-- [x] t7: Implement the pending-operation protocol. Save the reviewed plan and expected prior bytes before writes. Verify required backup copies and record their inventory in the Store. Recheck each file before replacement. Save step outcomes. Commit final installation ownership and receipt only after all outputs validate. A failure leaves truthful pending/failed status and retained evidence.
-- [x] t8: Register `project.state.status` with the CLI grammar in PRD 39 R-STATE-1. Report Store availability, project/checkout identity, installation trust, pending work, and the safe next step in plain text and versioned JSON. Status must not create a Store, lock, project file, import, or mutation receipt.
-- [x] t9: Register `project.state.recover` with the exclusive resume/rollback modes, target-root option, and dry-run contract in PRD 39 R-STATE-2. Require the operation's checkout binding. Preview exact changes without writes. Apply rechecks scope and locks. Resume only known steps. Roll back only verified affected files and records. Preserve later user edits and every unrelated Store row.
-- [x] t10: Test shared CLI/MCP result meaning, read-only status/preview, invalid modes, wrong-checkout operation IDs, normal mutation blocked by pending recovery, partial restoration reporting, and receipt failure after file mutation. Prove failed required state writes never use ancillary lifecycle capture failure to report success.
+- [x] T6: Route every mapped live caller through the Store service. Move effective installation selections, versions, hashes, ownership, provenance, conflict decisions, and recovery metadata to the Store. Keep declarative project ID and desired settings in local config. Preserve existing fields and comments. Reject unsupported or conflicting config instead of replacing it.
+- [x] T7: Implement the pending-operation protocol. Save the reviewed plan and expected prior bytes before writes. Verify required backup copies and record their inventory in the Store. Recheck each file before replacement. Save step outcomes. Commit final installation ownership and receipt only after all outputs validate. A failure leaves truthful pending/failed status and retained evidence.
+- [x] T8: Register `project.state.status` with the CLI grammar in PRD 39 R-STATE-1. Report Store availability, project/checkout identity, installation trust, pending work, and the safe next step in plain text and versioned JSON. Status must not create a Store, lock, project file, import, or mutation receipt.
+- [x] T9: Register `project.state.recover` with the exclusive resume/rollback modes, target-root option, and dry-run contract in PRD 39 R-STATE-2. Require the operation's checkout binding. Preview exact changes without writes. Apply rechecks scope and locks. Resume only known steps. Roll back only verified affected files and records. Preserve later user edits and every unrelated Store row.
+- [x] T10: Test shared CLI/MCP result meaning, read-only status/preview, invalid modes, wrong-checkout operation IDs, normal mutation blocked by pending recovery, partial restoration reporting, and receipt failure after file mutation. Prove failed required state writes never use ancillary lifecycle capture failure to report success.
 
 ### Acceptance criteria
 
@@ -113,10 +113,10 @@ make-docs project state recover <operation-id> --rollback [--target-root <path>]
 
 ### Tasks
 
-- [x] t11: Extend existing setup preview with an exact import/preserve/remove inventory for supported local manifest and migration records. Verify schemas, content hashes, project scope, snapshot/operation links, config, and scoped evidence of old writers. Treat file contents as data. Invalid, unknown, contradictory, changed, symlinked, or actively written inputs stop transfer/cleanup with a typed reason.
-- [x] t12: Import only needed installation, completed-receipt, compatibility, and recovery records. Save source identity/digests in the Store. Do not replay completed operations or reinterpret deleted Phase-runner files or opaque legacy rows. Preserve pending-operation evidence and require recovery before new setup work.
-- [x] t13: Commit and read back the imported records before removal. Recheck source hashes and remove only the explicit verified obsolete allowlist. Record cleanup progress in the Store. Remove `.make-docs/state/` only if empty and safe. Resume the same cleanup after an interrupted commit/deletion sequence without duplicate imports or destructive replay.
-- [x] t14: Make the corrected CLI the minimum supported writer after transfer. Block known active old writers through scoped evidence. Probe the actual prior package in an isolated fixture and record its guard or limit. Use a declarative format guard only if that parser proves pre-write refusal. State obsolete-writer limits in setup help. Add no local marker, dual write, automatic CLI replacement, broad process scan, or second-version bridge.
+- [x] T11: Extend existing setup preview with an exact import/preserve/remove inventory for supported local manifest and migration records. Verify schemas, content hashes, project scope, snapshot/operation links, config, and scoped evidence of old writers. Treat file contents as data. Invalid, unknown, contradictory, changed, symlinked, or actively written inputs stop transfer/cleanup with a typed reason.
+- [x] T12: Import only needed installation, completed-receipt, compatibility, and recovery records. Save source identity/digests in the Store. Do not replay completed operations or reinterpret deleted Phase-runner files or opaque legacy rows. Preserve pending-operation evidence and require recovery before new setup work.
+- [x] T13: Commit and read back the imported records before removal. Recheck source hashes and remove only the explicit verified obsolete allowlist. Record cleanup progress in the Store. Remove `.make-docs/state/` only if empty and safe. Resume the same cleanup after an interrupted commit/deletion sequence without duplicate imports or destructive replay.
+- [x] T14: Make the corrected CLI the minimum supported writer after transfer. Block known active old writers through scoped evidence. Probe the actual prior package in an isolated fixture and record its guard or limit. Use a declarative format guard only if that parser proves pre-write refusal. State obsolete-writer limits in setup help. Add no local marker, dual write, automatic CLI replacement, broad process scan, or second-version bridge.
 
 ### Acceptance criteria
 
@@ -134,13 +134,13 @@ make-docs project state recover <operation-id> --rollback [--target-root <path>]
 
 ### Tasks
 
-- [x] t15: Replace tests that require local operational files or omit `.make-docs/state/` from comparisons. Check full fixture trees and Store records. Repair the existing D-031 register test inventory in `consistency.test.ts` without weakening missing/duplicate-ID checks or changing runtime code merely to satisfy an outdated test.
-- [x] t16: Execute V1-V5 and applicable core checks from the finite verification set below. Use isolated Stores and projects for fault, rollback, removal, and old-package tests. Prepare the evidence inventory for later package and dogfood results. Keep each result tied to command, package identity, fixture, expected outcome, and limits. Fix relevant failures and rerun only affected checks before the final integration pass.
-- [x] t17: Correct active shipped state, manifest, lock, receipt, path-hygiene, router, and recovery instructions upstream in `packages/docs/template/`. Inspect active consumers and test/package expectations for the same assumptions. Link superseded W19 R1 P5/P6 guidance to current authority without rewriting accepted history. Keep ordinary local project history/work tracking explicitly valid.
+- [x] T15: Replace tests that require local operational files or omit `.make-docs/state/` from comparisons. Check full fixture trees and Store records. Repair the existing D-031 register test inventory in `consistency.test.ts` without weakening missing/duplicate-ID checks or changing runtime code merely to satisfy an outdated test.
+- [x] T16: Execute V1-V5 and applicable core checks from the finite verification set below. Use isolated Stores and projects for fault, rollback, removal, and old-package tests. Prepare the evidence inventory for later package and dogfood results. Keep each result tied to command, package identity, fixture, expected outcome, and limits. Fix relevant failures and rerun only affected checks before the final integration pass.
+- [x] T17: Correct active shipped state, manifest, lock, receipt, path-hygiene, router, and recovery instructions upstream in `packages/docs/template/`. Inspect active consumers and test/package expectations for the same assumptions. Link superseded W19 R1 P5/P6 guidance to current authority without rewriting accepted history. Keep ordinary local project history/work tracking explicitly valid.
   Apply PRD 38 R-PS-8: ordinary project work continues when the CLI is unavailable or optional capture fails. Report unavailable capture without claiming success. Prohibit direct Store writes, local fallback state, and queued writes. Keep required Store recording mandatory for CLI-managed changes.
-- [x] t18: Build and inspect the actual packaged CLI and generated defaults. Collect V6-V7 package evidence and run package smoke against isolated fixtures. Prove status, recovery, repeat setup, failure, and later update use Store records and create no local operational substitute. Keep source test results distinct from installed-package proof.
-- [x] t19: After package proof passes, collect V8 dogfood evidence through the real transfer with the corrected CLI. Preview and disclose the exact manifest/state removal and config changes. Apply only the reviewed scope within accepted implementation authority. Retain preview, applied-file inventory, Store read-back, preserved-content checks, and a repeat/later-update result. Do not hand-delete receipts or hand-edit the installed projection.
-- [x] t20: Complete V8 Human Experience Review for HX-1 through HX-4 using the real V1/V5/V6/V8 evidence. Record each promise, actual surface, evidence, observation, `satisfied`/`material gap`/`insufficient evidence` conclusion, reviewer, limit, and follow-up. Offer one optional Guided Progress Review. If a material human uncertainty remains, select the smallest added test under PRD 50. Do not claim agent review proves lived ease or confidence.
+- [x] T18: Build and inspect the actual packaged CLI and generated defaults. Collect V6-V7 package evidence and run package smoke against isolated fixtures. Prove status, recovery, repeat setup, failure, and later update use Store records and create no local operational substitute. Keep source test results distinct from installed-package proof.
+- [x] T19: After package proof passes, collect V8 dogfood evidence through the real transfer with the corrected CLI. Preview and disclose the exact manifest/state removal and config changes. Apply only the reviewed scope within accepted implementation authority. Retain preview, applied-file inventory, Store read-back, preserved-content checks, and a repeat/later-update result. Do not hand-delete receipts or hand-edit the installed projection.
+- [x] T20: Complete V8 Human Experience Review for HX-1 through HX-4 using the real V1/V5/V6/V8 evidence. Record each promise, actual surface, evidence, observation, `satisfied`/`material gap`/`insufficient evidence` conclusion, reviewer, limit, and follow-up. Offer one optional Guided Progress Review. If a material human uncertainty remains, select the smallest added test under PRD 50. Do not claim agent review proves lived ease or confidence.
 
 ### Acceptance criteria
 
@@ -175,18 +175,18 @@ Use V1-V8 as the canonical verification grouping. Pair these cases with existing
 - Automated Implementation Testing: focused during implementation, then one justified shared integration/package pass. Stop on a safety failure. Rerun after a relevant fix or changed evidence only.
 - Performance Testing: `not-needed-now`; reconsider only for a current performance decision under its owning PRD.
 - Guided Progress Review: optional and advisory after a meaningful result exists. A decline does not fail the phase.
-- Unassisted Goal Testing: `not-needed-now` unless t20 identifies a material uncertainty that existing evidence cannot answer. No scenario ID is assigned in this draft.
+- Unassisted Goal Testing: `not-needed-now` unless T20 identifies a material uncertainty that existing evidence cannot answer. No scenario ID is assigned in this draft.
 - Phase/capability status: implemented; owner acceptance remains open. Stage completion alone does not close the interrupt.
 
 ## Stage 5 - Acceptance and Closeout
 
 ### Tasks
 
-- [x] t21: Complete applicable functional, guide, and system-resource coverage passes against the implemented result. Record separate testing selections and bounded conclusions. Fix active local-state guidance and broken requirement/evidence links. Preserve historical facts and retain explicit supersession where old entry points remain visible.
-- [x] t22: Run required PRD authority and documentation checks, affected CLI tests, defaults validation, build/package checks, and the justified final integration pass. Reconcile every new failure. Report the original D-031 defaults baseline separately and prove its correction. Attach the final finite evidence inventory to the phase closeout record.
-- [x] t23: Reconcile current PRD status, this backlog, D-031, and any material findings against actual runtime evidence. Keep D-031 open until its exit is met. Do not hide an incomplete Store-only boundary behind a future obligation. Use the existing obligation register only for an owner-accepted separate future outcome.
-- [x] t24: Present the complete P1 result for owner acceptance. Show what changed in the project tree, where status/recovery now appears, retained content, verified cases, failed/blocked limits, and HX-1 through HX-4 conclusions. Keep acceptance, staging/commit, publication, and release authority distinct.
-- [x] t25: After owner acceptance of interrupt completion, record the W20 R0 return point: accepted P1/P2 remain intact; P3 planning consumes the interrupt handoff; P3 implementation still requires its own authority. Update pause/navigation records to reflect that exact gate. Do not start W20 or W21 work as part of this task.
+- [x] T21: Complete applicable functional, guide, and system-resource coverage passes against the implemented result. Record separate testing selections and bounded conclusions. Fix active local-state guidance and broken requirement/evidence links. Preserve historical facts and retain explicit supersession where old entry points remain visible.
+- [x] T22: Run required PRD authority and documentation checks, affected CLI tests, defaults validation, build/package checks, and the justified final integration pass. Reconcile every new failure. Report the original D-031 defaults baseline separately and prove its correction. Attach the final finite evidence inventory to the phase closeout record.
+- [x] T23: Reconcile current PRD status, this backlog, D-031, and any material findings against actual runtime evidence. Keep D-031 open until its exit is met. Do not hide an incomplete Store-only boundary behind a future obligation. Use the existing obligation register only for an owner-accepted separate future outcome.
+- [x] T24: Present the complete P1 result for owner acceptance. Show what changed in the project tree, where status/recovery now appears, retained content, verified cases, failed/blocked limits, and HX-1 through HX-4 conclusions. Keep acceptance, staging/commit, publication, and release authority distinct.
+- [x] T25: After owner acceptance of interrupt completion, record the W20 R0 return point: accepted P1/P2 remain intact; P3 planning consumes the interrupt handoff; P3 implementation still requires its own authority. Update pause/navigation records to reflect that exact gate. Do not start W20 or W21 work as part of this task.
 
 ### Acceptance criteria
 
@@ -208,7 +208,7 @@ Use V1-V8 as the canonical verification grouping. Pair these cases with existing
 
 ## Implementation Evidence (Running)
 
-This section retains the implementation record and its existing link anchor. W19 R3 P1 is now accepted and closed; all tasks t1-t25 are complete. These project records cannot drive installation or recovery. The Store remains the only tool-state authority. Earlier test and transfer rows remain dated evidence. Final review, install, and acceptance facts follow below. W20 and W21 remain paused.
+This section retains the implementation record and its existing link anchor. W19 R3 P1 is now accepted and closed; all tasks T1-T25 are complete. These project records cannot drive installation or recovery. The Store remains the only tool-state authority. Earlier test and transfer rows remain dated evidence. Final review, install, and acceptance facts follow below. W20 and W21 remain paused.
 
 ### Entry Check — 2026-09-09
 
@@ -218,7 +218,7 @@ This section retains the implementation record and its existing link anchor. W19
 - Runtime: Node `v24.19.0`. `make-docs` resolves through `<user-home>/.nvm/versions/node/v24.19.0/bin/make-docs` to the installed `@brucewaynedecoy/make-docs` package, version `2.0.0-rc`. Package identity was read from its `package.json`; the old CLI was not run to mutate this checkout.
 - Disk: the coordinator entry check reported 116 GiB free. The worker recheck reported 115 GiB free. Both checks used the current checkout volume.
 - Store health: opened `<user-home>/.make-docs/store.db` with SQLite `mode=ro&immutable=1`. `PRAGMA user_version` was `2`; `PRAGMA quick_check` returned `ok`. The WAL was empty. The database was 106,496 bytes. Counts were `projects=64`, `playbook_runs=0`, `work_evidence=0`, `runs=1`, `run_evidence=0`, and `store_checkpoint_journal=1`. No Store mutation or recovery was attempted.
-- Scope: one phase, five stages, t1-t25. Author shipped assets upstream. Run fault and package checks against isolated Stores and fixtures. Perform live transfer only after the accepted package and preview steps. Preserve project knowledge, backup copies, opaque legacy rows, unrelated project rows, and W20's pause.
+- Scope: one phase, five stages, T1-T25. Author shipped assets upstream. Run fault and package checks against isolated Stores and fixtures. Perform live transfer only after the accepted package and preview steps. Preserve project knowledge, backup copies, opaque legacy rows, unrelated project rows, and W20's pause.
 
 ### Early Guidance Evidence — 2026-09-09
 
@@ -301,7 +301,7 @@ The final whole-suite run contained 983 tests: 979 passed and four needed a scop
 
 The final help-only change adds status/recovery to root help and explains Store ownership and exact recovery modes. It changes no operation logic. The final build and TypeScript check pass. Package smoke and live transfer used the same operation code; the live package hash above remains its exact evidence identity.
 
-Final document checks passed: 39 PRDs, 848 links, no diagnostics. `git diff --check` passed. This was the pre-acceptance handoff: tasks t1-t23 were complete and t24-t25 awaited the owner. The owner has since accepted the result; all tasks are now complete.
+Final document checks passed: 39 PRDs, 848 links, no diagnostics. `git diff --check` passed. This was the pre-acceptance handoff: tasks T1-T23 were complete and T24-T25 awaited the owner. The owner has since accepted the result; all tasks are now complete.
 
 ### Final Review, Installed CLI, and Owner Acceptance — 2026-09-09
 
@@ -309,5 +309,5 @@ Final document checks passed: 39 PRDs, 848 links, no diagnostics. `git diff --ch
 - The focused regression set passed 23 tool/global-asset tests. It covers the SQL-lock/full-lease gap, two paths to the same physical Store, interrupted setup after lock release, and tool-first blocking of installation. TypeScript and diff checks passed. This was a bounded review and focused rerun, not a second whole-suite run.
 - `just install-cli` rebuilt, packed, and installed the corrected CLI without publishing it. Final tarball SHA-256: `2836f23b43307c8dca12853c73e2f8a9758b0bd47a92a9379f169ba29406be09`. The installed `make-docs project state status --target-root <this checkout> --json` reported `ready`, `storeAvailable: true`, and no pending operation. The known sandbox shared-memory access limit required filesystem access; it did not indicate a Store fault. Final defaults passed 49/49.
 - The installed CLI created the archive surface through `make-docs project surface ensure archive`. It preserved all existing configured routers and added only `.make-docs/archive/AGENTS.md` and `.make-docs/archive/CLAUDE.md`. The Store recorded receipt `sha256:741f154973478af791dde70d5fa9bc28ab7b21c123d777a8750694fdc2f84778`. No local operation state was written.
-- The owner explicitly accepted the closeout and authorized its commit. t24 and t25 are complete. D-031 is closed. The [history record](../../../.make-docs/archive/history/2026-09-09-w19-r3-p1-store-state-closeout.md) records this accepted result. No new `O-###`, `NUAT-###`, or `PERF-###` was created; the recorded `not-needed-now` testing disposition remains in force.
+- The owner explicitly accepted the closeout and authorized its commit. T24 and T25 are complete. D-031 is closed. The [history record](../../../.make-docs/archive/history/2026-09-09-w19-r3-p1-store-state-closeout.md) records this accepted result. No new `O-###`, `NUAT-###`, or `PERF-###` was created; the recorded `not-needed-now` testing disposition remains in force.
 - W20 P1/P2 remain closed; P3 has not started. W20 and W21 remain paused. After the R3 commit, draft the next interrupt package with one phase where scope permits. No next package or W20/W21 implementation is authorized by this closeout.

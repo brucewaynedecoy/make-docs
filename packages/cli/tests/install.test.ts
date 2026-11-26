@@ -911,7 +911,7 @@ describe("installer integration", () => {
       );
       expect(existsSync(path.join(sharedSkillRoot, "SKILL.md"))).toBe(true);
       expect(existsSync(path.join(sharedSkillRoot, "references/mcp-playbook.md"))).toBe(true);
-      expect(existsSync(path.join(sharedSkillRoot, "scripts/validate_output.py"))).toBe(true);
+      expect(existsSync(path.join(sharedSkillRoot, "scripts"))).toBe(false);
       expect(
         existsSync(path.join(sharedSkillRoot, "assets/templates/decomposition-plan.md")),
       ).toBe(true);
@@ -1124,12 +1124,14 @@ describe("installer integration", () => {
 
         for (const relativeLink of [
           "./references/archive-workflow.md",
-          "./scripts/trace_relationships.py",
           "./agents/openai.yaml",
         ]) {
           expect(contents).toContain(`(${relativeLink})`);
           expect(existsSync(path.join(path.dirname(skillPath), relativeLink))).toBe(true);
         }
+        // W34 R0 P2: the Skill text names the relations command, not a script.
+        expect(contents).not.toContain("scripts/");
+        expect(contents).toContain("make-docs project relations list");
       }
 
       // The four D-020 lifecycle skills are withdrawn from the shipped

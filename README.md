@@ -74,23 +74,29 @@ Setup preserves local edits and unmanaged files. It asks for review when a manag
 
 ## CLI and MCP
 
-The CLI has seven top-level commands. Run `make-docs <command> --help` for exact options.
+The CLI has eleven top-level groups, one for each capability. Run `make-docs <group> --help` to list a group's commands and options.
 
-| Command | Main use |
+| Group | Main use |
 | --- | --- |
-| `setup` | Install, sync, reconfigure, manage Skills, back up, or remove project assets. `setup system` reviews machine-level agent access. |
-| `project` | Inspect and manage project surfaces and settings. |
-| `resource` | List, read, or ensure system resources. |
-| `run` | Run admitted project and workflow operations. |
-| `mcp` | Start the MCP server for agent tools. |
-| `update` | Update the installed tool. |
-| `uninstall` | Remove the machine-level tool footprint. |
+| `setup` | Install, sync, or remove Make Docs in this project. Set up this computer and check the Store. |
+| `project` | See and repair this project: state, checkouts, Personas, layout, paths, and the doctor. |
+| `resource` | List, read, or copy Make Docs system resources. |
+| `work` | Find work items and record work evidence. |
+| `backlog` | Read the backlog, use its review cache, and open the review app. |
+| `lifecycle` | Start, track, and finish lifecycle runs. |
+| `factory` | Run approved backlog work through workers and review. Check and save the setup, workflows, proofs, and assignments. |
+| `check` | Check PRDs, performance evidence, and user test records. Changes nothing. |
+| `mcp` | Serve Make Docs tools to agents over MCP. |
+| `update` | Update the installed make-docs tool. |
+| `uninstall` | Remove make-docs from this computer. |
+
+Each MCP tool name is the CLI path after `make-docs`, with spaces and hyphens changed to underscores. For example, `make-docs check prd` is the tool `check_prd`.
 
 The MCP server gives agents tools and resource reads from the same operation core as the CLI. System resources use stable `make-docs://system/<type>/<path>` names for contracts, prompts, references, and templates. MCP writes require an explicit write setting. Dry runs and named approvals follow the same rules as CLI operations.
 
 ## Optional Skills
 
-The CLI package embeds these eight first-party Skills. A fresh setup selects none. Use `make-docs setup skills` to select or manage them.
+The CLI package embeds these nine first-party Skills. A fresh setup selects none. Use `make-docs setup skills` to select or manage them.
 
 | Skill | Use |
 | --- | --- |
@@ -98,7 +104,8 @@ The CLI package embeds these eight first-party Skills. A fresh setup selects non
 | `backlog-review` | Review the work backlog and explain current focus and attention. |
 | `cleanup-docs` | Clean up project documentation. |
 | `decompose-codebase` | Map an existing codebase into PRDs and a rebuild backlog. |
-| `factory` | Coordinate implementation and review when requested. |
+| `factory` | Run a ready factory workflow on approved backlog work when requested. |
+| `factory-setup` | Set up and prove a factory workflow with your own agent tools when requested. |
 | `human-experience` | Review a human-facing result when requested. |
 | `naive-uat` | Guide Unassisted Goal Testing. |
 | `preflight` | Review readiness before execution when requested. |

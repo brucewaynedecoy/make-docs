@@ -241,6 +241,7 @@ const EXPECTED_ALL_SKILLS = [
   "decompose-codebase",
   "preflight",
   "factory",
+  "factory-setup",
   "human-experience",
   "naive-uat",
 ];
@@ -260,6 +261,11 @@ const LEGACY_SKILL_PATHS = [
   ".claude/skill-assets/archive-docs/scripts/trace_relationships.py",
   ".agents/skill-assets/archive-docs/references/archive-workflow.md",
   ".agents/skill-assets/archive-docs/scripts/trace_relationships.py",
+  // W34 R0 P4: the Python helpers that releases before W34 R0 installed.
+  ".agents/skills/archive-docs/scripts/trace_relationships.py",
+  ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
+  ".agents/skills/decompose-codebase/scripts/probe_environment.py",
+  ".agents/skills/decompose-codebase/scripts/validate_output.py",
 ];
 
 function npmEnv() {
@@ -665,6 +671,9 @@ function runLocalPackedSmoke() {
       `Smoke pack install left legacy skill artifact ${relativePath}.`,
     );
   }
+  for (const skillsRoot of [".agents/skills", ".claude/skills"]) {
+    assertNoPythonUnder(path.join(targetDir, skillsRoot), "Smoke pack install wrote a Python file into a Skill");
+  }
 
   const customFilePath = path.join(targetDir, ".make-docs/system/templates/custom-smoke.md");
   const customConfigPath = path.join(targetDir, ".make-docs/config.yaml");
@@ -807,7 +816,7 @@ function runLocalPackedSmoke() {
   writeLegacyContentFixture(runFixtureDir);
   for (const args of [["run", "playbook", "status"], ["run", "package", "plan"], ["run", "protocol", "list"]]) {
     const refusal = runPackedCliExpectingFailure(packedMakeDocs, [...args, "--repo-root", runFixtureDir]);
-    assertOutputContains(refusal.stderr, "Unknown make-docs run operation", "Packed CLI did not reject a retired operation.");
+    assertRetiredOperationRefusal(refusal, args);
   }
 
   // `update`: the packed direct-node invocation matches no persistent-install
@@ -1674,6 +1683,9 @@ function readPackedSkillExpectations(packageRoot, scope = "project", tools = "bo
   for (const skill of registry.skills) {
     if (skill.source !== `embedded:${skill.name}`) throw new Error(`First-party Skill must use embedded bytes: ${skill.name}`);
     const declared = [{source: skill.entryPoint, installPath: "SKILL.md"}, ...(skill.assets ?? [])];
+    // W34 R0 P4 (PRD 08 R-SKILL-BUNDLE-7): the packed CLI embeds no Python file.
+    const python = declared.find(item => /\.pyc?$/i.test(item.source) || /\.pyc?$/i.test(item.installPath));
+    if (python) throw new Error(`Packed first-party Skill declares a Python file: ${skill.name}/${python.installPath}`);
     const seen = new Set();
     for (const item of declared) {
       for (const value of [item.source, item.installPath]) {
@@ -1696,9 +1708,47 @@ function assertExists(filePath, message) {
   }
 }
 
+/** W34 R0 P4: fail on any `.py` file, `.pyc` file, or `__pycache__` folder under a directory. */
+function assertNoPythonUnder(directory, message) {
+  if (!existsSync(directory)) return;
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const current = path.join(directory, entry.name);
+    if (entry.name === "__pycache__" || /\.pyc?$/i.test(entry.name)) throw new Error(`${message}: ${current}`);
+    if (entry.isDirectory() && !entry.isSymbolicLink()) assertNoPythonUnder(current, message);
+  }
+}
+
 function assertMissing(filePath, message) {
   if (lstatSync(filePath, { throwIfNoEntry: false })) {
     throw new Error(message);
+  }
+}
+
+/**
+ * A retired workflow entry point (`run playbook`, `run package`, `run
+ * protocol`) must fail with one typed refusal. W33 R0 P2 retired `run` as a
+ * root, and W33 R0 P3 changes the message text, so the check does not match
+ * message text. It needs a nonzero exit, empty stdout, and stderr that is
+ * exactly one JSON object with `ok: false` and `code: "operation-error"`.
+ * The refusal must have no `renamedTo` key, because these paths were
+ * removed, not renamed. This holds for the whole W33 R0 migration window.
+ */
+function assertRetiredOperationRefusal(refusal, args) {
+  const label = `make-docs ${args.join(" ")}`;
+  const detail = `\nstdout:\n${refusal.stdout}\nstderr:\n${refusal.stderr}`;
+  if (refusal.status === 0) throw new Error(`Packed CLI ran the retired operation \`${label}\`.${detail}`);
+  if (refusal.stdout !== "") throw new Error(`Packed CLI wrote to stdout for the retired operation \`${label}\`.${detail}`);
+  let result;
+  try {
+    result = JSON.parse(refusal.stderr.trim());
+  } catch {
+    throw new Error(`Packed CLI stderr for \`${label}\` is not one JSON refusal.${detail}`);
+  }
+  if (result === null || typeof result !== "object" || result.ok !== false || result.code !== "operation-error") {
+    throw new Error(`Packed CLI did not give an operation-error refusal for \`${label}\`.${detail}`);
+  }
+  if (Object.hasOwn(result, "renamedTo")) {
+    throw new Error(`Packed CLI treated the retired operation \`${label}\` as a renamed command.${detail}`);
   }
 }
 

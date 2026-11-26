@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 01: Requirements and Register Reconciliation
 
 ## Purpose
@@ -12,10 +16,10 @@ Finalize the PRD and risk-register changes required before implementation touche
 
 ## Tasks
 
-- [x] t1: Confirm PRD 22 is linked from [../../prd/00-index.md](../../prd/00-index.md), audience paths, source anchors, and intended follow-on. (`W9R3-P1-T1`)
-- [x] t2: Ensure baseline docs cite PRD 22 where they mention `docs/assets/**`, guides, playbooks, archive placement, or persona targeting. (`W9R3-P1-T2`)
-- [x] t3: Update `Q-009`, `Q-014`, `R-011`, `R-012`, and `R-013` so their decision/follow-up text matches PRD 22. (`W9R3-P1-T3`)
-- [x] t4: Extend dogfood, parity, package, and path risks with guide/playbook/archive migration surfaces. (`W9R3-P1-T4`)
+- [x] T1: Confirm PRD 22 is linked from [../../prd/00-index.md](../../prd/00-index.md), audience paths, source anchors, and intended follow-on. (`W9R3-P1-T1`)
+- [x] T2: Ensure baseline docs cite PRD 22 where they mention `docs/assets/**`, guides, playbooks, archive placement, or persona targeting. (`W9R3-P1-T2`)
+- [x] T3: Update `Q-009`, `Q-014`, `R-011`, `R-012`, and `R-013` so their decision/follow-up text matches PRD 22. (`W9R3-P1-T3`)
+- [x] T4: Extend dogfood, parity, package, and path risks with guide/playbook/archive migration surfaces. (`W9R3-P1-T4`)
 
 ## Acceptance Criteria
 

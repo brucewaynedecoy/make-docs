@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 01: Requirements and Register Reconciliation
 
 ## Objective
@@ -12,11 +16,11 @@ Land the PRD and register updates needed before implementation starts.
 
 ## Tasks
 
-- [x] t1: Add PRD 24 to the active PRD index, source anchors, audience paths, and follow-on backlog list.
-- [x] t2: Update affected baseline PRDs to state the presentation-only configuration boundary.
-- [x] t3: Update Q-011 to record the structural decision and remaining implementation mechanism.
-- [x] t4: Update Q-009, R-010, R-011, R-004, D-014, R-003, R-013, R-014, and Q-012 as needed.
-- [x] t5: Keep the older terminology-overlay design as lineage, not active implementation authority.
+- [x] T1: Add PRD 24 to the active PRD index, source anchors, audience paths, and follow-on backlog list.
+- [x] T2: Update affected baseline PRDs to state the presentation-only configuration boundary.
+- [x] T3: Update Q-011 to record the structural decision and remaining implementation mechanism.
+- [x] T4: Update Q-009, R-010, R-011, R-004, D-014, R-003, R-013, R-014, and Q-012 as needed.
+- [x] T5: Keep the older terminology-overlay design as lineage, not active implementation authority.
 
 ## Acceptance Criteria
 

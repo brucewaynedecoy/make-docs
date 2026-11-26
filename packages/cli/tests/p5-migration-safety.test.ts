@@ -658,10 +658,10 @@ describe("W19 R1 P5 migration and safety fixtures", () => {
     );
     expect(mcpHygiene.result).toEqual(directHygiene.value);
     expect(operationCliCommand("project.path-hygiene.validate")).toBe(
-      "make-docs project path-hygiene validate",
+      "make-docs project paths validate [--target <dir>] [--scope content|managed] [--path <path>] [--format text|json] [--include-skills] [--manifest <path>] [--allow-comment-token <text>]",
     );
     const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    await runCli(["project", "path-hygiene", "validate", "--target", product.root]);
+    await runCli(["project", "paths", "validate", "--target", product.root]);
     expect(JSON.parse(stdout.mock.calls.map(([chunk]) => String(chunk)).join(""))).toEqual(
       directHygiene.value,
     );

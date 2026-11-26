@@ -44,10 +44,11 @@ The first-party catalog currently exposes these selectable skills:
 | `cleanup-docs` | Documentation maintenance |
 | `preflight` | Readiness review when explicitly requested |
 | `factory` | Implementation and review coordination when explicitly requested |
+| `factory-setup` | Factory workflow setup and proof with your own agent tools when explicitly requested |
 | `human-experience` | Human experience review when explicitly requested |
 | `naive-uat` | Unassisted Goal Testing through the shared CLI workflow |
 
-All eight first-party payloads are embedded in the CLI package. Each can be installed alone without a network or the Make Docs source checkout. A missing or corrupt bundle stops safely; it does not trigger a hidden download. Installing preflight, factory, or human-experience does not invoke it or activate another Skill.
+All nine first-party payloads are embedded in the CLI package. Each can be installed alone without a network or the Make Docs source checkout. A missing or corrupt bundle stops safely; it does not trigger a hidden download. Installing preflight, factory, factory-setup, or human-experience does not invoke it or activate another Skill.
 
 Skills are installed only when skills are enabled and the skill is in the selected set. The CLI selection UI groups candidates by purpose and shows the candidate skill name, source policy, supported harnesses, and provenance.
 
@@ -243,6 +244,10 @@ Use `make-docs setup skills --remove`.
 ### I see legacy duplicated payloads in a plan
 
 That means Make Docs found files from the older per-harness skill layout. Clean Store-owned files can migrate to the standard scope/harness paths; edited or ambiguous files are preserved or routed to review instead of being removed by path name alone.
+
+### My plan removes old Python files from a Skill
+
+First-party Skills no longer ship Python. Their checks are Make Docs CLI commands and MCP tools. When an older install has `scripts/*.py` files in `archive-docs`, `cleanup-docs`, or `decompose-codebase`, `make-docs setup` shows them in its plan and leaves them to `make-docs setup skills`. `make-docs setup skills` removes each file that Make Docs wrote and that nobody changed. It keeps a file that you changed and shows it as `skip` in the plan. After the run, it lists the file under "Changed files kept for your review:" with the reason "You changed this file, so Make Docs kept it. Review it, then delete it or keep it." A dry run lists the same files under "Changed files that setup would keep for your review:". When Make Docs also stages new bytes for a changed file, that file is listed only under "Conflicts were staged for manual review:". Review a kept file, then delete it yourself when you no longer need it.
 
 ## Retired Private-Layout Upgrade
 

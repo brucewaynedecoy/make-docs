@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Scenario and Result Schema
 
 ## Purpose
@@ -12,10 +16,10 @@ Implement the compact evidence records needed for maintainer review.
 
 ### Tasks
 
-- [x] t1: Define versioned scenario metadata, safety modes, and required evidence fields.
-- [x] t2: Define result record fields, verdict enum, reason, caveats, and reviewer status.
-- [x] t3: Store raw artifacts under generated local storage by default.
-- [x] t4: Define the opt-in redaction and promotion path for contentious or stronger-claim evidence.
+- [x] T1: Define versioned scenario metadata, safety modes, and required evidence fields.
+- [x] T2: Define result record fields, verdict enum, reason, caveats, and reviewer status.
+- [x] T3: Store raw artifacts under generated local storage by default.
+- [x] T4: Define the opt-in redaction and promotion path for contentious or stronger-claim evidence.
 
 ### Acceptance Criteria
 
@@ -31,10 +35,10 @@ Implement the compact evidence records needed for maintainer review.
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Added the Conformance Lab Scenario and Result Contracts guide, which is now retired and preserved in Git history. It defined `schemaVersion`, stable scenario identity, required source requirement anchors, safety modes, prerequisite flags, execution steps, expected evidence, artifact policy, and support-claim scope. |
-| t2 | The guide defines compact result records with harness/model/provider/runtime tuple fields, make-docs version, produced files, diffs, exit status, transcript/log pointer, verdict enum, reason, caveats, reviewer status, and support-claim use. `blocked` records must use `supportClaimUse: none`. |
-| t3 | Added `.make-docs/conformance/` to `.gitignore` and documented `.make-docs/conformance/<run-id>/` plus `.make-docs/runs/conformance/<run-id>/` as generated local raw-artifact storage. |
-| t4 | The guide defines opt-in redaction and promotion for contentious evidence, stronger claim candidates, transcript excerpts, and reviewed compact result records. Raw provider logs, temporary workspaces, credentials, and full transcripts remain local by default. |
+| T1 | Added the Conformance Lab Scenario and Result Contracts guide, which is now retired and preserved in Git history. It defined `schemaVersion`, stable scenario identity, required source requirement anchors, safety modes, prerequisite flags, execution steps, expected evidence, artifact policy, and support-claim scope. |
+| T2 | The guide defines compact result records with harness/model/provider/runtime tuple fields, make-docs version, produced files, diffs, exit status, transcript/log pointer, verdict enum, reason, caveats, reviewer status, and support-claim use. `blocked` records must use `supportClaimUse: none`. |
+| T3 | Added `.make-docs/conformance/` to `.gitignore` and documented `.make-docs/conformance/<run-id>/` plus `.make-docs/runs/conformance/<run-id>/` as generated local raw-artifact storage. |
+| T4 | The guide defines opt-in redaction and promotion for contentious evidence, stronger claim candidates, transcript excerpts, and reviewed compact result records. Raw provider logs, temporary workspaces, credentials, and full transcripts remain local by default. |
 
 ## Coverage Decisions
 

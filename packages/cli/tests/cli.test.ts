@@ -1731,10 +1731,12 @@ personas:
         "cleanup-docs",
         "decompose-codebase",
         "factory",
+        "factory-setup",
         "human-experience",
         "naive-uat",
         "preflight",
       ]);
+      expect(manifest?.skillFiles).toContain(".claude/skills/factory-setup");
       expect(manifest?.skillFiles).toContain(".claude/skills/archive-docs");
       expect(manifest?.skillFiles).toContain(".claude/skills/backlog-review");
       expect(manifest?.skillFiles).toContain(".claude/skills/cleanup-docs");
@@ -2266,7 +2268,7 @@ personas:
           targetDir,
         ]),
       ).rejects.toThrow(
-        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, backlog-review, cleanup-docs, decompose-codebase, factory, human-experience, naive-uat, preflight.",
+        "Unknown selected skill `unknown-skill`. Valid skills: archive-docs, backlog-review, cleanup-docs, decompose-codebase, factory, factory-setup, human-experience, naive-uat, preflight.",
       );
     } finally {
       cleanupTempDir(targetDir);
@@ -2372,56 +2374,112 @@ personas:
     expect((await captureCliOutput(["-v"])).trim()).toBe(readPackageMeta().version);
   });
 
-  test("prints structured top-level help with exactly the seven public commands", async () => {
+  // W33 R0 P2 help snapshot (PRD 39 R-TOP-1): the eleven groups by capability, in plain words.
+  const TOP_LEVEL_HELP = `make-docs
+
+Set up Make Docs, work with your project's docs and backlog, and serve tools to agents.
+
+Usage:
+  make-docs
+  make-docs <group> <command> [options]
+  make-docs <group> --help
+
+Bare command:
+  Run make-docs with no command to see install status (when installed) or start
+  a guided setup (when not installed). Bare invocation never syncs.
+
+Global flags:
+  --version, -v   Print the installed make-docs version and exit.
+  --help, -h      Show help for a group or command.
+
+Groups:
+  setup        Install, sync, or remove Make Docs in this project. Set up this computer and check the Store.
+  project      See and repair this project: state, checkouts, Personas, layout, paths, Markdown style, relations, and the doctor.
+  resource     List, read, or copy Make Docs system resources.
+  work         Run the work queue, sync the work store, find work items, and record work evidence.
+  backlog      Read the backlog, use its review cache, and open the review app.
+  lifecycle    Start, track, and finish lifecycle runs.
+  factory      Run approved backlog work through workers and review.
+  check        Check PRDs, decomposition output, performance evidence, and user test records. Changes nothing.
+  mcp          Serve Make Docs tools to agents over MCP.
+  update       Update the installed make-docs tool.
+  uninstall    Remove make-docs from this computer.
+
+Examples:
+  make-docs
+  make-docs setup --yes
+  make-docs setup system --dry-run
+  make-docs project state status
+  make-docs resource list
+  make-docs work item resolve 'W18 R11 P2'
+  make-docs backlog snapshot --target-root .
+  make-docs lifecycle list
+  make-docs check prd
+  make-docs mcp
+
+Use --help or -h with a group to list its commands.
+`;
+
+  test("prints the exact top-level help: the eleven groups by capability, in plain words", async () => {
     setTTY(true);
 
     const output = await captureCliOutput(["--help"]);
 
-    expect(output).toMatch(/make-docs/i);
-    expect(output).toMatch(/\bCommands\b/i);
-    expect(output).toMatch(/\bExamples\b/i);
-    expect(output).toContain("make-docs setup [system|reconfigure|skills|backup|remove] [options]");
-    expect(output).toContain("make-docs project surface ensure <archive|artifacts|assets>");
-    expect(output).toContain("make-docs resource <list|read|ensure> [options]");
-    expect(output).toContain("make-docs run <domain> <verb> [options]");
-    expect(output).toContain("make-docs mcp");
-    expect(output).toContain("make-docs update");
-    expect(output).toContain("make-docs uninstall");
-    expect(output).toContain("Bare invocation never syncs.");
-
-    const commandsBlock = output.split("Commands:")[1]?.split("Examples:")[0] ?? "";
-    const commandNames = commandsBlock
+    expect(output).toBe(TOP_LEVEL_HELP);
+    const groupsBlock = output.split("Groups:")[1]?.split("Examples:")[0] ?? "";
+    const groupNames = groupsBlock
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
       .map((line) => line.split(/\s+/)[0]);
-    expect(commandNames).toEqual([
+    expect(groupNames).toEqual([
       "setup",
       "project",
       "resource",
-      "run",
+      "work",
+      "backlog",
+      "lifecycle",
+      "factory",
+      "check",
       "mcp",
       "update",
       "uninstall",
     ]);
-
-    expect(output).toContain(
-      "setup        Install or sync this project; subcommands system, reconfigure, skills, backup, remove.",
-    );
-    expect(output).toContain("project      Manage canonical project support surfaces.");
-    expect(output).toContain("resource     List, read, or ensure stable system resources.");
-    expect(output).toContain("run          Run deterministic registry operations.");
-    expect(output).toContain("mcp          Run the TypeScript MCP server over stdio.");
-    expect(output).toContain("update       Update the installed make-docs tool itself.");
-    expect(output).toContain("uninstall    Remove make-docs' machine-level footprint.");
+    expect(output).not.toMatch(/make-docs run\b/);
+    expect(output).toContain("Bare invocation never syncs.");
     expect(output).not.toContain("make-docs init");
-    expect(output).not.toContain("makedocs");
-    expect(output).not.toContain("make-docs-js");
-    expect(output).not.toContain("make-docs-rs");
     expect(output).not.toContain("--reconfigure");
     expect(output).not.toContain("--skills");
-    expect(output).toMatch(/--help/i);
   });
+
+  test.each(["work", "backlog", "lifecycle", "factory", "check", "project", "resource"])(
+    "W33 R0 P2: `make-docs %s --help` lists every registry command in its group",
+    async (group) => {
+      setTTY(false);
+      const { listOperations } = await import("../src/operations/registry");
+      const output = await captureCliOutput([group, "--help"]);
+      // W33 R0 P3: every group's help starts with its title and a plain-words summary.
+      const [title, gap, summary] = output.split("\n");
+      expect(title).toBe(`make-docs ${group}`);
+      expect(gap).toBe("");
+      expect(summary).toMatch(/^[A-Z][^.]*[a-z,:]/);
+      const operations = listOperations().filter((operation) => operation.cli.root === group);
+      for (const operation of operations) {
+        const full = `make-docs ${operation.cli.root} ${operation.cli.path}`;
+        const paths = output.split("\n").map((line) => line.trim());
+        const found = paths.some((line) =>
+          line.startsWith(full) ||
+          // project help folds two verbs into `a|b`.
+          line.startsWith(full.replace(/ (apply|verify)$/, " apply|verify")) ||
+          line.startsWith(full.replace(/ (validate|repair)$/, " validate|repair")),
+        );
+        expect(found, `${group}: ${full}`).toBe(true);
+      }
+      // W30 R0 P3 admitted the factory commands.
+      if (group === "factory") expect(output).not.toContain("This group has no commands yet.");
+      expect(output).not.toMatch(/make-docs run\b/);
+    },
+  );
 
   test.each([["--help"], ["setup", "system", "--help"], ["setup", "reconfigure", "--help"], ["setup", "skills", "--help"]])(
     "does not expose internal system asset materialization modes in %s help",
@@ -3485,18 +3543,20 @@ personas:
     const output = await captureCliOutput(["setup", "--help"]);
 
     expect(output).toContain("make-docs setup");
-    expect(output).toContain("Subcommands:");
-    expect(output).toContain(
-      "system       Configure reviewed machine-level harness support.",
-    );
-    expect(output).toContain(
-      "reconfigure  Change saved project selections for an existing install.",
-    );
-    expect(output).toContain("skills       Change, sync, or remove managed skills.");
-    expect(output).toContain("backup       Create a backup of managed files.");
-    expect(output).toContain(
-      "remove       Remove this project's managed files, with an optional backup first.",
-    );
+    // W33 R0 P5 owner decision: one plain-words line per command.
+    expect(output).toContain("Commands:");
+    for (const [command, summary] of [
+      ["system", "Set up Codex, Claude Code, and GitHub Copilot CLI support on this computer, after your review."],
+      ["reconfigure", "Change the saved project choices of an install."],
+      ["skills", "Sync, adopt, or remove the managed Skills."],
+      ["backup", "Back up this project's managed files."],
+      ["remove", "Remove this project's managed files, with an optional backup first."],
+    ]) {
+      expect(output).toContain(`  make-docs setup ${command} [write]\n      ${summary}\n`);
+    }
+    expect(output).toContain("  make-docs setup store check\n");
+    expect(output).toContain("  make-docs setup store clean [write]\n");
+    expect(output).toContain("Options for make-docs setup itself:");
   });
 
   test.each([
@@ -3506,7 +3566,7 @@ personas:
     [["backup", "--yes"], ["The `backup` command was removed", "make-docs setup backup"]],
     [
       ["operations", "closeout", "probe"],
-      ["The `operations` command was removed", "make-docs run <domain> <verb>"],
+      ["The `operations` command was removed", "make-docs <group> <command>"],
     ],
     [["--reconfigure"], ["`--reconfigure` was removed", "make-docs setup reconfigure"]],
     [

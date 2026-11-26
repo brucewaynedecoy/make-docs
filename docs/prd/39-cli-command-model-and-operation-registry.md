@@ -26,15 +26,25 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Scope, Boundaries, and Runtime Invariants (R-SCOPE, R-KEEP)
 
-- R-SCOPE-1 (MUST NOT): this authority owns the top-level command structure, bare-command behavior, tool self-management, operation registry and shared core, resource, project, and `run` projections, compatibility handling, and registry cohesion. The operation inventory owns admission and exclusion dispositions; [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns static harness adapters; [PRDs 10](10-packaging-validation-and-release-reference.md), [16](16-package-runtime-and-deployment-boundaries.md), and [50](50-proportionate-testing-and-human-centered-validation.md) own direct package, release, and installed-product proof; and [38-global-store-and-project-state.md](38-global-store-and-project-state.md) owns Global Store and project-state schemas. Playbooks and Protocols own no admitted current command, registry, runtime, package, or rendering surface. The frozen P3 legacy set is a staged compatibility exception and does not create a current support claim.
+- R-SCOPE-1 (MUST NOT): this authority owns the top-level command structure, bare-command behavior, tool self-management, operation registry and shared core, group projections of registry operations, compatibility handling, and registry cohesion. The operation inventory owns admission and exclusion dispositions; [PRD 28](28-shared-agentics-installation-and-harness-exposure.md) owns static harness adapters; [PRDs 10](10-packaging-validation-and-release-reference.md), [16](16-package-runtime-and-deployment-boundaries.md), and [50](50-proportionate-testing-and-human-centered-validation.md) own direct package, release, and installed-product proof; and [38-global-store-and-project-state.md](38-global-store-and-project-state.md) owns Global Store and project-state schemas. Playbooks and Protocols own no admitted current command, registry, runtime, package, or rendering surface. The frozen P3 legacy set is a staged compatibility exception and does not create a current support claim.
 - R-KEEP-1 (MUST): TypeScript is the v2 runtime authority; Rust is not a design target, distribution, or parity requirement. Remote execution through `npx`, `pnpm dlx`, and `bunx` is the primary posture, with an installed binary available where a package manager requires an entry point. The installer-first no-command posture remains valid and is not replaced by a mandatory command router. MCP tools delegate to the same deterministic operation contract as equivalent CLI commands with identical reads, configuration interpretation, provenance, audit, dry-run, and write permissions; native MCP resources use the same resolver as CLI resource list/read where supported. Deterministic logic lives in modular TypeScript operation domains behind thin dispatchers and is testable without CLI or MCP transport. Project `.make-docs/config.yaml` provides declarative project intent and presentation only after canonical routing. It is never routing or machine-permission authority.
 - R-KEEP-2 (MUST): lifecycle Store mutations return the `LifecycleStoreMutationReceipt` owned by [PRD 38](38-global-store-and-project-state.md#general-lifecycle-runs-and-evidence-r-ps). CLI JSON and MCP tools serialize the same receipt fields without transport-only additions or renamed fields. Read-only, failed, conflicted, unavailable, and rolled-back lifecycle operations return no success receipt.
 
 ### Top-Level Structure (R-TOP)
 
-- R-TOP-1 (MUST): the CLI has seven top-level commands: `setup`, `project`, `resource`, `run`, `mcp`, `update`, and `uninstall`. `setup` owns `setup`, `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`. `project` owns project surface operations. `resource` owns canonical system-resource list, read, and ensure. `run` owns registry operations. `mcp` owns the MCP server. `update` and `uninstall` own tool and machine-level self-management.
+- R-TOP-1 (MUST): the CLI has eleven top-level groups, one per capability: `setup`, `project`, `resource`, `work`, `backlog`, `lifecycle`, `factory`, `check`, `mcp`, `update`, and `uninstall`. `setup` owns `setup`, `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, `setup store`, and `setup remove`. `project` owns project state, checkouts, Personas, layout, surfaces, path hygiene, Markdown style, document relations, the project list, and the doctor. `resource` owns canonical system-resource list, read, and ensure. `work` owns work items, work evidence, and the work queue. `backlog` owns the backlog snapshot, the review cache, and the live review app. `lifecycle` owns lifecycle runs. `factory` owns the factory. `check` owns read-only validators that no other group owns: PRD authority, decomposition output, performance evidence, and Unassisted Goal Testing records. `mcp` owns the MCP server. `update` and `uninstall` own tool and machine-level self-management. `run` is not a root; its former paths are aliases under R-MIG-1.
 - R-TOP-2 (MUST): `setup remove` is the project-removal command; top-level `uninstall` is reserved for machine-level removal.
-- R-TOP-3 (MUST): multi-operation families use a subtree under a domain object mapping one-to-one to registry identifiers. Registry metadata explicitly maps an operation to its canonical CLI projection; no alias or second command grammar is inferred.
+- R-TOP-3 (MUST): every operation lives in the group of its capability, under R-NAME. Multi-operation families use a subtree under a domain object mapping one-to-one to registry identifiers. Registry metadata explicitly maps an operation to its canonical CLI projection; the only aliases are the migration aliases of R-MIG-1.
+- R-TOP-4 (MUST): `--help` or `-h` after a registry command prints that command's help and exits 0. The help has one plain-words summary, the usage line, the arguments and options that the command accepts, and whether the command can write. Help runs no operation, reads no Store, and writes nothing. A read-only command's summary ends with "Changes nothing." Each group's help lists each of its commands on one path line and one summary line, and only a command's own help names its flags. The registry's usage line for a command is its help usage line. A `--help` or `-h` that is the value of a flag that takes a value is that value, not a request for help. A former path in its R-MIG-1 window prints the new command's help, then the alias notice. Tests run `--help` and `-h` on every registry command and check each command's help options against the options its parser reads.
+
+### Command and Tool Naming (R-NAME)
+
+- R-NAME-1 (MUST): one capability lives in one group. Every command for that capability starts with its group, and no capability spans two groups.
+- R-NAME-2 (MUST): a command path is the group, then an object when needed, then the verb, such as `make-docs work evidence record` or `make-docs backlog review open`. In the `check` group the group word is the verb, so a `check` path ends with its object, such as `make-docs check prd`. Words are lower-case, and a multi-word word uses a hyphen.
+- R-NAME-3 (MUST): an MCP tool name is the CLI path after `make-docs`, with spaces and hyphens replaced by underscores, such as `work_evidence_record`. No other mapping exists. A hand-defined MCP tool follows the same rule from a CLI path in its group, or from the path it would have.
+- R-NAME-4 (MUST): a name has at most 26 characters. When a path would make a longer name, the CLI path gets shorter, so the path and the name still match.
+- R-NAME-5 (MUST): one name catalog in code lists every operation and hand-defined tool with its current and new CLI path and MCP name. A test fails when an entry breaks R-NAME-1 to R-NAME-4, when two entries share a name, or when a PRD command list and the registry differ.
+- R-NAME-6 (MUST): shipped text names only current catalog names. Shipped text is the template, this repository's installed copy of it, the first-party Skills and their installed copies, the root and package README files, `CONTRIBUTING.md`, `RELEASING.md`, `SECURITY.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `packages/cli/src/store/README.md`, the routers, the guides under `docs/assets/user/` and `docs/assets/maintainer/`, and current PRD text. A test fails when a `make-docs` command in that text is not a catalog, setup, or group path, when a code span starts with a former `run` path, or when an MCP tool name is a former catalog name. It reads commands that start with `make-docs`, `npx` with the package name, or `node <path>/dist/index.js`, with or without environment assignments first. Shipped text keeps a former name only in the table rows right after a `<!-- make-docs:former-names -->` line, or in a Requirement History or Change History section. The test does not read `docs/assets/project/`, the decision register `03-open-questions-and-risk-register.md`, plans, designs, work backlogs, history records, or archives, which keep the names they recorded.
 
 ### Bare Command (R-BARE)
 
@@ -97,7 +107,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-CORE-1 (MUST): deterministic logic lives in a shared operation core of modular, per-operation modules grouped by domain — never a monolith, because a single shared library does not mean a single shared file. Every active operation is a stable identifier, a typed input, a typed output, a mutation classification, and a handler that takes the input and an execution context. Surfaces adapt argv or MCP arguments into that input and adapt the output back. They contain no operation logic. Handlers return structured data and perform effects only through the injected context, which enforces dry-run, write permission, and approval uniformly across surfaces. Presentation belongs to the surface.
 - R-CORE-2 (MUST): dependencies are one-way — surfaces depend on the core, the core never depends on a surface, and no surface imports another surface.
 - R-CORE-3 (MUST): the shared core validates a current MCP connection key or explicit direct or native route, then checks current grants, target, operation access, write intent, and approvals before Store entry. Adapter code carries context but does not decide grants.
-- R-SURF-1 (MUST): registry operations project to the canonical CLI `resource`, `project`, or `run` command and to MCP tools; read-only resource list/read also project to native MCP resources where supported. `setup`, `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations. Optional skills or plugins call the same public operation contract and do not become registry surfaces.
+- R-SURF-1 (MUST): registry operations project to their canonical CLI group under R-TOP-1 and to MCP tools; read-only resource list/read also project to native MCP resources where supported. `mcp`, `update`, and `uninstall` are CLI lifecycle commands, not registry operations. `setup` is a CLI lifecycle command, except the `setup store check` and `setup store clean` registry operations of R-STORE-CMD-1. Optional skills or plugins call the same public operation contract and do not become registry surfaces.
 - R-SURF-2 (MUST): the W19 R1 P3 inventory plus `performance.evidence.validate` contains 25 stable nonlegacy identifiers. All 25 are active. Later owner-admitted project-state, path-hygiene, Persona, and layout operations extend the overall registry without changing or reassigning this cohort.
 - R-SURF-3 (MUST): delivery history remains explicit. W19 R1 P4 activated `project.surface.ensure`; W19 R1 P6 activated the lifecycle identifiers; W19 R1 P7 activated the UAT identifiers; and W19 R2 P4 activated `performance.evidence.validate` after the decision-only authority commit and separate implementation authority. No identifier in this cohort remains pending.
 - R-SURF-4 (MUST): `work.backlog-cache.lookup` and `work.backlog-cache.write` remain separate active operations. Lookup declares Store-read and project-read access. Write declares Store-write and project-read access and requires explicit write intent. Both declare host-configuration-none access, use the shared operation core, and derive their CLI and MCP surfaces from the registry. Their registry IDs and CLI and MCP projections stay stable.
@@ -107,23 +117,24 @@ The requirements below are the normative authority. Their stable identifiers pre
 ### Registry Evolution and Resource Operations (R-REG-EVOLVE)
 
 - R-REG-EVOLVE-1 (MUST): registry membership can expand, contract, or consolidate through approved product authority and the normal implementation and compatibility gates. Stable admitted identifiers are never reassigned. Generic MCP admission remains per profile, method, and operation and is not a fixed feature list.
-- R-REG-EVOLVE-2 (MUST): `resource.list` and `resource.read` are Store-free operations. `resource.ensure` changes one named resource and cannot broaden saved selection. Any future refresh or remove operation must use the same resolver and minimum last-applied ownership contract before admission.
+- R-REG-EVOLVE-2 (MUST): `resource.list` and `resource.read` are Store-free operations. The one exception is a `make-docs://project/<project>/` read under [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-5, which opens its own read-only Store session. An agent's project URI read uses the harness grant of the folder where the agent works, never the grant of the project that the URI names: a Store read grant there allows every project URI. When that folder is not a Make Docs project, the read is refused as `store-not-configured`, and the refusal says so without telling the person to set that folder up. The direct CLI route needs no grant. `resource.ensure` changes one named resource and cannot broaden saved selection. Any future refresh or remove operation must use the same resolver and minimum last-applied ownership contract before admission.
 - R-REG-EVOLVE-3 (MUST): an MCP tool, CLI command, or native MCP resource cannot create an operation by existing alone. Registry admission, access metadata, shared-core behavior, surface parity, and package proof are all required.
 
-### Current Run Surface (R-RUN)
+### Registry Group Surface (R-RUN)
 
-- R-RUN-1 (MUST): the `run` surface exposes only registry operations. It contains active `run prd authority validate`, active `run performance evidence validate`, active `run work` commands for `item resolve`, `evidence record`, and `evidence read`, active `run lifecycle` commands for `start`, `show`, `list`, `checkpoint`, `pause`, `resume`, `attach-evidence`, `complete`, `fail`, and `abandon`, and active `run uat` commands for `scenario validate`, `persona resolve`, `target validate`, `evidence-reference validate`, `finding validate`, and `result validate`.
-- R-RUN-2 (MUST NOT): wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, closeout judgment, generation judgment, and other derivation-heavy workflow policy are not registry operations or `run` commands.
+- R-RUN-1 (MUST): `run` is not a top-level group. The registry group surface is the `work`, `backlog`, `lifecycle`, `factory`, and `check` groups, and it exposes only registry operations. Each former `run` path is a hidden migration alias under R-MIG-1. It contains active `check` commands for `prd`, `decomposition`, `performance-evidence`, `uat scenario`, `uat persona`, `uat target`, `uat evidence`, `uat finding`, and `uat result`, active `work` commands for `item resolve`, `evidence record`, `evidence read`, `status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add`, active `backlog` commands for `snapshot`, `cache lookup`, `cache write`, `review open`, and `review refresh`, active `lifecycle` commands for `start`, `show`, `list`, `checkpoint`, `pause`, `resume`, `attach-evidence`, `complete`, `fail`, and `abandon`, and active `factory` commands for `status`, `tools save`, `workflow save`, `workflow show`, `workflow list`, `proof save`, `assignment start`, `assignment save`, `assignment list`, `restore`, `tools list`, `file-backup save`, `grant-use record`, and `workflow clean`.
+- R-RUN-2 (MUST NOT): wave-status, work-phase-state, phase-plan, phase-gate decision, scope-guard, closeout judgment, generation judgment, and other derivation-heavy workflow policy are not registry operations or group commands. The deterministic readiness, claim, report, close, and sync rules of [PRD 52](52-work-store-and-work-queue.md) are not workflow policy in this sense and are admitted operations.
 - R-RUN-3 (MUST): lifecycle adapters preserve the PRD 38 transition matrix without transport-specific changes. `show` and `list` read every status. `checkpoint` accepts `active` and `paused`. `attach-evidence` accepts every status but cannot change status or reopen a terminal run. `pause` accepts `active`; `resume` accepts `paused`; `complete` accepts `active`; and `fail` and `abandon` accept `active` or `paused`. Terminal runs reject checkpoints and later status transitions. CLI and MCP adapters return the same typed invalid-transition outcome for the same input.
-- The work domain remains bounded to one identity resolver and one evidence record-and-read pair keyed to the global-store Project State model. The PRD domain remains bounded to the read-only active-authority validator unless the owning PRDs are updated.
+- R-RUN-4 (MUST): the work queue operations use identifiers `work.queue.status`, `work.queue.sync`, `work.queue.next`, `work.queue.claim`, `work.queue.release`, `work.queue.report`, `work.queue.close`, `work.queue.export`, and `work.queue.add`, with CLI paths `make-docs work <verb>` and MCP names `work_<verb>`. The factory operations use identifiers under `factory.*`, with CLI paths `make-docs factory <noun> <verb>` or `make-docs factory <verb>`, and MCP names that join the same words with underscores, for example `factory_workflow_save`. Exact flags follow [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md). Writes use the shared write permission, `expectedVersion`, and typed Store results.
+- The work domain contains one identity resolver, one evidence record-and-read pair keyed to the global-store Project State model, the backlog snapshot and cache operations, and the work queue operations owned by [PRD 52](52-work-store-and-work-queue.md). The factory domain contains only the check-and-save operations owned by [PRD 53](53-factory-setup-and-orchestration.md). No `factory` command launches, schedules, or messages an agent or tool. The PRD domain remains bounded to the read-only active-authority validator unless the owning PRDs are updated.
 - The performance domain remains bounded to the active read-only evidence validator admitted by R-PERF-VALIDATE. It adds no benchmark runner, write operation, retry service, or product-decision command.
 
-- `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` is deterministic and URI-sorted. `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` emits only bytes in raw mode and the versioned metadata/content envelope in JSON mode. Both are read-only and have `store: none`; they do not open a Store session. `make-docs resource ensure <make-docs://system/...>` is a reviewed mutation for exactly one selected local projection. All three operations use one resolver and project to MCP tools. Only list and read also back native MCP resources.
+- `make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json]` is deterministic and URI-sorted. `make-docs resource read <make-docs://system/...> [--origin <effective|local|installed>] [--format raw|json]` emits only bytes in raw mode and the versioned metadata/content envelope in JSON mode. Both are read-only and have `store: none`; they do not open a Store session for a system resource. `make-docs resource read make-docs://project/<project>/...` prints a project's quick items or backlog from the work store in raw mode, in its own read-only Store session. `make-docs resource ensure <make-docs://system/...>` is a reviewed mutation for exactly one selected local projection. All three operations use one resolver and project to MCP tools. Only list and read also back native MCP resources.
 - `make-docs project surface ensure <archive|artifacts|assets>` is the canonical pending projection of `project.surface.ensure`. P4 activates the handler that creates only the selected on-demand directory and configured harness routers through a reviewed plan.
 
 ### PRD Authority Validator (R-PRD-AUTH)
 
-- R-PRD-AUTH-1 (MUST): `prd.authority.validate` is a read-only registry operation exposed as `make-docs run prd authority validate --target-root <project>` and the derived MCP tool `make_docs_prd_authority_validate`. It scans active PRD Markdown plus authority-bearing links and frontmatter fields in selected working Markdown documentation under R-PRD-AUTH-8 before downstream work consumes the PRD set. It selects source paths before opening files, then reads a bounded header before any eligible body. Store access is not required to select sources or complete this validation.
+- R-PRD-AUTH-1 (MUST): `prd.authority.validate` is a read-only registry operation exposed as `make-docs check prd --target-root <project>` and the derived MCP tool `check_prd`. It scans active PRD Markdown plus authority-bearing links and frontmatter fields in selected working Markdown documentation under R-PRD-AUTH-8 before downstream work consumes the PRD set. It selects source paths before opening files, then reads a bounded header before any eligible body. Store access is not required to select sources or complete this validation.
 - R-PRD-AUTH-2 (MUST): active filenames and first-H1 subjects reject the case-insensitive stems `revise`, `revision`, `add`, `addition`, `enhance`, `enhancement`, `remove`, `removal`, `deprecate`, `deprecation`, `reconcile`, and `reconciliation`. Product subjects such as Update Delivery, Replacement Policy, and Migration Safety remain valid. Frontmatter and PRD-index editorial kinds reject those twelve stems plus `update`, `replace`, `replacement`, `migrate`, and `migration`.
 - R-PRD-AUTH-3 (MUST): diagnostics have stable meanings:
 
@@ -152,7 +163,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Performance Evidence Validation Twin (R-PERF-VALIDATE)
 
-- R-PERF-VALIDATE-1 (MUST): `performance.evidence.validate` is an active read-only registry operation. Its canonical projections are `make-docs run performance evidence validate --target-root <project>` and the derived MCP tool `make_docs_performance_evidence_validate`. W19 R2 P4 activated the handler after decision-only authority commit `4b8b5956` and separate implementation authority.
+- R-PERF-VALIDATE-1 (MUST): `performance.evidence.validate` is an active read-only registry operation. Its canonical projections are `make-docs check performance-evidence --target-root <project>` and the derived MCP tool `check_performance_evidence`. W19 R2 P4 activated the handler after decision-only authority commit `4b8b5956` and separate implementation authority.
 - R-PERF-VALIDATE-2 (MUST): one TypeScript core inventories candidate performance language and validates only the structural and traceability facts admitted by [PRD 48](48-performance-evidence-governance.md). Missing, unreadable, unsafe, or escaping target roots fail closed. Human CLI and MCP output preserve the same complete structured result and stable diagnostics.
 - R-PERF-VALIDATE-3 (MUST): the canonical Performance Evidence Governance contract carries an agentic validation method for projects where the CLI is absent or unavailable. The agent reads repository authority, reports exact evidence, observations, conclusions, limits, and next actions, and never claims that the deterministic operation ran.
 - R-PERF-VALIDATE-4 (MUST): one stable rule catalog records for each rule a stable ID, fact-or-decision class, deterministic support state, agent instruction location, judgment requirement, diagnostic code, focused fixtures or tests, and parity mapping or an explicit one-sided reason.
@@ -162,9 +173,9 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Command Compatibility and Upgrade Safety (R-MIG)
 
-- R-MIG-1 (MUST): no compatibility aliases exist; noncurrent command spellings fail with guidance naming the accepted command.
+- R-MIG-1 (MUST): when a command or MCP tool is renamed, its old name stays a hidden alias for two minor releases. The alias runs the same operation, prints one line that names the new command, and adds `renamedTo` to JSON results. For one more minor release, the old name returns a typed `command-renamed` result that names the new one. Then it is removed. Any other noncurrent spelling fails with guidance naming the accepted command.
 - R-MIG-2 (MUST): `update`, `setup`, and `setup reconfigure` detect a pre-v2 configuration by its fingerprints and, when found, present a warning that itemizes the changes that could break on upgrade, followed by a choice between backing up and installing the latest version, which is recommended, and cancelling.
-- R-MIG-3 (MUST): Every admitted registry operation has one explicit, unique MCP tool name in the checked name map. The registry remains the authority for operation identity, behavior, and CLI routing. The name map changes MCP presentation only. Old MCP tool names are not aliases. A missing, extra, or duplicate map entry fails validation.
+- R-MIG-3 (MUST): every admitted registry operation has one unique MCP tool name, derived from its CLI path under R-NAME-3. The registry remains the authority for operation identity, behavior, and CLI routing. Old MCP tool names are aliases only under R-MIG-1 and never appear in `tools/list`. A missing, extra, or duplicate name fails validation.
 - R-MIG-4 (MUST): setup classifies and bootstraps the external Store before project mutation. Schema changes and their journal commit in one transaction. All project-operation receipts and recovery progress remain in the Store. A required Store failure stops the affected operation and returns a typed result with safe next steps. There is no local receipt projection or retry path. Recovery never replaces the whole Store after commit.
 - R-MIG-5 (MUST): fresh, v1, early-v2, partial, invalid-option, interrupted, and repeated setup each returns a reachable status and one safe next action. Input failure before mutation creates no blocking operation. Repeat setup preserves independent completed subplans and resumes only incomplete work.
 - R-MIG-6 (MUST): Store access results use `store-not-configured`, `store-unavailable`, `store-unsafe`, or `store-denied`. A required Store failure stops only the affected operation. It does not state that Store-free operations or the wider agent task are unavailable.
@@ -190,12 +201,12 @@ The commands and tools below are the accepted 2.0.6 target. They are absent from
 - R-CHECKOUT-2 (MUST): device, inode, path, content match, receipt, or package evidence cannot alone authorize a move. The old path must be absent. Selected identity, ownership-scoped facts, target claims, safe paths, and operation state must pass independent proof. No pending operation or active writer may be displaced. Shared instruction proof follows [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md). User text outside a valid block is not an ownership conflict.
 - R-CHECKOUT-3 (MUST): a safety stop blocks only the affected move. It names the failed check, review facts, and one safe next action. It cannot rewrite identity, merge checkouts, transfer ownership, delete Store state, choose a repair, migrate a schema, or admit a denied target. Separate identity, ownership, Store-compatibility, or connection repair needs its own reviewed operation.
 
-The registry admits these three-part IDs and explicit checked MCP names. Setup calls the same core operations.
+The registry admits these three-part IDs. Their MCP names derive from the CLI paths under R-NAME-3. Setup calls the same core operations.
 
 | Operation ID | Canonical CLI | MCP tool | Access |
 | --- | --- | --- | --- |
-| `project.checkout-move.preview` | `make-docs project checkout-move preview --source-checkout <id> --target-root <path>` | `checkout_move_preview` | Store read; project read; host config none |
-| `project.checkout-move.apply` | `make-docs project checkout-move apply --source-checkout <id> --target-root <path> --review <review-id>` | `checkout_move_apply` | Store write; project read; host config none |
+| `project.checkout-move.preview` | `make-docs project move preview --source-checkout <id> --target-root <path>` | `project_move_preview` | Store read; project read; host config none |
+| `project.checkout-move.apply` | `make-docs project move apply --source-checkout <id> --target-root <path> --review <review-id>` | `project_move_apply` | Store write; project read; host config none |
 
 - R-CHECKOUT-4 (MUST): preview, status, dry-run, cancel, and unanswered review create no durable binding, identity, ownership, journal, or review token. Preview returns bounded versioned facts and a stateless review ID. Transient Store access leases may protect reads and must be released.
 - R-CHECKOUT-5 (MUST): the review ID binds evidence format version, project ID, selected checkout ID, both exact canonical paths/comparison keys, saved ledger/evidence digests, and proved target ownership facts. Apply recomputes this input under its write lock. A different source or stale facts reject apply. Preview is not a reservation or grant.
@@ -227,6 +238,54 @@ The registry admits these three-part IDs and explicit checked MCP names. Setup c
 
 Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-persona-model.md), [22](22-project-documentation-asset-model.md), [24](24-project-configuration-and-convention-overlay.md), and [25](25-typescript-runtime-cli-mcp-operation-boundaries.md). The existing `project.surface.ensure assets` operation creates only the on-demand assets root and configured-harness routers. It does not create empty children.
 
+### Project Doctor Commands (R-DOCTOR)
+
+- R-DOCTOR-1 (MUST): the registry admits `project.doctor.check` and `project.doctor.fix` within the existing `project` domain. No new top-level command is introduced.
+- R-DOCTOR-2 (MUST): the doctor holds one list of checks. Each check has a stable ID, a scope, plain finding text, and an optional fix. The current checks are `task-id-case` under [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22, `phase-status-line` under R-DOCTOR-8, and `phase-open-under-completed-index` under R-DOCTOR-9.
+- R-DOCTOR-3 (MUST): `project doctor check` reads only. It reports the totals first in plain words, then each finding with its file, line, current text, and replacement. It returns a review digest that binds the findings, the exclusions, and the bytes of each file it read. A clean project returns no findings and says so.
+- R-DOCTOR-4 (MUST): `project doctor fix` needs the existing project write permission, the Store write permission that the reviewed write path uses to record each change, and a review digest from `check`. An optional `--check-json` input (MCP `reviewedFiles`) carries the saved check result, so a stale-review refusal can name each changed file. `--dry-run` shows the planned changes and writes nothing. It applies only the changes that the digest names. It refuses and names any file that changed after the check. It uses the existing reviewed project write path, with its backup and conflict rules, and it reports each changed file and the undo path.
+- R-DOCTOR-5 (MUST): both commands accept repeated `--exclude <path>` options with project-relative paths. Traversal and paths outside the project fail closed.
+- R-DOCTOR-6 (MUST): `task-id-case` scans Markdown files under `docs/work/`. It skips `.make-docs/archive/`, history records, fenced code blocks, inline code, and link targets. It finds task checkbox lines and whole-word task references in prose, such as `t3`, `P2 t11`, and `t1–t10`.
+- R-DOCTOR-8 (MUST): `phase-status-line` reads the phase files under `docs/work/`. A file has a finding when it has no front matter `status`, has at least one task line, every task line is checked, and no `Tasks` section holds an unchecked checkbox, as [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-20 reads it. The fix adds `status: "completed"` to the front matter, after `kind` or `title`, or adds front matter that holds only that line. Each new line uses the line ending of the file's first line, every other line keeps its own, and a byte order mark stays. The check never proposes or writes a change to a path on the sync hold list `work.syncHold` (PRD 52 R-WORK-SYNC-17); it names each held file that would have a finding as skipped. `--exclude` leaves a path out of every check.
+- R-DOCTOR-9 (MUST): `phase-open-under-completed-index` reads the phase files under `docs/work/` and the index file of each backlog. A phase file has a finding when its front matter `status` is `active` or `open` and its index status is one that [PRD 52](52-work-store-and-work-queue.md) reads as closed and done, such as `completed` or `complete`. An index status does not close its phases (PRD 52 R-WORK-QUEUE-4 and R-WORK-QUEUE-20). When the phase has at least one task line, every task line is checked, and no `Tasks` section holds an unchecked checkbox, the fix changes only the word in the status line to `completed`, keeping the key, spacing, quotes, line ending, and byte order mark. Otherwise the finding is report only, and the fix changes nothing in that file. The check never proposes or writes a change to a path on the sync hold list `work.syncHold`; it names each held phase file that would have a finding as skipped. `--exclude` leaves a path out of every check.
+- R-DOCTOR-7 (MUST): the doctor has an agent twin in `make-docs://system/reference/project-doctor.md` under [PRD 06](06-template-contracts-and-generated-assets.md). Both forms find the same lines on shared fixtures. A change to either form needs a review of the other.
+
+| Registry identifier | Canonical CLI |
+| --- | --- |
+| `project.doctor.check` | `make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]` |
+| `project.doctor.fix` | `make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]` |
+
+### Project List and Store Maintenance Commands (R-STORE-CMD)
+
+- R-STORE-CMD-1 (MUST): the registry admits `project.register.list` in the `project` domain, and `setup.store.check` and `setup.store.clean` in the `setup` domain. No new top-level command is introduced.
+- R-STORE-CMD-2 (MUST): `project list` reads only. It follows [PRD 38](38-global-store-and-project-state.md) R-REGISTER-3 and puts each project's name first, then its ID and checkouts, and names each missing checkout folder in plain words.
+- R-STORE-CMD-3 (MUST): `setup store check` reads only. It reports in plain words first the rows each fixed rule would remove with counts and space, the decision items, and each crash leftover that blocks the machine and why.
+- R-STORE-CMD-4 (MUST): `setup store clean` follows PRD 38 R-MAINT-5. It needs the Store write permission. An interactive run asks once. A non-interactive run needs `--yes`. It needs no per-row review.
+- R-STORE-CMD-5 (MUST): the three commands return the existing typed Store outcomes when the Store is absent, unavailable, unsafe, or denied.
+
+| Registry identifier | Canonical CLI |
+| --- | --- |
+| `project.register.list` | `make-docs project list [--json]` |
+| `setup.store.check` | `make-docs setup store check [--json]` |
+| `setup.store.clean` | `make-docs setup store clean [--yes] [--json]` |
+
+### Skill Check Commands (R-SKILL-CHECK)
+
+- R-SKILL-CHECK-1 (MUST): the registry admits `decomposition.output.validate` in the `check` group, and `project.relations.list`, `project.markdown-style.validate`, and `project.markdown-style.repair` in the `project` group. No new top-level command is introduced. Their CLI paths and MCP names follow R-NAME-1 to R-NAME-4 and are entries in the name catalog under R-NAME-5: `make-docs check decomposition` (`check_decomposition`), `make-docs project relations list` (`project_relations_list`), `make-docs project markdown validate` (`project_markdown_validate`), and `make-docs project markdown repair` (`project_markdown_repair`). The paths use `markdown`, not `markdown-style`, because `project_markdown_style_validate` has 31 characters. Each operation stays planned in the catalog until its handler, CLI command, MCP tool, and parity tests exist.
+- R-SKILL-CHECK-2 (MUST): `decomposition.output.validate` reads only and needs the project read permission. It reports every rule of the `decompose-codebase` output contract, with a stable rule ID and a plain message for each finding. It reads task lines and task IDs through the shared work phase reader, so one reader serves each task ID rule. It reads PRD sections with its own reader, because it shares no rule with `prd.authority.validate`, and that validator has no public file or section reader.
+- R-SKILL-CHECK-3 (MUST): `project.relations.list` reads only and needs the project read permission. It reports Markdown links, `related:` front matter, W/R coordinates in history records, and same-slug matches. Each relation names its kind and its source file, so a person can tell a link from a same-slug match. An optional `--path` input limits the result to one artifact and lists its inbound and outbound relations. It finds guide folders from the effective Persona set under R-LAYOUT-2, not from fixed folder names. It names each folder under `docs/assets/` that it skips because the folder is not a configured Persona or a reserved project folder.
+- R-SKILL-CHECK-4 (MUST): `project.markdown-style.validate` reads only and needs the project read permission. Each finding names its rule ID, its lines, whether a fix exists, and a short preview. It skips the folders that `project paths validate` skips, `AGENTS.md` and `CLAUDE.md` routers, and files that hold a managed block (a line that is a `<!-- make-docs:begin -->` or `<!-- make-docs:end -->` marker on its own; a file that only names the marker in prose or inline code is checked), and it names each one. It exits 0 with no finding, 1 with a finding, and 2 on an error, as `project paths validate` does.
+- R-SKILL-CHECK-5 (MUST): `project.markdown-style.repair` needs the existing project write permission. It makes only the fixes that `project.markdown-style.validate` marks as fixable. Without `--apply` it shows each exact change and writes nothing, as `project paths repair` does, and `--dry-run` does the same. The plain output shows the lines each change removes and adds, and `--json` also gives each file before and after. It never changes a file that `project.markdown-style.validate` skips. It reports each changed file. It exits 0 when no finding is left, 1 when a finding is left, and 2 on an error, as `project paths repair` does. A caller without write permission gets a refusal and no change.
+- R-SKILL-CHECK-6 (MUST): each of the four commands prints plain words first, with totals before detail, and returns the full structured result with `--json`. The CLI and MCP return the same result for the same input.
+- R-SKILL-CHECK-7 (MUST): each operation holds one rule list with a stable ID for each rule. The Skill text that is its agent form uses the same IDs. [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) R-SKILL-RUNTIME-7 owns the twin rule.
+
+| Registry identifier | Canonical CLI | MCP tool |
+| --- | --- | --- |
+| `decomposition.output.validate` | `make-docs check decomposition [--target-root <path>] [--json]` | `check_decomposition` |
+| `project.relations.list` | `make-docs project relations list [--path <path>] [--target-root <path>] [--json]` | `project_relations_list` |
+| `project.markdown-style.validate` | `make-docs project markdown validate [--path <path>] [--target-root <path>] [--json]` | `project_markdown_validate` |
+| `project.markdown-style.repair` | `make-docs project markdown repair [--apply\|--dry-run] [--path <path>] [--target-root <path>] [--json]` | `project_markdown_repair` |
+
 ### Registry Cohesion and Operation Admission (R-SEQ)
 
 - R-SEQ-1 (MUST): the operation core, registry, and command tree form one coherent release surface; every retained operation is behind the registry, and no parallel or half-routed dispatcher exists.
@@ -238,7 +297,7 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 
 - R-TEST-1 (MUST): a test asserts that canonical CLI projections and the MCP tool list are both derived from or conformance-checked against the registry, with no admitted operation missing its required surface; resource tests additionally assert CLI/native-MCP URI, metadata, byte, and typed-error parity where native resources are supported.
 - R-TEST-2 (MUST): a test asserts that surfaces contain no operation logic, by invoking an operation through the core without the CLI parser or MCP transport.
-- R-TEST-3 (MUST): a test asserts that `run` exposes no `setup`, `mcp`, `update`, or `uninstall` operation and that optional agentics cannot invoke private tool lifecycle behavior.
+- R-TEST-3 (MUST): a test asserts that the `work`, `backlog`, `lifecycle`, `factory`, and `check` groups expose no `setup`, `mcp`, `update`, or `uninstall` operation and that optional agentics cannot invoke private tool lifecycle behavior.
 - R-TEST-4 (MUST): a test asserts that pre-v2 detection triggers the warning-and-choice flow and that `uninstall` confirms and does not delete repository content. A P3 baseline test asserts that every existing Playbook and Protocol registry entry, implementation, CLI surface, and MCP surface remains unchanged. No new legacy surface may appear.
 - R-TEST-5 (MUST): tests assert the exact stable 25-identifier W19 R1 P3 and W19 R2 P4 cohort, all 25 active states, the complete extended registry inventory, no remaining pending entry, CLI-to-MCP parity in both directions, and native MCP parity for resource list/read only.
 - R-TEST-6 (MUST): focused lifecycle tests assert exact CLI/MCP receipt parity for every successful Store mutation and assert that read-only, failed, conflicted, unavailable, and rolled-back operations emit no success receipt.
@@ -599,6 +658,190 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: `setup --adopt` and `--conflicts keep|overwrite` provide reviewed adoption choices. Dry run and apply share blockers. Status and checkout preview name the adopt route.
 - Rationale: A second machine needs a safe non-interactive path with a reliable preview.
 - Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
+
+### 2026-11-21 — W29 R0 and W30 R0
+
+- Affected requirement or section: R-RUN-1, R-RUN-2, R-RUN-4, and the work domain bound in Current Run Surface.
+- Previous contract: The `run work` surface held only the identity resolver and evidence operations. No `run factory` surface existed. Readiness derivation was not a registry operation.
+- Replacement contract: `run work` adds the work queue operations. `run factory` adds check-and-save factory operations that never launch, schedule, or message anything. Deterministic work queue readiness is an admitted operation.
+- Rationale: The work store and the factory need one operation core for CLI and MCP callers.
+- Source: [W29 R0 plan](../plans/2026-11-21-w29-r0-work-store/00-overview.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: R-RUN-4.
+- Previous contract: the work queue had eight operations, ending with `work.queue.export`.
+- Replacement contract: `work.queue.add` joins them. It adds a quick item, which lives only in the work store.
+- Rationale: the owner chose Store-only quick items. A Store-only item has no file for sync to import, so it needs its own add operation.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
+
+### 2026-11-22 — W31 R0
+
+- Affected requirement or section: new `Project Doctor Commands (R-DOCTOR)`.
+- Previous contract: no command checked or fixed project files as a whole.
+- Replacement contract: `project doctor check` reports findings with a review digest, and `project doctor fix` applies only the reviewed changes. The first check is `task-id-case`.
+- Rationale: any Make Docs project needs one reviewed way to find and fix project problems.
+- Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
+
+### 2026-11-22 — W32 R0
+
+- Affected requirement or section: R-TOP-1 and new `Project List and Store Maintenance Commands (R-STORE-CMD)`.
+- Previous contract: no command listed the projects that the Store knows, and no command maintained the Store.
+- Replacement contract: `project list`, `setup store check`, and `setup store clean`.
+- Rationale: a person can see every project and keep the Store small and healthy without reading tables.
+- Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
+
+### 2026-11-22 — W33 R0
+
+- Affected requirement or section: R-TOP-1, R-TOP-3, R-RUN-1, R-RUN-4, R-MIG-1, R-MIG-3, and new `Command and Tool Naming (R-NAME)`.
+- Previous contract: seven top-level commands with `run` as the operation root; each Wave placed its commands; MCP names came from a hand-picked map; renamed commands had no aliases.
+- Replacement contract: eleven capability groups with `run` retired as a root; one naming rule for CLI paths and MCP names, checked by one name catalog; old names stay aliases for two minor releases, then return `command-renamed` for one more.
+- Rationale: the owner rated the inconsistent command tree a very serious problem (register D-065) and chose to retire `run` and keep old names working for a set time.
+- Source: [Command tree and tool names design](../designs/2026-11-22-command-tree-and-tool-names.md) and [W33 R0 plan](../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md).
+
+### 2026-11-22 — W33 R0 P1
+
+- Affected requirement or section: R-NAME-2 and R-RUN-1.
+- Previous contract: R-NAME-2 had every path end with a verb, with no rule for `check`. R-RUN-1 called the planned factory commands active and left out the current `run work backlog snapshot`, `run work backlog-cache lookup` and `write`, and `run backlog review open` and `refresh` paths.
+- Replacement contract: in the `check` group the group word is the verb, so a `check` path ends with its object, such as `make-docs check prd`. R-RUN-1 lists every current `run` path and calls the work queue and factory commands planned. The W33 R0 P1 name catalog holds every current and new name, and its test checks R-RUN-1 against it.
+- Rationale: the name catalog showed that `check prd` broke R-NAME-2 as written and that R-RUN-1 differed from the registry. The owner accepted the catalog names on 2026-11-22.
+- Source: [W33 R0 P1](../work/2026-11-22-w33-r0-command-tree-and-tool-names/01-name-catalog-and-rules.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p1-name-catalog-and-rules).
+
+### 2026-11-22 — W31 R0 P3
+
+- Affected requirement or section: R-DOCTOR-4 and the doctor CLI table.
+- Previous contract: `project doctor fix` needed project write permission and a digest, with no input to name changed files.
+- Replacement contract: `fix` also needs Store write permission, accepts an optional `--check-json` (MCP `reviewedFiles`) to name changed files in a stale-review refusal, and has `--dry-run`.
+- Rationale: the reviewed write path records each change in the Store, and the owner kept the optional input on 2026-11-22.
+- Source: [W31 R0 P3 evidence](../work/2026-11-22-w31-r0-task-id-case-and-project-doctor/evidence.md).
+
+### 2026-11-22 — W32 R0 P4
+
+- Affected requirement or section: R-SURF-1.
+- Previous contract: registry operations projected only to `resource`, `project`, or `run`, and `setup` was never a registry operation.
+- Replacement contract: registry operations project to their group under R-TOP-1, and `setup store check` and `setup store clean` are registry operations under `setup`.
+- Rationale: R-STORE-CMD-1 admitted the Store maintenance operations under `setup`, and R-TOP-1 retired `run` as the only operation root.
+- Source: [W32 R0 P4 evidence](../work/2026-11-22-w32-r0-store-review-and-maintenance/evidence.md).
+
+### 2026-11-23 — W33 R0 P4
+
+- Affected requirement or section: R-SCOPE-1, R-NAME-6 (new), R-RUN-1, R-RUN-2, the R-RUN domain bound, R-PRD-AUTH-1, R-PERF-VALIDATE-1, the R-CHECKOUT table, and R-TEST-3.
+- Previous contract: R-RUN-1 listed the `run` paths as active commands. R-PRD-AUTH-1 and R-PERF-VALIDATE-1 named `run` paths and `make_docs_` MCP names. The R-CHECKOUT table named `project checkout-move` and `checkout_move_*`. R-TEST-3 tested the `run` root.
+- Replacement contract: R-RUN-1 lists the active and planned commands under their groups and says each former `run` path is a hidden alias. R-PRD-AUTH-1 names `make-docs check prd` and `check_prd`. R-PERF-VALIDATE-1 names `make-docs check performance-evidence` and `check_performance_evidence`. The R-CHECKOUT table names `project move` and `project_move_*`. R-TEST-3 tests the five registry groups. New R-NAME-6 holds the shipped-text test, its scanned set and exclusions, and the exact migration-table marker. The name catalog test now fails R-RUN-1 when it names a former `run` path.
+- Rationale: W33 R0 P2 retired `run` as a root, so text that named it sent readers to a command that the registry no longer has (register D-065).
+- Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p4-shipped-text-and-skills).
+
+### 2026-11-23 — W33 R0 P5
+
+- Affected requirement or section: R-TOP-4 (new).
+- Previous contract: no requirement named help for one command. `--help` after most commands reached the command's own option parser and failed, for example with "`--help` requires a value.", also in released 2.0.9.
+- Replacement contract: R-TOP-4 says `--help` or `-h` after any registry command prints its summary, usage, arguments, and options, exits 0, and runs nothing. Group help lists one summary line per command, with flags only in each command's own help. The registry usage line is the help usage line. A former path prints the new command's help, then the alias notice. The owner confirmed R-TOP-4 and the group help style on 2026-11-23.
+- Rationale: the W33 R0 command tree promises that people find commands by capability. Help that fails on a command breaks that promise (register D-065).
+- Source: [W33 R0 P5](../work/2026-11-22-w33-r0-command-tree-and-tool-names/05-acceptance.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p5-acceptance).
+
+### 2026-11-23 — W34 R0
+
+- Affected requirement or section: R-TOP-1 and new `Skill Check Commands (R-SKILL-CHECK)`.
+- Previous contract: `project` and `check` had no Markdown style, document relations, or decomposition output commands. Three first-party Skills ran Python scripts for these checks.
+- Replacement contract: `project` also owns Markdown style and document relations, and `check` also owns decomposition output. R-SKILL-CHECK admits `decomposition.output.validate`, `project.relations.list`, `project.markdown-style.validate`, and `project.markdown-style.repair` with their access, inputs, output, and shared rule IDs. Their CLI paths, MCP names, registry table, and R-RUN-1 entry follow the name catalog entries that W34 R0 P1 adds.
+- Rationale: the owner's rule puts Skill check logic in the CLI, with the Skill text as its agent form (register D-064).
+- Source: [Skill scripts into the CLI design](../designs/2026-11-23-skill-scripts-into-the-cli.md) and [W34 R0 plan](../plans/2026-11-23-w34-r0-skill-scripts-into-the-cli/00-overview.md).
+
+### 2026-11-23 — W34 R0 P1
+
+- Affected requirement or section: R-RUN-1, R-SKILL-CHECK-1, R-SKILL-CHECK-5, and the new `Skill Check Commands (R-SKILL-CHECK)` table.
+- Previous contract: R-SKILL-CHECK named the four operations by operation ID only. R-RUN-1 had no `decomposition` command. R-SKILL-CHECK-5 named only `--dry-run` for a repair preview.
+- Replacement contract: R-SKILL-CHECK-1 names the CLI path and MCP name of each operation, and a table lists the canonical CLI and MCP tool of each, with the inputs `--path`, `--apply`, `--dry-run`, `--target-root`, and `--json`. R-RUN-1 lists `decomposition` as an active `check` command. R-SKILL-CHECK-5 says that `project markdown repair` shows the planned changes unless `--apply` is given, as `project paths repair` does. The name catalog test checks the new table against the catalog.
+- Rationale: the name catalog must hold a name before a PRD line names it, so these lines land with the W34 R0 P1 catalog entries (register D-064).
+- Source: [W34 R0 P1](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/01-cli-operations-and-ported-tests.md) and its [evidence report](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#p1-cli-operations-and-ported-tests).
+
+### 2026-11-23 — W34 R0 P1 Review Fixes
+
+- Affected requirement or section: R-SKILL-CHECK-2 to R-SKILL-CHECK-5.
+- Previous contract: R-SKILL-CHECK-2 said that `decomposition.output.validate` reads PRD files through the reader of `prd.authority.validate`. R-SKILL-CHECK-3 to R-SKILL-CHECK-5 named no skipped folders or files, no exact repair preview, and no exit codes.
+- Replacement contract: R-SKILL-CHECK-2 says that the check reads PRD sections with its own reader, because it shares no rule with `prd.authority.validate` and that validator has no public reader. This is a recorded departure from the W34 R0 plan. R-SKILL-CHECK-3 names each skipped `docs/assets/` folder that is not a Persona. R-SKILL-CHECK-4 and R-SKILL-CHECK-5 skip the `project paths validate` protected folders, router files, and files with a managed block, show each exact repair change, and use the exit codes of `project paths validate` and `project paths repair`.
+- Rationale: an independent review of W34 R0 P1 found that the repair changed managed router blocks and could reach `node_modules`, that the PRD reader rule could not be met as written, and that the preview did not show the exact change (register D-064).
+- Source: [W34 R0 P1](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/01-cli-operations-and-ported-tests.md) and its [evidence report](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#p1-cli-operations-and-ported-tests).
+
+### 2026-11-23 — W29 R0 P4
+
+- Affected requirement or section: R-RUN-1.
+- Previous contract: R-RUN-1 listed `work status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, and `add` as planned `work` commands.
+- Replacement contract: the nine work queue commands are active `work` commands, with MCP names `work_status` to `work_add` under R-RUN-4.
+- Rationale: W29 R0 P4 admitted the nine operations in the registry.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-work-queue-operations)
+
+### 2026-11-23 — D-067 Part A
+
+- Affected requirement or section: R-SKILL-CHECK-4.
+- Previous contract: `project.markdown-style.validate` skipped files that hold a `<!-- make-docs:begin -->` managed block, and the code skipped any file whose text contained the marker anywhere.
+- Replacement contract: a file is skipped only when one of its lines is a begin or end marker on its own. A file that only names the marker in prose or inline code is checked.
+- Rationale: the owner chose on 2026-11-23 to skip only files that hold a real managed block (register D-067 Part A), so a skip reason states a true cause.
+- Source: [D-067](03-open-questions-and-risk-register.md)
+
+### 2026-11-23 — W29 R0 P4 Second Pass
+
+- Affected requirement or section: R-REG-EVOLVE-2 and the `make-docs resource` command lines.
+- Previous contract: `resource read` accepted only `make-docs://system/...` URIs and never opened a Store session.
+- Replacement contract: `resource read` also accepts `make-docs://project/<project>/` URIs, which open their own read-only Store session. System reads stay Store-free and keep `store: none`.
+- Rationale: W29 R0 P4 T10 and T11 built the project URI reads that PRD 52 R-WORK-URI-5 requires.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass)
+
+### 2026-11-23 — W29 R0 P4 Second Pass Review Fixes
+
+- Affected requirement or section: R-REG-EVOLVE-2.
+- Previous contract: R-REG-EVOLVE-2 did not say whose harness grant a project URI read uses.
+- Replacement contract: the grant of the folder where the agent works decides; a Store read grant there allows every project URI; a folder that is not a project is refused clearly, with no setup step for it.
+- Rationale: an independent review of the W29 R0 P4 second pass. The rule is new behavior.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass-review-fixes)
+
+### 2026-11-23 — W29 R0 P5
+
+- Affected requirement or section: R-DOCTOR-2 and new R-DOCTOR-8.
+- Previous contract: the doctor had one check, `task-id-case`.
+- Replacement contract: the doctor also has `phase-status-line`, which proposes a status line for an older phase file whose tasks are all checked, and which never touches a path on the sync hold list.
+- Rationale: the owner decision of 2026-11-23 on W29 R0 P4 review finding 7 asked for explicit status lines, so the all-tasks-checked fallback is needed less over time (W29 R0 P5 T10).
+- Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
+
+### 2026-11-23 — W29 R0 P6
+
+- Affected requirement or section: R-DOCTOR-2 and new R-DOCTOR-9.
+- Previous contract: the doctor had two checks, `task-id-case` and `phase-status-line`. A phase file whose status line still said active under a completed index had no doctor check, and the work queue told it to close as superseded.
+- Replacement contract: the doctor also has `phase-open-under-completed-index`. Its fix sets the status line to `completed` only when every task in the phase is checked; otherwise the finding is report only. It never touches a path on the sync hold list. The index status still does not close its phases.
+- Rationale: the owner's decision of 2026-11-23 on W29 R0 P6 FOLLOW-UP-P6-CLOSED-PARENT, option B: keep the no-cascade rule, give a done phase the right next action, and give the doctor a reviewed fix for the files.
+- Source: [W29 R0 P6 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#follow-ups)
+
+### 2026-11-23 — W30 R0 P3
+
+- Affected requirement or section: R-RUN-1.
+- Previous contract: R-RUN-1 listed `factory status`, `tools save`, `workflow save`, `workflow show`, `workflow list`, `proof save`, `assignment start`, `assignment update`, `assignment list`, and `restore` as planned `factory` commands.
+- Replacement contract: the ten factory commands are active `factory` commands, with MCP names `factory_status` to `factory_restore` under R-RUN-4, in the `factory` MCP profile.
+- Rationale: W30 R0 P3 admitted the ten operations in the registry.
+- Source: [W30 R0 P3 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#p3-factory-operations)
+
+### 2026-11-23 — W30 R0 P3 Assignment Save
+
+- Affected requirement or section: R-RUN-1.
+- Previous contract: R-RUN-1 listed `assignment update` among the active `factory` commands.
+- Replacement contract: R-RUN-1 lists `assignment save`. Its MCP name is `factory_assignment_save` under R-RUN-4, with 23 characters. The name was never released, so it has no migration alias under R-MIG-1. This is new behavior: the name.
+- Rationale: a native command rule refuses the word `update`, and `save` is an approved end word under R-NAME-2.
+- Source: the owner's decision of 2026-11-23 on [register](03-open-questions-and-risk-register.md) D-076, option C.
+
+### 2026-11-23 — W30 R0 Follow-Up Commands
+
+- Affected requirement or section: R-RUN-1.
+- Previous contract: R-RUN-1 listed ten active `factory` commands.
+- Replacement contract: R-RUN-1 also lists `tools list`, `file-backup save`, and `grant-use record`. Their MCP names under R-RUN-4 are `factory_tools_list` (18 characters), `factory_file_backup_save` (24 characters), and `factory_grant_use_record` (24 characters), in the `factory` MCP profile. They have no migration alias under R-MIG-1. This is new behavior.
+- Rationale: the owner approved three follow-up commands. A native command rule refuses the word `backup`, so the object is `file-backup`. `use` is not an approved end word under R-NAME-2, so the path ends with `record`.
+- Source: the owner's decisions of 2026-11-23 on the three W30 R0 follow-ups, recorded in the [W30 R0 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#follow-up-commands) and the [register](03-open-questions-and-risk-register.md) D-077.
+
+### 2026-11-24 — W30 R0 Store Lifecycle Fixes
+
+- Affected requirement or section: R-RUN-1.
+- Previous contract: R-RUN-1 listed thirteen active `factory` commands.
+- Replacement contract: R-RUN-1 also lists `workflow clean`. Its MCP name under R-RUN-4 is `factory_workflow_clean` (22 characters), in the `factory` MCP profile. It has no migration alias under R-MIG-1. This is new behavior.
+- Rationale: the owner required a reviewed workflow removal. A native command rule refuses the word `remove`, and `clean` is the approved end word of a reviewed removal under R-NAME-2, as in `setup store clean`.
+- Source: the owner's audit of the factory tables and the owner's decisions of 2026-11-24 (option A for each finding), recorded in the [W30 R0 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#store-lifecycle-fixes).
 
 ## Source Anchors
 

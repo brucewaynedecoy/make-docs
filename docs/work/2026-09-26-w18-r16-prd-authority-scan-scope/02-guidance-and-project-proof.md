@@ -54,10 +54,10 @@ Human Experience Review: Inspect the actual full-project report and command outp
 
 ### Tasks
 
-- [x] t1: Update the PRD authority text in `packages/docs/template/.make-docs/system/references/prd-change-management.md` and `packages/docs/template/.make-docs/system/contracts/output-contract.md`. Dogfood the upstream files and verify the built CLI package uses the same rule.
-- [x] t2: Run the built `make-docs run prd authority validate --target-root` command against the full North Atlantic BuildOS project. Do not change that project. Save the report, elapsed time, and any error in phase evidence.
-- [x] t3: Review the real command result against the two human promises. If another limit remains, record it without marking the full-project check passed.
-- [x] t4: Run relevant package and link checks. Close D-042 only when code, guidance, tests, and full-project proof meet its close rule.
+- [x] T1: Update the PRD authority text in `packages/docs/template/.make-docs/system/references/prd-change-management.md` and `packages/docs/template/.make-docs/system/contracts/output-contract.md`. Dogfood the upstream files and verify the built CLI package uses the same rule.
+- [x] T2: Run the built `make-docs run prd authority validate --target-root` command against the full North Atlantic BuildOS project. Do not change that project. Save the report, elapsed time, and any error in phase evidence.
+- [x] T3: Review the real command result against the two human promises. If another limit remains, record it without marking the full-project check passed.
+- [x] T4: Run relevant package and link checks. Close D-042 only when code, guidance, tests, and full-project proof meet its close rule.
 
 ### Acceptance criteria
 

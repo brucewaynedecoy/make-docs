@@ -352,12 +352,12 @@ describe("W27 R0 Copilot CLI MCP entry", () => {
     try {
       const names = (await client.listTools()).tools.map(tool => tool.name);
       expect(names).toContain("resource_list");
-      expect(names).toContain("project_status");
+      expect(names).toContain("project_state_status");
       const resource = await client.callTool({ name: "resource_list", arguments: { targetRoot: project } });
       expect(resource.isError, JSON.stringify(resource)).not.toBe(true);
-      const status = await client.callTool({ name: "project_status", arguments: { targetRoot: project } });
+      const status = await client.callTool({ name: "project_state_status", arguments: { targetRoot: project } });
       expect(status.isError, JSON.stringify(status)).not.toBe(true);
-      const denied = await client.callTool({ name: "project_status", arguments: { targetRoot: path.join(root, "other") } });
+      const denied = await client.callTool({ name: "project_state_status", arguments: { targetRoot: path.join(root, "other") } });
       expect(denied.isError).toBe(true);
     } finally {
       await client.close();

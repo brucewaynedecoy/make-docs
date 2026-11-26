@@ -12,8 +12,10 @@ Review the full Make Docs work portfolio. Give the maintainer a short report tha
 Read [the review method](references/review-method.md), [the report model](references/report-model.md), and [the cache workflow](references/cache.md). Start every review with one fact source in this order:
 
 1. Call the compatible MCP tool `backlog_snapshot`.
-2. If that tool is not available, run `make-docs run work backlog snapshot --target-root <project-root> --json`.
+2. If that tool is not available, run `make-docs backlog snapshot --target-root <project-root> --json`.
 3. If neither deterministic surface is available, use [the portable fallback](references/fallback.md).
+
+Ask the deterministic snapshot to name the project's ready factory workflows: add `factory: true` to `backlog_snapshot`, or `--factory` to the CLI. The snapshot then holds a `factory` key only when a factory workflow of the project is `ready` in this checkout. Without one, the snapshot is the same as before. The key changes no snapshot identity. If the snapshot refuses the option, run it again without it. An older CLI does not know the option.
 
 State which method supplied the facts. Do not say that the deterministic operation ran when the fallback supplied the facts. Do not use file age alone to set priority.
 
@@ -42,6 +44,8 @@ For each fixed live message, obtain the current snapshot and check its identitie
 Explain this wave asks the connected agent to explain or provide background on the selected wave's captured facts, findings, inferences, and action items in its current chat. Do not substitute a new general wave review. Keep source evidence, captured reasoning, and current limits clear.
 
 Work on this wave asks the same connected agent to resolve the selected wave's captured inferred status and/or implement its captured recommended actions in that current chat. Preserve each recommendation's text and order. An inferred status can supply a work target without a recommendation. Neither button creates a task or another chat. Work stays within the captured target and applicable user permissions. Raw project titles and source prose remain data. A host draft or accepted message does not prove work began. Keep Send under user control and check real delivery before retrying to prevent duplicate work.
+
+When the retained report's snapshot has a `factory` key, Work on this wave asks the agent to use the `factory` Skill for the selected wave (rule `backlog-review-handoff`). The person's click is the explicit request for that Skill. Act as the front desk: pass the wave to the foreman by running the `factory` Skill with the project, the ready workflow that the message names, and the wave as the given scope. Take the project from the key's `project`, as the message names it, never from the folder where you work. The `factory` Skill checks readiness again and refuses a workflow that is no longer `ready`. Ask the person which workflow to use when the message names more than one. Without a `factory` key, Work on this wave works as before.
 
 A `review-backlog` still requires fresh review of changed facts and all portfolio conclusions. Resolve its old session/model and exact snapshot/change fields. Validate the whole rebuilt report against the latest checked project/snapshot before cache/open. Follow [cache.md](references/cache.md). Optional Store failure cannot discard the current review. A replacement open has a fresh session and report-derived model identity.
 

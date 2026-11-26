@@ -73,11 +73,16 @@ export function prepareProjectLayout(projectRoot: string, reviewDigest: string, 
 
 export function applyProjectLayout(projectRoot: string, operationId: string, action: 'apply' | 'verify', dryRun = false, storeRoot?: string) {
     const root = canonicalInstallationPath(projectRoot);
-    const saved = readDetachedInstallationOperation(root, operationId, OPERATION, storeRoot);
+    const saved = readDetachedInstallationOperation(root, operationId, OPERATION, storeRoot, {allowPruned: true});
+    // A finished operation whose saved plan was pruned is still finished, not damaged.
+    if (saved.planPruned) {
+        if (saved.status === 'completed') return {schemaVersion: 1 as const, targetRoot: root, operationId, status: 'already-complete', planPruned: true, nextAction: 'This operation is already complete. Preview again to review later changes.'};
+        throw new InstallationStateError('recovery-required', 'This operation was rolled back. Preview and prepare a new operation.');
+    }
     const requiredMode = action === 'verify' ? 'manual' : 'cli';
     if (saved.plan.mode !== requiredMode) throw new InstallationStateError('recovery-required', `This plan uses ${saved.plan.mode} mode. Run ${nextAction(root, operationId, saved.plan.mode)}.`);
     if (saved.status === 'completed') return {schemaVersion: 1 as const, targetRoot: root, operationId, mode: saved.plan.mode, status: 'already-complete', nextAction: 'This operation is already complete. Preview again to review later changes.'};
-    if (saved.status !== 'pending') throw new InstallationStateError('recovery-required', 'This operation was rolled back. Preview and prepare a new operation.');
+    if (saved.status === 'rolled-back') throw new InstallationStateError('recovery-required', 'This operation was rolled back. Preview and prepare a new operation.');
     const result = recoverInstallationOperation(root, operationId, 'resume', dryRun, storeRoot);
     return {...result, targetRoot: root, mode: saved.plan.mode, reviewDigest: saved.plan.reviewDigest, nextAction: result.status === 'completed' ? 'Layout verification passed. No further action is required for this operation.' : nextAction(root, operationId, saved.plan.mode)};
 }

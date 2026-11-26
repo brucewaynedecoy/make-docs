@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: Reader-Facing Asset Namespace
 
 ## Purpose
@@ -12,12 +16,12 @@ Implement the canonical guide, playbook, and archive path model without breaking
 
 ## Tasks
 
-- [x] t1: Inventory current `docs/guides/**`, `docs/library/playbooks/**`, `docs/assets/archive/**`, and `docs/assets/history/**` references across docs, template, CLI source, tests, and scripts. (`W9R3-P2-T1`)
-- [x] t2: Add or update `packages/docs/template/docs/assets/guides/**` and `packages/docs/template/docs/assets/playbooks/**` as the shipped source-of-truth paths for reader-facing defaults. (`W9R3-P2-T2`)
-- [x] t3: Reseed root dogfood `docs/assets/guides/**` and `docs/assets/playbooks/**` from the template where files are shipped defaults; preserve make-docs-only artifacts as dogfood-only. (`W9R3-P2-T3`)
-- [x] t4: Migrate or map `docs/library/playbooks/**` references to `docs/assets/playbooks/**` while preserving lineage. (`W9R3-P2-T4`)
-- [x] t5: Define the archive migration path. W9 R4 later superseded the top-level `docs/archive/**` direction and made `docs/assets/archive/**` the managed archive surface. (`W9R3-P2-T5`)
-- [x] t6: Update routers and path-hygiene guidance so `docs/assets/**` no longer reads as a tool-resource catch-all. (`W9R3-P2-T6`)
+- [x] T1: Inventory current `docs/guides/**`, `docs/library/playbooks/**`, `docs/assets/archive/**`, and `docs/assets/history/**` references across docs, template, CLI source, tests, and scripts. (`W9R3-P2-T1`)
+- [x] T2: Add or update `packages/docs/template/docs/assets/guides/**` and `packages/docs/template/docs/assets/playbooks/**` as the shipped source-of-truth paths for reader-facing defaults. (`W9R3-P2-T2`)
+- [x] T3: Reseed root dogfood `docs/assets/guides/**` and `docs/assets/playbooks/**` from the template where files are shipped defaults; preserve make-docs-only artifacts as dogfood-only. (`W9R3-P2-T3`)
+- [x] T4: Migrate or map `docs/library/playbooks/**` references to `docs/assets/playbooks/**` while preserving lineage. (`W9R3-P2-T4`)
+- [x] T5: Define the archive migration path. W9 R4 later superseded the top-level `docs/archive/**` direction and made `docs/assets/archive/**` the managed archive surface. (`W9R3-P2-T5`)
+- [x] T6: Update routers and path-hygiene guidance so `docs/assets/**` no longer reads as a tool-resource catch-all. (`W9R3-P2-T6`)
 
 ## Acceptance Criteria
 

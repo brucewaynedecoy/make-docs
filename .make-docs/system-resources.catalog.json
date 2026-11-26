@@ -32,7 +32,8 @@
       "type": "reference",
       "sourceRoot": ".make-docs/system/references",
       "include": [
-        "*.md"
+        "*.md",
+        "factory/workflows/*.md"
       ],
       "exclude": [
         "AGENTS.md",
@@ -76,6 +77,13 @@
       "uri": "make-docs://system/contract/design-contract.md",
       "profiles": [
         "workflow"
+      ]
+    },
+    {
+      "uri": "make-docs://system/contract/factory-contract.md",
+      "profiles": [
+        "workflow",
+        "factory"
       ]
     },
     {
@@ -269,6 +277,27 @@
       ]
     },
     {
+      "uri": "make-docs://system/reference/factory/workflows/build-then-review.md",
+      "profiles": [
+        "workflow",
+        "factory"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/factory/workflows/lead-and-specialists.md",
+      "profiles": [
+        "workflow",
+        "factory"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/factory/workflows/staged-backlog.md",
+      "profiles": [
+        "workflow",
+        "factory"
+      ]
+    },
+    {
       "uri": "make-docs://system/reference/harness-capability-matrix.md",
       "profiles": [
         "core",
@@ -333,7 +362,21 @@
       ]
     },
     {
+      "uri": "make-docs://system/reference/project-doctor.md",
+      "profiles": [
+        "setup",
+        "quality"
+      ]
+    },
+    {
       "uri": "make-docs://system/reference/wave-model.md",
+      "profiles": [
+        "workflow",
+        "backlog"
+      ]
+    },
+    {
+      "uri": "make-docs://system/reference/work-store.md",
       "profiles": [
         "workflow",
         "backlog"

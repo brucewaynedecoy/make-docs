@@ -13,7 +13,7 @@ Every other reference file, template, and router links here instead of restating
 | `w{W}` | Wave | A self-contained unit of work. The Wave is the scope. It can be a full build, one domain slice, or one change request. Its plan is the statement of work. Wave 1 is the initial wave. |
 | `r{R}` | Revision | `r0` is the base revision of every Wave. `r1+` is a revision Wave: a change order that revisits or rearchitects a substantial part of the Wave's completed work. A revision Wave has its own plan and work backlog. |
 | `p{P}` | Phase | Phase within a plan or work backlog. Appears in inner phase files, phase-scoped history filenames, and history record `coordinate` frontmatter. `p{P}` does not appear in the top-level names of designs, plans, or work directories. Stage/task detail stays in `coordinate` only. |
-| `t{T}` | Task | Task within one work backlog phase file. Task IDs appear on `### Tasks` checkbox items as phase-local ordinals (`t1`, `t2`, etc.) and are referenced externally as `w{W} r{R} p{P} t{T}` by inferring W/R from the work directory and P from the phase file. |
+| `T{T}` | Task | Task within one work backlog phase file. Task IDs appear on `### Tasks` checkbox items as phase-local ordinals (`T1`, `T2`, etc.) and are referenced externally as `W{W} R{R} P{P} T{T}` by inferring W/R from the work directory and P from the phase file. Write an upper-case `T`. Readers accept a lower-case `t` as the same task ID. |
 
 Related terms:
 
@@ -151,7 +151,7 @@ History keeps the prior version. These rules describe outcomes, not a storage me
 
 For breadcrumb records, store any known W/R/P/S/T position in the `coordinate` frontmatter field described by `.make-docs/system/contracts/history-record-contract.md`. Include W/R/P in the filename when all three are known. Include W/R when only those two are known. Keep stage and task detail only in `coordinate`.
 
-For work backlog tasks, number task IDs ordinally across the entire phase file, not within each stage. Start the first task at `t1`, continue through later `### Tasks` sections without resetting, and do not renumber existing task IDs when inserting or completing work. Use unordered markdown task syntax (`- [ ] t1: ...` or `- [x] t1: ...`) so checkbox rendering stays reliable.
+For work backlog tasks, number task IDs ordinally across the entire phase file, not within each stage. Start the first task at `T1`, continue through later `### Tasks` sections without resetting, and do not renumber existing task IDs when inserting or completing work. Use unordered markdown task syntax (`- [ ] T1: ...` or `- [x] T1: ...`) so checkbox rendering stays reliable.
 
 ## Adoption
 
@@ -159,7 +159,7 @@ These rules govern coordinates selected and records changed from their adoption 
 
 ## Deterministic Support
 
-Coordinate selection is agent judgment: the outcome test, the significant deviation test, and the revision Wave test need it. When the CLI is available, `make-docs run work backlog snapshot` reports supporting facts: whether each phase file is committed, whether its closeout notes are present, whether a record is archived, each record's next free `P`, each Wave's revisions and next free `R`, and the highest `W`. It also checks the shape of a work backlog's `## Change History`. It never selects a coordinate. Treat an unknown fact as unknown, never as false. The `committed` fact describes the current working tree. A completed phase with a later uncommitted progress edit reads `false`, so the agent decides from history whether the phase was completed and committed earlier.
+Coordinate selection is agent judgment: the outcome test, the significant deviation test, and the revision Wave test need it. When the CLI is available, `make-docs backlog snapshot` reports supporting facts: whether each phase file is committed, whether its closeout notes are present, whether a record is archived, each record's next free `P`, each Wave's revisions and next free `R`, and the highest `W`. It also checks the shape of a work backlog's `## Change History`. It never selects a coordinate. Treat an unknown fact as unknown, never as false. The `committed` fact describes the current working tree. A completed phase with a later uncommitted progress edit reads `false`, so the agent decides from history whether the phase was completed and committed earlier.
 
 ## PRD Exemption
 

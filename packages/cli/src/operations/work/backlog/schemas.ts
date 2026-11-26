@@ -266,6 +266,65 @@ export const WorkSourceLinkFactSchema = z
   })
   .strict();
 
+/**
+ * Resolved readiness facts of one work unit from the work store (PRD 51
+ * R-BACKLOG-SNAPSHOT-31 and R-BACKLOG-SNAPSHOT-32, PRD 52 R-WORK-QUEUE-4).
+ * The key appears only in store mode. It holds facts, not a priority, an
+ * order, or a next action.
+ */
+export const WorkStoreReadinessFactSchema = z
+  .object({
+    source: z.literal("work-store"),
+    storeId: text,
+    revision: z.number().int().positive(),
+    status: text,
+    closeOutcome: nullableText,
+    state: z.enum(["ready", "waiting", "closed", "done"]),
+    doneBy: z.literal("all-tasks-checked").nullable(),
+    waitReasons: z.array(z.object({ reason: text, text, coordinate: nullableText }).strict()),
+    liveClaim: z
+      .object({ claimant: text, taskHandle: nullableText, claimedAt: utcTimestamp, renewedAt: utcTimestamp, expiresAt: utcTimestamp })
+      .strict()
+      .nullable(),
+    syncConflict: z.boolean(),
+  })
+  .strict();
+
+/** The work store part of a store-mode snapshot: the read-only sync check, or the typed Store refusal. */
+export const BacklogWorkStoreFactSchema = z
+  .object({
+    authority: z.literal("store"),
+    state: z.enum(["read", "refused"]),
+    syncCheck: z
+      .object({
+        summary: text,
+        pending: z.array(z.object({ path: repositoryRelativePath, decision: text, conflictKind: nullableText, held: z.boolean() }).strict()),
+        conflicts: z.array(z.object({ path: repositoryRelativePath, kind: text }).strict()),
+      })
+      .strict()
+      .nullable(),
+    refusal: z.object({ code: text, reason: text, nextAction: text }).strict().nullable(),
+  })
+  .strict();
+
+/**
+ * W30 R0 P5 T13 (PRD 51 R-BACKLOG-APP-18, PRD 53 R-FACTORY-47): the ready
+ * factory workflows of the project in this checkout. The snapshot holds the
+ * key only when it was asked for and at least one workflow is `ready`, so a
+ * project without a ready workflow gets the same snapshot as before. It is a
+ * routing fact, not a source fact, so it never changes the snapshot identity.
+ */
+export const BacklogFactoryFactSchema = z
+  .object({
+    readyWorkflows: z.array(z.string().regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).max(64)).min(1).max(16),
+    // Both forms are fixed, so the Work message can name the project without project prose (R-ID-8 for the name).
+    project: z.object({
+      id: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/),
+      name: z.string().regex(/^[a-z][a-z0-9-]{0,63}$/).nullable(),
+    }).strict(),
+  })
+  .strict();
+
 export const WorkPhaseFactSchema = z
   .object({
     phasePath: repositoryRelativePath,
@@ -279,6 +338,7 @@ export const WorkPhaseFactSchema = z
     sourceLinks: z.array(WorkSourceLinkFactSchema),
     closeoutNotesPresent: NullableSourcedBooleanSchema,
     committed: NullableSourcedBooleanSchema,
+    readiness: WorkStoreReadinessFactSchema.optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -393,6 +453,7 @@ export const BacklogWorkRecordV1Schema = z
     closeout: WorkCloseoutFactSchema.nullable(),
     sourceLinks: z.array(WorkSourceLinkFactSchema),
     gitEvidence: z.array(WorkGitEvidenceSchema),
+    readiness: WorkStoreReadinessFactSchema.optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -592,6 +653,8 @@ export const BacklogSnapshotV1Schema = z
     coordinates: BacklogCoordinateFactsSchema,
     records: z.array(BacklogWorkRecordV1Schema),
     diagnostics: z.array(BacklogDiagnosticSchema),
+    workStore: BacklogWorkStoreFactSchema.optional(),
+    factory: BacklogFactoryFactSchema.optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -1186,6 +1249,9 @@ export const AgentResponseSemanticExpectationSchema = z
   });
 
 export type DiagnosticSeverity = z.infer<typeof DiagnosticSeveritySchema>;
+export type WorkStoreReadinessFact = z.infer<typeof WorkStoreReadinessFactSchema>;
+export type BacklogWorkStoreFact = z.infer<typeof BacklogWorkStoreFactSchema>;
+export type BacklogFactoryFact = z.infer<typeof BacklogFactoryFactSchema>;
 export type WaveStatus = z.infer<typeof WaveStatusSchema>;
 export type WorkScope = z.infer<typeof WorkScopeSchema>;
 export type EvidenceReference = z.infer<typeof EvidenceReferenceSchema>;

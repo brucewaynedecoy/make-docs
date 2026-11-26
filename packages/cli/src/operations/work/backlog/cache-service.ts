@@ -13,6 +13,7 @@ import {
   withInstallationDatabase,
 } from "../../../store/installation-state.js";
 import { getStoreDatabasePath } from "../../../store/paths.js";
+import { recordProjectInRegister } from "../../../store/project-register.js";
 import { BACKLOG_RULE_CATALOG_VERSION } from "./catalog.js";
 import { BACKLOG_REVIEW_CACHE_SCHEMA_VERSION, BACKLOG_REVIEW_SKILL_VERSION,
   backlogCacheRecordKey, canonicalJson } from "./cache-key.js";
@@ -340,6 +341,10 @@ export function writeBacklogReviewCache(
     assertCacheSchema(db, storeRoot);
     db.exec("BEGIN IMMEDIATE");
     try {
+      // R-REGISTER-1: the cache write records its project in the same transaction.
+      const owner = db.prepare("SELECT project_id FROM installation_checkouts WHERE checkout_id = ?")
+        .get(checkoutId) as { project_id: string } | undefined;
+      if (owner) recordProjectInRegister(db, { projectId: owner.project_id, projectRoot: root });
       for (const record of accepted) {
         invalidated += sqliteChanges(db.prepare(`
           DELETE FROM backlog_review_cache

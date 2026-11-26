@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: CLI Operation Refactor
 
 ## Purpose
@@ -6,11 +10,11 @@ Move the W16 R3 `make-docs operations` behavior into modular operation domains w
 
 ## Tasks
 
-- [x] t1: Refactor closeout operations into a closeout domain.
-- [x] t2: Refactor wave and phase operations into work/lifecycle domains.
-- [x] t3: Refactor checkpoint, scope guard, and phase gate behavior into reusable domain modules.
-- [x] t4: Preserve all existing `make-docs operations ...` command names, JSON shapes, and error semantics unless a task explicitly records an intentional compatibility change.
-- [x] t5: Keep W16 R3 selected-skill references working without edits unless module paths appear in shipped prose.
+- [x] T1: Refactor closeout operations into a closeout domain.
+- [x] T2: Refactor wave and phase operations into work/lifecycle domains.
+- [x] T3: Refactor checkpoint, scope guard, and phase gate behavior into reusable domain modules.
+- [x] T4: Preserve all existing `make-docs operations ...` command names, JSON shapes, and error semantics unless a task explicitly records an intentional compatibility change.
+- [x] T5: Keep W16 R3 selected-skill references working without edits unless module paths appear in shipped prose.
 
 ## Acceptance Criteria
 

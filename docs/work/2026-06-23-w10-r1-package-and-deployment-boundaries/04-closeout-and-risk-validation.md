@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 04: Closeout and Risk Validation
 
 ## Purpose
@@ -19,12 +23,12 @@ This phase closes the implementation loop. It should run touched-file validation
 
 ### Tasks
 
-- [x] t1: Run `git diff --check` across the completed work.
-- [x] t2: Run targeted CLI/package tests for every touched TypeScript or package surface.
-- [x] t3: Run docs validation or touched-link checks for edited docs and READMEs.
-- [x] t4: Run `npm run validate:defaults` when template, package, or managed-asset surfaces change.
-- [x] t5: Run `scripts/smoke-pack.mjs` or the current smoke-pack equivalent when package contents, package docs, or release validation changes.
-- [x] t6: Run npm pack or publish validation only in dry-run mode and record the command/output summary.
+- [x] T1: Run `git diff --check` across the completed work.
+- [x] T2: Run targeted CLI/package tests for every touched TypeScript or package surface.
+- [x] T3: Run docs validation or touched-link checks for edited docs and READMEs.
+- [x] T4: Run `npm run validate:defaults` when template, package, or managed-asset surfaces change.
+- [x] T5: Run `scripts/smoke-pack.mjs` or the current smoke-pack equivalent when package contents, package docs, or release validation changes.
+- [x] T6: Run npm pack or publish validation only in dry-run mode and record the command/output summary.
 
 ### Acceptance criteria
 
@@ -45,12 +49,12 @@ This phase closes the implementation loop. It should run touched-file validation
 
 ### Tasks
 
-- [x] t7: Reconcile [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) only for items the implementation evidence actually changes.
-- [x] t8: Keep Q-001, Q-007, and Q-012 open unless a newer accepted design resolves them.
-- [x] t9: Close D-006, R-003, R-006, or R-014 only when the corresponding evidence satisfies each item's `To close` text.
-- [x] t10: Create a history breadcrumb after implementation completes, using the repo-local history contract and the actual validation results.
-- [x] t11: Record the final manual-test or UAT decision for package/release-adjacent behavior, including any dry-run package evidence.
-- [x] t12: Produce a final diff summary that distinguishes work from unrelated pre-existing changes.
+- [x] T7: Reconcile [../../prd/03-open-questions-and-risk-register.md](../../prd/03-open-questions-and-risk-register.md) only for items the implementation evidence actually changes.
+- [x] T8: Keep Q-001, Q-007, and Q-012 open unless a newer accepted design resolves them.
+- [x] T9: Close D-006, R-003, R-006, or R-014 only when the corresponding evidence satisfies each item's `To close` text.
+- [x] T10: Create a history breadcrumb after implementation completes, using the repo-local history contract and the actual validation results.
+- [x] T11: Record the final manual-test or UAT decision for package/release-adjacent behavior, including any dry-run package evidence.
+- [x] T12: Produce a final diff summary that distinguishes work from unrelated pre-existing changes.
 
 ### Acceptance criteria
 

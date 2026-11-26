@@ -1,12 +1,16 @@
+---
+status: "completed"
+---
+
 # P4 Lifecycle Package Validation and Closeout
 
 ## Tasks
 
-- [x] t1: Update audit, backup, uninstall, and migration behavior so selected skill provenance is reviewable.
-- [x] t2: Add fixture coverage for default installs, first-party explicit installs, alternate file-manifest installs, rejected unpinned URL manifests, and remote-pinned manifests if implemented.
-- [x] t3: Update package validation and smoke-pack expectations for the evolved registry schema.
-- [x] t4: Confirm no-default-skills behavior with bare install and saved-selection sync coverage.
-- [x] t5: Update closeout records, PRD/risk entries, and package docs with implementation evidence.
+- [x] T1: Update audit, backup, uninstall, and migration behavior so selected skill provenance is reviewable.
+- [x] T2: Add fixture coverage for default installs, first-party explicit installs, alternate file-manifest installs, rejected unpinned URL manifests, and remote-pinned manifests if implemented.
+- [x] T3: Update package validation and smoke-pack expectations for the evolved registry schema.
+- [x] T4: Confirm no-default-skills behavior with bare install and saved-selection sync coverage.
+- [x] T5: Update closeout records, PRD/risk entries, and package docs with implementation evidence.
 
 ## Acceptance Criteria
 

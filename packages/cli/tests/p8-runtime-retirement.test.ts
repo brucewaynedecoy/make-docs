@@ -37,15 +37,16 @@ describe("P8 runtime retirement", () => {
   });
 
   it.each([...retired, "package.preview", "protocol.catalog"])("refuses retired route %s through the real CLI entry", (id) => {
-    const result = spawnSync(process.execPath, ["--import", "tsx", "src/index.ts", "run", ...id.split(".")], {
+    // W33 R0 P2 retired `run` as a root. A retired route is not a group either.
+    const result = spawnSync(process.execPath, ["--import", "tsx", "src/index.ts", ...id.split(".")], {
       cwd: packageRoot, encoding: "utf8",
     });
     expect(result.status, id).toBe(1);
-    expect(result.stderr, id).toContain("Unknown make-docs run operation");
+    expect(result.stderr, id).toContain("Unknown argument");
   }, 20000);
 
   it("omits retired routes from real CLI help", () => {
-    const help = spawnSync(process.execPath, ["--import", "tsx", "src/index.ts", "run", "--help"], {
+    const help = spawnSync(process.execPath, ["--import", "tsx", "src/index.ts", "lifecycle", "--help"], {
       cwd: packageRoot, encoding: "utf8",
     });
     expect(help.status).toBe(0);
@@ -61,14 +62,14 @@ describe("P8 runtime retirement", () => {
     try {
       const names = (await client.listTools()).tools.map((tool) => tool.name);
       for (const id of retired) {
-        expect(() => deriveMcpToolName(id)).toThrow("Missing MCP tool name for operation");
+        expect(() => deriveMcpToolName(id)).toThrow("Unknown operation identifier");
         const name = `make_docs_${id.replace(/[.-]/g, "_")}`;
         expect(names).not.toContain(name);
         const result = await client.callTool({ name, arguments: {} });
         expect(result.isError, name).toBe(true);
       }
       expect(names).toContain("lifecycle_start");
-      expect(names).toContain("uat_persona_resolve");
+      expect(names).toContain("check_uat_persona");
     } finally {
       await client.close();
       await server.close();

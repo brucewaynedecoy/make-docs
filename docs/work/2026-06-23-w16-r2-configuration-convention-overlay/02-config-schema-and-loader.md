@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: Config Schema and Loader
 
 ## Objective
@@ -12,13 +16,13 @@ Implement optional `.make-docs/config.yaml` parsing, defaults, and diagnostics w
 
 ## Tasks
 
-- [x] t1: Define TypeScript types for the config schema.
-- [x] t2: Provide shipped defaults for display labels, coordinate labels, and persona entries.
-- [x] t3: Parse `.make-docs/config.yaml` when present.
-- [x] t4: Reject invalid structural rename attempts with actionable diagnostics.
-- [x] t5: Preserve absent-config behavior.
-- [x] t6: Keep config separate from manifest schema and provider/cache state.
-- [x] t7: Add tests for missing config, valid config, malformed YAML, unknown keys, invalid structural keys, invalid primitive values, and duplicate persona slugs.
+- [x] T1: Define TypeScript types for the config schema.
+- [x] T2: Provide shipped defaults for display labels, coordinate labels, and persona entries.
+- [x] T3: Parse `.make-docs/config.yaml` when present.
+- [x] T4: Reject invalid structural rename attempts with actionable diagnostics.
+- [x] T5: Preserve absent-config behavior.
+- [x] T6: Keep config separate from manifest schema and provider/cache state.
+- [x] T7: Add tests for missing config, valid config, malformed YAML, unknown keys, invalid structural keys, invalid primitive values, and duplicate persona slugs.
 
 ## Acceptance Criteria
 

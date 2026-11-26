@@ -14,3 +14,8 @@ harnessIntegrations:
       store: write
       project: write
       hostConfig: none
+# Sync reads these work paths and never writes or removes them (PRD 52, W29 R0 P4 T19).
+# The W22 R2 backlog waits for its own project doctor run (register D-063).
+work:
+  syncHold:
+    - docs/work/2026-11-13-w22-r2-portable-checkout-adoption/

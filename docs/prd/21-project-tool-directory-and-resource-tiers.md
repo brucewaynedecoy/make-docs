@@ -19,6 +19,9 @@ Directory model:
 .make-docs/
   config.yaml
   conflicts/              # approved content copies only; no live state
+  factory/                # opt-in; generated read-only copies of factory setup; gitignored
+  backup/
+    factory/              # opt-in; file backups outside git, with a README note; gitignored
   <configured harness routers>
   archive/                # on-demand managed history/provenance
   system/                 # always-local configured-harness router
@@ -44,7 +47,7 @@ Resource tiers and identity:
 
 Resolution and materialization:
 
-- One canonical resolver serves CLI and MCP. It accepts stable resource URIs, normalizes POSIX paths, rejects traversal and invalid type segments, and resolves a trustworthy selected local projection before the installed provider.
+- One canonical resolver serves CLI and MCP. It accepts stable resource URIs, normalizes POSIX paths, rejects traversal and invalid type segments, and resolves a trustworthy selected local projection before the installed provider. It also accepts `make-docs://project/` URIs under [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-1 to R-WORK-URI-5. Those read the work store and never use a local projection or the provider.
 - CLI `make-docs resource list`, `make-docs resource read <uri>`, and `make-docs resource ensure <uri>` are canonical resource surfaces. Resource ensure creates or refreshes exactly one selected local projection through the managed-file conflict and approval path. Each operation projects to an MCP tool. Native MCP resources expose the same URI set and bytes as resource list/read where supported.
 - Local resource-body projection is explicit and selection-scoped. Empty typed directories are normal and do not reduce runtime resource availability. The router skeleton remains present.
 - Divergent, stale, unowned, or provenance-free local files never silently shadow the provider. Refresh and overwrite use the managed-file conflict and approval path.
@@ -55,6 +58,9 @@ Runtime state and bootstrap:
 - Approved local backup or export files are content copies. Their readable descriptions are not live operation state or automatic restoration authority. Project history and work-specific tracking remain local knowledge.
 
 - R-LOCAL-STATE-1 (MUST): `.make-docs/` contains no current Make Docs operational state. Installation manifests, applied selections, conflict decisions, provider/projection metadata, audit state, locks, receipts, and recovery journals live in the global Store. `.make-docs/state/` and `.make-docs/manifest.json` are supported legacy transfer inputs only. No renamed local directory or mirror may replace them.
+- R-LOCAL-STATE-2 (MUST): `.make-docs/factory/` exists only after factory setup. It holds generated, read-only, gitignored copies of the saved factory setup, written only by Make Docs from the Store. Each file says it is generated and that edits are lost. No Make Docs operation reads these copies as input. `make-docs factory restore` writes them again. They hold no grants, secrets, locks, or receipts. [PRD 38](38-global-store-and-project-state.md) owns the narrow rule that allows them, and [PRD 53](53-factory-setup-and-orchestration.md) owns their content.
+- R-LOCAL-STATE-3 (MUST): `.make-docs/backup/factory/` exists only after the factory backs up a file in a folder without git. It holds inert content copies. The Store records each backup. A `README.md` in the folder tells people and agents that backups are deleted when their work is accepted or closed, or after 30 days, and how to get a file back.
+- R-LOCAL-STATE-4 (MUST): factory backup cleanup removes only files that the Store records as factory backups. It never removes installation recovery backups or any other file under `.make-docs/backup/`.
 - Bootstrap includes configured-harness routers, declarative project identity/config, project-owned overlays, and readable guidance for CLI Store status, resource selection, provenance, and recovery.
 - Managed instruction routers continue to use managed blocks.
 - Router text must not send agents into hidden provider-only state without a local explanation.
@@ -140,6 +146,30 @@ R-ASSET-PATH-2 (MUST): `project persona list` resolves the two shipped defaults 
 - Replacement contract: Shared material uses `docs/assets/project/`; audience assets use on-demand Persona children; archives remain `.make-docs/archive/`. Short routing exposes defaults and configured harness files without a CLI. Reviewed layout moves use the R3 Store service and verify content and links. Existing local-state prose is aligned with the completed R3 boundary.
 - Rationale: Finish the missed consolidation requirement and remove active instructions that can restore legacy paths. This is the W19 R4 draft implementation target, not a runtime completion claim.
 - Source: [asset and Persona design](../designs/2026-09-09-project-assets-and-persona-discovery.md); [W19 R4 plan](../plans/2026-09-09-w19-r4-project-assets-and-persona-discovery/00-overview.md).
+
+### 2026-11-21 — W30 R0
+
+- Affected requirement or section: Directory model; R-LOCAL-STATE-2; R-LOCAL-STATE-3; R-LOCAL-STATE-4.
+- Previous contract: `.make-docs/` had no factory paths. No generated copy of Store records existed in the project.
+- Replacement contract: Opt-in `.make-docs/factory/` holds generated, read-only, gitignored setup copies that are never input. Opt-in `.make-docs/backup/factory/` holds recorded file backups outside git with a README note and bounded cleanup.
+- Rationale: The factory keeps readable local copies of its setup and needs an undo path in folders without git.
+- Source: [Factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: `Resolution and materialization`.
+- Previous contract: the resolver accepted only system-resource URIs.
+- Replacement contract: the resolver also accepts `make-docs://project/` URIs, which read the work store read-only.
+- Rationale: quick items live only in the work store, and the owner asked to read them by URI.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
+
+### 2026-11-23 — W33 R0 P4
+
+- Affected requirement or section: R-LOCAL-STATE-2.
+- Previous contract: `make-docs run factory restore` wrote the generated factory copies again.
+- Replacement contract: `make-docs factory restore` writes them again.
+- Rationale: [PRD 39](39-cli-command-model-and-operation-registry.md) R-TOP-1 retired `run` as a root, and the factory commands live in the `factory` group.
+- Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md).
 
 ## Source Anchors
 

@@ -1,7 +1,7 @@
 ---
 title: "Phase 3: Lifecycle Propagation and Routing"
 kind: "work"
-status: "active"
+status: "completed"
 coordinate: "W20 R0 P3"
 source:
   type: "prd"
@@ -43,13 +43,13 @@ The result must let an agent plan complex work without turning the backlog into 
 
 ### Tasks
 
-- [x] t1: Update `packages/docs/template/.make-docs/system/references/lifecycle.md` so Human Experience is a cross-cutting lens and not a new stage.
-- [x] t2: Define the local action at design, plan, PRD, work, implementation, review, coverage, acceptance, release, and retrospective points.
-- [x] t3: Require design to record impact and intent before product and architecture decisions.
-- [x] t4: Require planning to map each promise to PRD authority, a product or resource surface, a work phase, an evidence source or selected testing type, and a durable deferral route.
-- [x] t5: Require implementation and review to preserve the intended human path as well as technical correctness.
-- [x] t6: Require release and retrospective claims to stay within tested paths and to feed repeatable lessons back to the contract, reference, or owner PRD.
-- [x] t7: Review the lifecycle edit for conflict with PRD 50, Unassisted Goal Testing, architecture, accessibility, visual, security, privacy, and other specialist owners.
+- [x] T1: Update `packages/docs/template/.make-docs/system/references/lifecycle.md` so Human Experience is a cross-cutting lens and not a new stage.
+- [x] T2: Define the local action at design, plan, PRD, work, implementation, review, coverage, acceptance, release, and retrospective points.
+- [x] T3: Require design to record impact and intent before product and architecture decisions.
+- [x] T4: Require planning to map each promise to PRD authority, a product or resource surface, a work phase, an evidence source or selected testing type, and a durable deferral route.
+- [x] T5: Require implementation and review to preserve the intended human path as well as technical correctness.
+- [x] T6: Require release and retrospective claims to stay within tested paths and to feed repeatable lessons back to the contract, reference, or owner PRD.
+- [x] T7: Review the lifecycle edit for conflict with PRD 50, Unassisted Goal Testing, architecture, accessibility, visual, security, privacy, and other specialist owners.
 
 ### Acceptance criteria
 
@@ -67,14 +67,14 @@ The result must let an agent plan complex work without turning the backlog into 
 
 ### Tasks
 
-- [x] t8: Update upstream baseline-plan and change-plan guidance and templates so applicable promises map to authority, surface, phase, evidence, and deferral.
-- [x] t9: For `none`, require the plan to state the preserved human boundary and proof that it stays unchanged.
-- [x] t10: Update PRD generation and PRD maintenance guidance so observable experience requirements enter the PRD that owns the capability and link to PRD 49.
-- [x] t11: Prevent editorial experience PRDs, copied universal policy, and new experience frontmatter.
-- [x] t12: Update upstream work-index guidance and template so the backlog retains the source design, plan, owning PRDs, phase order, evidence decisions, and implementation gate.
-- [x] t13: Update upstream work-phase guidance and template so each applicable phase states the intended human outcome, affected surface or effect, implementation work, observable acceptance, evidence source or selected testing type, executor, and deferral route.
-- [x] t14: Add acceptance examples for subject orientation, relationship continuity, state distinction, next action, error recovery, progressive detail, and completion without internal identifiers.
-- [x] t15: Add guidance that rejects vague criteria such as `UX is good`, `easy to use`, or `intuitive` unless they are replaced by observable outcomes.
+- [x] T8: Update upstream baseline-plan and change-plan guidance and templates so applicable promises map to authority, surface, phase, evidence, and deferral.
+- [x] T9: For `none`, require the plan to state the preserved human boundary and proof that it stays unchanged.
+- [x] T10: Update PRD generation and PRD maintenance guidance so observable experience requirements enter the PRD that owns the capability and link to PRD 49.
+- [x] T11: Prevent editorial experience PRDs, copied universal policy, and new experience frontmatter.
+- [x] T12: Update upstream work-index guidance and template so the backlog retains the source design, plan, owning PRDs, phase order, evidence decisions, and implementation gate.
+- [x] T13: Update upstream work-phase guidance and template so each applicable phase states the intended human outcome, affected surface or effect, implementation work, observable acceptance, evidence source or selected testing type, executor, and deferral route.
+- [x] T14: Add acceptance examples for subject orientation, relationship continuity, state distinction, next action, error recovery, progressive detail, and completion without internal identifiers.
+- [x] T15: Add guidance that rejects vague criteria such as `UX is good`, `easy to use`, or `intuitive` unless they are replaced by observable outcomes.
 
 ### Acceptance criteria
 
@@ -93,15 +93,15 @@ The result must let an agent plan complex work without turning the backlog into 
 
 ### Tasks
 
-- [x] t16: Update the smallest upstream prompt set that creates or transforms designs, baseline plans, change plans, PRDs, PRD changes, full work backlogs, and delta work backlogs.
-- [x] t17: Update only W20-owned lifecycle and consumer links to current testing authority. Leave shared testing prompts, contracts, facilitator behavior, and testing selection rules to W21.
-- [x] t18: Make each prompt resolve the canonical contract and reference. Do not copy the full standard, conditional forms, or examples into prompts.
-- [x] t19: Update only the managed router blocks that own discovery for designs, plans, PRDs, work, coverage, and testing.
-- [x] t20: Keep each router pointer short. State when the contract applies and how the agent can resolve it.
-- [x] t21: Use the existing managed-block path around `parseManagedBlock` and `upsertManagedBlock` so user-owned router text remains unchanged.
-- [x] t22: Update handoff guidance so source design, owner PRD, planned work, evidence, and W/R coordinate remain traceable through existing metadata and body links.
-- [x] t23: Confirm that `source`, `follow_on`, `coordinate`, and relationship fields carry provenance only where current contracts allow them.
-- [x] t24: Confirm that the router does not make an optional Skill mandatory.
+- [x] T16: Update the smallest upstream prompt set that creates or transforms designs, baseline plans, change plans, PRDs, PRD changes, full work backlogs, and delta work backlogs.
+- [x] T17: Update only W20-owned lifecycle and consumer links to current testing authority. Leave shared testing prompts, contracts, facilitator behavior, and testing selection rules to W21.
+- [x] T18: Make each prompt resolve the canonical contract and reference. Do not copy the full standard, conditional forms, or examples into prompts.
+- [x] T19: Update only the managed router blocks that own discovery for designs, plans, PRDs, work, coverage, and testing.
+- [x] T20: Keep each router pointer short. State when the contract applies and how the agent can resolve it.
+- [x] T21: Use the existing managed-block path around `parseManagedBlock` and `upsertManagedBlock` so user-owned router text remains unchanged.
+- [x] T22: Update handoff guidance so source design, owner PRD, planned work, evidence, and W/R coordinate remain traceable through existing metadata and body links.
+- [x] T23: Confirm that `source`, `follow_on`, `coordinate`, and relationship fields carry provenance only where current contracts allow them.
+- [x] T24: Confirm that the router does not make an optional Skill mandatory.
 
 ### Acceptance criteria
 
@@ -121,14 +121,14 @@ The result must let an agent plan complex work without turning the backlog into 
 
 ### Tasks
 
-- [x] t25: Implement prospective rules so new designs use the section after activation and substantial updates use it when they claim the new contract version.
-- [x] t26: Keep historical designs readable without a repository-wide rewrite.
-- [x] t27: Preserve modified project-owned files and user-owned router text during update.
-- [x] t28: Add a direct fixture that traces one promise from design to PRD, work, required Human Experience Review conclusion, and supporting evidence.
-- [x] t29: Add an indirect fixture that traces a measurable reliability, wait, cost, or risk effect through the same authorities.
-- [x] t30: Add a none fixture that preserves its human boundary without invented interaction.
-- [x] t31: Add a deferred fixture that creates or links a durable obligation only when the owner accepts a future outcome that remains owed. Include its owner, trigger, coordinate, and remaining evidence.
-- [x] t32: Add a negative fixture in which copied fields exist but the human goal or evidence link is lost.
+- [x] T25: Implement prospective rules so new designs use the section after activation and substantial updates use it when they claim the new contract version.
+- [x] T26: Keep historical designs readable without a repository-wide rewrite.
+- [x] T27: Preserve modified project-owned files and user-owned router text during update.
+- [x] T28: Add a direct fixture that traces one promise from design to PRD, work, required Human Experience Review conclusion, and supporting evidence.
+- [x] T29: Add an indirect fixture that traces a measurable reliability, wait, cost, or risk effect through the same authorities.
+- [x] T30: Add a none fixture that preserves its human boundary without invented interaction.
+- [x] T31: Add a deferred fixture that creates or links a durable obligation only when the owner accepts a future outcome that remains owed. Include its owner, trigger, coordinate, and remaining evidence.
+- [x] T32: Add a negative fixture in which copied fields exist but the human goal or evidence link is lost.
 
 ### Acceptance criteria
 
@@ -147,12 +147,12 @@ The result must let an agent plan complex work without turning the backlog into 
 
 ### Tasks
 
-- [x] t33: Run focused template, prompt, router, managed-block, update, and propagation tests.
-- [x] t34: Run instruction-router validation and confirm one valid managed block with preserved surrounding text.
-- [x] t35: Apply required Human Experience Review to every applicable promise in the direct and indirect propagation fixtures. Record a clear conclusion for each promise.
-- [x] t36: Confirm that generated work records current decisions for Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing. Confirm that Human Experience Review remains a required acceptance lens and not a fifth testing type.
-- [x] t37: Give each material finding a disposition. Remediate it, accept a bounded caveat or narrower claim, or record partial status. Use PRD 45 only when an accepted future outcome remains owed.
-- [x] t38: Record Phase 3 requirement dispositions and capability status with evidence.
+- [x] T33: Run focused template, prompt, router, managed-block, update, and propagation tests.
+- [x] T34: Run instruction-router validation and confirm one valid managed block with preserved surrounding text.
+- [x] T35: Apply required Human Experience Review to every applicable promise in the direct and indirect propagation fixtures. Record a clear conclusion for each promise.
+- [x] T36: Confirm that generated work records current decisions for Automated Implementation Testing, Performance Testing, Guided Progress Review, and Unassisted Goal Testing. Confirm that Human Experience Review remains a required acceptance lens and not a fifth testing type.
+- [x] T37: Give each material finding a disposition. Remediate it, accept a bounded caveat or narrower claim, or record partial status. Use PRD 45 only when an accepted future outcome remains owed.
+- [x] T38: Record Phase 3 requirement dispositions and capability status with evidence.
 
 ### Acceptance criteria
 

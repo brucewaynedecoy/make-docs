@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P4 Package Validation and Closeout
 
 ## Goal
@@ -14,13 +18,13 @@ Prove the corrected behavior through package validation and close the W17 R3 wav
 
 ## Tasks
 
-- [x] t1: Update package smoke expectations so packed CLI validation proves native harness exposure instead of generated stubs.
-- [x] t2: Run CLI unit tests that cover default installs, project-scope selected skills, global-scope selected skills, symlink exposure, copy-mirror fallback, migration, backup, uninstall, audit, and skills UI output.
-- [x] t3: Run package validation commands: `npm test -w packages/cli -- --reporter=dot`, `npm run validate:defaults -w packages/cli`, `npm run build -w packages/cli`, and `npm run smoke:pack`.
-- [x] t4: Run documentation and package hygiene checks: `git diff --check`, changed-file Markdown link checks, `python3 .make-docs/scripts/check_path_hygiene.py --repo-root .`, `bash scripts/check-wave-numbering.sh`, and `bash scripts/check-instruction-routers.sh`.
-- [x] t5: Record any known baseline validation failures separately from W17 R3 regressions.
-- [x] t6: Complete final manual UAT for selected-skill installs in Claude Code and Codex harness roots.
-- [x] t7: Reconcile PRD/risk closeout and write W17 R3 history records under `docs/assets/archive/history/`.
+- [x] T1: Update package smoke expectations so packed CLI validation proves native harness exposure instead of generated stubs.
+- [x] T2: Run CLI unit tests that cover default installs, project-scope selected skills, global-scope selected skills, symlink exposure, copy-mirror fallback, migration, backup, uninstall, audit, and skills UI output.
+- [x] T3: Run package validation commands: `npm test -w packages/cli -- --reporter=dot`, `npm run validate:defaults -w packages/cli`, `npm run build -w packages/cli`, and `npm run smoke:pack`.
+- [x] T4: Run documentation and package hygiene checks: `git diff --check`, changed-file Markdown link checks, `python3 .make-docs/scripts/check_path_hygiene.py --repo-root .`, `bash scripts/check-wave-numbering.sh`, and `bash scripts/check-instruction-routers.sh`.
+- [x] T5: Record any known baseline validation failures separately from W17 R3 regressions.
+- [x] T6: Complete final manual UAT for selected-skill installs in Claude Code and Codex harness roots.
+- [x] T7: Reconcile PRD/risk closeout and write W17 R3 history records under `docs/assets/archive/history/`.
 
 ## Acceptance Criteria
 

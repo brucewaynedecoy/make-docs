@@ -140,10 +140,6 @@
         {
           "source": "references/archive-workflow.md",
           "installPath": "references/archive-workflow.md"
-        },
-        {
-          "source": "scripts/trace_relationships.py",
-          "installPath": "scripts/trace_relationships.py"
         }
       ]
     },
@@ -256,10 +252,6 @@
         {
           "source": "agents/openai.yaml",
           "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "scripts/check_markdown_style.py",
-          "installPath": "scripts/check_markdown_style.py"
         }
       ]
     },
@@ -289,14 +281,6 @@
         {
           "source": "agents/openai.yaml",
           "installPath": "agents/openai.yaml"
-        },
-        {
-          "source": "scripts/probe_environment.py",
-          "installPath": "scripts/probe_environment.py"
-        },
-        {
-          "source": "scripts/validate_output.py",
-          "installPath": "scripts/validate_output.py"
         },
         {
           "source": "references/planning-workflow.md",
@@ -446,16 +430,16 @@
           "installPath": "agents/openai.yaml"
         },
         {
-          "source": "references/profiles.md",
-          "installPath": "references/profiles.md"
+          "source": "references/messages.md",
+          "installPath": "references/messages.md"
         },
         {
-          "source": "references/store.md",
-          "installPath": "references/store.md"
+          "source": "references/run-loop.md",
+          "installPath": "references/run-loop.md"
         },
         {
-          "source": "references/work-methods.md",
-          "installPath": "references/work-methods.md"
+          "source": "references/working-rules.md",
+          "installPath": "references/working-rules.md"
         }
       ]
     },
@@ -488,6 +472,54 @@
         {
           "source": "references/surfaces.md",
           "installPath": "references/surfaces.md"
+        }
+      ]
+    },
+    {
+      "name": "factory-setup",
+      "displayName": "Factory Setup",
+      "source": "embedded:factory-setup",
+      "entryPoint": "SKILL.md",
+      "installName": "factory-setup",
+      "description": "Set up, prove, and save a factory workflow with your own agent tools. Explicit use only.",
+      "purposes": [
+        "workflow-execution"
+      ],
+      "supportedHarnesses": [
+        "claude-code",
+        "codex",
+        "github-copilot"
+      ],
+      "provenance": {
+        "kind": "first-party",
+        "label": "make-docs embedded first-party Skill",
+        "manifestId": "make-docs.first-party",
+        "repository": "brucewaynedecoy/make-docs"
+      },
+      "assets": [
+        {
+          "source": "agents/openai.yaml",
+          "installPath": "agents/openai.yaml"
+        },
+        {
+          "source": "references/find-and-read.md",
+          "installPath": "references/find-and-read.md"
+        },
+        {
+          "source": "references/interview.md",
+          "installPath": "references/interview.md"
+        },
+        {
+          "source": "references/save-and-test.md",
+          "installPath": "references/save-and-test.md"
+        },
+        {
+          "source": "references/summary.md",
+          "installPath": "references/summary.md"
+        },
+        {
+          "source": "references/wire-and-prove.md",
+          "installPath": "references/wire-and-prove.md"
         }
       ]
     }

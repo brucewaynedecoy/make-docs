@@ -64,22 +64,22 @@ Human Experience Review is a separate required acceptance lens.
 
 | Promise | PRD requirement | P2 task | Production test | Real harness result | Human Experience observation | Current status | Blocker action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Explain computer, project, and Store effects before approval. | PRD 07 R-SETUP-CLI-7 through 10; PRD 39 R-SETUP-9 through 12 | t12, t14, t23 | Interactive order, dry-run, JSON, and installed package checks pass | [Claude Code MCP](../../../conformance/results/claude-code/2026-09-14-mcp-store-operations-001.json) and unavailable-method records | Reviewer identifies each scope, effect, access need, and next action | Automated pass; Human Experience Review open | Complete owner or maintainer review. |
-| Complete missing system setup inside project setup. | PRD 07 R-SETUP-CLI-7 and 9; PRD 39 R-SETUP-11 | t11, t12, t13, t24 | Shared machine and project setup and failure-recovery tests pass | Claude Code MCP passed; Codex MCP is blocked | Reviewer completes setup without leaving the project flow | Automated pass; installed review open | Complete Codex proof and installed review. |
-| Keep resource reads Store-free. | PRD 25 R-ACCESS-2; PRD 39 R-SETUP-8 | t16, t25 | Source and packed tests cover absent, locked, unreadable, and unsafe Store | [Claude Code direct CLI passed](../../../conformance/results/claude-code/2026-09-14-direct-resource-read-001.json); Codex is blocked | Reviewer sees that no rule, MCP server, extension, or Store access is required | Partial real-harness proof | Run the Codex case from a logged-in disposable home. |
-| Use all four document families without a fresh choice and preserve partial projects. | PRD 07 R-SETUP-CLI-1; PRD 39 R-SETUP-1 | t12, t17, t23 | Fresh, partial, current, and repeat setup tests pass | Claude Code sessions preserved project content | Reviewer sees no document-type question and no silent partial expansion | Automated pass; Human Experience Review open | Complete owner or maintainer review. |
-| Show only exact proved native methods. | PRD 20 R-TUPLE and R-REG; PRD 28 R-HARNESS-8 through 10; PRDs 43 and 44 | t5 through t10, t18 through t22 | Registry loader, tuple, result, identity, and package checks pass | Two Claude Code tuples passed. Four other tuples stay provisional. | Reviewer can tell supported, unavailable, and why | Material production-selection gap | Settle an exact runtime-fact input path. Then complete the three blocked Codex runs. Keep Claude permission rules unavailable under A35. |
-| Keep repeat setup safe and visible. | PRD 24 R-CONFIG-HARNESS-6; PRD 28 R-HARNESS-7; PRD 39 R-SETUP-12 | t13 through t15, t24 | Current, drifted, blocked, unsupported, incomplete, pending, and recovery tests pass | Native cleanup passed for all completed Claude Code sessions | Reviewer sees current state and one useful action with no rerun loop | Automated pass; installed review open | Complete owner or maintainer review. |
-| Preserve a valid machine change after project failure. | PRD 07 R-SETUP-CLI-3 and 9; PRD 39 R-SETUP-4 and 6 | t13, t24 | Injected project failure keeps verified machine state and resumes the project operation | Production adapter cleanup and content preservation passed | Reviewer sees machine success, project failure, and exact resume step | Automated pass; installed review open | Complete the installed observation. |
+| Explain computer, project, and Store effects before approval. | PRD 07 R-SETUP-CLI-7 through 10; PRD 39 R-SETUP-9 through 12 | T12, T14, T23 | Interactive order, dry-run, JSON, and installed package checks pass | [Claude Code MCP](../../../conformance/results/claude-code/2026-09-14-mcp-store-operations-001.json) and unavailable-method records | Reviewer identifies each scope, effect, access need, and next action | Automated pass; Human Experience Review open | Complete owner or maintainer review. |
+| Complete missing system setup inside project setup. | PRD 07 R-SETUP-CLI-7 and 9; PRD 39 R-SETUP-11 | T11, T12, T13, T24 | Shared machine and project setup and failure-recovery tests pass | Claude Code MCP passed; Codex MCP is blocked | Reviewer completes setup without leaving the project flow | Automated pass; installed review open | Complete Codex proof and installed review. |
+| Keep resource reads Store-free. | PRD 25 R-ACCESS-2; PRD 39 R-SETUP-8 | T16, T25 | Source and packed tests cover absent, locked, unreadable, and unsafe Store | [Claude Code direct CLI passed](../../../conformance/results/claude-code/2026-09-14-direct-resource-read-001.json); Codex is blocked | Reviewer sees that no rule, MCP server, extension, or Store access is required | Partial real-harness proof | Run the Codex case from a logged-in disposable home. |
+| Use all four document families without a fresh choice and preserve partial projects. | PRD 07 R-SETUP-CLI-1; PRD 39 R-SETUP-1 | T12, T17, T23 | Fresh, partial, current, and repeat setup tests pass | Claude Code sessions preserved project content | Reviewer sees no document-type question and no silent partial expansion | Automated pass; Human Experience Review open | Complete owner or maintainer review. |
+| Show only exact proved native methods. | PRD 20 R-TUPLE and R-REG; PRD 28 R-HARNESS-8 through 10; PRDs 43 and 44 | T5 through T10, T18 through T22 | Registry loader, tuple, result, identity, and package checks pass | Two Claude Code tuples passed. Four other tuples stay provisional. | Reviewer can tell supported, unavailable, and why | Material production-selection gap | Settle an exact runtime-fact input path. Then complete the three blocked Codex runs. Keep Claude permission rules unavailable under A35. |
+| Keep repeat setup safe and visible. | PRD 24 R-CONFIG-HARNESS-6; PRD 28 R-HARNESS-7; PRD 39 R-SETUP-12 | T13 through T15, T24 | Current, drifted, blocked, unsupported, incomplete, pending, and recovery tests pass | Native cleanup passed for all completed Claude Code sessions | Reviewer sees current state and one useful action with no rerun loop | Automated pass; installed review open | Complete owner or maintainer review. |
+| Preserve a valid machine change after project failure. | PRD 07 R-SETUP-CLI-3 and 9; PRD 39 R-SETUP-4 and 6 | T13, T24 | Injected project failure keeps verified machine state and resumes the project operation | Production adapter cleanup and content preservation passed | Reviewer sees machine success, project failure, and exact resume step | Automated pass; installed review open | Complete the installed observation. |
 
 ## Stage 1 — Authority Reconciliation
 
 ### Tasks
 
-- [x] t1: Update the W19 R6 design and plan to classify P1 as an incomplete acceptance attempt and define P2.
-- [x] t2: Reconcile PRDs 07, 20, 24, 25, 28, 39, 43, and 44 around one seven-part tuple and one production support authority.
-- [x] t3: Add D-033 with the verified P1 gap, release effect, correction, and close evidence.
-- [x] t4: Update the work index, P1 state, P2 trace, and evidence report without creating a new package or coordinate.
+- [x] T1: Update the W19 R6 design and plan to classify P1 as an incomplete acceptance attempt and define P2.
+- [x] T2: Reconcile PRDs 07, 20, 24, 25, 28, 39, 43, and 44 around one seven-part tuple and one production support authority.
+- [x] T3: Add D-033 with the verified P1 gap, release effect, correction, and close evidence.
+- [x] T4: Update the work index, P1 state, P2 trace, and evidence report without creating a new package or coordinate.
 
 ### Acceptance criteria
 
@@ -95,19 +95,19 @@ Human Experience Review is a separate required acceptance lens.
 
 ### Tasks
 
-- [x] t5: Replace the active eight-part conformance tuple type and every current six-part result contract with the exact seven-part tuple.
-- [x] t6: Add or complete the validated central registry loader for production setup. Permit tests to select a temporary registry file only through this loader.
-- [x] t7: Remove `reviewedAdapterPlansForTests` and every support or apply path that production cannot use.
-- [x] t8: Add the maintainer-only bootstrap that creates an exact provisional tuple and disposable lab inputs without promoting support.
-- [x] t9: Make `resolveHarnessMethodSupport` return selectable only for an admitted method with eligible exact central evidence.
-- [x] t10: Project the same support result into interactive, dry-run, non-interactive, JSON, and MCP-safe output without progress noise.
-- [x] t11: Implement the exact interactive order: project state, harness selection, one method-and-Skills screen per selected harness, resource placement, grouped review, machine apply and verify, project apply and verify, final result.
-- [x] t12: Make `setup system` use the same per-harness machine planner without project initialization.
-- [x] t13: Add the preserving project-config writer and commit reviewed `harnessIntegrations` only in the project operation.
-- [x] t14: Add `--codex-method` and `--claude-code-method`. Make `--yes` approval-only. Make missing or unsupported non-interactive choices fail before writes.
-- [x] t15: Make repeat setup classify current, drifted, blocked, unsupported, incomplete, and pending state. Give one action that can change each blocker.
-- [x] t16: Preserve Store-free `resource list` and `resource read` across all setup and harness-policy changes.
-- [x] t17: Preserve the W19 R3 shared Store session gate, checkout writer, pending operation, and retry rules. Add no new Store architecture or project undo path.
+- [x] T5: Replace the active eight-part conformance tuple type and every current six-part result contract with the exact seven-part tuple.
+- [x] T6: Add or complete the validated central registry loader for production setup. Permit tests to select a temporary registry file only through this loader.
+- [x] T7: Remove `reviewedAdapterPlansForTests` and every support or apply path that production cannot use.
+- [x] T8: Add the maintainer-only bootstrap that creates an exact provisional tuple and disposable lab inputs without promoting support.
+- [x] T9: Make `resolveHarnessMethodSupport` return selectable only for an admitted method with eligible exact central evidence.
+- [x] T10: Project the same support result into interactive, dry-run, non-interactive, JSON, and MCP-safe output without progress noise.
+- [x] T11: Implement the exact interactive order: project state, harness selection, one method-and-Skills screen per selected harness, resource placement, grouped review, machine apply and verify, project apply and verify, final result.
+- [x] T12: Make `setup system` use the same per-harness machine planner without project initialization.
+- [x] T13: Add the preserving project-config writer and commit reviewed `harnessIntegrations` only in the project operation.
+- [x] T14: Add `--codex-method` and `--claude-code-method`. Make `--yes` approval-only. Make missing or unsupported non-interactive choices fail before writes.
+- [x] T15: Make repeat setup classify current, drifted, blocked, unsupported, incomplete, and pending state. Give one action that can change each blocker.
+- [x] T16: Preserve Store-free `resource list` and `resource read` across all setup and harness-policy changes.
+- [x] T17: Preserve the W19 R3 shared Store session gate, checkout writer, pending operation, and retry rules. Add no new Store architecture or project undo path.
 
 ### Acceptance criteria
 
@@ -128,17 +128,17 @@ Human Experience Review is a separate required acceptance lens.
 
 ### Tasks
 
-- [x] t18: Add current setup-access scenarios and target bindings for each admitted Codex and Claude Code connection method.
-- [x] t19: Bootstrap provisional exact tuples through the real maintainer-only lab path.
-- [ ] t20: Run Codex MCP and Codex command-rule scenarios in disposable homes. Prove exact native files, outside-sandbox rule behavior, caller identity, Store read and write, and cleanup.
-- [x] t21: Run Claude Code MCP in a disposable home. Prove exact native files, caller identity, Store read and write, and cleanup.
-- [x] t22: Run Claude Code permission-rule and sandbox proof in a disposable home. If safe narrow access fails, record the result and keep the method unavailable.
-- [ ] t23: Run the installed interactive flow for fresh, current, partial, no-method, supported, unsupported, drifted, blocked, failed, recovered, and repeated states.
-- [ ] t24: Run installed machine-success and project-failure recovery. Prove the valid machine change remains and repeat setup resumes only the project part.
-- [ ] t25: Run Store-free resource list and read from restricted Codex and Claude Code tasks with the Store absent, locked, and unreadable.
-- [x] t26: Run focused tests, the full CLI suite, Store verification, packed CLI smoke, MCP conformance, lab meta-verification, PRD authority validation, path hygiene, link checks, and `git diff --check`.
-- [ ] t27: Apply Human Experience Review to every promise. Record the promised surface, evidence, observation, conclusion, reviewer, limits, and useful next action.
-- [ ] t28: Update central evidence, close D-033 only if all ten hard close rules pass, and prepare the P2 closeout without staging, committing, installing, publishing, or releasing.
+- [x] T18: Add current setup-access scenarios and target bindings for each admitted Codex and Claude Code connection method.
+- [x] T19: Bootstrap provisional exact tuples through the real maintainer-only lab path.
+- [ ] T20: Run Codex MCP and Codex command-rule scenarios in disposable homes. Prove exact native files, outside-sandbox rule behavior, caller identity, Store read and write, and cleanup.
+- [x] T21: Run Claude Code MCP in a disposable home. Prove exact native files, caller identity, Store read and write, and cleanup.
+- [x] T22: Run Claude Code permission-rule and sandbox proof in a disposable home. If safe narrow access fails, record the result and keep the method unavailable.
+- [ ] T23: Run the installed interactive flow for fresh, current, partial, no-method, supported, unsupported, drifted, blocked, failed, recovered, and repeated states.
+- [ ] T24: Run installed machine-success and project-failure recovery. Prove the valid machine change remains and repeat setup resumes only the project part.
+- [ ] T25: Run Store-free resource list and read from restricted Codex and Claude Code tasks with the Store absent, locked, and unreadable.
+- [x] T26: Run focused tests, the full CLI suite, Store verification, packed CLI smoke, MCP conformance, lab meta-verification, PRD authority validation, path hygiene, link checks, and `git diff --check`.
+- [ ] T27: Apply Human Experience Review to every promise. Record the promised surface, evidence, observation, conclusion, reviewer, limits, and useful next action.
+- [ ] T28: Update central evidence, close D-033 only if all ten hard close rules pass, and prepare the P2 closeout without staging, committing, installing, publishing, or releasing.
 
 ### Acceptance criteria
 

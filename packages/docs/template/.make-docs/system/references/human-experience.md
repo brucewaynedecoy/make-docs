@@ -35,7 +35,7 @@ When the reply asks the user to act, check these questions:
 - What work waits for it?
 - What should the user return or expect afterward?
 
-Weak: "Please approve `commit-phase-gate`; see task `w4 r1 p2 t19`."
+Weak: "Please approve `commit-phase-gate`; see task `W4 R1 P2 T19`."
 
 Useful: "Please authorize staging for the reviewed notification-recovery changes. Staging means placing only the reviewed changes into the proposed commit set. This separate permission is required before any file is staged, and it blocks only the proposed commit. The linked work record lists the exact files and checks. After you authorize staging, the agent will stage only that set and return the staged diff for a separate commit decision."
 

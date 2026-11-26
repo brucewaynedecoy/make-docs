@@ -61,13 +61,13 @@ Human Experience Review is separate. Inspect preview, blocked, converted, quaran
 
 ### Tasks
 
-- [x] t1: Build fixtures for every supported old schema, receipt, installation ledger, checkout record, path claim, projection record, and pending-operation shape.
-- [x] t2: Implement read-only classification as convert, retain as history, rebuild, quarantine, unsupported, or removable after proof.
-- [x] t3: Produce an exact preview of Store, project, and native changes with blockers and one next action.
-- [x] t4: Record one conversion operation journal before the first write. Use P3 locks and file guards.
-- [x] t5: Convert accepted state to the new model. Preserve stable project identity, useful recovery evidence, user files, and changed native entries.
-- [x] t6: Verify converted state before old active fields or rows are retired. Keep historical evidence under its accepted retention rule.
-- [x] t7: Implement rollback from the saved before state. Keep ambiguous state quarantined without destructive cleanup.
+- [x] T1: Build fixtures for every supported old schema, receipt, installation ledger, checkout record, path claim, projection record, and pending-operation shape.
+- [x] T2: Implement read-only classification as convert, retain as history, rebuild, quarantine, unsupported, or removable after proof.
+- [x] T3: Produce an exact preview of Store, project, and native changes with blockers and one next action.
+- [x] T4: Record one conversion operation journal before the first write. Use P3 locks and file guards.
+- [x] T5: Convert accepted state to the new model. Preserve stable project identity, useful recovery evidence, user files, and changed native entries.
+- [x] T6: Verify converted state before old active fields or rows are retired. Keep historical evidence under its accepted retention rule.
+- [x] T7: Implement rollback from the saved before state. Keep ambiguous state quarantined without destructive cleanup.
 
 ### Acceptance criteria
 
@@ -92,15 +92,15 @@ Human Experience Review is separate. Inspect preview, blocked, converted, quaran
 
 ### Tasks
 
-- [x] t8: Update the append-only symptom table with the final cause, accepted rule, exact case, migration effect, and evidence link.
-- [x] t9: Prove moved checkout behavior without durable device or inode identity.
-- [x] t10: Prove valid package update behavior without historical executable hash lock-in.
-- [x] t11: Prove the accepted Windows harness behavior or accepted narrow limit.
-- [x] t12: Prove setup and Store access no longer form a closed recovery loop.
-- [x] t13: Prove selected resource projection has one desired-state owner and one minimum applied-state record.
-- [x] t14: Add each later owner-provided in-scope symptom and prove it through the accepted model.
-- [x] t15: Stop writing obsolete active fields. Retire them only after all supported upgrade, repeat, interruption, and rollback cases pass.
-- [x] t16: Run focused and full tests, default validation, package smoke preparation, authority checks, links, paths, and diff checks.
+- [x] T8: Update the append-only symptom table with the final cause, accepted rule, exact case, migration effect, and evidence link.
+- [x] T9: Prove moved checkout behavior without durable device or inode identity.
+- [x] T10: Prove valid package update behavior without historical executable hash lock-in.
+- [x] T11: Prove the accepted Windows harness behavior or accepted narrow limit.
+- [x] T12: Prove setup and Store access no longer form a closed recovery loop.
+- [x] T13: Prove selected resource projection has one desired-state owner and one minimum applied-state record.
+- [x] T14: Add each later owner-provided in-scope symptom and prove it through the accepted model.
+- [x] T15: Stop writing obsolete active fields. Retire them only after all supported upgrade, repeat, interruption, and rollback cases pass.
+- [x] T16: Run focused and full tests, default validation, package smoke preparation, authority checks, links, paths, and diff checks.
 
 ### Acceptance criteria
 

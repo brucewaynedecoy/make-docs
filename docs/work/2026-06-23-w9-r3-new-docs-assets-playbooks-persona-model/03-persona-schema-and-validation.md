@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 03: Persona Schema and Validation
 
 ## Purpose
@@ -11,12 +15,12 @@ Implement the persona schema and frontmatter validation needed by guide/playbook
 
 ## Tasks
 
-- [x] t1: Add the default persona set with `slug`, `label`, `description`, and `primitive` fields in the implementation-owned configuration or defaults surface selected by the implementation phase. (`W9R3-P3-T1`)
-- [x] t2: Validate custom personas using the same schema, including lowercase kebab-case `slug`, uniqueness, and primitive membership in `agent`, `maintainer`, or `user`. (`W9R3-P3-T2`)
-- [x] t3: Require `persona` frontmatter for persona-scoped guide and playbook docs. (`W9R3-P3-T3`)
-- [x] t4: Add drift detection when `persona` frontmatter and `docs/assets/{guides,playbooks}/<persona-slug>/` placement disagree. (`W9R3-P3-T4`)
-- [x] t5: Preserve coverage records as separate verdict and persona-target axes; do not collapse persona into verdict. (`W9R3-P3-T5`)
-- [x] t6: Add fixtures for default personas, custom personas, invalid slugs, invalid primitives, missing frontmatter, and path/frontmatter drift. (`W9R3-P3-T6`)
+- [x] T1: Add the default persona set with `slug`, `label`, `description`, and `primitive` fields in the implementation-owned configuration or defaults surface selected by the implementation phase. (`W9R3-P3-T1`)
+- [x] T2: Validate custom personas using the same schema, including lowercase kebab-case `slug`, uniqueness, and primitive membership in `agent`, `maintainer`, or `user`. (`W9R3-P3-T2`)
+- [x] T3: Require `persona` frontmatter for persona-scoped guide and playbook docs. (`W9R3-P3-T3`)
+- [x] T4: Add drift detection when `persona` frontmatter and `docs/assets/{guides,playbooks}/<persona-slug>/` placement disagree. (`W9R3-P3-T4`)
+- [x] T5: Preserve coverage records as separate verdict and persona-target axes; do not collapse persona into verdict. (`W9R3-P3-T5`)
+- [x] T6: Add fixtures for default personas, custom personas, invalid slugs, invalid primitives, missing frontmatter, and path/frontmatter drift. (`W9R3-P3-T6`)
 
 ## Acceptance Criteria
 

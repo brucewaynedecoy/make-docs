@@ -148,24 +148,24 @@ try {
   const rootInstructions = path.join(moved, 'AGENTS.md');
   const safeInstructions = readFileSync(rootInstructions);
   writeFileSync(rootInstructions, Buffer.concat([safeInstructions, Buffer.from('\n<!-- make-docs:begin -->\n')]));
-  const unsafePreview = run(candidateBin, ['project', 'checkout-move', 'preview', '--target-root', moved, '--json'], store);
+  const unsafePreview = run(candidateBin, ['project', 'move', 'preview', '--target-root', moved, '--json'], store);
   assert.equal(unsafePreview.candidates.find(item => item.checkoutId === rootId.checkout_id)?.available, false);
-  const unsafeText = run(candidateBin, ['project', 'checkout-move', 'preview', '--target-root', moved], store);
+  const unsafeText = run(candidateBin, ['project', 'move', 'preview', '--target-root', moved], store);
   assert.match(unsafeText, /Available: no/u);
   assert.match(unsafeText, /Blocker:/u);
   assert.deepEqual(durable(store), before, 'Unsafe preview wrote durable Store state');
   writeFileSync(rootInstructions, safeInstructions);
-  const rootPreview = run(candidateBin, ['project', 'checkout-move', 'preview', '--target-root', moved, '--json'], store);
+  const rootPreview = run(candidateBin, ['project', 'move', 'preview', '--target-root', moved, '--json'], store);
   const rootChoice = rootPreview.candidates.find(item => item.checkoutId === rootId.checkout_id);
   assert.equal(rootChoice.available, true);
-  const rootPreviewText = run(candidateBin, ['project', 'checkout-move', 'preview', '--target-root', moved], store);
+  const rootPreviewText = run(candidateBin, ['project', 'move', 'preview', '--target-root', moved], store);
   assert.match(rootPreviewText, /Checkout move: ready/u);
   assert.ok(rootPreviewText.includes(`Source: ${rootChoice.sourceRoot} (${rootId.checkout_id})`));
   assert.ok(rootPreviewText.includes(`Review: ${rootChoice.reviewDigest}`));
   assert.deepEqual(durable(store), before, 'Move preview wrote durable Store state');
-  const rootMove = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', rootChoice.sourceRoot, '--review', rootChoice.reviewDigest, '--json'], store);
+  const rootMove = run(candidateBin, ['project', 'move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', rootChoice.sourceRoot, '--review', rootChoice.reviewDigest, '--json'], store);
   assert.equal(rootMove.status, 'completed');
-  const rootRetryText = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', rootChoice.sourceRoot, '--review', rootChoice.reviewDigest], store);
+  const rootRetryText = run(candidateBin, ['project', 'move', 'apply', '--target-root', moved, '--source-checkout', rootId.checkout_id, '--source-root', rootChoice.sourceRoot, '--review', rootChoice.reviewDigest], store);
   assert.match(rootRetryText, /Checkout move: already-completed/u);
   assert.ok(rootRetryText.includes(`Checkout ID: ${rootId.checkout_id}`));
   assert.ok(rootRetryText.includes(`Source: ${rootChoice.sourceRoot}`));
@@ -179,10 +179,10 @@ try {
   assert.deepEqual(afterRoot.installation_steps, before.installation_steps);
   assert.deepEqual(instructionBytes(moved), rootBytes);
   assert.deepEqual(instructionBytes(movedKit), kitBytes);
-  const kitPreview = run(candidateBin, ['project', 'checkout-move', 'preview', '--target-root', movedKit, '--json'], store);
+  const kitPreview = run(candidateBin, ['project', 'move', 'preview', '--target-root', movedKit, '--json'], store);
   const kitChoice = kitPreview.candidates.find(item => item.checkoutId === kitId.checkout_id);
   assert.equal(kitChoice.available, true);
-  const kitMove = run(candidateBin, ['project', 'checkout-move', 'apply', '--target-root', movedKit, '--source-checkout', kitId.checkout_id, '--source-root', kitChoice.sourceRoot, '--review', kitChoice.reviewDigest, '--json'], store);
+  const kitMove = run(candidateBin, ['project', 'move', 'apply', '--target-root', movedKit, '--source-checkout', kitId.checkout_id, '--source-root', kitChoice.sourceRoot, '--review', kitChoice.reviewDigest, '--json'], store);
   assert.equal(kitMove.status, 'completed');
   const afterKit = durable(store);
   assert.equal(row(afterKit, movedKit)?.checkout_id, kitId.checkout_id);
@@ -192,6 +192,17 @@ try {
   assert.equal(afterKit.installation_migration_records.length, before.installation_migration_records.length + 2);
   assert.deepEqual(instructionBytes(moved), rootBytes);
   assert.deepEqual(instructionBytes(movedKit), kitBytes);
+  // Moves keep the Store at schema 6, so released 2.0.5 still reads it here. A copy at an unregistered path has no evidence it can verify.
+  const movedCopy = path.join(temp, 'make-kit-copy');
+  cpSync(moved, movedCopy, {recursive: true});
+  const beforeSchema6Reader = durable(store);
+  const schema6Reader = spawnSync(process.execPath, [oldBin, 'project', 'surface', 'ensure', 'artifacts'], {
+    cwd: movedCopy, env: {...process.env, MAKE_DOCS_HOME: store}, encoding: 'utf8', timeout: 120000,
+  });
+  assert.notEqual(schema6Reader.status, 0, 'Released 2.0.5 accepted unfamiliar move evidence');
+  assert.match(`${schema6Reader.stdout}\n${schema6Reader.stderr}`, /does not have verified installation evidence in the Store/i);
+  assert.deepEqual(durable(store), beforeSchema6Reader, 'Old reader changed durable Store state');
+  rmSync(movedCopy, {recursive: true, force: true});
   for (const root of [moved, movedKit]) {
     const upgrade = run(candidateBin, ['setup', '--target', root, ...SETUP_FLAGS], store);
     assert.equal(upgrade.status, 'complete');
@@ -221,8 +232,9 @@ try {
   const oldReader = spawnSync(process.execPath, [oldBin, 'project', 'surface', 'ensure', 'artifacts'], {
     cwd: movedAgain, env: {...process.env, MAKE_DOCS_HOME: store}, encoding: 'utf8', timeout: 120000,
   });
-  assert.notEqual(oldReader.status, 0, 'Released 2.0.5 accepted unfamiliar move evidence');
-  assert.match(`${oldReader.stdout}\n${oldReader.stderr}`, /does not have verified installation evidence in the Store/i);
+  assert.notEqual(oldReader.status, 0, 'Released 2.0.5 accepted a v9 Store');
+  // After setup upgrades the Store to schema v9 (W32 R0 P2 took v7, W29 R0 P2 took v8, W30 R0 P2 took v9), released 2.0.5 refuses the newer schema before it reads any evidence.
+  assert.match(`${oldReader.stdout}\n${oldReader.stderr}`, /schema version 9 is newer than supported version 6/i);
   assert.deepEqual(durable(store), beforeOldReader, 'Old reader changed durable Store state');
   console.log(JSON.stringify({status: 'passed', source: RELEASED_205_URL, released205: {integrity: `sha512-${RELEASED_205_SHA512}`, sha256: RELEASED_205_SHA256}, candidate: {version: expectedVersion, sha256: digest(candidateTarball, 'sha256')}, runtime: {node: process.version, npm: npmVersion(), os: process.platform}, rootCheckoutId: rootId.checkout_id, kitCheckoutId: kitId.checkout_id, receiptCount: 2}));
 } finally {

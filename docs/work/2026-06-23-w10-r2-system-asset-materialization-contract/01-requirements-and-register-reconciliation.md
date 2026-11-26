@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 01: Requirements and Register Reconciliation
 
 ## Purpose
@@ -20,9 +24,9 @@ This phase is a guard phase. It ensures implementation starts from PRD 17, the a
 
 ### Tasks
 
-- [x] t1: Verify PRD 17 still lists `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache` as the only accepted system asset materialization modes.
-- [x] t2: Verify baseline PRD docs still carry backlinks to PRD 17 in the sections affected by W10 R2.
-- [x] t3: Verify risk-register entries for skills delivery, remote source trust, package/template validation, dogfood freshness, lifecycle safety, and no-scripts transition still match the implementation scope.
+- [x] T1: Verify PRD 17 still lists `full-snapshot`, `provider-backed`, and `hybrid-pinned-cache` as the only accepted system asset materialization modes.
+- [x] T2: Verify baseline PRD docs still carry backlinks to PRD 17 in the sections affected by W10 R2.
+- [x] T3: Verify risk-register entries for skills delivery, remote source trust, package/template validation, dogfood freshness, lifecycle safety, and no-scripts transition still match the implementation scope.
 
 ### Evidence
 
@@ -45,9 +49,9 @@ This phase is a guard phase. It ensures implementation starts from PRD 17, the a
 
 ### Tasks
 
-- [x] t4: Record that provider-backed mode is not allowed to become the default in this backlog.
-- [x] t5: Record that remote system asset providers remain deferred until trust, pinning, caching, and confirmation policy are resolved.
-- [x] t6: Identify source files and tests that must change in phases 02 through 04.
+- [x] T4: Record that provider-backed mode is not allowed to become the default in this backlog.
+- [x] T5: Record that remote system asset providers remain deferred until trust, pinning, caching, and confirmation policy are resolved.
+- [x] T6: Identify source files and tests that must change in phases 02 through 04.
 
 ### Scope Notes
 
@@ -68,6 +72,6 @@ This phase is a guard phase. It ensures implementation starts from PRD 17, the a
 
 ### Dependencies
 
-- t1
-- t2
-- t3
+- T1
+- T2
+- T3

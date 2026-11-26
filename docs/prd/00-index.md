@@ -20,6 +20,8 @@ The checkout-move and managed-block requirements target a 2.0.6 candidate. The [
 
 The [W22 R2 backlog](../work/2026-11-13-w22-r2-portable-checkout-adoption/00-index.md) now includes the first sync after a 2.0.7 adoption. [D-051](03-open-questions-and-risk-register.md#d-051-first-sync-after-adoption-is-blocked) tracks the released gap. PRDs 05, 07, 15, and 18 own the current 2.0.8 patch requirements for kept-file trust and archive and assets router parity.
 
+[52 Work Store and Work Queue](52-work-store-and-work-queue.md) owns the local, Store-backed record of work, its two-way repo copy under `docs/work/`, and the ready, claim, report, and close interface. [53 Factory Setup and Orchestration](53-factory-setup-and-orchestration.md) owns the opt-in factory: saved and proved agent tool setup, roles, workflow types, assignments, the human channel, and the escalation floor. Both are current product authority from the [work store design](../designs/2026-11-21-work-store.md) and the [factory design](../designs/2026-11-21-factory.md). Neither is implemented yet.
+
 ## Reading Order
 
 1. Start with [01 Product Overview](01-product-overview.md), [02 Architecture Overview](02-architecture-overview.md), [03 Open Questions and Risk Register](03-open-questions-and-risk-register.md), and [04 Glossary](04-glossary.md).
@@ -29,7 +31,8 @@ The [W22 R2 backlog](../work/2026-11-13-w22-r2-portable-checkout-adoption/00-ind
 5. Read [50 Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) whenever work selects, expands, explains, gates, reuses, or asks a person to perform testing. It routes detailed Performance Testing to [PRD 48](48-performance-evidence-governance.md) and conditional Unassisted Goal Testing to [PRD 46](46-naive-end-user-acceptance-testing.md).
 6. Read [45 Deferred Obligation Governance](45-deferred-obligation-governance.md) and [47 Persona Model](47-persona-model.md) when testing creates accepted future work or needs intended-audience and evidence-path resolution. Persona selection does not prove tester qualification.
 7. Read [51 Backlog Review and Reporting](51-backlog-review-and-reporting.md) when work collects, interprets, presents, or recommends an order for project backlog records.
-8. Use plans and work backlogs only after the owning current PRDs establish the product contract.
+8. Read [52 Work Store and Work Queue](52-work-store-and-work-queue.md) when work records, syncs, selects, claims, or closes units of work. Read [53 Factory Setup and Orchestration](53-factory-setup-and-orchestration.md) when agents set up or run work through saved workflows.
+9. Use plans and work backlogs only after the owning current PRDs establish the product contract.
 
 ## Document Map
 
@@ -70,6 +73,8 @@ The [W22 R2 backlog](../work/2026-11-13-w22-r2-portable-checkout-adoption/00-ind
 | `49` | [Human Experience Standard and Intent](49-human-experience-standard-and-intent.md) | capability | Current | 01, 06, 14, 15, 23, 46, 47, 50 | Canonical Human Experience Standard, impact classification, conditional design intent, lifecycle propagation, human and machine surface boundary, evidence-review lens, and prospective adoption. |
 | `50` | [Proportionate Testing and Human-Centered Validation](50-proportionate-testing-and-human-centered-validation.md) | capability | Current | 01, 06, 10, 14-16, 23, 28, 39, 45-49 | Four-type testing taxonomy, current-decision selection, automated-test levels, direct installed-harness proof, human testing experience, effort and stop rules, evidence reuse, and explicit gate effects. |
 | `51` | [Backlog Review and Reporting](51-backlog-review-and-reporting.md) | capability | Current | 08, 14, 23, 25, 38, 39, 49, 50 | Store-free backlog snapshots with coordinate and committed-state facts, valid optional Store cache reuse, truthful unknown counts, a visibly rendered live MCP App on compatible hosts, Explain and Work in the connected chat, concise chat fallback, and explicit-request static HTML reports. |
+| `52` | [Work Store and Work Queue](52-work-store-and-work-queue.md) | capability | Current | 06, 24, 25, 38, 39, 51, 53 | Store-backed work records with a two-way `docs/work/` repo copy, first import, conflict stop, resolved readiness, time-limited claims, a tracker connection contract, and an agent twin for projects without the CLI. |
+| `53` | [Factory Setup and Orchestration](53-factory-setup-and-orchestration.md) | capability | Current | 06, 08, 14, 21, 24, 25, 38, 39, 51, 52 | Opt-in, tool-agnostic agent orchestration: capability-matched setup with a proved test task, standard roles, three workflow types, Store-backed assignments, waking, one human channel, a fixed escalation floor, scope-end acceptance, and backups outside git. |
 
 ## Source Anchors
 
@@ -82,6 +87,12 @@ The [W22 R2 backlog](../work/2026-11-13-w22-r2-portable-checkout-adoption/00-ind
 - [Backlog Review and Reporting design](../designs/2026-09-18-backlog-review-and-reporting.md)
 - [W23 R0 Backlog Review and Reporting plan](../plans/2026-09-18-w23-r0-backlog-review-and-reporting/00-overview.md)
 - [Backlog Review and Reporting](51-backlog-review-and-reporting.md)
+- [Work store design](../designs/2026-11-21-work-store.md)
+- [W29 R0 Work Store plan](../plans/2026-11-21-w29-r0-work-store/00-overview.md)
+- [Work Store and Work Queue](52-work-store-and-work-queue.md)
+- [Factory design](../designs/2026-11-21-factory.md)
+- [W30 R0 Factory plan](../plans/2026-11-21-w30-r0-factory/00-overview.md)
+- [Factory Setup and Orchestration](53-factory-setup-and-orchestration.md)
 - [Live Backlog Review MCP App design](../designs/2026-09-24-live-backlog-review-mcp-app.md)
 - [W25 R0 Live Backlog Review MCP App plan](../plans/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-overview.md)
 - [W25 R0 Live Backlog Review MCP App work backlog](../work/2026-09-24-w25-r0-live-backlog-review-mcp-app/00-index.md)
@@ -122,6 +133,10 @@ Read 01-04, then use the document map to identify the owning capability. Review 
 
 Read [51 Backlog Review and Reporting](51-backlog-review-and-reporting.md), then use [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md), [23 Generated Document Metadata and Lifecycle Handoffs](23-generated-document-metadata-and-lifecycle-handoffs.md), and the source project work records to interpret the result.
 
+### Agent Work Coordinator
+
+Read [52 Work Store and Work Queue](52-work-store-and-work-queue.md) and [53 Factory Setup and Orchestration](53-factory-setup-and-orchestration.md). Then read [14 Lifecycle Workflow and Coverage Passes](14-lifecycle-workflow-and-coverage-passes.md) and the PRDs named by the claimed work.
+
 ### AI Coding Assistant
 
 Resolve product authority from this active map, not from a historical action-named path. Read every related authority named by the work coordinates, preserve requirement identifiers and stable semantic anchors, and run the PRD authority validator before downstream work consumes PRD changes.
@@ -133,4 +148,4 @@ W19 R5 is closed after owner acceptance. Create the owner-requested implementati
 - Plans and work backlogs must reference these current authority paths and topic-specific anchors.
 - Historical editorial records may remain only as non-authoritative provenance outside the active PRD namespace.
 - Any future requirement change updates its owning product PRD in place, adds standardized Requirement History when useful, and creates a new PRD only for a coherent ownerless product capability or boundary.
-- Before implementation or closeout, run `make-docs run prd authority validate --target-root <project>` and resolve every active authority diagnostic.
+- Before implementation or closeout, run `make-docs check prd --target-root <project>` and resolve every active authority diagnostic.

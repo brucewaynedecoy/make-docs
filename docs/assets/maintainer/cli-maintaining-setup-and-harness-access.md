@@ -144,7 +144,7 @@ npm test -w packages/cli
 npm run build -w packages/cli
 npm run test:smoke-harness
 npm run smoke:pack:local
-node packages/cli/dist/index.js run prd authority validate --target-root .
+node packages/cli/dist/index.js check prd --target-root .
 git diff --check
 ```
 

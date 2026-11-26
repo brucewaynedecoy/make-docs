@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 01: Authority Capture and Supersession Design
 
 ## Purpose
@@ -6,11 +10,11 @@ Capture W10 R7 as durable design authority for the TypeScript CLI and MCP runtim
 
 ## Tasks
 
-- [x] t1: Create the W10 R7 corrective design under `docs/designs/`.
-- [x] t2: Set `Route: change-plan` and coordinate handoff to W10 R7.
-- [x] t3: State that MCP is required for v2 and TypeScript-owned.
-- [x] t4: State that Rust is shelved indefinitely and not a v2 prerequisite.
-- [x] t5: Preserve W16 R3 as operation-boundary proof while marking its implementation shape as first-pass.
+- [x] T1: Create the W10 R7 corrective design under `docs/designs/`.
+- [x] T2: Set `Route: change-plan` and coordinate handoff to W10 R7.
+- [x] T3: State that MCP is required for v2 and TypeScript-owned.
+- [x] T4: State that Rust is shelved indefinitely and not a v2 prerequisite.
+- [x] T5: Preserve W16 R3 as operation-boundary proof while marking its implementation shape as first-pass.
 
 ## Implementation Notes
 

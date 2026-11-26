@@ -203,7 +203,7 @@ Use one or both methods. Keep their evidence separate.
 When the Make Docs CLI is available, run:
 
 ```text
-make-docs run performance evidence validate --target-root <project>
+make-docs check performance-evidence --target-root <project>
 ```
 
 The operation reads Markdown repository authority under `docs/` and `.make-docs/archive/history/`. It inventories candidate language and validates the catalog-marked structural facts. It runs no benchmark and writes no project, Store, or host file.

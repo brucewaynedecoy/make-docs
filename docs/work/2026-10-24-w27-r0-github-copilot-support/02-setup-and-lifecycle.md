@@ -39,10 +39,10 @@ The setup preview shows the exact native entry, Store scope, and action. Status 
 
 ### Tasks
 
-- [x] t1: Add the PRD-approved `github-copilot` adapter with one MCP method and exact path detection.
-- [x] t2: Add the reviewed setup preview and exact entry apply path, with secret redaction.
-- [x] t3: Bind current calls to the active connection key and machine, project, target, profile, and operation grants.
-- [x] t4: Keep the generic MCP path available when native ownership or policy blocks the static method.
+- [x] T1: Add the PRD-approved `github-copilot` adapter with one MCP method and exact path detection.
+- [x] T2: Add the reviewed setup preview and exact entry apply path, with secret redaction.
+- [x] T3: Bind current calls to the active connection key and machine, project, target, profile, and operation grants.
+- [x] T4: Keep the generic MCP path available when native ownership or policy blocks the static method.
 
 ### Acceptance criteria
 
@@ -58,10 +58,10 @@ The setup preview shows the exact native entry, Store scope, and action. Status 
 
 ### Tasks
 
-- [x] t5: Add repeat, drift, repair, rotation, removal, and separate CLI and app status.
-- [x] t6: Add conflict and custom-home blockers with one recovery action each.
-- [x] t7: Update the user and maintainer setup guides after the local behavior was proved.
-- [x] t8: Run focused tests and inspect the packaged executable.
+- [x] T5: Add repeat, drift, repair, rotation, removal, and separate CLI and app status.
+- [x] T6: Add conflict and custom-home blockers with one recovery action each.
+- [x] T7: Update the user and maintainer setup guides after the local behavior was proved.
+- [x] T8: Run focused tests and inspect the packaged executable.
 
 ### Acceptance criteria
 

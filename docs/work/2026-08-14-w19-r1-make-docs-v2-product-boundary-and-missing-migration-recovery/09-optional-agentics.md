@@ -39,14 +39,14 @@ This phase resolves to `not applicable` because the owner selected no optional i
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1–P8 closeouts, checkpoint-12 readiness, active quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [x] t3: Reevaluate at minimum Q-001, Q-007, Q-012, Q-013, Q-022, R-001, R-002, R-008, R-017, R-021, and R-022 plus closed D-005 selected-Skill payload delivery; add newly relevant items.
-- [x] t4: Record each relevant item's ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale, including the exact selected-integration list or `none`.
-- [x] t5: If no integration is explicitly selected, record an explicit no-blocker/not-applicable checkpoint result and skip mutation tasks; otherwise record the no-blocker determination and finite integration, direct installed-product, correction, and review budget before unlocking t8.
-- [x] t6: Confirm that closed D-005 covers the selected-Skill delivery boundary. Stop before implementation for any other blocker or gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [x] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; implementation cannot close questions, risks, claims, scenarios, or findings implicitly.
-- [x] t8: Record the Stage 1 result, authority digests, selected-integration or `none` disposition, D-005 status, checkpoint evidence, and implementation unlock/skip/stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1–P8 closeouts, checkpoint-12 readiness, active quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] T3: Reevaluate at minimum Q-001, Q-007, Q-012, Q-013, Q-022, R-001, R-002, R-008, R-017, R-021, and R-022 plus closed D-005 selected-Skill payload delivery; add newly relevant items.
+- [x] T4: Record each relevant item's ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale, including the exact selected-integration list or `none`.
+- [x] T5: If no integration is explicitly selected, record an explicit no-blocker/not-applicable checkpoint result and skip mutation tasks; otherwise record the no-blocker determination and finite integration, direct installed-product, correction, and review budget before unlocking T8.
+- [x] T6: Confirm that closed D-005 covers the selected-Skill delivery boundary. Stop before implementation for any other blocker or gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] T7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; implementation cannot close questions, risks, claims, scenarios, or findings implicitly.
+- [x] T8: Record the Stage 1 result, authority digests, selected-integration or `none` disposition, D-005 status, checkpoint evidence, and implementation unlock/skip/stop result.
 
 ### Acceptance criteria
 
@@ -73,10 +73,10 @@ This phase resolves to `not applicable` because the owner selected no optional i
 
 ### Tasks
 
-- [x] t9: Prove resource access, lifecycle, Store, and Naive-UAT behavior is complete through direct CLI/MCP/system-workflow paths with all optional agentics absent.
-- [x] t10: Resolve the effective trusted skills/integration manifest, explicit selection, purpose IDs, source policy, provenance, supported harness candidates, install scope, entry point, and uninstall contract for each selected item.
-- [x] t11: Reject untrusted alternate manifests, implicit dependencies, default-all behavior, guessed capability metadata, and selections whose evidence or payload-delivery authority is incomplete.
-- [x] t12: For a `none` selection, record checkpoint 12 as not applicable and preserve the complete core without creating placeholder assets or claims.
+- [x] T9: Prove resource access, lifecycle, Store, and Naive-UAT behavior is complete through direct CLI/MCP/system-workflow paths with all optional agentics absent.
+- [x] T10: Resolve the effective trusted skills/integration manifest, explicit selection, purpose IDs, source policy, provenance, supported harness candidates, install scope, entry point, and uninstall contract for each selected item.
+- [x] T11: Reject untrusted alternate manifests, implicit dependencies, default-all behavior, guessed capability metadata, and selections whose evidence or payload-delivery authority is incomplete.
+- [x] T12: For a `none` selection, record checkpoint 12 as not applicable and preserve the complete core without creating placeholder assets or claims.
 
 ### Acceptance criteria
 
@@ -99,11 +99,11 @@ This phase resolves to `not applicable` because the owner selected no optional i
 
 ### Tasks
 
-- [x] t13: Install canonical shared selected-Skill payloads and only the validated native harness symlink or managed copy-mirror exposures authorized for each selected integration.
-- [x] t14: Keep adapters and shims thin over canonical CLI/typed operations; do not embed product policy, Store logic, UAT logic, resource resolution, Playbook/Protocol behavior, or a general plugin/workflow model.
-- [x] t15: Apply project, home, and external scope-aware planning, backup, update, uninstall, symlink non-following, copy-mirror drift, and custom-content preservation rules.
-- [x] t16: Publish only evidence-backed support status: qualified supported surfaces may claim support, lab-only targets remain lab-only, and absent or stale evidence yields honest unsupported/unknown status.
-- [x] t17: Bind any user-observable selected integration to canonical testing/UAT and direct installed-product records without allowing one mode to substitute for another.
+- [x] T13: Install canonical shared selected-Skill payloads and only the validated native harness symlink or managed copy-mirror exposures authorized for each selected integration.
+- [x] T14: Keep adapters and shims thin over canonical CLI/typed operations; do not embed product policy, Store logic, UAT logic, resource resolution, Playbook/Protocol behavior, or a general plugin/workflow model.
+- [x] T15: Apply project, home, and external scope-aware planning, backup, update, uninstall, symlink non-following, copy-mirror drift, and custom-content preservation rules.
+- [x] T16: Publish only evidence-backed support status: qualified supported surfaces may claim support, lab-only targets remain lab-only, and absent or stale evidence yields honest unsupported/unknown status.
+- [x] T17: Bind any user-observable selected integration to canonical testing/UAT and direct installed-product records without allowing one mode to substitute for another.
 
 ### Acceptance criteria
 
@@ -126,10 +126,10 @@ This phase resolves to `not applicable` because the owner selected no optional i
 
 ### Tasks
 
-- [x] t18: Run focused absent-core, selected-install, update/uninstall, manifest trust, symlink/copy-mirror, custom-content, CLI delegation, direct installed-product, support-claim, applicable UAT, path, and whitespace checks within the finite budget.
-- [x] t19: Prove no Playbook/Protocol runtime, general plugin namespace, workflow bundle, duplicate business logic, unsupported claim, or implicit selection was reintroduced.
-- [x] t20: Obtain independent review of selection, D-005 compliance, core completeness, lifecycle safety, thinness, installed evidence, and support honesty; correct only actionable defects within budget.
-- [x] t21: Record checkpoint-12 completion or not-applicable evidence, exact selected integrations or `none`, scenario/finding/support traces, remaining nonblocking items, and the locked checkpoint-13/P10 handoff while keeping quiescence active.
+- [x] T18: Run focused absent-core, selected-install, update/uninstall, manifest trust, symlink/copy-mirror, custom-content, CLI delegation, direct installed-product, support-claim, applicable UAT, path, and whitespace checks within the finite budget.
+- [x] T19: Prove no Playbook/Protocol runtime, general plugin namespace, workflow bundle, duplicate business logic, unsupported claim, or implicit selection was reintroduced.
+- [x] T20: Obtain independent review of selection, D-005 compliance, core completeness, lifecycle safety, thinness, installed evidence, and support honesty; correct only actionable defects within budget.
+- [x] T21: Record checkpoint-12 completion or not-applicable evidence, exact selected integrations or `none`, scenario/finding/support traces, remaining nonblocking items, and the locked checkpoint-13/P10 handoff while keeping quiescence active.
 
 ### Acceptance criteria
 

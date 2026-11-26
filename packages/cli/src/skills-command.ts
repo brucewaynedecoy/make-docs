@@ -26,7 +26,7 @@ import {
   stateFromSkillsSelections,
   type SkillsUiState,
 } from "./skills-ui";
-import type { InstallManifest, InstallPlan, InstallSelections } from "./types";
+import type { InstallManifest, InstallPlan, InstallSelections, PlannedAction } from "./types";
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
 import { resolveUnifiedSetupState } from "./setup-state";
 
@@ -137,8 +137,8 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
     state,
     config: makeDocsConfig,
   });
-
   if (options.dryRun) {
+    writeKeptForReview(plan, { dryRun: true });
     output.write("\nDry run complete.\n");
     return;
   }
@@ -170,6 +170,7 @@ export async function runSkillsCommand(options: SkillsCommandOptions): Promise<v
       output.write(`- ${conflictFile}\n`);
     }
   }
+  writeKeptForReview(plan, { dryRun: false });
 }
 
 type PresentedAdoptionReview = ReturnType<typeof presentSkillAdoptionReview>;
@@ -368,6 +369,31 @@ function validateSelectedSkills(
       );
     }
   }
+}
+
+export const KEPT_FOR_REVIEW_HEADING = "Changed files kept for your review:";
+export const WOULD_KEEP_FOR_REVIEW_HEADING = "Changed files that setup would keep for your review:";
+export const KEPT_FOR_REVIEW_REASON = "You changed this file, so Make Docs kept it. Review it, then delete it or keep it.";
+
+/**
+ * PRD 08 R-SKILL-SETUP-8: name each changed file that `setup skills` keeps instead of removing or
+ * replacing, with a plain reason. The plan line for such a file says only `skip`. A dry run says what
+ * would happen. A file whose update is staged for review is listed only under "Conflicts were staged
+ * for manual review:", so it is left out here when the run applies.
+ */
+function writeKeptForReview(plan: InstallPlan, options: { dryRun: boolean }): void {
+  const kept = plan.actions.filter((action) =>
+    action.type === "skip-conflict" && (options.dryRun || !stagesConflictCopy(plan, action)));
+  if (kept.length === 0) return;
+  output.write(`${options.dryRun ? WOULD_KEEP_FOR_REVIEW_HEADING : KEPT_FOR_REVIEW_HEADING}\n`);
+  for (const action of kept) {
+    output.write(`- ${action.relativePath}: ${KEPT_FOR_REVIEW_REASON}\n`);
+  }
+}
+
+/** The same rule that `applySkillsOnlyInstallPlan` uses to stage a conflict copy. */
+function stagesConflictCopy(plan: InstallPlan, action: PlannedAction): boolean {
+  return action.content !== undefined && Boolean(plan.conflictsRunId);
 }
 
 function printSkillsPlan(options: {

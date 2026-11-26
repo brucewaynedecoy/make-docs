@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P4 Package Validation and Closeout
 
 ## Purpose
@@ -6,12 +10,12 @@ Prove the migrated operation and skill assets remain consistent across source te
 
 ## Tasks
 
-- [x] t1: Apply source-first edits under `packages/docs/template/` when shipped system helpers or docs assets change.
-- [x] t2: Refresh `packages/cli/template/` through the package copy/prepack path when template-owned assets change.
-- [x] t3: Run selected-skill, registry, install, audit, backup, uninstall, and package validation commands appropriate to the changed files.
-- [x] t4: Run smoke-pack validation when shipped package contents change.
-- [x] t5: Update risk register entries R-008 and R-014 only with implementation evidence.
-- [x] t6: Capture a closeout history record if the implementation wave changes behavior or user-facing workflow.
+- [x] T1: Apply source-first edits under `packages/docs/template/` when shipped system helpers or docs assets change.
+- [x] T2: Refresh `packages/cli/template/` through the package copy/prepack path when template-owned assets change.
+- [x] T3: Run selected-skill, registry, install, audit, backup, uninstall, and package validation commands appropriate to the changed files.
+- [x] T4: Run smoke-pack validation when shipped package contents change.
+- [x] T5: Update risk register entries R-008 and R-014 only with implementation evidence.
+- [x] T6: Capture a closeout history record if the implementation wave changes behavior or user-facing workflow.
 
 ## Implementation Notes
 

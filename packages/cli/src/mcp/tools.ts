@@ -12,8 +12,18 @@ import {
   invokeOperation,
   listOperationAccessFacts,
   listOperations,
+  operationFullCliPath,
   type OperationDefinition,
 } from "../operations/registry";
+import { MCP_NAME_MAX_LENGTH, mcpNameForCliPath } from "../operations/name-catalog";
+import {
+  CommandRenamedError,
+  findMcpMigrationAlias,
+  listMcpMigrationAliases,
+  migrationAliasState,
+  type McpMigrationAlias,
+  type MigrationAliasState,
+} from "../operations/migration-aliases";
 import type { OperationAccess } from "../operations/access";
 import {
   assertMcpToolMetadata,
@@ -31,13 +41,21 @@ import type {
 } from "../types";
 import { readPackageMeta } from "../utils";
 
-type HandDefinedMcpToolName =
-  | "domains"
-  | "install_status"
-  | "manifest"
-  | "config"
-  | "compatibility"
-  | "install_plan";
+/**
+ * CLI paths of the six hand-defined tools (PRD 39 R-NAME-3, owner decision
+ * ND-10). No CLI command exists for them. Each MCP name is built from the
+ * path it would have.
+ */
+const HAND_DEFINED_MCP_TOOL_PATHS = {
+  mcp_domains_list: "mcp domains list",
+  setup_status: "setup status",
+  setup_manifest_read: "setup manifest read",
+  setup_config_read: "setup config read",
+  setup_compatibility_check: "setup compatibility check",
+  setup_plan: "setup plan",
+} as const;
+
+type HandDefinedMcpToolName = keyof typeof HAND_DEFINED_MCP_TOOL_PATHS;
 
 type McpToolInput = Record<string, unknown>;
 
@@ -81,14 +99,14 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & {
   mcp: McpToolMetadata;
 })[] = [
   {
-    name: "domains",
+    name: "mcp_domains_list",
     mcp: { profiles: ["core"], defaultExposure: "eager" },
     title: "List Make Docs Operation Domains",
     description: "List deterministic operation domains shared by CLI and MCP tools.",
     inputSchema: {},
   },
   {
-    name: "install_status",
+    name: "setup_status",
     mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Inspect Make Docs Installed State",
     description:
@@ -96,28 +114,28 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & {
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "manifest",
+    name: "setup_manifest_read",
     mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Read Make Docs Manifest",
     description: "Read .make-docs/manifest.json without mutating the project.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "config",
+    name: "setup_config_read",
     mcp: { profiles: ["core", "setup"], defaultExposure: "eager" },
     title: "Read Make Docs Config",
     description: "Read .make-docs/config.yaml with default overlay diagnostics.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "compatibility",
+    name: "setup_compatibility_check",
     mcp: { profiles: ["setup"], defaultExposure: "deferred" },
     title: "Classify Make Docs Compatibility State",
     description: "Run the same compatibility classifier used by the CLI.",
     inputSchema: { targetDir: targetDirSchema },
   },
   {
-    name: "install_plan",
+    name: "setup_plan",
     mcp: { profiles: ["setup"], defaultExposure: "deferred" },
     title: "Plan Make Docs Install Or Sync",
     description:
@@ -132,60 +150,12 @@ const HAND_DEFINED_MCP_TOOLS: (MakeDocsMcpToolDescriptor & {
 ];
 
 /**
- * W26 R1 MCP presentation names. Registry IDs remain the operation authority.
+ * The MCP tool name of a registry operation (PRD 39 R-NAME-3, R-MIG-3): its
+ * CLI path after `make-docs`, with spaces and hyphens as underscores. No
+ * other mapping exists. Registry IDs remain the operation authority.
  */
-export const MCP_TOOL_NAME_BY_OPERATION: Readonly<Record<string, string>> = Object.freeze({
-  "prd.authority.validate": "prd_validate",
-  "performance.evidence.validate": "performance_validate",
-  "work.item.resolve": "work_item_resolve",
-  "work.evidence.record": "evidence_record",
-  "work.evidence.read": "evidence_read",
-  "work.backlog.snapshot": "backlog_snapshot",
-  "work.backlog-cache.lookup": "backlog_cache_read",
-  "work.backlog-cache.write": "backlog_cache_write",
-  "backlog.review.open": "backlog_review_open",
-  "backlog.review.refresh": "backlog_review_refresh",
-  "resource.list": "resource_list",
-  "resource.read": "resource_read",
-  "resource.ensure": "resource_ensure",
-  "project.state.status": "project_status",
-  "project.state.recover": "project_recover",
-  "project.checkout-move.preview": "checkout_move_preview",
-  "project.checkout-move.apply": "checkout_move_apply",
-  "project.checkout-register.preview": "checkout_register_preview",
-  "project.checkout-register.apply": "checkout_register_apply",
-  "project.persona.list": "personas",
-  "project.layout.preview": "layout_preview",
-  "project.layout.prepare": "layout_prepare",
-  "project.layout.apply": "layout_apply",
-  "project.layout.verify": "layout_verify",
-  "project.surface.ensure": "surface_ensure",
-  "project.path-hygiene.validate": "paths_validate",
-  "project.path-hygiene.repair": "paths_repair",
-  "lifecycle.start": "lifecycle_start",
-  "lifecycle.show": "lifecycle_show",
-  "lifecycle.list": "lifecycle_list",
-  "lifecycle.checkpoint": "lifecycle_checkpoint",
-  "lifecycle.pause": "lifecycle_pause",
-  "lifecycle.resume": "lifecycle_resume",
-  "lifecycle.attach-evidence": "lifecycle_attach_evidence",
-  "lifecycle.complete": "lifecycle_complete",
-  "lifecycle.fail": "lifecycle_fail",
-  "lifecycle.abandon": "lifecycle_abandon",
-  "uat.scenario.validate": "uat_scenario_validate",
-  "uat.persona.resolve": "uat_persona_resolve",
-  "uat.target.validate": "uat_target_validate",
-  "uat.evidence-reference.validate": "uat_evidence_validate",
-  "uat.finding.validate": "uat_finding_validate",
-  "uat.result.validate": "uat_result_validate",
-});
-
 export function deriveMcpToolName(operationId: string): string {
-  const name = MCP_TOOL_NAME_BY_OPERATION[operationId];
-  if (name === undefined) {
-    throw new Error(`Missing MCP tool name for operation: ${operationId}`);
-  }
-  return name;
+  return mcpNameForCliPath(operationFullCliPath(operationId));
 }
 
 /**
@@ -246,14 +216,14 @@ function deriveToolDescription(definition: OperationDefinition): string {
     parts.push("Mutating operation: requires allowWrite=true, enforced by the operation core.");
   }
   if (definition.storeAdmission === "optional") {
-    parts.push("Store access is optional for cache reuse. The cache lookup still needs its own current Store admission.");
+    parts.push("Store access is optional. The tool still answers without it, and it uses the Store only when the Store is admitted.");
   }
   return parts.join(" ");
 }
 
 /**
  * The operation tool list (R-REG-2, R-MIG-3): every admitted registry
- * identifier gets one mapped MCP name. Other tool fields come from its
+ * identifier gets one MCP name derived from its CLI path. Other tool fields come from its
  * registry definition.
  */
 const DERIVED_MCP_OPERATION_TOOLS: DerivedMcpToolDescriptor[] = listOperations().map(
@@ -283,13 +253,15 @@ export const MAKE_DOCS_MCP_TOOLS: MakeDocsMcpToolDescriptor[] = [
   ...DERIVED_MCP_OPERATION_TOOLS,
 ];
 
-const registryToolIds = new Set(listOperations().map((operation) => operation.id));
-const mappedToolIds = Object.keys(MCP_TOOL_NAME_BY_OPERATION);
-if (
-  mappedToolIds.some((id) => !registryToolIds.has(id)) ||
-  [...registryToolIds].some((id) => !Object.hasOwn(MCP_TOOL_NAME_BY_OPERATION, id))
-) {
-  throw new Error("MCP tool name map must match admitted registry operations");
+for (const tool of HAND_DEFINED_MCP_TOOLS) {
+  if (tool.name !== mcpNameForCliPath(HAND_DEFINED_MCP_TOOL_PATHS[tool.name])) {
+    throw new Error(`Hand-defined MCP tool ${tool.name} does not match its CLI path.`);
+  }
+}
+for (const tool of MAKE_DOCS_MCP_TOOLS) {
+  if (tool.name.length > MCP_NAME_MAX_LENGTH) {
+    throw new Error(`MCP tool name ${tool.name} has more than ${MCP_NAME_MAX_LENGTH} characters.`);
+  }
 }
 if (new Set(MAKE_DOCS_MCP_TOOLS.map((tool) => tool.name)).size !== MAKE_DOCS_MCP_TOOLS.length) {
   throw new Error("MCP tool names must be unique");
@@ -324,6 +296,42 @@ export function listMakeDocsMcpTools(
 
 function isToolInProfile(tool: MakeDocsMcpToolDescriptor, profile: McpServerProfile): boolean {
   return tool.mcpReady !== false && (profile === "all" || tool.mcp!.profiles.includes(profile));
+}
+
+for (const alias of listMcpMigrationAliases()) {
+  if (!MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === alias.newMcp)) {
+    throw new Error(`MCP alias ${alias.formerMcp} names no current tool: ${alias.newMcp}.`);
+  }
+  if (MAKE_DOCS_MCP_TOOLS.some((tool) => tool.name === alias.formerMcp)) {
+    throw new Error(`MCP alias ${alias.formerMcp} is also a current tool name.`);
+  }
+}
+
+export interface ActiveMcpMigrationAlias extends McpMigrationAlias {
+  state: Exclude<MigrationAliasState, "removed">;
+}
+
+/**
+ * An old MCP tool name that still answers in this profile (PRD 39 R-MIG-1).
+ * An alias answers only where its new tool is in the profile, and only until
+ * it is removed. It is never in `tools/list`.
+ */
+function resolveMcpMigrationAlias(name: string, profile: McpServerProfile): ActiveMcpMigrationAlias | null {
+  const alias = findMcpMigrationAlias(name);
+  if (!alias) return null;
+  const state = migrationAliasState();
+  if (state === "removed") return null;
+  const target = MAKE_DOCS_MCP_TOOLS.find((tool) => tool.name === alias.newMcp);
+  if (!target || !isToolInProfile(target, profile)) return null;
+  return { ...alias, state };
+}
+
+/** The old MCP tool names that answer in a profile for the running version, with their new tools. */
+export function listActiveMcpMigrationAliases(options: McpProfileOptions = {}): ActiveMcpMigrationAlias[] {
+  const profile = parseMcpServerProfile(options.profile);
+  return listMcpMigrationAliases()
+    .map((alias) => resolveMcpMigrationAlias(alias.formerMcp, profile))
+    .filter((alias): alias is ActiveMcpMigrationAlias => alias !== null);
 }
 
 /**
@@ -392,25 +400,44 @@ export async function callMakeDocsMcpTool(
   options: McpProfileOptions = {},
 ): Promise<Record<string, unknown>> {
   const profile = parseMcpServerProfile(options.profile);
+  const alias = resolveMcpMigrationAlias(name, profile);
+  if (alias) {
+    if (alias.state === "renamed") {
+      throw new CommandRenamedError({
+        formerName: alias.formerMcp,
+        renamedTo: alias.newMcp,
+        renamedIn: alias.renamedIn,
+        surface: "mcp",
+      });
+    }
+    try {
+      return { ...(await callMakeDocsMcpTool(alias.newMcp, args, { profile })), renamedTo: alias.newMcp };
+    } catch (error) {
+      if (error !== null && typeof error === "object" && !("renamedTo" in error)) {
+        Object.assign(error, { renamedTo: alias.newMcp });
+      }
+      throw error;
+    }
+  }
   const tool = MAKE_DOCS_MCP_TOOLS.find((candidate) => candidate.name === name);
   if (tool === undefined || !isToolInProfile(tool, profile)) {
     throw new Error(`Unknown make-docs MCP tool: ${name}`);
   }
   switch (name) {
-    case "domains":
+    case "mcp_domains_list":
       return mcpPayload(name, listOperationDomains());
-    case "install_status":
+    case "setup_status":
       return mcpPayload(name, await readInstalledState(resolveTargetDir(args)));
-    case "manifest":
+    case "setup_manifest_read":
       return mcpPayload(name, readManifest(resolveTargetDir(args)));
-    case "config":
+    case "setup_config_read":
       return mcpPayload(name, readConfig(resolveTargetDir(args)));
-    case "compatibility":
+    case "setup_compatibility_check":
       return mcpPayload(
         name,
         await classifyCompatibilityState({ targetDir: resolveTargetDir(args) }),
       );
-    case "install_plan":
+    case "setup_plan":
       return mcpPayload(name, await buildInstallPlan(resolveTargetDir(args), args));
   }
   const derived = DERIVED_TOOLS_BY_NAME.get(name);

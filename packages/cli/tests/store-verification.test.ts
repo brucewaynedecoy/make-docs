@@ -275,17 +275,20 @@ describe.skipIf(!sqliteAvailable)("D11 verification suite (PRD 38 R-TEST-1..4)",
 
       // The `setup remove` seam: prune keyed by the manifest-minted id.
       const pruned = pruneProjectFromStore({ repoRoot: repoA.root, storeRoot });
-      expect(pruned).toEqual({
+      expect(pruned).toMatchObject({
         status: "pruned",
         storeRoot,
         projectId: repoA.projectId,
         remainingProjects: 1,
+        registerRowKept: false,
+        removed: { project_register: 1 },
       });
 
       withStoreDatabase(storeRoot, (db) => {
-        // Every row for project A is gone.
-        expect(readProjectRegistryEntry(db, repoA.projectId)).toBeNull();
-        expect(listPlaybookRunRecords(db, repoA.projectId)).toEqual([]);
+        // Project A's current rows are gone. W32 R0 P3: the legacy projects table and
+        // legacy Playbook rows stay (PRD 38 R-LIFE-2, R-PS-6).
+        expect(readProjectRegistryEntry(db, repoA.projectId)).not.toBeNull();
+        expect(listPlaybookRunRecords(db, repoA.projectId)).toHaveLength(1);
         expect(listWorkEvidence(db, { projectId: repoA.projectId })).toEqual([]);
         // Every row of project B is intact.
         expect(readProjectRegistryEntry(db, repoB.projectId)).not.toBeNull();

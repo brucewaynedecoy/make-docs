@@ -161,7 +161,7 @@ If a fallback source is used, record which fallback was used and why.
 - Authoritative PRD maintenance puts its work into the lineage wave's backlog, as an in-place edit or a revision Phase, under the `## Decision Procedure` in `wave-model.md`. It creates a new `docs/work/YYYY-MM-DD-w{W}-r{R}-<slug>/` directory only for a new wave or a revision Wave. After a backlog's first commit, record each scope edit in its `## Change History`.
 - Plans use the same form: `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` containing `00-overview.md` plus `0N-<phase>.md` phase files.
 - Keep backlog phases dependency-ordered across the `0N-<phase>.md` files.
-- In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] t1: ...`, `- [x] t1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
+- In every stage, write `### Tasks` as markdown task list items using phase-local task IDs (`- [ ] T1: ...`, `- [x] T1: ...`) and write `### Acceptance criteria` as plain unordered bullets only.
 - Increment task IDs across the entire phase file without resetting in later stages. Do not renumber existing task IDs when inserting or completing work.
 - Include phase-level PRD traceability via `Source PRD Docs`.
 - Make the backlog index retain the source design, plan, owning PRDs, phase order, evidence decisions, and implementation gate for each accepted Human Experience promise or preserved boundary.

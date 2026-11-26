@@ -110,16 +110,16 @@ describe("W26 P3 cross-interface proof", () => {
     const cliStatus = runCli([
       "project", "state", "status", "--target-root", project, "--json",
     ], store);
-    const mcpStatus = await callMakeDocsMcpTool("project_status", { targetRoot: project });
+    const mcpStatus = await callMakeDocsMcpTool("project_state_status", { targetRoot: project });
     expect(mcpStatus).toMatchObject({ operation: "project.state.status" });
     expect(mcpStatus.result).toEqual(cliStatus);
     writeFileSync(projectConfigPath, intent("generic-mcp-p3-grants", "read"));
-    await expect(callMakeDocsMcpTool("project_status", { targetRoot: project }))
+    await expect(callMakeDocsMcpTool("project_state_status", { targetRoot: project }))
       .resolves.toMatchObject({ operation: "project.state.status" });
 
     async function refusedWrite(code: string): Promise<void> {
       const before = [contents(project), contents(store, true)];
-      await expect(callMakeDocsMcpTool("surface_ensure", {
+      await expect(callMakeDocsMcpTool("project_surface_ensure", {
         targetRoot: project, surface: "assets", allowWrite: true,
       })).rejects.toMatchObject({ code });
       expect([contents(project), contents(store, true)]).toEqual(before);
@@ -128,6 +128,9 @@ describe("W26 P3 cross-interface proof", () => {
     await refusedWrite("store-denied");
     expect((await callMakeDocsMcpTool("backlog_snapshot", { targetRoot: project })).result)
       .toMatchObject({ capabilities: { store: { state: "not-used" } } });
+    // W29 R0 P4 T7, opt-in (owner decision 2026-11-23): this checkout is bound and the grant allows Store read.
+    expect((await callMakeDocsMcpTool("backlog_snapshot", { targetRoot: project, workStore: true })).result)
+      .toMatchObject({ capabilities: { store: { state: "available" } }, workStore: { authority: "store", state: "read" } });
 
     writeFileSync(projectConfigPath, JSON.stringify({ projectId, harnessIntegrations: [] }));
     await refusedWrite("store-not-configured");
@@ -149,12 +152,12 @@ describe("W26 P3 cross-interface proof", () => {
     const other = path.join(root, "other-project");
     mkdirSync(other);
     const before = [contents(other), contents(store, true)];
-    await expect(callMakeDocsMcpTool("project_status", { targetRoot: other }))
+    await expect(callMakeDocsMcpTool("project_state_status", { targetRoot: other }))
       .rejects.toMatchObject({ code: "store-not-configured" });
     expect([contents(other), contents(store, true)]).toEqual(before);
 
     process.env.MAKE_DOCS_HOME = path.join(root, "missing-store");
-    await expect(callMakeDocsMcpTool("project_status", { targetRoot: project }))
+    await expect(callMakeDocsMcpTool("project_state_status", { targetRoot: project }))
       .rejects.toMatchObject({ code: "store-denied" });
     expect(existsSync(process.env.MAKE_DOCS_HOME)).toBe(false);
 
@@ -162,7 +165,7 @@ describe("W26 P3 cross-interface proof", () => {
     mkdirSync(unavailable);
     writeFileSync(path.join(unavailable, "config.json"), readFileSync(storeConfigPath));
     process.env.MAKE_DOCS_HOME = unavailable;
-    await expect(callMakeDocsMcpTool("project_status", { targetRoot: project }))
+    await expect(callMakeDocsMcpTool("project_state_status", { targetRoot: project }))
       .rejects.toMatchObject({ code: "store-unavailable" });
     expect(existsSync(path.join(unavailable, "store.db"))).toBe(false);
 
@@ -173,12 +176,12 @@ describe("W26 P3 cross-interface proof", () => {
     db.close();
     process.env.MAKE_DOCS_HOME = unsafe;
     const unsafeBefore = [contents(project), contents(unsafe, true)];
-    await expect(callMakeDocsMcpTool("surface_ensure", {
+    await expect(callMakeDocsMcpTool("project_surface_ensure", {
       targetRoot: project, surface: "assets", allowWrite: true,
     })).rejects.toMatchObject({ code: "store-unsafe" });
     expect([contents(project), contents(unsafe, true)]).toEqual(unsafeBefore);
     process.env.MAKE_DOCS_HOME = store;
-    await expect(callMakeDocsMcpTool("project_status", { targetRoot: project }))
+    await expect(callMakeDocsMcpTool("project_state_status", { targetRoot: project }))
       .resolves.toMatchObject({ operation: "project.state.status" });
   });
 
@@ -201,7 +204,7 @@ describe("W26 P3 cross-interface proof", () => {
     git(["-c", "user.name=W26 P3", "-c", "user.email=w26-p3@example.invalid", "commit", "-qm", "P3 fixture"]);
 
     async function compare(): Promise<ReturnType<typeof buildBacklogSnapshot>> {
-      const cli = runCli(["run", "work", "backlog", "snapshot", "--target-root", project, "--json"], store);
+      const cli = runCli(["backlog", "snapshot", "--target-root", project, "--json"], store);
       const mcp = (await callMakeDocsMcpTool("backlog_snapshot", { targetRoot: project })).result;
       expect(mcp).toMatchObject({
         targetRoot: cli.targetRoot,

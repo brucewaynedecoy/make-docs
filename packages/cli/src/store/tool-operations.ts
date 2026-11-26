@@ -38,7 +38,7 @@ export async function runRecordedToolOperation<T extends { exitCode: number | nu
       // A checkout reserves its SQL lock before taking its long-lived access
       // lease. Check both reservations in this same transaction so a tool
       // command cannot enter that handoff gap or bypass unfinished recovery.
-      const installation = db.prepare("SELECT operation_id FROM installation_operations WHERE status='pending' LIMIT 1").get() as {operation_id:string}|undefined;
+      const installation = db.prepare("SELECT operation_id FROM installation_operations WHERE status IN ('pending','failed') LIMIT 1").get() as {operation_id:string}|undefined;
       const writer = db.prepare("SELECT root_path FROM installation_locks LIMIT 1").get() as {root_path:string}|undefined;
       if (installation || writer) throw new Error("An installation operation or checkout writer is pending. Resolve that work before a tool change. No command was run.");
       db.prepare("INSERT INTO tool_operations (operation_id,operation,status,pid,hostname,metadata_json,started_at,finished_at) VALUES (?,?,'pending',?,?,?,?,NULL)")
@@ -115,7 +115,7 @@ export function withStoreRemovalLock<T>(targetDir: string, storeRoot: string, re
     const db = openStoreSqliteConnection(getStoreDatabasePath(storeRoot), {readOnly:true}, "inspect before removal");
     try {
       const tool = db.prepare("SELECT operation_id FROM tool_operations WHERE status='pending' LIMIT 1").get();
-      const project = db.prepare("SELECT operation_id FROM installation_operations WHERE status='pending' LIMIT 1").get();
+      const project = db.prepare("SELECT operation_id FROM installation_operations WHERE status IN ('pending','failed') LIMIT 1").get();
       const writer = db.prepare("SELECT root_path FROM installation_locks LIMIT 1").get();
       if (tool || project || writer) throw new Error("Store removal is blocked by a pending operation or active writer. Resolve that work first; the Store was preserved.");
     } finally { db.close(); }

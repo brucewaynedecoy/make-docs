@@ -62,11 +62,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: In `packages/cli/src/store/database.ts`, add one helper for transient Windows access codes. Retry them until the admission deadline when the session directory is created, when it is opened and secured, and when the session file is created. Use the helper at the two existing Windows retries too.
-- [x] t2: Add `packages/cli/tests/w22-r0-p9-windows-session-admission.test.ts`. Inject `EPERM` at each step on a simulated Windows platform, and confirm that the tests fail without the change.
-- [x] t3: Run the focused Store tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`. The three-platform CI then runs on the PR. A CI pass alone cannot prove a timing fix, so the deterministic test is the proof.
-- [x] t4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`. This digest also covers W19 R5 P3 in the same PR.
-- [x] t5: Apply the CodeRabbit review of PR #66. Retry a wrapped transient Windows access code from any safety read in the admission loop, and remove a failed attempt's own pending session file before a retry. Fix the test row types that failed `tsc` in the platform contract jobs. Add fault tests for the verification read and the session file write. Repeat the checks, and repeat t4's digest step last.
+- [x] T1: In `packages/cli/src/store/database.ts`, add one helper for transient Windows access codes. Retry them until the admission deadline when the session directory is created, when it is opened and secured, and when the session file is created. Use the helper at the two existing Windows retries too.
+- [x] T2: Add `packages/cli/tests/w22-r0-p9-windows-session-admission.test.ts`. Inject `EPERM` at each step on a simulated Windows platform, and confirm that the tests fail without the change.
+- [x] T3: Run the focused Store tests, `npm test`, `validate:defaults`, the build, and `smoke:pack:local`. The three-platform CI then runs on the PR. A CI pass alone cannot prove a timing fix, so the deterministic test is the proof.
+- [x] T4: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`. This digest also covers W19 R5 P3 in the same PR.
+- [x] T5: Apply the CodeRabbit review of PR #66. Retry a wrapped transient Windows access code from any safety read in the admission loop, and remove a failed attempt's own pending session file before a retry. Fix the test row types that failed `tsc` in the platform contract jobs. Add fault tests for the verification read and the session file write. Repeat the checks, and repeat T4's digest step last.
 
 ### Acceptance criteria
 

@@ -20,7 +20,7 @@ P4 adds `backlog.review.open` and `backlog.review.refresh`. It derives their too
 
 The user authorized P4 implementation on 2026-10-04. Work uses the current branch `w25-r0-p1-live-delivery-contract`, based on `bdd21481497cd78d53baa445dff8c8bbc21c7211`. W25 P1-P3 are closed. Accepted W24 profile, descriptor, and server-factory authority was merged at `26bdf1ce`, from W24 completion `b4c253c1`. That dependency is satisfied.
 
-P4 is closed. Its claim covers shared tool and resource contracts, access, profile membership, and useful results without UI. Tasks t1-t6 and A25-A32 have evidence. The user authorized closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. These records belong to the P4 phase closeout commit. Product widget controls, live host behavior, refresh review flow, and installed acceptance remain P5-P7 work. Push, publication, installation, release, Store writes, host changes, branch changes, and later phases remain outside this authority.
+P4 is closed. Its claim covers shared tool and resource contracts, access, profile membership, and useful results without UI. Tasks T1-T6 and A25-A32 have evidence. The user authorized closeout and a local commit on 2026-10-04, including staging the reviewed P4 file set. These records belong to the P4 phase closeout commit. Product widget controls, live host behavior, refresh review flow, and installed acceptance remain P5-P7 work. Push, publication, installation, release, Store writes, host changes, branch changes, and later phases remain outside this authority.
 
 ## Human Experience Outcome
 
@@ -79,9 +79,9 @@ Human Experience Review remains separate required agent work. Review the actual 
 
 ### Tasks
 
-- [x] t1: Add shared handlers for `backlog.review.open` and `backlog.review.refresh`.
-- [x] t2: Declare project, Store, and host access through the existing access model.
-- [x] t3: Reuse snapshot and cache services without adding transport logic.
+- [x] T1: Add shared handlers for `backlog.review.open` and `backlog.review.refresh`.
+- [x] T2: Declare project, Store, and host access through the existing access model.
+- [x] T3: Reuse snapshot and cache services without adding transport logic.
 
 ### Acceptance criteria
 
@@ -99,9 +99,9 @@ Human Experience Review remains separate required agent work. Review the actual 
 
 ### Tasks
 
-- [x] t4: Derive both MCP tool names from the registry.
-- [x] t5: Register `ui://make-docs/backlog-review/v1.html` and link it with `_meta.ui.resourceUri`.
-- [x] t6: Assign the tools and resource to `backlog` and the exact `all` union.
+- [x] T4: Derive both MCP tool names from the registry.
+- [x] T5: Register `ui://make-docs/backlog-review/v1.html` and link it with `_meta.ui.resourceUri`.
+- [x] T6: Assign the tools and resource to `backlog` and the exact `all` union.
 
 ### Acceptance criteria
 
@@ -125,7 +125,7 @@ Human Experience Review remains separate required agent work. Review the actual 
 
 ## Current Implementation State
 
-- P4 is closed. Tasks t1-t6 and A25-A32 pass within the source tool/resource scope. The user authorized closeout and a local commit on 2026-10-04. These records belong to that phase closeout commit.
+- P4 is closed. Tasks T1-T6 and A25-A32 pass within the source tool/resource scope. The user authorized closeout and a local commit on 2026-10-04. These records belong to that phase closeout commit.
 - The [central report](evidence.md) retains 34 focused cases, 454 affected cases, 53 default checks, type and build checks, asset drift checks, independent no-UI and built stdio review, and required agent Human Experience Review. The 541 selected cases passed across bounded runs and affected repairs.
 - Source guidance keeps chat and explicit static review usable without the CLI or Store. Tool availability and built stdio delivery do not prove host display. The P4 shell has no product tool, message, or task controls.
 - The required history is complete. P5 is the next eligible phase and needs separate implementation authority. P5-P7 product behavior, installation, push, publication, release, Store writes, host changes, and branch changes remain outside this authority.

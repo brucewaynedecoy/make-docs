@@ -68,12 +68,12 @@ Human Experience Review is separate and required. The agent inspects real instal
 
 ### Tasks
 
-- [x] t1: Run focused tests, the full CLI suite, default validation, PRD authority validation, links, path hygiene, and `git diff --check` before packaging.
-- [x] t2: Build one package. Record the source revision, package name, version, and digest. Use that exact package in every installed case.
-- [x] t3: Install the package with the repository unavailable in isolated Windows, macOS, and Linux homes and Store roots.
-- [x] t4: Run fresh, current, old-state bridge, moved checkout, valid package update, changed native entry, Store failure, interrupted apply, stale lock, concurrent writer, projection, repeat, repair, removal, and all symptom cases.
-- [x] t5: Compare public state, safety result, next action, files, Store evidence, and native entries across platforms.
-- [x] t6: Fix bounded defects and rerun only affected cases plus required regression cases. Build a new identified package after code changes.
+- [x] T1: Run focused tests, the full CLI suite, default validation, PRD authority validation, links, path hygiene, and `git diff --check` before packaging.
+- [x] T2: Build one package. Record the source revision, package name, version, and digest. Use that exact package in every installed case.
+- [x] T3: Install the package with the repository unavailable in isolated Windows, macOS, and Linux homes and Store roots.
+- [x] T4: Run fresh, current, old-state bridge, moved checkout, valid package update, changed native entry, Store failure, interrupted apply, stale lock, concurrent writer, projection, repeat, repair, removal, and all symptom cases.
+- [x] T5: Compare public state, safety result, next action, files, Store evidence, and native entries across platforms.
+- [x] T6: Fix bounded defects and rerun only affected cases plus required regression cases. Build a new identified package after code changes.
 
 ### Acceptance criteria
 
@@ -99,13 +99,13 @@ Human Experience Review is separate and required. The agent inspects real instal
 
 ### Tasks
 
-- [x] t7: Reconcile current PRDs, risk items, public guides, help, release claims, and architecture docs with the proved candidate.
-- [x] t8: Dogfood the candidate only through the normal installed path after Stage 1 passes. Record any maintainer-only limit.
-- [x] t9: Complete the Human Experience Review for HX-1 through HX-6 with evidence, observations, conclusions, reviewer, limits, and next actions.
-- [x] t10: Prepare one to three optional normal-use steps for owner feedback. Do not make a response a gate unless later authority explicitly requires it.
-- [x] t11: Close only risk and symptom items whose exact close evidence passes. Keep other items open with a next action.
-- [x] t12: Confirm every P1 mechanism decision is implemented or has an explicit accepted obligation. Remove temporary migration authority that no longer applies.
-- [x] t13: Run final full validation and prepare the phase closeout for separate staging and commit decisions.
+- [x] T7: Reconcile current PRDs, risk items, public guides, help, release claims, and architecture docs with the proved candidate.
+- [x] T8: Dogfood the candidate only through the normal installed path after Stage 1 passes. Record any maintainer-only limit.
+- [x] T9: Complete the Human Experience Review for HX-1 through HX-6 with evidence, observations, conclusions, reviewer, limits, and next actions.
+- [x] T10: Prepare one to three optional normal-use steps for owner feedback. Do not make a response a gate unless later authority explicitly requires it.
+- [x] T11: Close only risk and symptom items whose exact close evidence passes. Keep other items open with a next action.
+- [x] T12: Confirm every P1 mechanism decision is implemented or has an explicit accepted obligation. Remove temporary migration authority that no longer applies.
+- [x] T13: Run final full validation and prepare the phase closeout for separate staging and commit decisions.
 
 ### Acceptance criteria
 

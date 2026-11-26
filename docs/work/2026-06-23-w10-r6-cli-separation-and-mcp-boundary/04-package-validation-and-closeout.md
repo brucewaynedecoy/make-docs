@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Package Validation and Closeout
 
 ## Objective
@@ -6,11 +10,11 @@ Close implementation with package, docs, and conformance evidence that respects 
 
 ## Tasks
 
-- [x] t1: Add package validation when shipped command routers, MCP setup files, or bootstrap instructions are introduced.
-- [x] t2: Keep template-owned changes source-first under `packages/docs/template/`.
-- [x] t3: Run package copy/prepack validation for affected template-owned files.
-- [x] t4: Add conformance-lab scenarios before claiming public model/harness support for CLI/MCP behavior.
-- [x] t5: Update public command docs and package README/tarball guidance only after implementation behavior exists.
+- [x] T1: Add package validation when shipped command routers, MCP setup files, or bootstrap instructions are introduced.
+- [x] T2: Keep template-owned changes source-first under `packages/docs/template/`.
+- [x] T3: Run package copy/prepack validation for affected template-owned files.
+- [x] T4: Add conformance-lab scenarios before claiming public model/harness support for CLI/MCP behavior.
+- [x] T5: Update public command docs and package README/tarball guidance only after implementation behavior exists.
 
 ## Acceptance Criteria
 
@@ -23,11 +27,11 @@ Close implementation with package, docs, and conformance evidence that respects 
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Ran the package validation chain because Phase 2 changed current CLI behavior and package/public CLI docs. No MCP setup files or shipped command routers were introduced in W10 R6. |
-| t2 | Confirmed W10 R6 did not require template-owned source changes under `packages/docs/template/`; Phase 2 package docs and Phase 3 maintainer guide changes stayed outside the template source tree. |
-| t3 | Ran `npm run smoke:pack`, which copied `packages/docs/template/` into `packages/cli/template/`, rebuilt the package, packed it, installed it into a temp project, and exercised install/sync/skills/backup/uninstall behavior. |
-| t4 | Added no conformance-lab scenarios because W10 R6 did not claim shipped Rust, MCP, public model, or harness support. [CLI/MCP Operation Parity and Permissions](../../assets/maintainer/cli-mcp-operation-parity-and-permissions.md) records conformance proof as a future support gate. |
-| t5 | Updated public docs only for implemented behavior: TypeScript npm CLI ownership, future Rust/MCP boundaries, selected-skill flag naming, and lifecycle `--dry-run` rejection. Public docs do not claim shipped Rust or MCP behavior. |
+| T1 | Ran the package validation chain because Phase 2 changed current CLI behavior and package/public CLI docs. No MCP setup files or shipped command routers were introduced in W10 R6. |
+| T2 | Confirmed W10 R6 did not require template-owned source changes under `packages/docs/template/`; Phase 2 package docs and Phase 3 maintainer guide changes stayed outside the template source tree. |
+| T3 | Ran `npm run smoke:pack`, which copied `packages/docs/template/` into `packages/cli/template/`, rebuilt the package, packed it, installed it into a temp project, and exercised install/sync/skills/backup/uninstall behavior. |
+| T4 | Added no conformance-lab scenarios because W10 R6 did not claim shipped Rust, MCP, public model, or harness support. [CLI/MCP Operation Parity and Permissions](../../assets/maintainer/cli-mcp-operation-parity-and-permissions.md) records conformance proof as a future support gate. |
+| T5 | Updated public docs only for implemented behavior: TypeScript npm CLI ownership, future Rust/MCP boundaries, selected-skill flag naming, and lifecycle `--dry-run` rejection. Public docs do not claim shipped Rust or MCP behavior. |
 
 ## Validation Evidence
 

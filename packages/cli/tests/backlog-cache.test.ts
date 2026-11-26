@@ -168,12 +168,12 @@ describe("backlog review cache", () => {
       status: "active",
     });
     expect(adaptRunCliArgv([
-      "work", "backlog-cache", "lookup",
+      "backlog", "cache", "lookup",
       "--target-root", projectRoot,
       "--snapshot-json", snapshotPath,
     ]).invocation.input).toEqual({ targetRoot: projectRoot, snapshot });
     expect(adaptRunCliArgv([
-      "work", "backlog-cache", "write",
+      "backlog", "cache", "write",
       "--target-root", projectRoot,
       "--snapshot-json", snapshotPath,
       "--records-json", recordsPath,
@@ -235,17 +235,39 @@ describe("backlog review cache", () => {
     });
   });
 
+  /**
+   * Make a Store that looks as Make Docs left it at schema 5: no cache table, no
+   * schema 6 or later journal rows, none of the schema 7 objects (guard
+   * triggers and `project_register`), and none of the schema 8 work store
+   * tables. A Store set back with those still present is refused as changed
+   * outside Make Docs (R-WRITE-GUARD-4).
+   */
+  function setStoreBackToSchema5(db: Parameters<Parameters<typeof withStoreDatabase>[1]>[0]): void {
+    for (const { name } of db.prepare("SELECT name FROM sqlite_schema WHERE type = 'trigger'").all() as Array<{ name: string }>) {
+      db.exec(`DROP TRIGGER "${name}"`);
+    }
+    db.exec("DROP TABLE backlog_review_cache");
+    db.exec("DROP TABLE IF EXISTS project_register");
+    // Schema 9 (W30 R0 P2) factory tables first, children before parents, then the schema 8 work tables.
+    for (const table of [
+      "factory_backups", "factory_proof_results", "factory_assignments", "factory_grant_uses", "factory_grants", "factory_workflow_bindings", "factory_workflow_plans", "factory_capability_proofs", "factory_machine_tools",
+      "work_claims", "work_dependencies", "work_links", "work_sync_checkouts", "work_sync_conflicts", "work_sync_ledger", "work_units",
+    ]) {
+      db.exec(`DROP TABLE IF EXISTS ${table}`);
+    }
+    db.exec("DELETE FROM store_schema_journal WHERE schema_version>=6");
+    db.exec("PRAGMA user_version=5");
+  }
+
   test("does not create or migrate cache schema during lookup", () => {
     const { projectRoot, storeRoot } = projectFixture(1);
     const snapshot = buildBacklogSnapshot(projectRoot);
     withStoreDatabase(storeRoot, (db) => {
-      db.exec("DROP TABLE backlog_review_cache");
-      db.exec("DELETE FROM store_schema_journal WHERE schema_version=6");
-      db.exec("PRAGMA user_version=5");
+      setStoreBackToSchema5(db);
     });
 
     expect(() => lookupBacklogReviewCache(projectRoot, snapshot, storeRoot)).toThrow(
-      /requires version 6/,
+      new RegExp(`requires version ${CURRENT_STORE_SCHEMA_VERSION}`),
     );
     withInstallationDatabase(projectRoot, (db) => {
       expect(readUserVersion(db)).toBe(5);
@@ -260,13 +282,11 @@ describe("backlog review cache", () => {
     const snapshot = buildBacklogSnapshot(projectRoot);
     const fragments = reviewFragments(snapshot);
     withStoreDatabase(storeRoot, (db) => {
-      db.exec("DROP TABLE backlog_review_cache");
-      db.exec("DELETE FROM store_schema_journal WHERE schema_version=6");
-      db.exec("PRAGMA user_version=5");
+      setStoreBackToSchema5(db);
     });
 
     expect(() => writeBacklogReviewCache(projectRoot, snapshot, fragments, storeRoot)).toThrow(
-      /requires version 6/,
+      new RegExp(`requires version ${CURRENT_STORE_SCHEMA_VERSION}`),
     );
     withInstallationDatabase(projectRoot, (db) => {
       expect(readUserVersion(db)).toBe(5);

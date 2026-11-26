@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 5: Guardrails, Validation, History, and Commit
 
 ## Purpose
@@ -18,12 +22,12 @@ Add guardrails to W18 R1, W18 R2, and W18 R3, run docs hygiene, create the histo
 
 ### Tasks
 
-- [x] t1: Add W18 R4 prerequisite notes to W18 R1, W18 R2, and W18 R3 plan/work indexes.
-- [x] t2: Run changed-file Markdown/link hygiene.
-- [x] t3: Run `git diff --check`.
-- [x] t4: Run `bash scripts/check-wave-numbering.sh`.
-- [x] t5: Create the W18 R4 history record under `docs/assets/archive/history/`.
-- [x] t6: Draft and create a local-only plan commit.
+- [x] T1: Add W18 R4 prerequisite notes to W18 R1, W18 R2, and W18 R3 plan/work indexes.
+- [x] T2: Run changed-file Markdown/link hygiene.
+- [x] T3: Run `git diff --check`.
+- [x] T4: Run `bash scripts/check-wave-numbering.sh`.
+- [x] T5: Create the W18 R4 history record under `docs/assets/archive/history/`.
+- [x] T6: Draft and create a local-only plan commit.
 
 ### Acceptance criteria
 

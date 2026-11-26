@@ -33,9 +33,9 @@ The owner requested a new W26 R1 package after W26 R0 excluded a broad rename. T
 
 ### Tasks
 
-- [x] t1: Check the six hand-defined tools and 37 registry tools against the P1 map.
-- [x] t2: Update PRD 39 R-MIG-3 and PRD 25 current MCP surface. Add dated requirement history.
-- [x] t3: Check name length, uniqueness, migration wording, and unchanged operation IDs.
+- [x] T1: Check the six hand-defined tools and 37 registry tools against the P1 map.
+- [x] T2: Update PRD 39 R-MIG-3 and PRD 25 current MCP surface. Add dated requirement history.
+- [x] T3: Check name length, uniqueness, migration wording, and unchanged operation IDs.
 
 ### Acceptance criteria
 

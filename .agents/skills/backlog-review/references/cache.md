@@ -10,8 +10,8 @@ Always get the current deterministic snapshot before any cache operation. Keep t
 
 For cache lookup:
 
-1. Call the compatible MCP tool `backlog_cache_read` with the project root and the complete current snapshot.
-2. If that MCP tool is unavailable, save the snapshot to a temporary JSON file outside the project. Run `make-docs run work backlog-cache lookup --target-root <project-root> --snapshot-json <snapshot.json> --json`.
+1. Call the compatible MCP tool `backlog_cache_lookup` with the project root and the complete current snapshot.
+2. If that MCP tool is unavailable, save the snapshot to a temporary JSON file outside the project. Run `make-docs backlog cache lookup --target-root <project-root> --snapshot-json <snapshot.json> --json`.
 3. If neither cache surface is available, or if Store access is refused or fails, perform the full stateless review.
 
 Do not run a separate Store-status probe. The cache operation owns the Store check.
@@ -39,7 +39,7 @@ Reread the latest snapshot before the write gate and validate the whole rebuilt 
 Use the compatible MCP tool `backlog_cache_write`. If that tool is unavailable, save the current snapshot and record array to temporary JSON files outside the project. Run:
 
 ```text
-make-docs run work backlog-cache write --target-root <project-root> --snapshot-json <snapshot.json> --records-json <records.json> --json
+make-docs backlog cache write --target-root <project-root> --snapshot-json <snapshot.json> --records-json <records.json> --json
 ```
 
 Remove temporary files after the operation. Do not create a project-local cache.

@@ -71,9 +71,9 @@ Human Experience Review remains required agent work. It inspects the available r
 
 ### Tasks
 
-- [x] t1: Register one versioned test resource with the MCP Apps MIME type.
-- [x] t2: Return it from one test tool through `_meta.ui.resourceUri`.
-- [x] t3: Prove one `tools/call` and one controlled `ui/message`.
+- [x] T1: Register one versioned test resource with the MCP Apps MIME type.
+- [x] T2: Return it from one test tool through `_meta.ui.resourceUri`.
+- [x] T3: Prove one `tools/call` and one controlled `ui/message`.
 
 ### Acceptance criteria
 
@@ -86,9 +86,9 @@ Human Experience Review remains required agent work. It inspects the available r
 
 ### Tasks
 
-- [x] t4: Record required host capabilities and their absence states.
-- [x] t5: Confirm stdio or prove one bounded Streamable HTTP adapter over the same server factory.
-- [x] t6: Remove proof-only code or promote it through accepted shared boundaries.
+- [x] T4: Record required host capabilities and their absence states.
+- [x] T5: Confirm stdio or prove one bounded Streamable HTTP adapter over the same server factory.
+- [x] T6: Remove proof-only code or promote it through accepted shared boundaries.
 
 ### Acceptance criteria
 

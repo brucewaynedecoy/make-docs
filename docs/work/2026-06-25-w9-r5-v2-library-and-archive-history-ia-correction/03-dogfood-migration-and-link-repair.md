@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 3: Dogfood Migration and Link Repair
 
 ## Purpose
@@ -18,9 +22,9 @@ This phase moves current local guide, history, breadcrumb, and transitional libr
 
 ### Tasks
 
-- [x] t1: Move `docs/guides/**` content and `docs/assets/guides/**` routers to `docs/assets/library/**`.
-- [x] t2: Move `docs/assets/history/**` and `docs/assets/breadcrumbs/**` records to `docs/assets/archive/history/**`, preserving filenames unless collisions require suffixing newer breadcrumbs.
-- [x] t3: Remove transitional `docs/library/**` after preserving unique playbook content under `docs/assets/playbooks/**`.
+- [x] T1: Move `docs/guides/**` content and `docs/assets/guides/**` routers to `docs/assets/library/**`.
+- [x] T2: Move `docs/assets/history/**` and `docs/assets/breadcrumbs/**` records to `docs/assets/archive/history/**`, preserving filenames unless collisions require suffixing newer breadcrumbs.
+- [x] T3: Remove transitional `docs/library/**` after preserving unique playbook content under `docs/assets/playbooks/**`.
 
 ### Acceptance criteria
 
@@ -41,9 +45,9 @@ This phase moves current local guide, history, breadcrumb, and transitional libr
 
 ### Tasks
 
-- [x] t4: Update active live links to moved files.
-- [x] t5: Update future-facing docs references while preserving factual historical references.
-- [x] t6: Run targeted local-link checks for moved docs.
+- [x] T4: Update active live links to moved files.
+- [x] T5: Update future-facing docs references while preserving factual historical references.
+- [x] T6: Run targeted local-link checks for moved docs.
 
 ### Acceptance criteria
 

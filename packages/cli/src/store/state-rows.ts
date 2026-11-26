@@ -1,5 +1,30 @@
-import type { JsonValue } from "../operations/types";
+import { OperationError, type JsonValue } from "../operations/types";
 import type { StoreDatabase } from "./database";
+import { countRegisteredProjects } from "./project-register";
+
+/**
+ * The largest `work_evidence` payload, in bytes of its UTF-8 JSON text
+ * (PRD 38 R-MAINT-6). Evidence points to decisions and files. It does not
+ * hold document bodies or logs, so 64 KiB is far above a normal record.
+ */
+export const WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES = 65_536;
+
+/** Typed refusal for a `work_evidence` payload above the limit. Nothing is written. */
+export class WorkEvidencePayloadTooLargeError extends OperationError {
+  readonly code = "work-evidence-payload-too-large";
+  readonly limitBytes = WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES;
+  readonly reason: string;
+  readonly nextAction: string;
+
+  constructor(readonly payloadBytes: number) {
+    const reason = `The work evidence payload is ${payloadBytes} bytes. The limit is ${WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES} bytes (64 KiB).`;
+    const nextAction = "Record a shorter payload that points to the evidence file or decision instead of copying its content.";
+    super(`${reason} Nothing was recorded. ${nextAction}`);
+    this.name = "WorkEvidencePayloadTooLargeError";
+    this.reason = reason;
+    this.nextAction = nextAction;
+  }
+}
 
 /**
  * Row-level primitives over the operational schema. This is the storage seam
@@ -243,6 +268,9 @@ export function upsertWorkEvidence(
   },
 ): void {
   const now = input.now ?? new Date().toISOString();
+  const payload = JSON.stringify(input.payload);
+  const payloadBytes = Buffer.byteLength(payload, "utf8");
+  if (payloadBytes > WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES) throw new WorkEvidencePayloadTooLargeError(payloadBytes);
   db.prepare(
     `INSERT INTO work_evidence (project_id, wave_slug, phase_path, evidence_kind, payload, repo_root, recorded_at)
      VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -255,7 +283,7 @@ export function upsertWorkEvidence(
     input.waveSlug,
     input.phasePath,
     input.evidenceKind,
-    JSON.stringify(input.payload),
+    payload,
     input.repoRoot ?? null,
     now,
   );
@@ -293,20 +321,54 @@ export function listWorkEvidence(
   }));
 }
 
+/** What {@link deleteProjectRows} removed and kept. */
+export interface DeleteProjectRowsResult {
+  /** Rows removed, by table. */
+  removed: { run_evidence: number; runs: number; work_evidence: number; project_register: number };
+  /**
+   * True when the project's `project_register` row stays, because a checkout
+   * of the project is still bound (PRD 38 R-MIN `project_register` retention).
+   */
+  registerRowKept: boolean;
+  /** Projects left in `project_register`, without this project (R-REGISTER-4). */
+  remainingProjects: number;
+}
+
 /**
- * Removes current rows keyed by the given project identifier inside one
- * transaction. Opaque legacy `playbook_runs` rows are deliberately excluded
- * from this current-state pruning seam (PRD 38 R-PS-6 / R-LIFE-2).
+ * Removes one project's current rows inside one transaction (PRD 38 R-LIFE-2,
+ * R-REGISTER-4): `run_evidence`, `runs`, and `work_evidence`, and its
+ * `project_register` row once no checkout of the project is bound. It keeps
+ * opaque legacy `playbook_runs` rows (R-PS-6), the read-only legacy `projects`
+ * table, every installation table, and every other project's rows. It counts
+ * the remaining projects from `project_register`. It keeps the project's work
+ * store rows (`work_units` and their dependencies, links, and claims), because
+ * PRD 38 removes them only by a scoped cleanup after export:
+ * `deletePrunedProjectWorkRows` in `work-store.ts` (W29 R0 P4 T12). It keeps
+ * the project's factory rows too (W30 R0 P2): bindings, plan revisions,
+ * grants, assignments, test task results, and backup records stay until the
+ * person removes the workflow.
  */
-export function deleteProjectRows(db: StoreDatabase, projectId: string): void {
+export function deleteProjectRows(db: StoreDatabase, projectId: string): DeleteProjectRowsResult {
   db.exec("BEGIN IMMEDIATE");
   try {
-    db.prepare("DELETE FROM run_evidence WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM runs WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM work_evidence WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM playbook_runs WHERE project_id = ?").run(projectId);
-    db.prepare("DELETE FROM projects WHERE project_id = ?").run(projectId);
+    const changes = (sql: string, ...params: string[]) => Number(db.prepare(sql).run(...params).changes);
+    const removed = {
+      run_evidence: changes("DELETE FROM run_evidence WHERE project_id = ?", projectId),
+      runs: changes("DELETE FROM runs WHERE project_id = ?", projectId),
+      work_evidence: changes("DELETE FROM work_evidence WHERE project_id = ?", projectId),
+      project_register: changes(
+        `DELETE FROM project_register WHERE project_id = ?
+           AND NOT EXISTS (SELECT 1 FROM installation_checkouts WHERE project_id = ?)`,
+        projectId,
+        projectId,
+      ),
+    };
+    const registerRowKept = Boolean(
+      db.prepare("SELECT 1 FROM project_register WHERE project_id = ?").get(projectId),
+    );
+    const remainingProjects = countRegisteredProjects(db, projectId);
     db.exec("COMMIT");
+    return { removed, registerRowKept, remainingProjects };
   } catch (error) {
     try {
       db.exec("ROLLBACK");

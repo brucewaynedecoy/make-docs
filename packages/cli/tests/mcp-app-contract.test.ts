@@ -74,7 +74,7 @@ function widget(embedded = true) {
     postMessage: parent.postMessage,
   };
   if (!embedded) window.parent = window;
-  const script = readProofHtml().match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  const script = readProofHtml().match(/<script>([\s\S]*?)<\/script>/i)?.[1];
   if (!script) throw new Error("Missing proof script");
   runInNewContext(script, {
     window, document: { getElementById: (id: string) => elements.get(id) },
@@ -122,7 +122,7 @@ describe("P2 static MCP Apps resource boundary", () => {
         expect((await protocol.client.listTools()).tools.map(tool => tool.name)).toEqual(
           listMakeDocsMcpTools(process.cwd(), { profile: "all" }).map(tool => tool.name),
         );
-        expect((await protocol.client.callTool({ name: "domains", arguments: {} })).isError).not.toBe(true);
+        expect((await protocol.client.callTool({ name: "mcp_domains_list", arguments: {} })).isError).not.toBe(true);
         expect(protocol.client.getServerCapabilities()?.extensions).toEqual({
           "io.modelcontextprotocol/ui": { mimeTypes: [MCP_APP_MIME_TYPE] },
         });

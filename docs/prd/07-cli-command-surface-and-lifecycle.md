@@ -32,9 +32,9 @@ Code anchors:
 
 ### Public command model
 
-- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has seven top-level commands: `setup` with `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, and `setup remove`; `project` for project-surface operations; `resource` with `resource list`, `resource read`, and `resource ensure`; `run` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. There are no compatibility aliases; review, confirmation, and lifecycle-safety semantics apply under these spellings.
+- The [current command taxonomy](./39-cli-command-model-and-operation-registry.md) has eleven top-level groups, one per capability: `setup` with `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, `setup store`, and `setup remove`; `project` for project-surface operations; `resource` with `resource list`, `resource read`, and `resource ensure`; `work`, `backlog`, `lifecycle`, `factory`, and `check` for registry operations; `mcp`; and top-level `update` and `uninstall` for machine-footprint tool self-management. Bare `make-docs` starts guided setup when no install is present and otherwise shows status and help without auto-sync. A renamed command keeps its old spelling only as a hidden migration alias under PRD 39 R-MIG-1; review, confirmation, and lifecycle-safety semantics apply under these spellings.
 
-The root parser and help system must present that taxonomy directly, route only registry-admitted operations below `run`, and reject every noncurrent spelling with guidance naming the accepted command. Implementation and test anchors from the pre-PRD 39 parser are provenance, not command authority; their historical taxonomy is recorded only under Requirement History.
+The root parser and help system must present that taxonomy directly, route only registry-admitted operations below their groups, and reject every noncurrent spelling that is not a migration alias with guidance naming the accepted command. Implementation and test anchors from the pre-PRD 39 parser are provenance, not command authority; their historical taxonomy is recorded only under Requirement History.
 
 The existing Playbook and Protocol CLI and MCP surfaces are a staged compatibility exception. P3 freezes those surfaces and adds no legacy behavior or support claim. P5 is the quiescence stop barrier. P8 owns the fresh trace, backup, and removal.
 
@@ -159,7 +159,7 @@ Code anchors:
 - `setup skills` and every full-install skill-selection surface use one effective skills manifest per run, interpret `all` and `none` against that manifest, preserve resolved `selectedSkills` behavior, and reject untrusted alternate manifests before mutation under [08-skills-catalog-and-distribution.md](./08-skills-catalog-and-distribution.md).
 - `setup skills` command, dry-run, review, `setup backup`, and `setup remove` output distinguish canonical shared payloads, native harness exposures, symlink links, managed copy mirrors, legacy generated stubs, and custom harness files; bare installs remain skill-free, and managed copy-mirror fallback is available when symlink creation is unavailable or disabled under [28-shared-agentics-installation-and-harness-exposure.md](./28-shared-agentics-installation-and-harness-exposure.md).
 - `setup backup` output, `setup remove --backup` behavior, audit exclusions, and smoke-pack proof use `.make-docs/backup/**` for new backup writes, preserve legacy root `.backup/**`, and prune reviewed empty managed Skill directories (including obsolete private-layout parents during upgrade) only when audit proves them safe under [38-global-store-and-project-state.md](./38-global-store-and-project-state.md).
-- The root parser implements the seven-command tree: project lifecycle under `setup`, project-surface operations under `project`, read-only resource discovery under `resource`, registry operations under `run`, MCP serving under `mcp`, and machine-footprint `update` and `uninstall` that never guess before destructive global change. `update`, `setup`, and `setup reconfigure` detect pre-v2 state and require classification plus backup or cancellation. Selection resolution, wizard behavior, lifecycle permissions, the shared audit snapshot, and backup naming remain active under the [current command model](./39-cli-command-model-and-operation-registry.md).
+- The root parser implements the eleven-group tree: project lifecycle under `setup`, project-surface operations under `project`, read-only resource discovery under `resource`, registry operations under `work`, `backlog`, `lifecycle`, `factory`, and `check`, MCP serving under `mcp`, and machine-footprint `update` and `uninstall` that never guess before destructive global change. `update`, `setup`, and `setup reconfigure` detect pre-v2 state and require classification plus backup or cancellation. Selection resolution, wizard behavior, lifecycle permissions, the shared audit snapshot, and backup naming remain active under the [current command model](./39-cli-command-model-and-operation-registry.md).
 
 The root command contract must encode the PRD 39 tree and retain the established flag partitions: `--backup` belongs only to `setup remove`, `--remove` belongs only to `setup skills`, selection flags are invalid on other lifecycle commands, and selected skill identifiers must be known registry entries. `Command`, `InstallIntent`, `ParsedArgs`, `parseArgs`, and `validateParsedArgs` in `packages/cli/src/cli.ts` are implementation seams for that contract, not an independent source of command spellings.
 
@@ -371,6 +371,16 @@ Code and documentation anchors:
 - Replacement contract: Adoption starts from valid saved project choices, expands reviewed conflict policies per path, and gives dry run the same conflict result as apply.
 - Rationale: A person must see the same choices and blockers before and during apply.
 - Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
+
+### 2026-11-23 — W33 R0 P4
+
+- Date: 2026-11-23
+- Coordinate: W33 R0 P4
+- Affected requirement or section: Current command taxonomy and root parser implementation note.
+- Previous contract: seven top-level commands with registry operations under `run`, and no compatibility aliases.
+- Replacement contract: eleven top-level groups with registry operations under `work`, `backlog`, `lifecycle`, `factory`, and `check`. A renamed command keeps its old spelling only as a hidden migration alias under PRD 39 R-MIG-1.
+- Rationale: W33 R0 P2 built the eleven groups (register D-065).
+- Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p4-shipped-text-and-skills).
 
 ## Source Anchors
 

@@ -6,11 +6,11 @@ Confirm the active documentation authority for W17 R4 before package code change
 
 ## Tasks
 
-- [x] t1 Read the agent instructions and numbered build-process documents required for the current workflow step.
-- [x] t2 Confirm [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md#requirement-history) is the active authority for `.make-docs/backup/**`, legacy `.backup/**` protection, and selected-agentics empty-directory pruning.
-- [x] t3 Review [PRD 05](../../prd/05-installation-profile-and-manifest-lifecycle.md), [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md), [PRD 10](../../prd/10-packaging-validation-and-release-reference.md), and [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) for W17 R4 annotations before implementation.
-- [x] t4 Confirm downstream W18 R2 plugin lifecycle planning consumes W17 R4 before implementing plugin backup, uninstall, or migration behavior.
-- [x] t5 Record any discovered authority drift in PRD 03 or the phase closeout notes before touching package code.
+- [x] T1 Read the agent instructions and numbered build-process documents required for the current workflow step.
+- [x] T2 Confirm [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md#requirement-history) is the active authority for `.make-docs/backup/**`, legacy `.backup/**` protection, and selected-agentics empty-directory pruning.
+- [x] T3 Review [PRD 05](../../prd/05-installation-profile-and-manifest-lifecycle.md), [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md), [PRD 10](../../prd/10-packaging-validation-and-release-reference.md), and [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) for W17 R4 annotations before implementation.
+- [x] T4 Confirm downstream W18 R2 plugin lifecycle planning consumes W17 R4 before implementing plugin backup, uninstall, or migration behavior.
+- [x] T5 Record any discovered authority drift in PRD 03 or the phase closeout notes before touching package code.
 
 ## Acceptance Criteria
 

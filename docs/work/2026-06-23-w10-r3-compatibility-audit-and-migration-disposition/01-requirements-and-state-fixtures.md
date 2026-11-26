@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 01: Requirements and State Fixtures
 
 ## Purpose
@@ -20,9 +24,9 @@ This phase gates source work on a complete set of state/disposition fixtures so 
 
 ### Tasks
 
-- [x] t1: Verify PRD 18 still lists all source states and dispositions.
-- [x] t2: Verify affected PRDs carry backlinks to PRD 18.
-- [x] t3: Verify risk-register entries still preserve one-audit safety, no-default-skills migration, and template/package/dogfood boundaries.
+- [x] T1: Verify PRD 18 still lists all source states and dispositions.
+- [x] T2: Verify affected PRDs carry backlinks to PRD 18.
+- [x] T3: Verify risk-register entries still preserve one-audit safety, no-default-skills migration, and template/package/dogfood boundaries.
 
 ### Evidence
 
@@ -44,9 +48,9 @@ This phase gates source work on a complete set of state/disposition fixtures so 
 
 ### Tasks
 
-- [x] t4: Add fixtures for `clean-v1`, `clean-v2-full-snapshot`, `clean-v2-provider-backed`, and `clean-v2-hybrid-pinned-cache`.
-- [x] t5: Add fixtures for `modified-v1`, `partial-install`, `malformed-manifest`, `missing-manifest-recognizable`, and `unknown-shape`.
-- [x] t6: Add fixture variants for provider unavailable, stale cache hashes, malformed managed blocks, canonical missing-manifest files, ambiguous missing-manifest files, and non-make-docs path collisions.
+- [x] T4: Add fixtures for `clean-v1`, `clean-v2-full-snapshot`, `clean-v2-provider-backed`, and `clean-v2-hybrid-pinned-cache`.
+- [x] T5: Add fixtures for `modified-v1`, `partial-install`, `malformed-manifest`, `missing-manifest-recognizable`, and `unknown-shape`.
+- [x] T6: Add fixture variants for provider unavailable, stale cache hashes, malformed managed blocks, canonical missing-manifest files, ambiguous missing-manifest files, and non-make-docs path collisions.
 
 ### Evidence
 
@@ -62,9 +66,9 @@ This phase gates source work on a complete set of state/disposition fixtures so 
 
 ### Dependencies
 
-- t1
-- t2
-- t3
+- T1
+- T2
+- T3
 
 ## Link-Rewrite Hardening Addendum
 

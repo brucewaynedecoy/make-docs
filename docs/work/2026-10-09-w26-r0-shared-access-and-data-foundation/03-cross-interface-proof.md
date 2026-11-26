@@ -50,10 +50,10 @@ Bear F-A01–F-A11, proposal steps 2–3, 5, and 15; approved P1 packet; P2 test
 
 ### Tasks
 
-- [x] t1: Run normal setup and migration, then compare allowed CLI and MCP facts, identities, source versions, and typed errors for the same selection. (F-A01–F-A03, F-A07, F-A09–F-A10; evidence: exact result receipts.)
-- [x] t2: Test missing, read-only, revoked, out-of-scope, unavailable, unsafe, and denied grants and targets. Check that no denied write changes Store or project data. (F-A04–F-A06; evidence: denial matrix.)
-- [x] t3: Use a client that cannot read Store files to complete an allowed MCP Store call through the host. Verify its package/configuration and Store grant. (F-A02, F-A08; evidence: [P3 evidence](evidence.md#p3-shared-store-and-sandbox-proof).)
-- [x] t4: Check agent instructions against deterministic behavior and record passed checks, failed checks, and W25 consumption limits. (F-A11; evidence: coverage and handoff.)
+- [x] T1: Run normal setup and migration, then compare allowed CLI and MCP facts, identities, source versions, and typed errors for the same selection. (F-A01–F-A03, F-A07, F-A09–F-A10; evidence: exact result receipts.)
+- [x] T2: Test missing, read-only, revoked, out-of-scope, unavailable, unsafe, and denied grants and targets. Check that no denied write changes Store or project data. (F-A04–F-A06; evidence: denial matrix.)
+- [x] T3: Use a client that cannot read Store files to complete an allowed MCP Store call through the host. Verify its package/configuration and Store grant. (F-A02, F-A08; evidence: [P3 evidence](evidence.md#p3-shared-store-and-sandbox-proof).)
+- [x] T4: Check agent instructions against deterministic behavior and record passed checks, failed checks, and W25 consumption limits. (F-A11; evidence: coverage and handoff.)
 
 The W26 checks above use shared operations and one sandboxed MCP client. They do not require a running W25 widget. W25 must test its visible Refresh action after it takes in the Store access change.
 

@@ -61,12 +61,12 @@ Human Experience Review is separate. Inspect every complete, partial, blocked, f
 
 ### Tasks
 
-- [x] t1: Reduce harness receipts to managed entry identity, method and scope, before and after value evidence, ownership, applied version, verification result, and recovery facts required by current authority.
-- [x] t2: Separate current executable and package verification from the historical receipt. Verify current execution at each Store-backed call.
-- [x] t3: Keep machine approval, project approval, caller identity, and operation access as distinct decisions with one policy service.
-- [x] t4: Implement the accepted Windows method or enforce the owner-approved support limit across help, setup, adapters, tests, and release claims.
-- [x] t5: Add valid update, changed entry, moved executable, changed package, revoked approval, forged identity, and cross-project tests.
-- [x] t6: Prove that a valid package update does not fail only because the old executable hash differs.
+- [x] T1: Reduce harness receipts to managed entry identity, method and scope, before and after value evidence, ownership, applied version, verification result, and recovery facts required by current authority.
+- [x] T2: Separate current executable and package verification from the historical receipt. Verify current execution at each Store-backed call.
+- [x] T3: Keep machine approval, project approval, caller identity, and operation access as distinct decisions with one policy service.
+- [x] T4: Implement the accepted Windows method or enforce the owner-approved support limit across help, setup, adapters, tests, and release claims.
+- [x] T5: Add valid update, changed entry, moved executable, changed package, revoked approval, forged identity, and cross-project tests.
+- [x] T6: Prove that a valid package update does not fail only because the old executable hash differs.
 
 ### Acceptance criteria
 
@@ -90,13 +90,13 @@ Human Experience Review is separate. Inspect every complete, partial, blocked, f
 
 ### Tasks
 
-- [x] t7: Split setup into bounded read, plan, review, apply, verify, and recover services. Keep the interactive shell as a coordinator.
-- [x] t8: Make interactive, non-interactive, JSON, and MCP surfaces call the same operation services and return the same facts.
-- [x] t9: Read pending operation and Store access state before editable questions. Stop only the action that requires the unavailable Store.
-- [x] t10: Remove the closed recovery loop. Give one action that the current saved evidence permits and that the named command accepts.
-- [x] t11: Keep desired resource selections in project config, provider identity in the provider, live projected bytes in the project, and only minimum applied ownership in the Store.
-- [x] t12: Remove or stop writing duplicate projection facts after compatibility support exists.
-- [x] t13: Add complete, partial, blocked, failed, pending, Store-absent, denied, unsafe, unavailable, repeat, repair, and removal tests across CLI, JSON, and MCP.
+- [x] T7: Split setup into bounded read, plan, review, apply, verify, and recover services. Keep the interactive shell as a coordinator.
+- [x] T8: Make interactive, non-interactive, JSON, and MCP surfaces call the same operation services and return the same facts.
+- [x] T9: Read pending operation and Store access state before editable questions. Stop only the action that requires the unavailable Store.
+- [x] T10: Remove the closed recovery loop. Give one action that the current saved evidence permits and that the named command accepts.
+- [x] T11: Keep desired resource selections in project config, provider identity in the provider, live projected bytes in the project, and only minimum applied ownership in the Store.
+- [x] T12: Remove or stop writing duplicate projection facts after compatibility support exists.
+- [x] T13: Add complete, partial, blocked, failed, pending, Store-absent, denied, unsafe, unavailable, repeat, repair, and removal tests across CLI, JSON, and MCP.
 
 ### Acceptance criteria
 
@@ -115,4 +115,4 @@ Human Experience Review is separate. Inspect every complete, partial, blocked, f
 - Four testing decisions: Automated Implementation Testing is complete. Performance and Unassisted Goal Testing remain `not-needed-now`. Guided Progress Review waits for P6.
 - Human Experience Review: HX-2, HX-3, and HX-5 are satisfied for the P4 source boundary. Complete, planned, blocked, failed, pending, and Store-unavailable results keep exact state and one compatible next action. Store-free resource reads remain available. The review does not claim lived-human acceptance.
 - Evidence report: Store-free behavior, state transitions, CLI/JSON/MCP parity, recovery, repeat, removal, and minimal projection cases are recorded in [evidence.md](evidence.md#p4-harness-trust-setup-and-resource-simplification).
-- Phase / capability status: Tasks t1 through t13 are complete. Acceptance criteria A20 through A27 are satisfied within the recorded evidence and limits. The owner authorized closeout on 2026-09-19. P4 is closed. P5 requires separate implementation approval.
+- Phase / capability status: Tasks T1 through T13 are complete. Acceptance criteria A20 through A27 are satisfied within the recorded evidence and limits. The owner authorized closeout on 2026-09-19. P4 is closed. P5 requires separate implementation approval.

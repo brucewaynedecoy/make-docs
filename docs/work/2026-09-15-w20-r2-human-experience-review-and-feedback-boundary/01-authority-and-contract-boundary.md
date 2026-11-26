@@ -55,11 +55,11 @@ Human Experience Review is required agent review work. The completion response w
 
 ### Tasks
 
-- [x] t1: Record D-037 before applying the correction.
-- [x] t2: Update PRD 49 terms and requirements without changing prior history entries.
-- [x] t3: Update PRD 14 phase-close rules and add W20 R2 history.
-- [x] t4: Update PRD 50 testing and gate rules and add W20 R2 history.
-- [x] t5: Confirm PRD 46 and PRD 15 contain no direct contradiction and remain unchanged.
+- [x] T1: Record D-037 before applying the correction.
+- [x] T2: Update PRD 49 terms and requirements without changing prior history entries.
+- [x] T3: Update PRD 14 phase-close rules and add W20 R2 history.
+- [x] T4: Update PRD 50 testing and gate rules and add W20 R2 history.
+- [x] T5: Confirm PRD 46 and PRD 15 contain no direct contradiction and remain unchanged.
 
 ### Acceptance criteria
 

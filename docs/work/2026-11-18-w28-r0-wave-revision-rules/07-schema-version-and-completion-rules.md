@@ -62,11 +62,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Move the snapshot schema to version 2. A version 1 snapshot is refused with "upgrade the make-docs CLI to 2.0.9 or later". Update the cache-key literals, the fixtures, and the PRD 51 and Skill report-model text. Regenerate the Skill bundles and the MCP App widget.
-- [x] t2: Add schema-version tests for the CLI schema, the CLI agent gate, and the dependency-free Skill bundle.
-- [x] t3: Require a commit for Phase complete in PRD 14 R-COORD-2, `wave-model.md`, the design, and the glossary, with deployment as extra evidence only. Merge the two glossary rows into one row that requires both conditions.
-- [x] t4: State in PRD 14 R-COORD-21 and `wave-model.md` that `committed` describes the current working tree, and that the agent decides prior completion from history.
-- [x] t5: Bump `@brucewaynedecoy/make-docs` to 2.0.9. Last, pack the candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`, following RELEASING.md step 2. Leave `v2.0.8.sha256` unchanged.
+- [x] T1: Move the snapshot schema to version 2. A version 1 snapshot is refused with "upgrade the make-docs CLI to 2.0.9 or later". Update the cache-key literals, the fixtures, and the PRD 51 and Skill report-model text. Regenerate the Skill bundles and the MCP App widget.
+- [x] T2: Add schema-version tests for the CLI schema, the CLI agent gate, and the dependency-free Skill bundle.
+- [x] T3: Require a commit for Phase complete in PRD 14 R-COORD-2, `wave-model.md`, the design, and the glossary, with deployment as extra evidence only. Merge the two glossary rows into one row that requires both conditions.
+- [x] T4: State in PRD 14 R-COORD-21 and `wave-model.md` that `committed` describes the current working tree, and that the agent decides prior completion from history.
+- [x] T5: Bump `@brucewaynedecoy/make-docs` to 2.0.9. Last, pack the candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`, following RELEASING.md step 2. Leave `v2.0.8.sha256` unchanged.
 
 ### Acceptance criteria
 

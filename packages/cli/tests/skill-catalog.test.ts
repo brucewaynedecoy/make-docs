@@ -17,6 +17,7 @@ const ALL_SKILL_NAMES = [
   "decompose-codebase",
   "preflight",
   "factory",
+  "factory-setup",
   "human-experience",
   "naive-uat",
 ];
@@ -90,6 +91,7 @@ describe("skill catalog", () => {
       "cleanup-docs",
       "human-experience",
       "factory",
+      "factory-setup",
       "naive-uat",
       "preflight",
     ]);
@@ -142,7 +144,7 @@ describe("skill catalog", () => {
         assets,
         ".agents/skills/archive-docs/scripts/trace_relationships.py",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       hasAsset(
         assets,
@@ -155,19 +157,15 @@ describe("skill catalog", () => {
         assets,
         ".agents/skills/cleanup-docs/scripts/check_markdown_style.py",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       hasAsset(
         assets,
         ".claude/skills/archive-docs/references/archive-workflow.md",
       ),
     ).toBe(false);
-    expect(
-      hasAsset(
-        assets,
-        ".agents/skills/archive-docs/scripts/trace_relationships.py",
-      ),
-    ).toBe(true);
+    // W34 R0 P4: no first-party Skill ships a Python file.
+    expect(assets.filter((asset) => /\.py$|\.pyc$|__pycache__/.test(asset.relativePath))).toEqual([]);
     for (const withdrawnSkill of WITHDRAWN_SKILL_NAMES) {
       expect(
         assets.some((asset) =>
@@ -179,9 +177,9 @@ describe("skill catalog", () => {
     expect(archiveSharedPayload?.content).toContain(
       "./references/archive-workflow.md",
     );
-    expect(archiveSharedPayload?.content).toContain(
-      "./scripts/trace_relationships.py",
-    );
+    // W34 R0 P2: the Skill text names the relations command, not a script.
+    expect(archiveSharedPayload?.content).not.toContain("scripts/");
+    expect(archiveSharedPayload?.content).toContain("project_relations_list");
     expect(archiveSkillForClaude?.kind).toBe("skill-exposure");
     expect(archiveSkillForClaude?.skillExposure).toMatchObject({
       harness: "claude-code",

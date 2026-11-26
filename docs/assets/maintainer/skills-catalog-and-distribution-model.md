@@ -47,19 +47,21 @@ Remote manifests and remote skill payloads are intentionally policy-gated. Non-f
 
 ## Current shipped catalog
 
-The first-party catalog has seven entries. The CLI build embeds each complete declared payload from its sole source under `packages/skills/<name>/`; the installed CLI needs no network or maintainer checkout to install them.
+The first-party catalog has nine entries. The CLI build embeds each complete declared payload from its sole source under `packages/skills/<name>/`; the installed CLI needs no network or maintainer checkout to install them.
 
 | Skill | Purpose |
 | --- | --- |
 | `archive-docs` | Archive management |
+| `backlog-review` | Work backlog review of focus, attention, and order |
 | `decompose-codebase` | Codebase decomposition and plan creation |
 | `cleanup-docs` | Documentation maintenance |
 | `preflight` | Explicitly requested readiness review |
 | `factory` | Explicitly requested implementation and review coordination |
+| `factory-setup` | Explicitly requested factory workflow setup and proof |
 | `human-experience` | Explicitly requested human experience review |
 | `naive-uat` | Unassisted Goal Testing through the shared CLI workflow |
 
-The former `closeout-commit`, `closeout-phase`, `work-on-phase`, and `work-on-wave` Skills remain retired. Installing preflight, factory, or human-experience does not invoke them or add a workflow gate. Each Skill can be installed alone; `naive-uat` delegates policy and state to the shared CLI workflow.
+The former `closeout-commit`, `closeout-phase`, `work-on-phase`, and `work-on-wave` Skills remain retired. Installing preflight, factory, factory-setup, or human-experience does not invoke them or add a workflow gate. Each Skill can be installed alone; `naive-uat` delegates policy and state to the shared CLI workflow.
 
 `all` expands against the effective manifest for the current run, so a local alternate manifest can replace this set without changing the packaged first-party catalog.
 
@@ -139,8 +141,9 @@ It ships with:
 
 - `SKILL.md` as the canonical shared payload entrypoint
 - harness metadata under `agents/`
-- shared references
-- helper scripts used by the skill workflow
+- shared references, including the manual relationship tracing steps
+
+The Skill traces relationships with the `project_relations_list` MCP tool, else `make-docs project relations list`, else its manual steps, labeled as a manual review.
 
 Changes to `archive-docs` have packaging impact when the skill is selected explicitly or through `all`. They must not make bare default installs write shared payloads or native harness exposures.
 
@@ -152,9 +155,11 @@ Its distributed payload includes:
 
 - the skill entrypoint
 - planning and execution workflow references
-- MCP guidance
-- output contract references
-- templates and helper scripts used during decomposition work
+- index tool guidance that names tools by capability, not by product
+- output contract references, including the `## Check Rules` list
+- templates used during decomposition work
+
+The Skill checks its output with the `check_decomposition` MCP tool, else `make-docs check decomposition`, else a manual review of the `## Check Rules` list. Each rule has one ID in the operation and in the Skill text, and a twin test fails when an ID exists on one side only. The same rule holds for `cleanup-docs` and the `project markdown` commands, and for `archive-docs` and `project relations list`. Change both sides in the same change set.
 
 When maintainers change that skill, they should validate both catalog metadata and the installed asset set rather than assuming the entrypoint alone is enough.
 

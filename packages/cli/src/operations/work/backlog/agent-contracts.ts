@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { BacklogLiveActionSchema, BacklogLiveEnvelopeV1Schema, backlogSnapshotId, backlogProjectKey,
   createBacklogLiveEnvelope, resolveBacklogLiveAction, type BacklogLiveAction } from "./live-contracts.js";
-import { BacklogReportRecordV1Schema, BacklogReportV1Schema, BacklogSnapshotV1Schema } from "./schemas.js";
+import { BacklogReportRecordV1Schema, BacklogReportV1Schema, BacklogSnapshotV1Schema, type BacklogFactoryFact } from "./schemas.js";
 import { BacklogLivePayloadV1Schema, createBacklogLivePayload } from "./presentation.js";
 import { BACKLOG_REVIEW_CACHE_SCHEMA_VERSION, BACKLOG_REVIEW_SKILL_VERSION,
   backlogCacheRecordKey, canonicalJson } from "./cache-key.js";
@@ -19,11 +19,35 @@ function waveActionReference(action: BacklogLiveAction): string {
   return createHash("sha256").update(canonicalJson({ contract: "backlog-wave-message/v2", action })).digest("hex").slice(0, 24);
 }
 
+/**
+ * W30 R0 P5 T13 (PRD 51 R-BACKLOG-APP-18): the words that name the ready
+ * factory workflows. Workflow and project names have a fixed lower-case name
+ * form, so no project prose enters the message. The static report uses the same words.
+ */
+export function backlogFactoryWorkflowWords(readyWorkflows: readonly string[]): string {
+  return readyWorkflows.length === 1
+    ? `the ready factory workflow ${readyWorkflows[0]}`
+    : `one of the ready factory workflows ${readyWorkflows.join(", ")}. Ask me which one if the choice is not clear`;
+}
+
+/** The project that the factory key names: its name, or its ID when it has no name. Both have a fixed form. */
+export function backlogFactoryProjectWords(factory: BacklogFactoryFact): string {
+  return `project ${factory.project.name ?? factory.project.id}`;
+}
+
+/** The Work request when a factory workflow is ready: hand the wave to its front desk through the named factory Skill, for the named project. */
+export function backlogFactoryWorkLead(coordinate: string, factory: BacklogFactoryFact): string {
+  return `Please use the factory Skill to work on ${coordinate} in ${backlogFactoryProjectWords(factory)}. Hand the wave to the front desk of ${backlogFactoryWorkflowWords(factory.readyWorkflows)}. Read its current source record before you start. Check that this review, its recommended action, and the workflow's readiness are still current. Follow my existing approvals and project rules. Tell me what the factory took on or what approval you need.`;
+}
+
 /** V1 wire names remain stable: review-wave asks for explanation; request-task asks for work in the connected chat.
- * Only fixed action fields enter this message. Project titles, claims, and instructions do not. */
-function backlogActionText(action: BacklogLiveAction): string {
+ * Only fixed action fields enter this message. Project titles, claims, and instructions do not.
+ * With a ready factory workflow, request-task asks to hand the wave to the factory (W30 R0 P5 T13); without one, the text is as before (T14). */
+function backlogActionText(action: BacklogLiveAction, factory?: BacklogFactoryFact): string {
   const lead = action.action === "review-wave"
     ? `Please explain ${action.coordinate} in this project. Read its current source record before you answer. Check that this review still names the right wave. Then explain its goals, status, open work, and the next useful step.`
+    : action.action === "request-task" && factory
+      ? backlogFactoryWorkLead(action.coordinate, factory)
     : action.action === "request-task"
       ? `Please work on ${action.coordinate} in this project. Read its current source record before you start. Check that this review and its recommended action are still current. Follow my existing approvals and project rules. Tell me what you changed or what approval you need.`
       : "The Backlog Review found changed source facts. Read the current source records before you update the review. Tell me what changed and what needs a new decision.";
@@ -41,10 +65,12 @@ function backlogActionText(action: BacklogLiveAction): string {
   return lines.join("\n");
 }
 
-export function createBacklogActionMessage(actionInput: unknown) {
+/** `envelopeInput` is the open's own envelope. Its snapshot's factory key, when present, routes Work to the factory. */
+export function createBacklogActionMessage(actionInput: unknown, envelopeInput?: unknown) {
   const action = BacklogLiveActionSchema.parse(actionInput);
+  const factory = envelopeInput === undefined ? undefined : BacklogLiveEnvelopeV1Schema.parse(envelopeInput).report.snapshot.factory;
   return BacklogActionMessageSchema.parse({ role: "user", content: [{ type: "text",
-    text: backlogActionText(action) }] });
+    text: backlogActionText(action, factory) }] });
 }
 export function parseBacklogActionMessage(messageInput: unknown, authoritativeEnvelope?: unknown): BacklogLiveAction {
   const message = BacklogActionMessageSchema.parse(messageInput);
@@ -59,7 +85,7 @@ export function parseBacklogActionMessage(messageInput: unknown, authoritativeEn
         const candidate = BacklogLiveActionSchema.safeParse({ schemaVersion: 1, action: kind,
           sessionId: envelope.sessionId, modelId: envelope.modelId, projectKey: envelope.projectKey,
           snapshotId: envelope.snapshotId, recordPath: source.recordPath, coordinate: source.coordinate.value });
-        if (candidate.success && text === backlogActionText(candidate.data)) matches.push(candidate.data);
+        if (candidate.success && text === backlogActionText(candidate.data, envelope.report.snapshot.factory)) matches.push(candidate.data);
       }
     }
     if (matches.length !== 1) throw new Error("Use the fixed backlog action message.");

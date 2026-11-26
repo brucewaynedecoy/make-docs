@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 03: Provider Cache Manifest Safety
 
 ## Purpose
@@ -20,9 +24,9 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ### Tasks
 
-- [x] t1: Extend manifest planning with fields for materialization mode, source package or provider, source version or immutable ref, hash algorithm, expected hash set, logical asset id, local path when materialized, materialization class, offline expectation, recovery guidance, and selection trigger.
-- [x] t2: Define schema migration behavior from current schema version 1 manifests.
-- [x] t3: Add stale-manifest tests that preserve safe behavior when provenance fields are absent.
+- [x] T1: Extend manifest planning with fields for materialization mode, source package or provider, source version or immutable ref, hash algorithm, expected hash set, logical asset id, local path when materialized, materialization class, offline expectation, recovery guidance, and selection trigger.
+- [x] T2: Define schema migration behavior from current schema version 1 manifests.
+- [x] T3: Add stale-manifest tests that preserve safe behavior when provenance fields are absent.
 
 ### Evidence
 
@@ -45,9 +49,9 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ### Tasks
 
-- [x] t4: Add internal checks for provider identity, provider version or immutable ref, hash algorithm, and expected hash set.
-- [x] t5: Add cache-miss and stale-hash handling that rehydrates from an approved provider or falls back to a reviewed materialization path.
-- [x] t6: Ensure the CLI never silently accepts a different asset version.
+- [x] T4: Add internal checks for provider identity, provider version or immutable ref, hash algorithm, and expected hash set.
+- [x] T5: Add cache-miss and stale-hash handling that rehydrates from an approved provider or falls back to a reviewed materialization path.
+- [x] T6: Ensure the CLI never silently accepts a different asset version.
 
 ### Evidence
 
@@ -64,16 +68,16 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ### Dependencies
 
-- t1
-- t2
+- T1
+- T2
 
 ## Stage 3 - Preserve conflict and lifecycle safety
 
 ### Tasks
 
-- [x] t7: Route on-demand materialization through the same managed-file review and conflict path as ordinary install.
-- [x] t8: Verify backup and uninstall still operate from one reviewed audit snapshot and do not depend on provider availability to infer removability.
-- [x] t9: Add provider-outage and on-demand-conflict tests.
+- [x] T7: Route on-demand materialization through the same managed-file review and conflict path as ordinary install.
+- [x] T8: Verify backup and uninstall still operate from one reviewed audit snapshot and do not depend on provider availability to infer removability.
+- [x] T9: Add provider-outage and on-demand-conflict tests.
 
 ### Evidence
 
@@ -89,5 +93,5 @@ This phase prepares the manifest and safety model for provider-backed and hybrid
 
 ### Dependencies
 
-- t4
-- t5
+- T4
+- T5

@@ -18,7 +18,7 @@ If the request is broad, the skill defaults to planning mode.
 Planning mode is expected to:
 
 - inspect the repository and current documentation
-- check whether `jdocmunch` and `jcodemunch` are available in the current session
+- list the tools that the current session gives the agent: index tools, Make Docs tools, and agent tools
 - ask for user preferences only when they affect the output structure
 - present the plan in chat first
 - write the approved plan directory under `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/` only after approval
@@ -27,12 +27,12 @@ Planning mode is expected to:
 Execution mode is expected to:
 
 - start from an approved plan plus an explicit instruction to execute it, or from an explicit direct-execution instruction
-- re-check MCP availability in the current session
+- list the session tools again in the new session
 - use delegated workers first whenever the harness supports them: parallel agents first, subagents next, single-agent only as a fallback
 - keep the coordinating agent in a non-authoring role whenever delegation is available
-- use `jdocmunch` and `jcodemunch` if available
+- use a document index tool and a code index tool if the session has them
 - generate the PRD set and rebuild backlog
-- validate the final output structure before finishing
+- check the final output before finishing: the `check_decomposition` MCP tool, else `make-docs check decomposition`, else a manual review that says it is a manual review
 
 ## Contract Source vs Installed Runtime
 
@@ -42,22 +42,31 @@ Instead, the installed skill uses bundled local copies under:
 
 - `references/`
 - `assets/templates/`
-- `scripts/`
 
-That means paths such as `scripts/probe_environment.py` and `scripts/validate_output.py` refer to skill-local bundled assets, not repo-root utilities.
+That means paths such as `references/output-contract.md` refer to skill-local bundled assets, not repo-root files.
 
 In a target repository, live repo contracts and accepted design/plan/PRD/work artifacts outrank these bundled projections. Use the bundled copies only when live contracts are unavailable or the task specifically concerns installed skill assets.
 
-## MCP Behavior
+## Tool Behavior
 
-The skill prefers `jdocmunch` and `jcodemunch` when they are available.
+The skill prefers index tools when the session has them. It names no particular tool.
 
-- `jdocmunch` is used for indexing and reading documentation efficiently.
-- `jcodemunch` is used for indexing the codebase, browsing symbols, references, outlines, and dependencies.
+- A document index tool is used for indexing and reading documentation efficiently.
+- A code index tool is used for indexing the codebase, browsing symbols, references, outlines, and dependencies.
 
-Important: MCP availability is checked per session. A previous session having access does not guarantee that a new session will have access too. The skill re-checks availability every time it starts planning or execution.
+Important: the agent lists the tools that its session gives it. A previous session having a tool does not guarantee that a new session has it too. The skill lists the session tools every time it starts planning or execution, and writes the list in the plan.
 
-If one or both MCP servers are unavailable, the skill should recommend them, ask whether to proceed, and then fall back to local repo exploration.
+If the session has no index tool, the skill says so, asks whether to proceed, and then falls back to local repo exploration. It installs nothing without the person's consent.
+
+## Output Check
+
+The skill checks the decomposition output before it finishes. It uses the first way that works:
+
+1. the Make Docs `check_decomposition` MCP tool
+2. the `make-docs check decomposition` command
+3. a manual review of the `## Check Rules` in `references/output-contract.md`
+
+A manual result says that it is a manual review and uses the proof state `agent-reviewed`. It does not claim that a Make Docs check ran.
 
 ## Output Structure
 
@@ -119,7 +128,7 @@ The most reliable workflow is:
 3. start a second session for execution
 4. point the second session at the approved plan
 
-This works well because execution mode re-checks MCP availability and re-indexes the repo in the new session when those servers are available.
+This works well because execution mode lists the session tools again and re-indexes the repo in the new session when it has index tools.
 
 If planning happens in one session and execution in another, approving and saving the plan does not itself authorize same-session execution. That helps keep the user choice clear.
 
@@ -134,7 +143,7 @@ When delegation is available, the coordinating agent should not draft PRD docs, 
 ```text
 Use `decompose-codebase` to plan the decomposition of this repository.
 
-Inspect the repo and existing docs first. Check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. Ask me only where a real preference affects the output structure. Present the decomposition plan in chat first, and do not write `docs/plans/...` until I approve it.
+Inspect the repo and existing docs first. List the tools that this session gives you, and use a document index tool and a code index tool if you have them. Ask me only where a real preference affects the output structure. Present the decomposition plan in chat first, and do not write `docs/plans/...` until I approve it.
 ```
 
 Expected handoff after the plan is presented:
@@ -148,19 +157,19 @@ If you approve this plan, I can either save the plan only or save it and start e
 ```text
 Use `decompose-codebase` to execute the approved decomposition plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`.
 
-Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. Re-check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it into `.make-docs/archive/prds/...`.
+Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. List the tools that this session gives you, and use a document index tool and a code index tool if you have them. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it into `.make-docs/archive/prds/...`.
 ```
 
 ### Stricter execution variant
 
 ```text
-Use `decompose-codebase` to execute the already-approved plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`. Do not create a new plan unless the existing one is unusable or conflicts with the repo state. Re-check MCP availability in this session and use `jdocmunch` and `jcodemunch` if available. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. If `docs/prd` already has active content, ask before archiving it into `.make-docs/archive/prds/...`.
+Use `decompose-codebase` to execute the already-approved plan at `docs/plans/YYYY-MM-DD-w{W}-r{R}-<slug>/00-overview.md`. Do not create a new plan unless the existing one is unusable or conflicts with the repo state. List the tools that this session gives you, and use a document index tool and a code index tool if you have them. This is a context-heavy decomposition task, so use delegated workers first: parallel agents if supported, otherwise subagents, and only fall back to single-agent execution if delegation is not available. Keep the coordinating agent in a routing-only role and assign all document-writing work, including shared docs, backlog assembly, and validation fixes, to delegated workers. Split the work into disjoint workstreams early instead of waiting until the context window is nearly full. If `docs/prd` already has active content, ask before archiving it into `.make-docs/archive/prds/...`.
 ```
 
 ## Related Files
 
 - Skill entry point: `packages/skills/decompose-codebase/SKILL.md`
 - Output contract: `packages/skills/decompose-codebase/references/output-contract.md`
-- MCP guidance: `packages/skills/decompose-codebase/references/mcp-playbook.md`
+- Index tool guidance: `packages/skills/decompose-codebase/references/mcp-playbook.md`
 - Planning workflow: `packages/skills/decompose-codebase/references/planning-workflow.md`
 - Execution workflow: `packages/skills/decompose-codebase/references/execution-workflow.md`

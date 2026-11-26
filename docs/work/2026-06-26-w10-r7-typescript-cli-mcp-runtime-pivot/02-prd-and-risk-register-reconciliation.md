@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: PRD and Risk Register Reconciliation
 
 ## Purpose
@@ -6,10 +10,10 @@ Reconcile active PRDs and risk entries with the W10 R7 runtime pivot.
 
 ## Tasks
 
-- [x] t1: Update PRD 16, PRD 25, and PRD 26 as primary owners.
-- [x] t2: Update supporting PRDs and PRD index where future-facing Rust/PATH-order or optional-MCP assumptions remain.
-- [x] t3: Update risk register entries that mention runtime ownership, MCP parity, package validation, no-scripts migration, or shared agentics behavior.
-- [x] t4: Preserve historical references where they describe completed past work.
+- [x] T1: Update PRD 16, PRD 25, and PRD 26 as primary owners.
+- [x] T2: Update supporting PRDs and PRD index where future-facing Rust/PATH-order or optional-MCP assumptions remain.
+- [x] T3: Update risk register entries that mention runtime ownership, MCP parity, package validation, no-scripts migration, or shared agentics behavior.
+- [x] T4: Preserve historical references where they describe completed past work.
 
 ## Implementation Notes
 

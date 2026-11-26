@@ -114,4 +114,4 @@ The removed `./.codex/w25-recovery/` tree leaves 23 link uses with 14 distinct t
 
 ## Next gate
 
-P12 t2 found no small receipt that needed copying. The P10 and P11 records retain the needed hashes and results. The [old file-status record](recovery-link-disposition.md) repairs all 23 broken links without pretending to restore the old bytes. The owner approved the [exact cleanup proposal](cleanup-proposal.md). The [applied result](cleanup-results.md) records the 52 removals and the 15 kept paths. The active package remains a temporary dependency.
+P12 T2 found no small receipt that needed copying. The P10 and P11 records retain the needed hashes and results. The [old file-status record](recovery-link-disposition.md) repairs all 23 broken links without pretending to restore the old bytes. The owner approved the [exact cleanup proposal](cleanup-proposal.md). The [applied result](cleanup-results.md) records the 52 removals and the 15 kept paths. The active package remains a temporary dependency.

@@ -11,7 +11,7 @@ import {
 import { createExecutionContext } from "../src/operations/context";
 import { hasOperation, invokeOperation, listOperations } from "../src/operations/registry";
 import { OperationError } from "../src/operations/types";
-import { listRunCliAdapters, runRunCommand } from "../src/run/cli";
+import { isOperationGroup, listRunCliAdapters, runRunCommand } from "../src/run/cli";
 import { runToolUninstallCommand, runToolUpdateCommand } from "../src/self";
 import { bootstrapGlobalStore, getStoreDatabasePath } from "../src/store";
 import { createCompatibilityFixture } from "./compatibility-fixtures";
@@ -64,7 +64,7 @@ const REMOVED_TOP_LEVEL_SPELLINGS: ReadonlyArray<[string, string]> = [
   ["reconfigure", "make-docs setup reconfigure"],
   ["skills", "make-docs setup skills"],
   ["backup", "make-docs setup backup"],
-  ["operations", "make-docs run <domain> <verb>"],
+  ["operations", "make-docs <group> <command>"],
 ];
 
 const WAVE_SLUG = "2026-07-02-w18-r11-verification";
@@ -172,10 +172,10 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
     const registryOperations = listOperations();
     const registryIds = registryOperations.map((operation) => operation.id);
     const runRegistryIds = registryOperations
-      .filter((operation) => operation.cli.command.startsWith("make-docs run "))
+      .filter((operation) => isOperationGroup(operation.cli.root))
       .map((operation) => operation.id);
     const nonRunRegistryIds = registryOperations
-      .filter((operation) => !operation.cli.command.startsWith("make-docs run "))
+      .filter((operation) => !isOperationGroup(operation.cli.root))
       .map((operation) => operation.id)
       .sort();
     const runIds = listRunCliAdapters();
@@ -187,22 +187,31 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
       "project.checkout-move.preview",
       "project.checkout-register.apply",
       "project.checkout-register.preview",
+      "project.doctor.check",
+      "project.doctor.fix",
       "project.layout.apply",
       "project.layout.prepare",
       "project.layout.preview",
       "project.layout.verify",
+      "project.markdown-style.repair",
+      "project.markdown-style.validate",
       "project.path-hygiene.repair",
       "project.path-hygiene.validate",
       "project.persona.list",
+      "project.register.list",
+      "project.relations.list",
       "project.state.recover",
       "project.state.status",
       "project.surface.ensure",
       "resource.ensure",
       "resource.list",
       "resource.read",
+      "setup.store.check",
+      "setup.store.clean",
     ]);
-    // The run adapter covers only registry entries whose canonical CLI root
-    // is `run`. Resource and project entries use their own canonical roots.
+    // The group adapters cover the registry entries whose canonical group is
+    // work, backlog, lifecycle, factory, or check (W33 R0 P2). Resource,
+    // project, and setup store entries use their own routers.
     expect(diffIdentifierSets(runRegistryIds, runIds)).toEqual({
       onlyInLeft: [],
       onlyInRight: [],
@@ -225,7 +234,7 @@ describe("R-TEST-1: CLI run tree and MCP tool list are registry-derived with ful
 
   test("an injected one-surface-only mismatch is reported in both directions (failing mode)", () => {
     const runRegistryIds = listOperations()
-      .filter((operation) => operation.cli.command.startsWith("make-docs run "))
+      .filter((operation) => isOperationGroup(operation.cli.root))
       .map((operation) => operation.id);
 
     // CLI side: the same comparison the parity assertion performs must
@@ -367,15 +376,17 @@ describe("R-TEST-3: run exposes no tool lifecycle operation", () => {
       // Not a registry identifier and not a registry domain.
       expect(hasOperation(lifecycle)).toBe(false);
       const domains = new Set(listOperations().map((operation) => operation.domain));
-      expect(domains.has(lifecycle)).toBe(false);
+      // PRD 39 R-STORE-CMD-1 puts Store maintenance (`setup.store.*`) in the `setup` domain. It stays off the run tree.
+      if (lifecycle === "setup") expect(listOperations().filter((operation) => operation.domain === "setup").map((operation) => operation.id)).toEqual(["setup.store.check", "setup.store.clean"]);
+      else expect(domains.has(lifecycle)).toBe(false);
 
       // Not reachable through the derived `run` tree.
       await expect(runRunCommand([lifecycle])).rejects.toBeInstanceOf(OperationError);
       await expect(runRunCommand([lifecycle])).rejects.toThrow(
-        /Unknown make-docs run operation/,
+        /Unknown make-docs command group/,
       );
       await expect(runRunCommand([lifecycle, "anything"])).rejects.toThrow(
-        /Unknown make-docs run operation/,
+        /Unknown make-docs command group/,
       );
 
       // Not reachable through the core dispatch under any verb spelling.
@@ -556,7 +567,7 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
       listOperations().find((operation) => operation.id === "lifecycle.checkpoint"),
     ).toMatchObject({
       status: "active",
-      cli: { command: "make-docs run lifecycle checkpoint" },
+      cli: { command: "make-docs lifecycle checkpoint --run-id <id>|--last --expected-version <n> --checkpoint <name> [--stage <stage>] [--metadata-json <file-or-json>] [--repo-root <path>] [--store-root <path>] [--json]" },
     });
     expect(hasOperation("lifecycle.checkpoint")).toBe(true);
     expect(
@@ -583,10 +594,10 @@ describe("R-TEST-4: pre-v2 migration safety, uninstall confirmation, and pruned 
 
       // run surface: neither the hyphenated token nor its split-token
       // spelling resolves to an operation path.
-      await expect(runRunCommand([pruned])).rejects.toThrow(/Unknown make-docs run operation/);
+      await expect(runRunCommand([pruned])).rejects.toThrow(/Unknown make-docs command/);
       const tokens = pruned.split("-");
       if (tokens.length > 1) {
-        await expect(runRunCommand(tokens)).rejects.toThrow(/Unknown make-docs run operation/);
+        await expect(runRunCommand(tokens)).rejects.toThrow(/Unknown make-docs command/);
       }
     },
   );

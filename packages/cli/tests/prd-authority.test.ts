@@ -583,13 +583,13 @@ describe("authoritative PRD validation", () => {
       expect.objectContaining({ status: "failed", targetRoot: root }),
     );
 
-    const mcp = await callMakeDocsMcpTool("prd_validate", {
+    const mcp = await callMakeDocsMcpTool("check_prd", {
       targetRoot: root,
     });
     expect(JSON.stringify(mcp)).toContain("PRD-AUTH-001");
 
     const writeSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    await runRunCommand(["prd", "authority", "validate", "--target-root", root, "--json"]);
+    await runRunCommand(["check", "prd", "--target-root", root, "--json"]);
     const json = JSON.parse(writeSpy.mock.calls.map(([chunk]) => String(chunk)).join(""));
     expect(json.status).toBe("failed");
     expect(json.markdownSourceCoverage.prd).toBe(1);
@@ -597,7 +597,7 @@ describe("authoritative PRD validation", () => {
 
     process.exitCode = 0;
     writeSpy.mockClear();
-    await runRunCommand(["prd", "authority", "validate", "--target-root", root], {
+    await runRunCommand(["check", "prd", "--target-root", root], {
       isTty: true,
     });
     const human = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join("");

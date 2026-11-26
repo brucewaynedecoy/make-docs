@@ -1,3 +1,4 @@
+import path from "node:path";
 import {
   encodeHarnessCallerIdentity,
   parseHarnessCallerIdentityValue,
@@ -28,6 +29,7 @@ import { NO_ACCESS, type OperationAccess } from "./access";
 import type { OperationRoute } from "./context";
 import { OperationError } from "./types";
 import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access";
+import { storeChangedOutsideNextAction } from "../store/database";
 
 const FULL_OPERATION_ACCESS: OperationAccess = Object.freeze({
   store: "write",
@@ -324,13 +326,18 @@ export function assertHarnessOperationAllowed(input: {
       ? record.issue as Record<string, unknown>
       : null;
     if (record.code === "store-unavailable") {
-      const unsafe = issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
+      const changedOutside = issue?.code === "changed-outside" && typeof issue.path === "string";
+      const unsafe = changedOutside || issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
       throw makeStoreAccessStateError({
         code: unsafe ? "store-unsafe" : "store-unavailable",
         operation: input.operation,
         reason: message(error),
-        nextAction: unsafe
+        nextAction: changedOutside
+          ? storeChangedOutsideNextAction(path.dirname(String(issue!.path)))
+          : unsafe
           ? `Run \`make-docs project state status --target-root ${JSON.stringify(input.targetRoot)}\` and review the Store state.`
+          : typeof record.nextAction === "string" && record.nextAction
+          ? record.nextAction
           : "Restore access to the configured Make Docs Store, then retry only this operation.",
         details: { projectRoot: input.targetRoot, ...(issue ? { issue: { ...issue } } : {}) },
       });

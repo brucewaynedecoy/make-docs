@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 03: Handoff Drift Validation
 
 ## Purpose
@@ -11,11 +15,11 @@ Add validation that proves generated frontmatter and body handoff sections agree
 
 ## Tasks
 
-- [x] t1: Add fixtures for valid `follow_on` metadata and matching body `## Intended Follow-On` rendering.
-- [x] t2: Add fixtures that flag YAML/body route, prompt, reason, or coordinate handoff mismatch.
-- [x] t3: Add fixtures for lifecycle departure values `none`, `source-to-design-straddle`, `skip`, `reorder`, and `revisit`.
-- [x] t4: Ensure unresolved, deferred, or overridden follow-ons remain valid when body and YAML agree.
-- [x] t5: Route validation into CLI-owned or shared validation code instead of leaving it only in scripts or skills if no-scripts migration is in scope.
+- [x] T1: Add fixtures for valid `follow_on` metadata and matching body `## Intended Follow-On` rendering.
+- [x] T2: Add fixtures that flag YAML/body route, prompt, reason, or coordinate handoff mismatch.
+- [x] T3: Add fixtures for lifecycle departure values `none`, `source-to-design-straddle`, `skip`, `reorder`, and `revisit`.
+- [x] T4: Ensure unresolved, deferred, or overridden follow-ons remain valid when body and YAML agree.
+- [x] T5: Route validation into CLI-owned or shared validation code instead of leaving it only in scripts or skills if no-scripts migration is in scope.
 
 ## Acceptance Criteria
 

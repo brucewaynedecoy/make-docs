@@ -27,6 +27,7 @@ import {
   upsertProjectRegistryEntry,
   upsertWorkEvidence,
   withStoreDatabase,
+  recordProjectInRegister,
 } from "../src/store";
 import { runUninstallCommand } from "../src/uninstall";
 import {
@@ -63,6 +64,7 @@ function seedProjectRows(storeRoot: string, projectId: string, rootPath: string)
       runId: `${projectId}-run-1`,
       record: { status: "created" },
     });
+    recordProjectInRegister(db, { projectId });
     upsertWorkEvidence(db, {
       projectId,
       waveSlug: "2026-07-01-w18-r10-global-store-and-project-state",
@@ -150,16 +152,22 @@ describe("pruneProjectFromStore (R-LIFE-2)", () => {
 
     // Identity is resolved from repo A's manifest, never from its path.
     const result = pruneProjectFromStore({ repoRoot: repoA, storeRoot });
+    // W32 R0 P3: the remaining projects come from project_register (R-REGISTER-4).
     expect(result).toEqual({
       status: "pruned",
       storeRoot,
       projectId: projectA,
       remainingProjects: 1,
+      removed: { run_evidence: 0, runs: 0, work_evidence: 1, project_register: 1 },
+      registerRowKept: false,
+      // W29 R0 P4 T12: without a work export digest, the work rows stay.
+      workRows: { status: "kept", reason: "No work export digest was given, so the project's work rows stay." },
     });
 
+    // The legacy projects table and legacy Playbook rows stay (R-LIFE-2, R-PS-6).
     const rowsA = readAllProjectRows(storeRoot, projectA);
-    expect(rowsA.registry).toBeNull();
-    expect(rowsA.runs).toEqual([]);
+    expect(rowsA.registry?.projectId).toBe(projectA);
+    expect(rowsA.runs).toHaveLength(1);
     expect(rowsA.evidence).toEqual([]);
 
     const rowsB = readAllProjectRows(storeRoot, projectB);
@@ -172,7 +180,7 @@ describe("pruneProjectFromStore (R-LIFE-2)", () => {
 
     expect(
       withStoreDatabase(storeRoot, (db) => listProjectRegistryEntries(db)),
-    ).toHaveLength(1);
+    ).toHaveLength(2);
   });
 
   it("reports a missing project identity explicitly instead of falling back to path-keyed pruning", () => {

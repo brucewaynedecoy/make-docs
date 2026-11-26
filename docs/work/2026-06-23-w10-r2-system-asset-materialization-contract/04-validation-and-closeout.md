@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 04: Validation and Closeout
 
 ## Purpose
@@ -20,10 +24,10 @@ This phase proves the default full-snapshot path still works, future provider/ca
 
 ### Tasks
 
-- [x] t1: Run `npm test -w packages/cli`.
-- [x] t2: Run `npm run validate:defaults -w packages/cli`.
-- [x] t3: Run `npm run build -w packages/cli`.
-- [x] t4: Run `npm run smoke:pack`.
+- [x] T1: Run `npm test -w packages/cli`.
+- [x] T2: Run `npm run validate:defaults -w packages/cli`.
+- [x] T3: Run `npm run build -w packages/cli`.
+- [x] T4: Run `npm run smoke:pack`.
 
 ### Evidence
 
@@ -47,10 +51,10 @@ This phase proves the default full-snapshot path still works, future provider/ca
 
 ### Tasks
 
-- [x] t5: Run focused tests for provider outage behavior.
-- [x] t6: Run focused tests for stale provider hashes and cache misses.
-- [x] t7: Run focused tests for on-demand conflict handling.
-- [x] t8: Run focused tests for manifest compatibility across old and new provenance state.
+- [x] T5: Run focused tests for provider outage behavior.
+- [x] T6: Run focused tests for stale provider hashes and cache misses.
+- [x] T7: Run focused tests for on-demand conflict handling.
+- [x] T8: Run focused tests for manifest compatibility across old and new provenance state.
 
 ### Evidence
 
@@ -66,18 +70,18 @@ This phase proves the default full-snapshot path still works, future provider/ca
 
 ### Dependencies
 
-- t1
-- t2
-- t3
+- T1
+- T2
+- T3
 
 ## Stage 3 - Close docs and commit
 
 ### Tasks
 
-- [x] t9: Update implementation docs, PRD notes, or risk-register entries only where the implemented behavior changes the accepted contract.
-- [x] t10: Run `git diff --check`.
-- [x] t11: Read `docs/assets/references/commit-message-convention.md` and draft the commit message from the actual diff.
-- [x] t12: Create a local commit and do not push.
+- [x] T9: Update implementation docs, PRD notes, or risk-register entries only where the implemented behavior changes the accepted contract.
+- [x] T10: Run `git diff --check`.
+- [x] T11: Read `docs/assets/references/commit-message-convention.md` and draft the commit message from the actual diff.
+- [x] T12: Create a local commit and do not push.
 
 ### Evidence
 
@@ -95,7 +99,7 @@ This phase proves the default full-snapshot path still works, future provider/ca
 
 ### Dependencies
 
-- t5
-- t6
-- t7
-- t8
+- T5
+- T6
+- T7
+- T8

@@ -1,5 +1,6 @@
 import type { JsonValue } from "../operations/types";
 import type { StoreDatabase } from "./database";
+import { recordProjectInRegister } from "./project-register";
 import {
   listWorkEvidence,
   upsertWorkEvidence,
@@ -87,6 +88,9 @@ export function recordWorkEvidence(
     now?: string;
   },
 ): void {
+  // R-REGISTER-1: a work evidence write records its project first, so a refused
+  // project name leaves no evidence row.
+  recordProjectInRegister(db, { projectId: input.projectId, projectRoot: input.identity.repoRoot, now: input.now });
   upsertWorkEvidence(db, {
     projectId: input.projectId,
     waveSlug: input.identity.waveSlug,

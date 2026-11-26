@@ -1,5 +1,5 @@
 import { platform } from "../src/platform";
-import { loadSqliteDriver } from "../src/store/database";
+import { loadSqliteDriver, registerStoreWriteGuard } from "../src/store/database";
 import { canonicalInstallationPath } from "../src/store/installation-state";
 import { getStoreDatabasePath, resolveStoreRoot } from "../src/store/paths";
 
@@ -8,6 +8,8 @@ export function writeRawStoreLedger(projectRoot: string, manifest: unknown): voi
   const driver = loadSqliteDriver();
   if (!driver.available) throw new Error(driver.reason);
   const db = new driver.sqlite.DatabaseSync(getStoreDatabasePath(resolveStoreRoot()));
+  // This fixture writes as Make Docs code, so it registers the Store write guard.
+  registerStoreWriteGuard(db);
   try {
     const rootPathKey = platform.comparisonKey(canonicalInstallationPath(projectRoot));
     const result = db.prepare("UPDATE installation_ledgers SET manifest_json=? WHERE checkout_id=(SELECT checkout_id FROM installation_checkouts WHERE root_path_key=?)")

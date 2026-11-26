@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 03: TypeScript MCP Runtime
 
 ## Purpose
@@ -6,11 +10,11 @@ Ship the required TypeScript-owned MCP server surface by delegating tools to the
 
 ## Tasks
 
-- [x] t1: Add the TypeScript MCP server entrypoint and package exposure required by the selected MCP runtime library.
-- [x] t2: Map initial MCP tools to existing operation domains for installed-state inspection, manifest/config reads, compatibility classification, closeout/work lifecycle operations, and dry-run planning where available.
-- [x] t3: Keep MCP write behavior behind the same permission and review semantics as equivalent CLI operations.
-- [x] t4: Add parity tests proving MCP tools and CLI commands call the same operation-domain functions.
-- [x] t5: Update public and developer docs to describe shipped MCP support only after tests pass.
+- [x] T1: Add the TypeScript MCP server entrypoint and package exposure required by the selected MCP runtime library.
+- [x] T2: Map initial MCP tools to existing operation domains for installed-state inspection, manifest/config reads, compatibility classification, closeout/work lifecycle operations, and dry-run planning where available.
+- [x] T3: Keep MCP write behavior behind the same permission and review semantics as equivalent CLI operations.
+- [x] T4: Add parity tests proving MCP tools and CLI commands call the same operation-domain functions.
+- [x] T5: Update public and developer docs to describe shipped MCP support only after tests pass.
 
 ## Acceptance Criteria
 

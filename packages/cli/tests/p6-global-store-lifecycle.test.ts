@@ -33,6 +33,7 @@ import {
   listLifecycleRuns,
   loadSqliteDriver,
   openStoreDatabase,
+  storeWriteGuardStatements,
   readLifecycleRun,
   readUserVersion,
   transitionLifecycleRun,
@@ -144,6 +145,16 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       ).all() as Array<{ name: string }>;
       expect(tables.map((row) => row.name)).toEqual([
         "backlog_review_cache",
+        // Schema v9 (W30 R0 P2): the factory tables.
+        "factory_assignments",
+        "factory_backups",
+        "factory_capability_proofs",
+        "factory_grant_uses",
+        "factory_grants",
+        "factory_machine_tools",
+        "factory_proof_results",
+        "factory_workflow_bindings",
+        "factory_workflow_plans",
         "installation_checkouts",
         "installation_ledgers",
         "installation_locks",
@@ -152,6 +163,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "installation_steps",
         "installation_transfers",
         "playbook_runs",
+        "project_register",
         "projects",
         "run_evidence",
         "runs",
@@ -159,7 +171,14 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "store_migration_receipts",
         "store_schema_journal",
         "tool_operations",
+        "work_claims",
+        "work_dependencies",
         "work_evidence",
+        "work_links",
+        "work_sync_checkouts",
+        "work_sync_conflicts",
+        "work_sync_ledger",
+        "work_units",
       ]);
     } finally {
       open.db.close();
@@ -209,10 +228,40 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
         "idx_store_checkpoint_journal_project",
         "store_migration_receipts",
         "idx_store_migration_receipts_project",
+        // Schema v7 (W32 R0 P2): the project register and the write guard triggers.
+        "project_register",
+        // Schema v8 (W29 R0 P2): the work store tables and their indexes.
+        "work_units",
+        "idx_work_units_parent",
+        "work_dependencies",
+        "idx_work_dependencies_depends_on",
+        "work_links",
+        "work_claims",
+        "idx_work_claims_project",
+        "work_sync_ledger",
+        "work_sync_conflicts",
+        "work_sync_checkouts",
+        // Schema v9 (W30 R0 P2): the factory tables, their indexes, and their two triggers.
+        "factory_machine_tools",
+        "factory_capability_proofs",
+        "factory_workflow_plans",
+        "factory_workflow_plans_never_change",
+        "factory_workflow_bindings",
+        "factory_grants",
+        "idx_factory_grants_workflow",
+        "factory_grant_uses",
+        "idx_factory_grant_uses_workflow",
+        "factory_assignments",
+        "idx_factory_assignments_open_job",
+        "idx_factory_assignments_workflow",
+        "factory_assignments_final_status",
+        "factory_proof_results",
+        "factory_backups",
+        "idx_factory_backups_time",
       ]);
       const preservedSchema = (db.prepare(
         "SELECT type, name, tbl_name, sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",
-      ).all() as Array<{ name: string }>).filter((entry) => !migrationObjects.has(entry.name) && entry.name !== "store_schema_journal" && entry.name !== "tool_operations" && !entry.name.startsWith("installation_") && !entry.name.startsWith("idx_installation_"));
+      ).all() as Array<{ name: string }>).filter((entry) => !migrationObjects.has(entry.name) && !entry.name.startsWith("make_docs_guard_") && entry.name !== "store_schema_journal" && entry.name !== "tool_operations" && !entry.name.startsWith("installation_") && !entry.name.startsWith("idx_installation_"));
       expect(preservedSchema).toEqual(schemaBefore);
       expect(db.prepare(
         "SELECT hex(record) AS record_hex FROM playbook_runs WHERE run_id = ?",
@@ -308,7 +357,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     expect(stopped).toMatchObject({status:"receipt-projection-failed",storeCommitted:true,setupMayContinue:false,projectionAttempts:2});
     expect(existsSync(path.join(project,".make-docs/state"))).toBe(false);
     const later = openStoreDatabase(root).db;
-    try {later.exec("CREATE TABLE other_process_write (value TEXT)");later.prepare("INSERT INTO other_process_write VALUES (?)").run("preserved");} finally {later.close();}
+    try {later.exec("CREATE TABLE other_process_write (value TEXT)");for (const statement of storeWriteGuardStatements(["other_process_write"])) later.exec(statement);later.prepare("INSERT INTO other_process_write VALUES (?)").run("preserved");} finally {later.close();}
     spy.mockRestore();
     expect(executeStoreCheckpoint9Migration({projectRoot:project,storeRoot:root})).toMatchObject({status:"completed",receipt:{receiptId:receipt.receiptId},recoveredProjection:true});
     const after = openStoreDatabase(root).db;
@@ -346,7 +395,7 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
     }
   });
 
-  test("6: current listings exclude legacy rows and project pruning keeps its prior contract", () => {
+  test("6: current listings exclude legacy rows and project pruning keeps legacy Playbook rows", () => {
     const root = storeRoot();
     withStoreDatabase(root, (db) => {
       db.prepare(
@@ -362,10 +411,11 @@ describe.skipIf(!sqliteAvailable)("W19 R1 P6 global Store lifecycle candidate", 
       expect(listLifecycleRuns(db, "project-1").map((run) => run.runId)).toEqual(["current-1"]);
       deleteProjectRows(db, "project-1");
       expect(listLifecycleRuns(db, "project-1")).toEqual([]);
+      // W32 R0 P3: prune keeps opaque legacy playbook_runs rows (PRD 38 R-LIFE-2, R-PS-6).
       expect(
         db.prepare("SELECT record FROM playbook_runs WHERE project_id = ? AND run_id = ?")
           .get("project-1", "legacy-1"),
-      ).toBeUndefined();
+      ).toEqual({ record: "{}" });
     });
     expect(MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === 9)?.state).toBe("implemented");
     expect(MIGRATION_CHECKPOINTS.find((item) => item.checkpoint === 10)?.state).toBe("implemented");

@@ -14,17 +14,15 @@ import {
   type CliOperationLaunch,
 } from "../operations/context";
 import {
-  hasOperation,
-  getOperation,
   invokeOperation,
   listOperations,
-  operationCliProjection,
-  operationCliPath,
+  operationFullCliPath,
   type OperationDescriptor,
 } from "../operations/registry";
 import { OperationError, type JsonValue } from "../operations/types";
 import { ensureParentDir, writeTextFile } from "../utils";
 import { renderRunOperationText, resolveRunRenderMode } from "./render";
+import { leafHelpEntry } from "../operations/leaf-help-table";
 import {
   listLifecycleRuns,
   resolveProjectIdentity,
@@ -49,12 +47,34 @@ interface RunCliInvocation {
 type RunCliAdapter = (options: OperationOptions) => RunCliInvocation;
 
 /**
+ * The top-level groups (PRD 39 R-TOP-1) whose commands this dispatcher runs.
+ * They held the old `make-docs run` tree. `project`, `resource`, and
+ * `setup store` keep their own routers in `root-operations.ts` and
+ * `setup-store.ts`. `factory` holds the W30 R0 P3 factory commands.
+ */
+export const OPERATION_GROUPS = ["work", "backlog", "lifecycle", "factory", "check"] as const;
+export type OperationGroup = (typeof OPERATION_GROUPS)[number];
+
+export function isOperationGroup(value: string | undefined): value is OperationGroup {
+  return value !== undefined && (OPERATION_GROUPS as readonly string[]).includes(value);
+}
+
+/** Plain-words capability of each group, for help text. */
+export const OPERATION_GROUP_SUMMARIES: Readonly<Record<OperationGroup, string>> = {
+  work: "Run the work queue, sync the work store, find work items, and record work evidence.",
+  backlog: "Read the backlog, use its review cache, and open the review app.",
+  lifecycle: "Start, track, and finish lifecycle runs.",
+  factory: "Run approved backlog work through workers and review.",
+  check: "Check PRDs, decomposition output, performance evidence, and user test records. Changes nothing.",
+};
+
+/**
  * Intent-named CLI spellings over existing registry operations (R-GRAM-1..2).
- * A spelling maps a derived-looking CLI path to a registry identifier plus a
- * fixed execution-context overlay; it is presentation-layer routing only —
- * the registry, the operation input, and the MCP surface are untouched.
- * Every spelling still dispatches through a registry identifier, honoring
- * registry parity rule.
+ * A spelling maps a full CLI path (after `make-docs`) to a registry
+ * identifier plus a fixed execution-context overlay; it is
+ * presentation-layer routing only — the registry, the operation input, and
+ * the MCP surface are untouched. Every spelling still dispatches through a
+ * registry identifier, honoring registry parity rule.
  */
 const RUN_CLI_SPELLINGS: Record<
   string,
@@ -62,8 +82,8 @@ const RUN_CLI_SPELLINGS: Record<
 > = {
 };
 
-/** CLI display form of an identifier, from the registry's single derivation rule. */
-const operationPath = operationCliPath;
+/** Full CLI path of an identifier after `make-docs`, from the registry projection. */
+const operationPath = operationFullCliPath;
 
 /**
  * `--repo-root` default (R-FLAG-1): the nearest ancestor of the working
@@ -136,7 +156,7 @@ function resolveLifecycleRunIdOption(options: OperationOptions, operation: strin
     ).pop();
     if (!latest) {
       throw new OperationError(
-        "`--last` found no lifecycle runs for this project; start one with `make-docs run lifecycle start`.",
+        "`--last` found no lifecycle runs for this project; start one with `make-docs lifecycle start`.",
       );
     }
     return latest.runId;
@@ -216,6 +236,11 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
     },
   }),
   "performance.evidence.validate": (options) => ({
+    input: {
+      targetRoot: path.resolve(options.values["target-root"] ?? "."),
+    },
+  }),
+  "decomposition.output.validate": (options) => ({
     input: {
       targetRoot: path.resolve(options.values["target-root"] ?? "."),
     },
@@ -307,6 +332,8 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
       targetRoot: path.resolve(
         requiredValue(options, "target-root", operationPath("work.backlog.snapshot")),
       ),
+      ...(options.booleans.has("work-store") ? { workStore: true } : {}),
+      ...(options.booleans.has("factory") ? { factory: true } : {}),
     },
   }),
   "backlog.review.open": (options) => ({ input: { report: parseJsonPayload(
@@ -341,6 +368,255 @@ const RUN_CLI_ADAPTERS: Record<string, RunCliAdapter> = {
   }),
 };
 
+/* W29 R0 P4 work queue adapters (PRD 52). */
+
+const SETTLE_FLAGS = ["keep-file", "keep-store", "restore", "accept-deletion", "reimport", "remove-file"] as const;
+
+function workTargetRoot(options: OperationOptions): Record<string, string> {
+  return optionalPathValue(options, "target-root", "targetRoot");
+}
+
+function optionalPositiveInteger(options: OperationOptions, key: string, operation: string): number | undefined {
+  return options.values[key] === undefined ? undefined : requiredPositiveInteger(options, key, operation);
+}
+
+function workUnitArgument(options: OperationOptions, operationId: string): string {
+  return requiredPositionals(options, operationPath(operationId)).join(" ");
+}
+
+function optionalText(options: OperationOptions, key: string, inputKey: string): Record<string, string> {
+  const value = options.values[key];
+  return value === undefined ? {} : { [inputKey]: value };
+}
+
+Object.assign(RUN_CLI_ADAPTERS, {
+  "work.queue.status": (options: OperationOptions) => ({ input: { ...workTargetRoot(options) } }),
+  "work.queue.sync": (options: OperationOptions) => {
+    const operation = operationPath("work.queue.sync");
+    const choices = SETTLE_FLAGS.filter((flag) => options.booleans.has(flag));
+    const settle = options.values.settle;
+    const target = workTargetRoot(options);
+    const dryRun = options.booleans.has("dry-run");
+    const revision = options.values["expected-revision"];
+    if (choices.length > 1) throw new OperationError(`\`${operation}\` takes one settle choice, not ${choices.map((flag) => `--${flag}`).join(" and ")}.`);
+    if ((settle === undefined) !== (choices.length === 0)) {
+      throw new OperationError(`\`${operation}\` needs --settle <path> together with one choice: ${SETTLE_FLAGS.map((flag) => `--${flag}`).join(", ")}.`);
+    }
+    const expectedRevision = revision === undefined ? undefined : optionalPositiveInteger(options, "expected-revision", operation);
+    return {
+      input: {
+        ...target,
+        ...(settle === undefined ? {} : { settle, choice: choices[0] }),
+        ...(expectedRevision === undefined ? {} : { expectedRevision }),
+      },
+      context: { dryRun },
+    };
+  },
+  "work.queue.next": (options: OperationOptions) => {
+    const operation = operationPath("work.queue.next");
+    const limit = optionalPositiveInteger(options, "limit", operation);
+    return {
+      input: {
+        ...workTargetRoot(options),
+        ...optionalText(options, "level", "level"),
+        ...optionalText(options, "claimant", "claimant"),
+        quickItems: !options.booleans.has("no-quick-items"),
+        ...(limit === undefined ? {} : { limit }),
+      },
+    };
+  },
+  "work.queue.claim": (options: OperationOptions) => {
+    const operation = operationPath("work.queue.claim");
+    const ttl = optionalPositiveInteger(options, "ttl", operation);
+    return {
+      input: {
+        unit: workUnitArgument(options, "work.queue.claim"),
+        claimant: requiredValue(options, "claimant", operation),
+        expectedVersion: requiredPositiveInteger(options, "expected-version", operation),
+        ...optionalText(options, "claim-id", "claimId"),
+        ...optionalText(options, "task-handle", "taskHandle"),
+        ...(ttl === undefined ? {} : { ttlSeconds: ttl }),
+        ...optionalText(options, "takeover-from", "takeoverFrom"),
+        ...optionalText(options, "handle", "handle"),
+        ...workTargetRoot(options),
+      },
+    };
+  },
+  "work.queue.release": (options: OperationOptions) => ({
+    input: {
+      unit: workUnitArgument(options, "work.queue.release"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("work.queue.release")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "handle", "handle"),
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.report": (options: OperationOptions) => ({
+    input: {
+      unit: workUnitArgument(options, "work.queue.report"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("work.queue.report")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "status", "status"),
+      ...optionalText(options, "evidence", "evidence"),
+      clearBlockers: options.booleans.has("clear-blockers"),
+      metGates: options.arrays["met-gate"] ?? [],
+      ...optionalText(options, "note", "note"),
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.close": (options: OperationOptions) => ({
+    input: {
+      unit: workUnitArgument(options, "work.queue.close"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("work.queue.close")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "handle", "handle"),
+      ...optionalText(options, "outcome", "outcome"),
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.export": (options: OperationOptions) => ({
+    input: {
+      ...optionalText(options, "to", "to"),
+      ...optionalText(options, "quick", "quick"),
+      paths: options.arrays.path ?? [],
+      ...workTargetRoot(options),
+    },
+  }),
+  "work.queue.add": (options: OperationOptions) => ({
+    input: {
+      title: requiredPositionals(options, operationPath("work.queue.add")).join(" "),
+      ...optionalText(options, "body", "body"),
+      ...optionalText(options, "request", "request"),
+      ...workTargetRoot(options),
+    },
+  }),
+} satisfies Record<string, RunCliAdapter>);
+
+/* W30 R0 P3 factory adapters (PRD 53). */
+
+/** A project call names its project with --target-root or --project (R-FACTORY-63). */
+function factoryProject(options: OperationOptions): Record<string, string> {
+  return { ...optionalPathValue(options, "target-root", "targetRoot"), ...optionalText(options, "project", "project") };
+}
+
+function factoryOptionalVersion(options: OperationOptions, operationId: string): { expectedVersion?: number | null } {
+  return options.values["expected-version"] === undefined ? {} : { expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath(operationId)) };
+}
+
+function factoryPositional(options: OperationOptions, operationId: string): string {
+  return requiredPositionals(options, operationPath(operationId)).join(" ");
+}
+
+Object.assign(RUN_CLI_ADAPTERS, {
+  "factory.status": (options: OperationOptions) => ({ input: { ...factoryProject(options), ...optionalText(options, "run", "run") } }),
+  "factory.tools.save": (options: OperationOptions) => {
+    // The file holds the tool list, or an object with the list under `tools`, as the MCP input does.
+    const payload = parseJsonPayload(requiredValue(options, "tools-json", operationPath("factory.tools.save")), "tools-json");
+    const tools = payload !== null && typeof payload === "object" && !Array.isArray(payload) && "tools" in payload ? payload.tools : payload;
+    return { input: { tools } };
+  },
+  "factory.workflow.save": (options: OperationOptions) => {
+    const binding = options.values["binding-json"];
+    const grants = options.values["grants-json"];
+    return {
+      input: {
+        workflow: factoryPositional(options, "factory.workflow.save"),
+        ...factoryOptionalVersion(options, "factory.workflow.save"),
+        ...(binding === undefined ? {} : { binding: parseJsonPayload(binding, "binding-json") }),
+        ...(grants === undefined ? {} : { grants: parseJsonPayload(grants, "grants-json") }),
+        ...(options.booleans.has("ready") ? { readiness: "ready" } : {}),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.workflow.show": (options: OperationOptions) => {
+    const revision = optionalPositiveInteger(options, "revision", operationPath("factory.workflow.show"));
+    return { input: { workflow: factoryPositional(options, "factory.workflow.show"), ...(revision === undefined ? {} : { revision }), ...optionalText(options, "uses-before", "usesBefore"), ...factoryProject(options) } };
+  },
+  "factory.workflow.list": (options: OperationOptions) => ({ input: { ...factoryProject(options) } }),
+  "factory.proof.save": (options: OperationOptions) => {
+    const operation = operationPath("factory.proof.save");
+    return {
+      input: {
+        workflow: factoryPositional(options, "factory.proof.save"),
+        outcome: requiredValue(options, "outcome", operation),
+        testTask: requiredValue(options, "test-task", operation),
+        planDigest: requiredValue(options, "plan-digest", operation),
+        path: options.arrays.path ?? [],
+        manualSteps: options.arrays["manual-step"] ?? [],
+        ...factoryOptionalVersion(options, "factory.proof.save"),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.assignment.start": (options: OperationOptions) => {
+    const operation = operationPath("factory.assignment.start");
+    return {
+      input: {
+        unit: factoryPositional(options, "factory.assignment.start"),
+        workflow: requiredValue(options, "workflow", operation),
+        role: requiredValue(options, "role", operation),
+        runId: requiredValue(options, "run-id", operation),
+        ...optionalText(options, "claim-id", "claimId"),
+        ...optionalText(options, "part", "partLabel"),
+        ...optionalText(options, "tool", "toolId"),
+        ...optionalText(options, "task-handle", "taskHandle"),
+        resetRounds: options.booleans.has("reset-rounds"),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.assignment.save": (options: OperationOptions) => ({
+    input: {
+      assignmentId: factoryPositional(options, "factory.assignment.save"),
+      expectedVersion: requiredPositiveInteger(options, "expected-version", operationPath("factory.assignment.save")),
+      ...optionalText(options, "claim-id", "claimId"),
+      ...optionalText(options, "status", "status"),
+      ...optionalText(options, "reason", "reason"),
+      ...optionalText(options, "task-handle", "taskHandle"),
+      ...optionalText(options, "grant-use", "grantUse"),
+      ...factoryProject(options),
+    },
+  }),
+  "factory.assignment.list": (options: OperationOptions) => ({
+    input: { ...optionalText(options, "workflow", "workflow"), all: options.booleans.has("all"), ...factoryProject(options) },
+  }),
+  "factory.restore": (options: OperationOptions) => ({ input: { ...factoryProject(options) } }),
+  // W30 R0 follow-up commands (PRD 53 R-FACTORY-69 to R-FACTORY-71).
+  "factory.tools.list": () => ({ input: {} }),
+  "factory.file-backup.save": (options: OperationOptions) => {
+    const files = options.arrays.file ?? [];
+    if (files.length === 0) throw new OperationError(`\`${operationPath("factory.file-backup.save")}\` names no file. Give --file <path>.`);
+    return {
+      input: {
+        assignmentId: factoryPositional(options, "factory.file-backup.save"),
+        files,
+        ...optionalText(options, "claim-id", "claimId"),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.grant-use.record": (options: OperationOptions) => {
+    const operation = operationPath("factory.grant-use.record");
+    return {
+      input: {
+        unit: factoryPositional(options, "factory.grant-use.record"),
+        workflow: requiredValue(options, "workflow", operation),
+        action: requiredValue(options, "action", operation),
+        runId: requiredValue(options, "run-id", operation),
+        ...optionalText(options, "claim-id", "claimId"),
+        ...factoryProject(options),
+      },
+    };
+  },
+  "factory.workflow.clean": (options: OperationOptions) => ({
+    input: { workflow: factoryPositional(options, "factory.workflow.clean"), ...optionalText(options, "review", "review"), ...factoryProject(options) },
+  }),
+} satisfies Record<string, RunCliAdapter>);
+
+/** Flags that take a value in one command although the shared parser lists them as booleans. */
+const COMMAND_VALUE_FLAGS: Readonly<Record<string, readonly string[]>> = { "factory.status": ["run"] };
+
 function parseUatPayload(raw: string): Record<string, unknown> {
   const value = parseJsonPayload(raw, "payload-json");
   if (value === null || typeof value !== "object" || Array.isArray(value)) throw new OperationError("UAT --payload-json must contain an object.");
@@ -356,13 +632,13 @@ for (const operation of listOperations().filter((entry) => entry.domain === "uat
   });
 }
 
-// Pending run projections have no semantics to adapt. They still resolve to
+// Pending projections have no semantics to adapt. They still resolve to
 // their reserved identifiers and the registry returns the typed lineage
 // refusal before input validation. Active adapters remain explicit above.
 for (const operation of listOperations()) {
   if (
     operation.status === "pending" &&
-    operation.cli.root === "run" &&
+    isOperationGroup(operation.cli.root) &&
     RUN_CLI_ADAPTERS[operation.id] === undefined
   ) {
     RUN_CLI_ADAPTERS[operation.id] = () => ({ input: {} });
@@ -377,6 +653,14 @@ export function listRunCliAdapters(): string[] {
   return Object.keys(RUN_CLI_ADAPTERS);
 }
 
+/**
+ * Test seam (W33 R0 P5): the argv adapter of one registry identifier, so a
+ * test can record which options it reads and compare them with its help.
+ */
+export function runCliAdapterForTests(id: string): ((options: OperationOptions) => unknown) | undefined {
+  return RUN_CLI_ADAPTERS[id];
+}
+
 /** Conformance seam for the spelling table: spelling path -> registry id. */
 export function listRunCliSpellings(): { spelling: string; operation: string }[] {
   return Object.entries(RUN_CLI_SPELLINGS).map(([spelling, entry]) => ({
@@ -385,99 +669,121 @@ export function listRunCliSpellings(): { spelling: string; operation: string }[]
   }));
 }
 
-const MAX_IDENTIFIER_SEGMENTS = 3;
-
-function isDispatchablePath(id: string): boolean {
-  return (
-    (hasOperation(id) && operationCliProjection(getOperation(id).id).root === "run") ||
-    id in RUN_CLI_SPELLINGS
+/** Registry operations that the dispatcher runs, in registry order. */
+function groupOperations(group?: OperationGroup): OperationDescriptor[] {
+  return listOperations().filter((operation) =>
+    group === undefined ? isOperationGroup(operation.cli.root) : operation.cli.root === group,
   );
 }
 
+/** Every dispatchable full CLI path, mapped to its operation ID or spelling key. */
+function dispatchablePaths(group: OperationGroup): Map<string, string> {
+  const paths = new Map<string, string>();
+  for (const operation of groupOperations(group)) paths.set(operationPath(operation.id), operation.id);
+  for (const spelling of Object.keys(RUN_CLI_SPELLINGS)) {
+    if (spelling.split(" ", 1)[0] === group) paths.set(spelling, spelling);
+  }
+  return paths;
+}
+
 /**
- * Derives the operation identifier from leading non-flag argv tokens by
- * joining them with dots and taking the longest registry match. Never a
- * hand-maintained path list: `hasOperation` (plus the declared spelling
- * table) is the only source of truth. The returned id may be a spelling key;
- * the dispatcher maps it to its registry identifier and context overlay.
+ * Resolves the operation from leading non-flag argv tokens. `argv[0]` is the
+ * group (PRD 39 R-TOP-1). The longest full CLI path in the registry
+ * projection (or the declared spelling table) wins. Never a hand-maintained
+ * path list. The returned id may be a spelling key; the dispatcher maps it
+ * to its registry identifier and context overlay.
  */
 export function resolveRunOperationPath(argv: string[]): { id: string; rest: string[] } {
+  const group = argv[0];
+  if (!isOperationGroup(group)) {
+    throw new OperationError(
+      `Unknown make-docs command group: \`${group ?? ""}\`. Groups with registry commands: ${OPERATION_GROUPS.join(", ")}.`,
+    );
+  }
+  const paths = dispatchablePaths(group);
+  const longest = Math.max(1, ...[...paths.keys()].map((cliPath) => cliPath.split(" ").length));
   const leading: string[] = [];
   for (const arg of argv) {
-    if (arg.startsWith("--") || leading.length === MAX_IDENTIFIER_SEGMENTS) {
+    if (arg.startsWith("--") || leading.length === longest) {
       break;
     }
     leading.push(arg);
   }
-  for (let length = Math.min(MAX_IDENTIFIER_SEGMENTS, leading.length); length >= 2; length -= 1) {
-    const id = leading.slice(0, length).join(".");
-    if (isDispatchablePath(id)) {
+  for (let length = leading.length; length >= 2; length -= 1) {
+    const id = paths.get(leading.slice(0, length).join(" "));
+    if (id !== undefined) {
       return { id, rest: argv.slice(length) };
     }
   }
   const attempted = leading.join(" ") || argv.join(" ");
-  const known = [
-    ...listOperations()
-      .filter((operation) => operation.cli.root === "run")
-      .map((operation) => operationPath(operation.id)),
-    ...Object.keys(RUN_CLI_SPELLINGS).map((spelling) => operationPath(spelling)),
-  ]
-    .sort()
-    .map((pathName) => `  ${pathName}`)
-    .join("\n");
+  const known = [...paths.keys()].sort().map((pathName) => `  make-docs ${pathName}`).join("\n");
   throw new OperationError(
-    `Unknown make-docs run operation: \`${attempted}\`. Valid operations:\n${known}`,
+    paths.size === 0
+      ? `Unknown make-docs command: \`${attempted}\`. The ${group} group has no commands yet.`
+      : `Unknown make-docs command: \`${attempted}\`. Valid ${group} commands:\n${known}`,
   );
 }
 
-function summaryTail(summary: string): string {
-  // Registry summaries may lead with "Operation `id`:"; the path column
-  // already identifies the operation, so print only the tail.
-  return summary.replace(/^Operation `[^`]+`:\s*/, "");
-}
-
-function printRunHelp(): void {
-  const byDomain = new Map<string, OperationDescriptor[]>();
-  for (const operation of listOperations().filter((entry) => entry.cli.root === "run")) {
-    const group = byDomain.get(operation.domain) ?? [];
-    group.push(operation);
-    byDomain.set(operation.domain, group);
-  }
+/** Help for one group: its capability in plain words and each of its commands. */
+export function renderOperationGroupHelp(group: OperationGroup): string {
+  const operations = groupOperations(group);
   const lines: string[] = [
-    "Usage: make-docs run <operation...> [options]",
+    `make-docs ${group}`,
     "",
-    "Operation paths are the registry identifier segments (e.g. `run work item resolve`",
-    "invokes `work.item.resolve`).",
+    OPERATION_GROUP_SUMMARIES[group],
+    "",
+    `Usage: make-docs ${group} <command> [options]`,
+    "",
   ];
-  for (const [domain, operations] of byDomain) {
-    lines.push("", `${domain}:`);
-    for (const operation of operations) {
-      const markers = [
-        ...(operation.mutates === "write" ? ["[write]"] : []),
-        ...(operation.status === "pending"
-          ? [`[pending: lands with ${operation.pendingLineage}]`]
-          : []),
-      ];
-      const marker = markers.length > 0 ? ` ${markers.join(" ")}` : "";
-      lines.push(`  ${operationPath(operation.id)}${marker}`);
-      lines.push(`      ${summaryTail(operation.summary)}`);
-    }
-    // Declared spellings render inside their operation's domain group so the
-    // intent-named grammar is discoverable from the derived help (R-GRAM-1).
-    for (const [spelling, entry] of Object.entries(RUN_CLI_SPELLINGS)) {
-      if (spelling.split(".", 1)[0] !== domain) {
-        continue;
-      }
-      lines.push(`  ${operationPath(spelling)}`);
+  const spellings = Object.entries(RUN_CLI_SPELLINGS).filter(([spelling]) => spelling.split(" ", 1)[0] === group);
+  if (operations.length === 0 && spellings.length === 0) {
+    lines.push("This group has no commands yet.");
+  } else {
+    lines.push("Commands:", ...renderCommandLines(operations));
+    // Declared spellings render inside their group so the intent-named
+    // grammar is discoverable from the derived help (R-GRAM-1).
+    for (const [spelling, entry] of spellings) {
+      lines.push(`  make-docs ${spelling}`);
       lines.push(`      ${entry.summary}`);
     }
   }
-  lines.push("");
-  process.stdout.write(lines.join("\n"));
+  lines.push(...renderCommandListFooter(operations));
+  return lines.join("\n");
 }
 
 /**
- * The adapted form of one `make-docs run` argv.
+ * One command per entry: its path with markers, then its plain-words summary
+ * from the leaf help table (W33 R0 P5). Every group's help uses this, so flags
+ * appear only in each command's own `--help`.
+ */
+export function renderCommandLines(operations: readonly OperationDescriptor[]): string[] {
+  return operations.flatMap((operation) => {
+    const markers = [
+      ...(operation.mutates === "write" ? ["[write]"] : []),
+      ...(operation.status === "pending"
+        ? [`[pending: lands with ${operation.pendingLineage}]`]
+        : []),
+    ];
+    const marker = markers.length > 0 ? ` ${markers.join(" ")}` : "";
+    return [`  make-docs ${operationPath(operation.id)}${marker}`, `      ${leafHelpEntry(operation.id).summary}`];
+  });
+}
+
+/** The lines after a command list: the write marker note and the `--help` hint. */
+export function renderCommandListFooter(operations: readonly OperationDescriptor[]): string[] {
+  const lines: string[] = [];
+  if (operations.some((operation) => operation.mutates === "write")) {
+    lines.push("", "[write] commands change files or Store records.");
+  }
+  if (operations.length > 0) {
+    lines.push("", "Use --help or -h with a command to see its options.");
+  }
+  lines.push("");
+  return lines;
+}
+
+/**
+ * The adapted form of one group command argv (`argv[0]` is the group).
  * Operation routing and safety tests use this value to check the real parser,
  * registry identifier, typed input, and context overlay without running the operation.
  */
@@ -493,7 +799,7 @@ export interface AdaptedRunCliInvocation {
 }
 
 /**
- * Resolves and adapts one `make-docs run` argv through the registry-derived
+ * Resolves and adapts one group command argv through the registry-derived
  * path resolver and the per-identifier adapters, throwing exactly where the
  * real dispatch would (unknown operation, missing required flags, malformed
  * values) — without invoking the operation. {@link runRunCommand} routes
@@ -509,10 +815,10 @@ export function adaptRunCliArgv(argv: string[]): AdaptedRunCliInvocation {
     // Registry/adapter drift: the conformance test pins this, but fail loudly
     // rather than silently for an identifier added without a CLI adapter.
     throw new OperationError(
-      `Operation \`${operationId}\` is registered but has no \`run\` CLI adapter; add one in src/run/cli.ts.`,
+      `Operation \`${operationId}\` is registered but has no CLI adapter; add one in src/run/cli.ts.`,
     );
   }
-  const options = parseOperationOptions(rest);
+  const options = parseOperationOptions(rest, COMMAND_VALUE_FLAGS[operationId] ?? []);
   return {
     id,
     operationId,
@@ -536,8 +842,9 @@ export async function runRunCommand(
   seams: RunCommandSeams = {},
   launch: CliOperationLaunch = resolveCliOperationLaunch(),
 ): Promise<void> {
-  if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
-    printRunHelp();
+  const group = argv[0];
+  if (isOperationGroup(group) && (argv.length === 1 || argv[1] === "--help" || argv[1] === "-h")) {
+    process.stdout.write(renderOperationGroupHelp(group));
     return;
   }
   const { id, operationId, options, invocation: adapted, spellingDryRun } = adaptRunCliArgv(argv);
@@ -581,9 +888,16 @@ export async function runRunCommand(
 
 /** Explicit validators report their complete result and then fail the CLI. */
 function setValidationExitCode(operationId: string, value: JsonValue): void {
+  // A refused work queue or factory call prints its result and exits 1 (W29 R0 P4, W30 R0 P3).
+  if ((operationId.startsWith("work.queue.") || operationId.startsWith("factory.")) && value !== null && typeof value === "object" && !Array.isArray(value) &&
+      (value.result === "refused" || value.accepted === false)) {
+    process.exitCode = 1;
+    return;
+  }
   if (
     (operationId === "prd.authority.validate" ||
-      operationId === "performance.evidence.validate") &&
+      operationId === "performance.evidence.validate" ||
+      operationId === "decomposition.output.validate") &&
     value !== null &&
     typeof value === "object" &&
     !Array.isArray(value) &&

@@ -58,7 +58,7 @@ The most reliable pattern is a two-session flow:
 2. approve and save the plan
 3. use a second session to execute the approved plan
 
-This matters because MCP availability is checked per session. A session that had `jdocmunch` and `jcodemunch` earlier does not guarantee a later session will have them too.
+This matters because each session has its own tools. A session that had a document index tool and a code index tool earlier does not guarantee a later session will have them too. The agent lists the tools of its session and writes them in the plan.
 
 ## Planning prompt
 
@@ -67,7 +67,7 @@ Use a planning request when you want the agent to inspect the repo, gather conte
 ```text
 Use `decompose-codebase` to plan the decomposition of this repository.
 
-Inspect the repo and existing docs first. Check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. Ask me only where a real preference affects the output structure. Present the decomposition plan in chat first, and do not write `docs/plans/...` until I approve it.
+Inspect the repo and existing docs first. List the tools that this session gives you, and use a document index tool and a code index tool if you have them. Ask me only where a real preference affects the output structure. Present the decomposition plan in chat first, and do not write `docs/plans/...` until I approve it.
 ```
 
 ## Execution prompt
@@ -77,7 +77,7 @@ Use an execution request only after you have an approved plan or you intentional
 ```text
 Use `decompose-codebase` to execute the approved decomposition plan at `docs/plans/YYYY-MM-DD-decomposition-plan.md`.
 
-Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. Re-check whether `jdocmunch` and `jcodemunch` are available in this session and use them if they are. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it.
+Treat the plan as approved and proceed with decomposition rather than re-planning unless you hit a real blocker. List the tools that this session gives you, and use a document index tool and a code index tool if you have them. Generate the PRD and work outputs according to the plan. If `docs/prd` already contains active PRD content, stop and ask before archiving it.
 ```
 
 ## Expected outputs
@@ -114,14 +114,24 @@ If active PRD content already exists, the skill should:
 
 That approval step is part of the contract. The skill should not silently replace an active PRD set.
 
-## MCP behavior
+## Tool behavior
 
-The skill prefers:
+The skill prefers index tools when the session has them. It does not need a particular product:
 
-- `jdocmunch` for documentation indexing and reads
-- `jcodemunch` for code indexing, symbols, and dependency-aware exploration
+- a document index tool for documentation indexing and reads
+- a code index tool for code indexing, symbols, and dependency-aware exploration
 
-If one or both are unavailable in the current session, the skill can fall back to ordinary repo exploration, but the MCP path is the preferred workflow.
+If the session has no index tool, the skill can fall back to ordinary repo exploration. It installs nothing without your consent.
+
+## Output check
+
+Before it finishes, the skill checks the decomposition output. It uses the first way that works:
+
+1. the Make Docs `check_decomposition` MCP tool
+2. the `make-docs check decomposition` command
+3. a manual review of the check rules in the Skill's output contract
+
+Each finding names a rule ID, such as `decomposition.link.broken`. A manual result says that it is a manual review. It does not claim that a Make Docs check ran.
 
 ## Troubleshooting
 

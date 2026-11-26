@@ -21,8 +21,8 @@ Link only the current authoritative product PRDs whose normative requirements go
 
 ### Tasks
 
-- [ ] t1: {{TASK}}
-- [ ] t2: {{TASK}}
+- [ ] T1: {{TASK}}
+- [ ] T2: {{TASK}}
 
 ### Acceptance criteria
 

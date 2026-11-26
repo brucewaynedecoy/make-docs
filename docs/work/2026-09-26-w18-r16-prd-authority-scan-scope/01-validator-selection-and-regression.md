@@ -54,10 +54,10 @@ Human Experience Review: Inspect the CLI or MCP result after the tests. Record t
 
 ### Tasks
 
-- [x] t1: Confirm the PRD source rule and review `docs/assets/project/developing-deterministic-agentic-twins.md` before changing business logic.
-- [x] t2: Remove the whole-project structured-file walk and read from `packages/cli/src/operations/prd/authority.ts`. Keep the report field `structuredFilesScanned` with value zero.
-- [x] t3: Replace the synthetic standalone structured-authority fixture in `packages/cli/tests/prd-authority.test.ts`. Prove that an excluded structured file is not opened, including one under plan evidence.
-- [x] t4: Verify `PRD-AUTH-005` still covers live Markdown authority links and frontmatter. Run the relevant CLI and MCP operation tests.
+- [x] T1: Confirm the PRD source rule and review `docs/assets/project/developing-deterministic-agentic-twins.md` before changing business logic.
+- [x] T2: Remove the whole-project structured-file walk and read from `packages/cli/src/operations/prd/authority.ts`. Keep the report field `structuredFilesScanned` with value zero.
+- [x] T3: Replace the synthetic standalone structured-authority fixture in `packages/cli/tests/prd-authority.test.ts`. Prove that an excluded structured file is not opened, including one under plan evidence.
+- [x] T4: Verify `PRD-AUTH-005` still covers live Markdown authority links and frontmatter. Run the relevant CLI and MCP operation tests.
 
 ### Acceptance criteria
 

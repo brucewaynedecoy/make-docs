@@ -73,8 +73,8 @@ Human Experience Review is separate. Apply it as required agent review work for 
 
 ### Tasks
 
-- [ ] t1: {{TASK}}
-- [ ] t2: {{TASK}}
+- [ ] T1: {{TASK}}
+- [ ] T2: {{TASK}}
 
 ### Acceptance criteria
 

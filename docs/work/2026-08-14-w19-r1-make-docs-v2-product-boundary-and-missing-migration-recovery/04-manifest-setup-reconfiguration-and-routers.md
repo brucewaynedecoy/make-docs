@@ -43,14 +43,14 @@ Provider resources remain available independently of project projection. Setup a
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2/P3 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [x] t3: Reevaluate at minimum Q-017, Q-018, R-004, R-006, R-014, and R-017; include Q-019 only if interactive Persona setup UX is introduced, preserve Q-017's per-project authority unless separately redesigned, and add newly relevant items.
-- [x] t4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
-- [x] t5: Record an explicit no-blocker determination and finite phase correction/review budget before unlocking t8 when no blocker or gap remains.
-- [x] t6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [x] t7: Require canonical PRD/register/history changes, focused validation, a separate decision commit, and its recorded SHA before unlock; do not infer governance closure from work completion.
-- [x] t8: Record the Stage 1 outcome, authority digests, accepted dependency evidence, and implementation unlock or stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P2/P3 closeouts, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] T3: Reevaluate at minimum Q-017, Q-018, R-004, R-006, R-014, and R-017; include Q-019 only if interactive Persona setup UX is introduced, preserve Q-017's per-project authority unless separately redesigned, and add newly relevant items.
+- [x] T4: Record the required ID, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale for every relevant item.
+- [x] T5: Record an explicit no-blocker determination and finite phase correction/review budget before unlocking T8 when no blocker or gap remains.
+- [x] T6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] T7: Require canonical PRD/register/history changes, focused validation, a separate decision commit, and its recorded SHA before unlock; do not infer governance closure from work completion.
+- [x] T8: Record the Stage 1 outcome, authority digests, accepted dependency evidence, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -149,10 +149,10 @@ Correction and review budget:
 
 ### Tasks
 
-- [x] t9: Implement explicit projection selection as `none`, one or more of the four resource types, or the full system set without reviving `prompts`, `templatesMode`, or `referencesMode` legacy authority.
-- [x] t10: Record manifest identity, schema version, effective selections, provider/resource provenance, managed destination, source digest, installed digest, ownership class, and operation lineage required by the PRDs.
-- [x] t11: Keep provider availability, local managed projection, explicit project override, project documentation, runtime state, and selected Skill payloads as distinct manifest/audit classes.
-- [x] t12: Fail closed when an existing path lacks trustworthy ownership or when selection/provenance cannot be reconstructed; never treat name or destination alone as ownership proof.
+- [x] T9: Implement explicit projection selection as `none`, one or more of the four resource types, or the full system set without reviving `prompts`, `templatesMode`, or `referencesMode` legacy authority.
+- [x] T10: Record manifest identity, schema version, effective selections, provider/resource provenance, managed destination, source digest, installed digest, ownership class, and operation lineage required by the PRDs.
+- [x] T11: Keep provider availability, local managed projection, explicit project override, project documentation, runtime state, and selected Skill payloads as distinct manifest/audit classes.
+- [x] T12: Fail closed when an existing path lacks trustworthy ownership or when selection/provenance cannot be reconstructed; never treat name or destination alone as ownership proof.
 
 ### Acceptance criteria
 
@@ -175,11 +175,11 @@ Correction and review budget:
 
 ### Tasks
 
-- [x] t13: Implement setup and reconfigure dry-run plans that enumerate intended creates, updates, preserves, conflicts, skips, removals, and stops before apply. Activate the P3-pending `project.surface.ensure` handler for `make-docs project surface ensure <archive|artifacts|assets>` and its MCP tool. Create only the selected on-demand directory and configured routers through the reviewed plan.
-- [x] t14: Route managed-file conflicts through explicit review using canonical source and installed digests; never append-merge or overwrite as a substitute for ownership evidence.
-- [x] t15: Generate or update bounded `AGENTS.md` and `CLAUDE.md` managed blocks only from evidence-backed installed capabilities and canonical CLI/MCP access paths.
-- [x] t16: Ensure routers identify top-level prompt/system-workflow access without embedding resource bodies, UAT policy, hidden implementation guidance, Playbook/Protocol claims, or optional integration claims that were not selected.
-- [x] t17: Preserve unmanaged router content byte-for-byte outside the owned block and fail closed on malformed, duplicated, or ambiguous managed blocks.
+- [x] T13: Implement setup and reconfigure dry-run plans that enumerate intended creates, updates, preserves, conflicts, skips, removals, and stops before apply. Activate the P3-pending `project.surface.ensure` handler for `make-docs project surface ensure <archive|artifacts|assets>` and its MCP tool. Create only the selected on-demand directory and configured routers through the reviewed plan.
+- [x] T14: Route managed-file conflicts through explicit review using canonical source and installed digests; never append-merge or overwrite as a substitute for ownership evidence.
+- [x] T15: Generate or update bounded `AGENTS.md` and `CLAUDE.md` managed blocks only from evidence-backed installed capabilities and canonical CLI/MCP access paths.
+- [x] T16: Ensure routers identify top-level prompt/system-workflow access without embedding resource bodies, UAT policy, hidden implementation guidance, Playbook/Protocol claims, or optional integration claims that were not selected.
+- [x] T17: Preserve unmanaged router content byte-for-byte outside the owned block and fail closed on malformed, duplicated, or ambiguous managed blocks.
 
 ### Acceptance criteria
 
@@ -203,11 +203,11 @@ Correction and review budget:
 
 ### Tasks
 
-- [x] t18: Materialize only explicitly selected clean managed resources under `.make-docs/system/{contracts,prompts,references,templates}/` through the reviewed plan and shared ensure operation.
-- [x] t19: Implement update so unchanged managed files advance deterministically, modified or ambiguous files enter review, project-owned overrides remain project-owned, and provider availability remains independent of projection.
-- [x] t20: Implement uninstall so only proven owned matching bytes are removed, symlinks are unlinked without following targets, and parent directories with unmanaged descendants are preserved.
-- [x] t21: Return typed lifecycle receipts that identify operation, project/manifest identity, selections, outcomes, conflicts, backup references where applicable, and commit time without claiming validation, acceptance, publication, or release.
-- [x] t22: Preserve the accepted distinction between a dry-run/review result, repository mutation, Store receipt, validation evidence, and release recommendation.
+- [x] T18: Materialize only explicitly selected clean managed resources under `.make-docs/system/{contracts,prompts,references,templates}/` through the reviewed plan and shared ensure operation.
+- [x] T19: Implement update so unchanged managed files advance deterministically, modified or ambiguous files enter review, project-owned overrides remain project-owned, and provider availability remains independent of projection.
+- [x] T20: Implement uninstall so only proven owned matching bytes are removed, symlinks are unlinked without following targets, and parent directories with unmanaged descendants are preserved.
+- [x] T21: Return typed lifecycle receipts that identify operation, project/manifest identity, selections, outcomes, conflicts, backup references where applicable, and commit time without claiming validation, acceptance, publication, or release.
+- [x] T22: Preserve the accepted distinction between a dry-run/review result, repository mutation, Store receipt, validation evidence, and release recommendation.
 
 ### Acceptance criteria
 
@@ -230,10 +230,10 @@ Correction and review budget:
 
 ### Tasks
 
-- [x] t23: Run focused setup, reconfigure, projection, router, update, uninstall, receipt, type, path-hygiene, and whitespace tests across clean, modified, ambiguous, missing, and legacy fixtures.
-- [x] t24: Prove idempotent unchanged reruns reuse valid evidence, affected-only failures are retried within budget, and conflict or ambiguity never degrades to overwrite.
-- [x] t25: Obtain independent review of selection, manifest provenance, router claims, conflict planning, removal safety, and receipts; correct only actionable defects within the finite budget.
-- [x] t26: Record exact changed-file scope, validation evidence, nonblocking items, and P5 handoff without running migration, package projection, dogfood, release, or publication.
+- [x] T23: Run focused setup, reconfigure, projection, router, update, uninstall, receipt, type, path-hygiene, and whitespace tests across clean, modified, ambiguous, missing, and legacy fixtures.
+- [x] T24: Prove idempotent unchanged reruns reuse valid evidence, affected-only failures are retried within budget, and conflict or ambiguity never degrades to overwrite.
+- [x] T25: Obtain independent review of selection, manifest provenance, router claims, conflict planning, removal safety, and receipts; correct only actionable defects within the finite budget.
+- [x] T26: Record exact changed-file scope, validation evidence, nonblocking items, and P5 handoff without running migration, package projection, dogfood, release, or publication.
 
 ### Acceptance criteria
 
@@ -275,17 +275,17 @@ P4 is reopened because [D-029](../../prd/03-open-questions-and-risk-register.md#
 
 ### Tasks
 
-- [x] t1: Commit the owner-approved design, PRD, risk-register, plan, and work-authority correction.
-- [x] t2: Normalize the sole current resource tree to `.make-docs/system/<type>/` for contracts, prompts, references, and templates while keeping stable `make-docs://system/<type>/<path>` identities.
-- [x] t3: Install configured-harness routers at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and every typed directory in fresh setup and reconfiguration.
-- [x] t4: Make resource selection control resource bodies only, and record router ownership separately from resource projection in plans and manifests.
-- [x] t5: Restore the exact `# Documentation Router` heading and full routing duties, with valid local resource use first and `make-docs resource read <uri>` fallback when a body is absent. Do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
-- [x] t6: Treat legacy `.make-docs/<type>/system/` content only as migration input, move or remove only verified clean managed files, and preserve all unknown, modified, mixed, unowned, or conflicting content for review.
-- [x] t7: Prove fresh install, selection change, legacy migration, router-conflict, harness-selection, and uninstall behavior across the accepted test matrix.
-- [x] t8: Prove template, generated package, dogfood, and installed-project parity without hand-editing generated package copies.
-- [x] t9: Obtain an independent read-only review of authority, implementation, migration safety, and routing behavior.
-- [x] t10: Create a new P4 corrective closeout history record after acceptance. Keep the original closeout and the open correction erratum unchanged.
-- [x] t11: Refresh the P7 baseline and P4 dependency proof after recovery. Preserve `P7-AUTHORITY`, D-005, P7-BUDGET, and the accepted Persona, scenario, and six-operation meaning.
+- [x] T1: Commit the owner-approved design, PRD, risk-register, plan, and work-authority correction.
+- [x] T2: Normalize the sole current resource tree to `.make-docs/system/<type>/` for contracts, prompts, references, and templates while keeping stable `make-docs://system/<type>/<path>` identities.
+- [x] T3: Install configured-harness routers at the project root, `docs/`, `.make-docs/`, `.make-docs/system/`, and every typed directory in fresh setup and reconfiguration.
+- [x] T4: Make resource selection control resource bodies only, and record router ownership separately from resource projection in plans and manifests.
+- [x] T5: Restore the exact `# Documentation Router` heading and full routing duties, with valid local resource use first and `make-docs resource read <uri>` fallback when a body is absent. Do not infer Skills, plugins, Playbooks, Protocols, or unavailable policy.
+- [x] T6: Treat legacy `.make-docs/<type>/system/` content only as migration input, move or remove only verified clean managed files, and preserve all unknown, modified, mixed, unowned, or conflicting content for review.
+- [x] T7: Prove fresh install, selection change, legacy migration, router-conflict, harness-selection, and uninstall behavior across the accepted test matrix.
+- [x] T8: Prove template, generated package, dogfood, and installed-project parity without hand-editing generated package copies.
+- [x] T9: Obtain an independent read-only review of authority, implementation, migration safety, and routing behavior.
+- [x] T10: Create a new P4 corrective closeout history record after acceptance. Keep the original closeout and the open correction erratum unchanged.
+- [x] T11: Refresh the P7 baseline and P4 dependency proof after recovery. Preserve `P7-AUTHORITY`, D-005, P7-BUDGET, and the accepted Persona, scenario, and six-operation meaning.
 
 ### Acceptance criteria
 
@@ -330,14 +330,14 @@ The P7 dependency proof is re-proved at `2f36f72`. `P7-AUTHORITY` remains accept
 
 ### Tasks
 
-- [x] t1: Commit the owner-approved design, plan, PRD, risk-register, work, erratum, and P7 pause correction without changing runtime or generated output.
-- [x] t2: Install the configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and all four typed system directories.
-- [x] t3: Add or remove the capability-local `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` routers from the resolved effective profile and its dependencies. Prove 13 surfaces per harness and 26 router files for an all-four, two-harness profile.
-- [x] t4: Keep one managed router at the `docs/assets/` root. Keep `project.surface.ensure <archive|artifacts|assets>` valid. Make the `assets` target idempotent when the root surface is current, let it create or safely repair only that root surface under normal ownership rules when needed, and prevent it from creating Persona or testing children. Remove managed legacy asset-family and Persona-subdirectory router defaults only after the normal ownership and conflict checks pass. Keep `.make-docs/archive/` and `docs/artifacts/` routers on demand. Keep Persona testing on demand and route it from `docs/assets/`.
-- [x] t5: Correct runtime, template, focused tests, generated package output, dogfood, and installed-project proof in bounded later candidates.
-- [x] t6: Obtain a fresh independent read-only review and correct only actionable defects inside the accepted scope.
-- [x] t7: Obtain owner acceptance and create a new final corrective closeout. Keep every prior closeout and erratum unchanged.
-- [x] t8: Refresh the P7 baseline and P4 dependency proof after the accepted final closeout. Preserve `P7-AUTHORITY`, D-005, P7-BUDGET, and the accepted Persona, scenario, risk, and six-operation meaning.
+- [x] T1: Commit the owner-approved design, plan, PRD, risk-register, work, erratum, and P7 pause correction without changing runtime or generated output.
+- [x] T2: Install the configured-harness router foundation at the project root, `docs/`, `docs/assets/`, `.make-docs/`, `.make-docs/system/`, and all four typed system directories.
+- [x] T3: Add or remove the capability-local `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` routers from the resolved effective profile and its dependencies. Prove 13 surfaces per harness and 26 router files for an all-four, two-harness profile.
+- [x] T4: Keep one managed router at the `docs/assets/` root. Keep `project.surface.ensure <archive|artifacts|assets>` valid. Make the `assets` target idempotent when the root surface is current, let it create or safely repair only that root surface under normal ownership rules when needed, and prevent it from creating Persona or testing children. Remove managed legacy asset-family and Persona-subdirectory router defaults only after the normal ownership and conflict checks pass. Keep `.make-docs/archive/` and `docs/artifacts/` routers on demand. Keep Persona testing on demand and route it from `docs/assets/`.
+- [x] T5: Correct runtime, template, focused tests, generated package output, dogfood, and installed-project proof in bounded later candidates.
+- [x] T6: Obtain a fresh independent read-only review and correct only actionable defects inside the accepted scope.
+- [x] T7: Obtain owner acceptance and create a new final corrective closeout. Keep every prior closeout and erratum unchanged.
+- [x] T8: Refresh the P7 baseline and P4 dependency proof after the accepted final closeout. Preserve `P7-AUTHORITY`, D-005, P7-BUDGET, and the accepted Persona, scenario, risk, and six-operation meaning.
 
 ### Acceptance criteria
 

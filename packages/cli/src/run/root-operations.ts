@@ -6,12 +6,28 @@ import {
   type CliOperationLaunch,
 } from "../operations/context";
 import { invokeOperation } from "../operations/registry";
-import type {
-  ResourceListOperationOutput,
-  ResourceReadOperationOutput,
+import {
+  isProjectResourceReadOutput,
+  type ResourceListOperationOutput,
+  type ResourceProjectReadOperationOutput,
+  type ResourceReadOperationOutput,
 } from "../operations/resource";
 import { OperationError } from "../operations/types";
+import { withCliRenamedTo } from "../operations/migration-aliases";
 import type { ProjectSurfaceEnsureOutput } from "../operations/project/ops";
+import type { DoctorCheckResult, DoctorFixResult } from "../operations/project/doctor";
+import {
+  markdownStyleExitCode,
+  renderMarkdownStyleRepair,
+  renderMarkdownStyleValidate,
+  type MarkdownStyleRepairResult,
+  type MarkdownStyleValidateResult,
+} from "../operations/project/markdown-style";
+import { renderProjectRelations, type ProjectRelationsResult } from "../operations/project/relations";
+import type { ProjectListResult } from "../store/project-register";
+import { readFileSync } from "node:fs";
+import { listOperations, operationCliPath, type OperationDescriptor } from "../operations/registry";
+import { renderCommandLines, renderCommandListFooter } from "./cli";
 
 type ResourceOrigin = "effective" | "local" | "installed";
 type ResourceFormat = "table" | "json" | "raw";
@@ -101,7 +117,8 @@ function markPresent(options: RootOperationOptions, name: string, flag: string):
 }
 
 function printJson(value: unknown): void {
-  process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+  // An old CLI path adds `renamedTo` to its JSON result (PRD 39 R-MIG-1).
+  process.stdout.write(`${JSON.stringify(withCliRenamedTo(value), null, 2)}\n`);
 }
 
 function printResourceTable(value: ResourceListOperationOutput): void {
@@ -152,15 +169,7 @@ export async function runResourceCommand(
   launch: CliOperationLaunch = resolveCliOperationLaunch(),
 ): Promise<void> {
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
-    process.stdout.write(
-      [
-        "Usage:",
-        "  make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json] [--target <dir>]",
-        "  make-docs resource read <uri> [--origin <effective|local|installed>] [--format raw|json] [--target <dir>]",
-        "  make-docs resource ensure <uri> --allow-write --approve resource-projection-write [--dry-run] [--target <dir>]",
-        "",
-      ].join("\n"),
-    );
+    process.stdout.write(renderResourceHelp());
     return;
   }
   const verb = argv[0];
@@ -209,23 +218,91 @@ export async function runResourceCommand(
     if ((options.format ?? "raw") === "json") {
       printJson(invocation.value);
     } else {
-      const value = invocation.value as unknown as ResourceReadOperationOutput;
-      process.stdout.write(Buffer.from(value.resource.content.data, "base64"));
+      const value = invocation.value as unknown as ResourceReadOperationOutput | ResourceProjectReadOperationOutput;
+      process.stdout.write(Buffer.from(isProjectResourceReadOutput(value) ? value.content.data : value.resource.content.data, "base64"));
     }
     return;
   }
   printJson(invocation.value);
 }
 
+/** Registry operations of one root, in the given path order, else registry order. */
+function rootOperations(root: string, order?: readonly string[]): OperationDescriptor[] {
+  const operations = listOperations().filter((operation) => operation.cli.root === root);
+  if (!order) return operations;
+  return [...operations].sort((left, right) => order.indexOf(operationCliPath(left.id)) - order.indexOf(operationCliPath(right.id)));
+}
+
+/** `make-docs resource --help`: one plain-words line per command (W33 R0 P5). */
+export function renderResourceHelp(): string {
+  const operations = rootOperations("resource");
+  return [
+    "make-docs resource",
+    "",
+    "List, read, or copy Make Docs system resources: contracts, prompts,",
+    "references, and templates.",
+    "",
+    "Usage: make-docs resource <command> [options]",
+    "",
+    "Commands:",
+    ...renderCommandLines(operations),
+    ...renderCommandListFooter(operations),
+  ].join("\n");
+}
+
+/** `make-docs project --help`: one plain-words line per command (W33 R0 P5). */
+export function renderProjectHelp(): string {
+  const operations = rootOperations("project", PROJECT_COMMANDS);
+  return [
+    "make-docs project",
+    "",
+    "See and repair this project: its state, checkouts, Personas, layout,",
+    "support folders, paths and links, Markdown style, document relations,",
+    "and docs.",
+    "",
+    "Usage: make-docs project <command> [options]",
+    "",
+    "Commands:",
+    ...renderCommandLines(operations),
+    "",
+    "Install state is kept in the Make Docs Store.",
+    ...renderCommandListFooter(operations),
+  ].join("\n");
+}
+
+/** Every `make-docs project` command, for the unknown-command guidance. */
+export const PROJECT_COMMANDS = [
+  "list",
+  "state status",
+  "state recover",
+  "move preview",
+  "move apply",
+  "checkout preview",
+  "checkout apply",
+  "persona list",
+  "layout preview",
+  "layout prepare",
+  "layout apply",
+  "layout verify",
+  "surface ensure",
+  "paths validate",
+  "paths repair",
+  "markdown validate",
+  "markdown repair",
+  "relations list",
+  "doctor check",
+  "doctor fix",
+] as const;
+
 export async function runProjectCommand(
   argv: string[],
   launch: CliOperationLaunch = resolveCliOperationLaunch(),
 ): Promise<void> {
-  if (argv[0] === "checkout-move") {
+  if (argv[0] === "move") {
     await runProjectCheckoutMoveCommand(argv.slice(1), launch);
     return;
   }
-  if (argv[0] === "checkout-register") {
+  if (argv[0] === "checkout") {
     await runProjectCheckoutRegisterCommand(argv.slice(1), launch);
     return;
   }
@@ -237,42 +314,29 @@ export async function runProjectCommand(
     await runProjectStateCommand(argv.slice(1), launch);
     return;
   }
+  if (argv[0] === "doctor") {
+    await runProjectDoctorCommand(argv.slice(1), launch);
+    return;
+  }
+  if (argv[0] === "list") {
+    await runProjectListCommand(argv.slice(1), launch);
+    return;
+  }
+  if (argv[0] === "markdown" || argv[0] === "relations") {
+    await runProjectSkillCheckCommand(argv, launch);
+    return;
+  }
   if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
-    process.stdout.write(
-      [
-        "Usage: make-docs project surface ensure <archive|artifacts|assets>",
-        "       make-docs project persona list [--target-root <path>] [--json]",
-        "       make-docs project layout preview [--map <source>=<destination>] [--json]",
-        "       make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--json]",
-        "       make-docs project layout apply|verify <operation-id> [--target-root <path>] [--json]",
-        "       make-docs project state status [--target-root <path>] [--json]",
-        "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
-        "       make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]",
-        "       make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
-        "       make-docs project checkout-register preview|apply [--review <digest>] [--target-root <path>] [--json]",
-        "",
-        "Installation state belongs to the global Make Docs Store.",
-        "The ensure command checks Store installation evidence and configured routers",
-        "before it creates the selected on-demand directory. It reports the applied or",
-        "unchanged state, plan dispositions, receipt, and next check.",
-        "",
-        "State status reads the Store and reports pending work without changing files.",
-        "State recover requires an operation ID and exactly one recovery mode.",
-        "Use --resume to apply the remaining verified steps of a complete saved plan.",
-        "Use --rollback to restore verified prior file state. Changed files block recovery.",
-        "Add --dry-run to inspect recovery without applying changes.",
-        "",
-      ].join("\n"),
-    );
+    process.stdout.write(renderProjectHelp());
     return;
   }
   const [noun, verb, surface, ...rest] = argv;
-  if (
-    noun !== "surface" ||
-    verb !== "ensure" ||
-    !surface ||
-    !["archive", "artifacts", "assets"].includes(surface)
-  ) {
+  if (noun !== "surface") {
+    throw new OperationError(
+      `Unknown make-docs project command: \`${argv.filter((arg) => !arg.startsWith("-")).slice(0, 3).join(" ")}\`. Valid project commands:\n${PROJECT_COMMANDS.map((command) => `  make-docs project ${command}`).join("\n")}`,
+    );
+  }
+  if (verb !== "ensure" || !surface || !["archive", "artifacts", "assets"].includes(surface)) {
     throw new OperationError(
       "Use `make-docs project surface ensure <archive|artifacts|assets>`.",
     );
@@ -330,13 +394,70 @@ export async function runProjectCommand(
   );
 }
 
+async function runProjectListCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  // `make-docs project list --help` is answered by the leaf help (W33 R0 P5).
+  let json = false;
+  let targetRoot: string | undefined;
+  const seen = new Set<string>();
+  const args = [...argv];
+  while (args.length) {
+    const flag = args.shift()!;
+    if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+    seen.add(flag);
+    if (flag === "--json") json = true;
+    else if (flag === "--target-root") {
+      const value = args.shift();
+      if (!value || value.startsWith("--")) throw new OperationError("--target-root requires a path.");
+      targetRoot = path.resolve(value);
+    } else throw new OperationError(`Unexpected project list option: ${flag}.`);
+  }
+  const invocation = await invokeOperation(
+    "project.register.list",
+    { ...(targetRoot ? { targetRoot } : {}) },
+    createExecutionContext({
+      surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
+      cwd: targetRoot,
+      writesAllowed: false,
+    }),
+  );
+  const value = invocation.value as unknown as ProjectListResult;
+  if (json) { printJson(value); return; }
+  process.stdout.write(renderProjectList(value));
+}
+
+/** Plain words for `make-docs project list`: each project by name first (PRD 39 R-STORE-CMD-2). */
+export function renderProjectList(value: ProjectListResult): string {
+  const lines = [value.summary];
+  for (const project of value.projects) {
+    lines.push("");
+    lines.push(project.name ?? "(no project name)");
+    lines.push(`  Project ID: ${project.projectId}`);
+    lines.push(project.lastSeenAt
+      ? `  Last seen: ${project.lastSeenAt}`
+      : "  Last seen: not recorded yet. The next Make Docs write for this project records it.");
+    if (!project.checkouts.length) lines.push("  Checkouts: none bound.");
+    else {
+      lines.push(project.checkouts.length === 1 ? "  Checkout:" : "  Checkouts:");
+      for (const checkout of project.checkouts) {
+        lines.push(`    ${checkout.rootPath}`);
+        if (checkout.folder !== "present") lines.push(`      ${checkout.folderNote}`);
+      }
+    }
+  }
+  lines.push("");
+  return lines.join("\n");
+}
+
 async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
   const [verb, ...args] = argv;
   if (!verb || verb === "--help" || verb === "-h") {
-    process.stdout.write("Usage: make-docs project checkout-register preview [--target-root <path>] [--json]\n       make-docs project checkout-register apply --review <digest> [--target-root <path>] [--json]\nThis makes a new checkout ID. It leaves other checkout IDs and pending work in place.\n");
+    process.stdout.write("Usage: make-docs project checkout preview [--target-root <path>] [--json]\n       make-docs project checkout apply --review <digest> [--target-root <path>] [--json]\nThis makes a new checkout ID. It leaves other checkout IDs and pending work in place.\n");
     return;
   }
-  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown checkout-register action: ${verb}.`);
+  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown project checkout action: ${verb}.`);
   let targetRoot: string | undefined, reviewDigest: string | undefined, json = false;
   const seen = new Set<string>();
   while (args.length) {
@@ -348,9 +469,9 @@ async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOper
       if (!value || value.startsWith("--")) throw new OperationError(`${flag} requires a value.`);
       if (flag === "--target-root") targetRoot = path.resolve(value);
       else if (verb === "apply") reviewDigest = value;
-      else throw new OperationError("--review is valid only with checkout-register apply.");
+      else throw new OperationError("--review is valid only with project checkout apply.");
     } else if (flag === "--json") json = true;
-    else throw new OperationError(`Unexpected checkout-register option: ${flag}.`);
+    else throw new OperationError(`Unexpected project checkout option: ${flag}.`);
   }
   if (verb === "apply" && !reviewDigest) throw new OperationError("Checkout registration requires --review from one preview.");
   const invocation = await invokeOperation(`project.checkout-register.${verb}`, {
@@ -374,10 +495,10 @@ async function runProjectCheckoutRegisterCommand(argv: string[], launch: CliOper
 async function runProjectCheckoutMoveCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
   const [verb, ...args] = argv;
   if (!verb || verb === "--help" || verb === "-h") {
-    process.stdout.write("Usage: make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]\n       make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]\nPreview is read only. Apply changes one Store checkout path after exact review.\n");
+    process.stdout.write("Usage: make-docs project move preview [--source-checkout <id>] [--target-root <path>] [--json]\n       make-docs project move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]\nPreview is read only. Apply changes one Store checkout path after exact review.\n");
     return;
   }
-  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown checkout-move action: ${verb}.`);
+  if (verb !== "preview" && verb !== "apply") throw new OperationError(`Unknown project move action: ${verb}.`);
   let targetRoot: string | undefined, sourceCheckoutId: string | undefined, sourceRoot: string | undefined, reviewDigest: string | undefined;
   let json = false, dryRun = false;
   const seen = new Set<string>();
@@ -392,7 +513,7 @@ async function runProjectCheckoutMoveCommand(argv: string[], launch: CliOperatio
     else if (flag === "--review" && verb === "apply") reviewDigest = value();
     else if (flag === "--json") json = true;
     else if (flag === "--dry-run" && verb === "apply") dryRun = true;
-    else throw new OperationError(`Unexpected checkout-move option: ${flag}.`);
+    else throw new OperationError(`Unexpected project move option: ${flag}.`);
   }
   if (verb === "apply" && (!sourceCheckoutId || !sourceRoot || !reviewDigest)) throw new OperationError("Apply requires --source-checkout, --source-root, and --review from one preview.");
   const invocation = await invokeOperation(`project.checkout-move.${verb}`, {
@@ -510,7 +631,8 @@ async function runProjectStateCommand(
   launch: CliOperationLaunch,
 ): Promise<void> {
   const [verb, ...args] = argv;
-  if (!verb || verb === "--help" || verb === "-h" || ((verb === "status" || verb === "recover") && args.some(arg => arg === "--help" || arg === "-h"))) {
+  // `status --help` and `recover --help` are answered by the leaf help (W33 R0 P5).
+  if (!verb || verb === "--help" || verb === "-h") {
     process.stdout.write([
       "Usage: make-docs project state status [--target-root <path>] [--json]",
       "       make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]",
@@ -583,12 +705,246 @@ async function runProjectStateCommand(
     ...(value.projectId ? [`Project ID: ${String(value.projectId)}`] : []),
     ...(value.checkoutId ? [`Checkout: ${String(value.checkoutId)}`] : []),
     ...(value.installationVersion ? [`Installed version: ${String(value.installationVersion)}`] : []),
-    ...(value.pendingOperation ? [`Pending operation: ${JSON.stringify(value.pendingOperation)}`] : []),
+    ...(value.pendingOperation ? [`${(value.pendingOperation as {status?: unknown}).status === "failed" ? "Failed operation" : "Pending operation"}: ${JSON.stringify(value.pendingOperation)}`] : []),
+    ...((value.storeSchema as {warning?: unknown} | undefined)?.warning ? [`Store schema: ${String((value.storeSchema as {warning: unknown}).warning)}`] : []),
+    ...(["brokenReferencesWarning", "unguardableWarning"] as const).flatMap((key) => { const text = (value.storeIntegrity as Record<string, unknown> | undefined)?.[key]; return text ? [`Store check: ${String(text)}`] : []; }),
+    ...(() => { const guard = (value.storeIntegrity as {writeGuard?: {state?: unknown; limit?: unknown}} | undefined)?.writeGuard; return guard?.limit ? [`Store write guard: ${guard.state === "intact" ? "on" : "not installed yet"}. ${String(guard.limit)}`] : []; })(),
     ...(value.operationId ? [`Operation: ${String(value.operationId)}`] : []),
     ...(value.dryRun ? ["Preview only. No files or Store records changed."] : []),
     ...(Array.isArray(value.changes) ? value.changes.map((change: {path: string; to: string}) => `- ${change.path}: ${change.to}`) : []),
     ...(Array.isArray(value.conflicts) ? value.conflicts.map((conflict: unknown) => `Review: ${String(conflict)}`) : []),
+    ...(value.projectNameConflict ? [`Project name: ${String((value.projectNameConflict as {reason: unknown}).reason)} The register kept the name it had. ${String((value.projectNameConflict as {nextAction: unknown}).nextAction)}`] : []),
     ...(value.nextAction ? [`Next: ${String(value.nextAction)}`] : state === "blocked" ? ["Next: Review the listed conflicts. Preserve current files."] : value.dryRun && state === "ready" ? ["Next: Review this preview before running the same recovery command without --dry-run."] : []),
     "",
   ].join("\n"));
+}
+
+const DOCTOR_HELP = [
+  "Usage: make-docs project doctor check [--exclude <path>] [--target-root <path>] [--json]",
+  "       make-docs project doctor fix --review <digest> [--exclude <path>] [--check-json <file>] [--dry-run] [--target-root <path>] [--json]",
+  "",
+  "Check reads project files and changes nothing. It shows each problem and the exact change,",
+  "and it gives a review digest.",
+  "Fix changes only what that digest names. It keeps a backup and tells you how to undo the fix.",
+  "Repeat --exclude for each project folder or file to leave out. Use the same --exclude options for check and fix.",
+  "Pass the saved check result (check --json) with --check-json to have fix name each file that changed after the check.",
+  "",
+].join("\n");
+
+async function runProjectDoctorCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  const [verb, ...args] = argv;
+  // `check --help` and `fix --help` are answered by the leaf help (W33 R0 P5).
+  if (!verb || verb === "--help" || verb === "-h") {
+    process.stdout.write(DOCTOR_HELP);
+    return;
+  }
+  if (verb !== "check" && verb !== "fix") throw new OperationError(`Unknown project doctor command: ${verb}. Use check or fix.`);
+  let targetRoot: string | undefined, review: string | undefined, checkJson: string | undefined;
+  let json = false, dryRun = false;
+  const exclude: string[] = [];
+  const seen = new Set<string>();
+  while (args.length) {
+    const arg = args.shift()!;
+    if (arg !== "--exclude") {
+      if (seen.has(arg)) throw new OperationError(`Option ${arg} can be given only once.`);
+      seen.add(arg);
+    }
+    const value = () => { const next = args.shift(); if (next === undefined || next.startsWith("--")) throw new OperationError(`${arg} requires a value.`); return next; };
+    if (arg === "--json") json = true;
+    else if (arg === "--target-root") targetRoot = path.resolve(value());
+    else if (arg === "--exclude") exclude.push(value());
+    else if (arg === "--review" && verb === "fix") review = value();
+    else if (arg === "--check-json" && verb === "fix") checkJson = value();
+    else if (arg === "--dry-run" && verb === "fix") dryRun = true;
+    else throw new OperationError(`Unexpected argument for project doctor ${verb}: ${arg}.`);
+  }
+  if (verb === "fix" && !review) throw new OperationError("The fix needs --review <digest> from make-docs project doctor check.");
+  let reviewedFiles: Array<{ path: string; sha256: string }> | undefined;
+  if (checkJson) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(readFileSync(path.resolve(checkJson), "utf8"));
+    } catch (error) {
+      throw new OperationError(`--check-json must name a saved check result in JSON: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    const files = (parsed as { files?: unknown })?.files;
+    if (!Array.isArray(files)) throw new OperationError("--check-json must name a saved check result with a files list.");
+    reviewedFiles = files as Array<{ path: string; sha256: string }>;
+  }
+  const invocation = await invokeOperation(`project.doctor.${verb}`, {
+    ...(targetRoot ? { targetRoot } : {}),
+    exclude,
+    ...(review ? { review } : {}),
+    ...(reviewedFiles ? { reviewedFiles } : {}),
+  }, createExecutionContext({
+    surface: "cli",
+    route: launch.route,
+    callerIdentityRaw: launch.callerIdentityRaw,
+    callerReference: launch.callerReference,
+    cwd: targetRoot,
+    writesAllowed: verb === "fix",
+    dryRun,
+  }));
+  if (verb === "check") {
+    const result = invocation.value as unknown as DoctorCheckResult;
+    process.exitCode = result.status === "clean" ? 0 : 1;
+    if (json) { printJson(result); return; }
+    process.stdout.write(renderDoctorCheck(result));
+    return;
+  }
+  const result = invocation.value as unknown as DoctorFixResult;
+  if (json) { printJson(result); return; }
+  process.stdout.write(renderDoctorFix(result));
+}
+
+const SKIP_REASONS: Record<DoctorCheckResult["skipped"][number]["reason"], string> = {
+  "history-record": "history record",
+  "managed-router": "managed router; fixed upstream by reseed",
+  "symbolic-link": "symbolic link, not followed",
+  "hard-link": "hard link, shares its bytes with another path",
+  "not-utf8-text": "not UTF-8 text",
+  "sync-hold": "on the sync hold list, work.syncHold",
+};
+
+export function renderDoctorCheck(result: DoctorCheckResult): string {
+  const lines = [`Project doctor: ${result.summary}`, `Project: ${result.targetRoot}`];
+  const counts = result.totals.byCheck["task-id-case"];
+  lines.push(`Read ${result.totals.filesRead} files. Skipped ${result.totals.filesSkipped}. Excluded ${result.totals.filesExcluded}.`);
+  if (result.exclusions.length) lines.push(`Excluded paths: ${result.exclusions.join(", ")}`);
+  for (const file of result.skipped) lines.push(`Skipped${file.check ? ` by ${file.check}` : ""}: ${file.path} (${SKIP_REASONS[file.reason]})`);
+  for (const text of result.skippedText) lines.push(`Left unchanged: ${text.file}:${text.line}:${text.column} ${text.current} (inside an HTML tag)`);
+  if (result.status === "findings" && counts) {
+    lines.push("", `task-id-case: ${counts.taskLines} task lines and ${counts.proseReferences} prose references.`);
+    lines.push(`phase-status-line: ${result.totals.byCheck["phase-status-line"]?.phaseFiles ?? 0} phase files with no status line whose tasks are all checked.`);
+    const open = result.totals.byCheck["phase-open-under-completed-index"];
+    lines.push(`phase-open-under-completed-index: ${open?.phaseFiles ?? 0} phase files to set to completed, and ${open?.reportOnly ?? 0} report only.`);
+    for (const check of result.checks) lines.push(`${check.id}: ${check.description}${check.fix ? ` Fix: ${check.fix}` : ""}`);
+    for (const note of result.notes) lines.push(`Note: ${note}`);
+    let file = "";
+    const byLine = new Map<string, DoctorCheckResult["findings"]>();
+    for (const finding of result.findings) {
+      const key = `${finding.file}\u0000${finding.line}`;
+      byLine.set(key, [...(byLine.get(key) ?? []), finding]);
+    }
+    for (const group of byLine.values()) {
+      const first = group[0]!;
+      if (first.file !== file) { file = first.file; lines.push("", file); }
+      const kinds = group.map((finding) => finding.check === "phase-status-line"
+        ? `add ${finding.replacement} (status line)`
+        : finding.kind === "open-under-completed-index"
+          ? `${finding.current} -> ${finding.replacement} (open phase under a completed index)`
+          : finding.kind === "open-under-completed-index-report-only"
+            ? `${finding.current} (open phase under a completed index, report only: not every task is checked)`
+            : `${finding.current} -> ${finding.replacement} (${finding.kind === "task-line" ? "task line" : "prose"})`).join(", ");
+      lines.push(`  line ${first.line}: ${kinds}`, `    now:   ${first.lineText}`, `    fixed: ${first.fixedLineText}`);
+    }
+    lines.push("");
+  }
+  lines.push(`Review digest: ${result.reviewDigest}`, `Next: ${result.nextAction}`, "");
+  return lines.join("\n");
+}
+
+export function renderDoctorFix(result: DoctorFixResult): string {
+  const lines = [`Project doctor fix: ${result.summary}`, `Project: ${result.targetRoot}`];
+  if (result.exclusions.length) lines.push(`Excluded paths: ${result.exclusions.join(", ")}`);
+  if (result.operationId) lines.push(`Operation: ${result.operationId}`);
+  for (const file of result.changedFiles) lines.push(`${result.status === "fixed" ? "Changed" : "Would change"}: ${file.path} (${file.changes})${file.backup ? ` backup: ${file.backup}` : ""}`);
+  lines.push(`Undo: ${result.undo.instructions}`);
+  if (result.undo.command) lines.push(`Undo command: ${result.undo.command}`);
+  for (const file of result.undo.notTrackedByGit) lines.push(`Not tracked by git, undo from backup: ${file}`);
+  lines.push(`Next: ${result.nextAction}`, "");
+  return lines.join("\n");
+}
+
+/**
+ * W34 R0 P1: `project markdown validate|repair` and `project relations list`
+ * (PRD 39 R-SKILL-CHECK). Plain words first; `--json` prints the full result.
+ * `markdown repair` shows the changes unless `--apply` is given, as
+ * `project paths repair` does.
+ */
+async function runProjectSkillCheckCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  if (argv[0] !== "markdown") {
+    await runProjectSkillCheck(argv, launch);
+    return;
+  }
+  // The exit codes of `project paths validate|repair`: 0 when no finding is
+  // left, 1 when a finding is left, 2 on an error.
+  try {
+    await runProjectSkillCheck(argv, launch);
+  } catch (error) {
+    process.stderr.write(`Markdown style error: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 2;
+  }
+}
+
+async function runProjectSkillCheck(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  const [noun, verb, ...args] = argv;
+  const operationId = noun === "relations" && verb === "list"
+    ? "project.relations.list"
+    : noun === "markdown" && verb === "validate"
+      ? "project.markdown-style.validate"
+      : noun === "markdown" && verb === "repair"
+        ? "project.markdown-style.repair"
+        : null;
+  if (operationId === null) {
+    throw new OperationError(
+      `Unknown make-docs project command: \`${[noun, verb].filter(Boolean).join(" ")}\`. Use \`make-docs project markdown validate\`, \`make-docs project markdown repair\`, or \`make-docs project relations list\`.`,
+    );
+  }
+  const repair = operationId === "project.markdown-style.repair";
+  let targetRoot: string | undefined;
+  let json = false;
+  let apply = false;
+  let preview = false;
+  const paths: string[] = [];
+  const seen = new Set<string>();
+  while (args.length) {
+    const flag = args.shift()!;
+    if (flag !== "--path") {
+      if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+      seen.add(flag);
+    }
+    const value = () => {
+      const next = args.shift();
+      if (next === undefined || next.startsWith("--")) throw new OperationError(`${flag} requires a path.`);
+      return next;
+    };
+    if (flag === "--json") json = true;
+    else if (flag === "--target-root") targetRoot = path.resolve(value());
+    else if (flag === "--path") {
+      if (operationId === "project.relations.list" && paths.length > 0) throw new OperationError("Option --path can be given only once.");
+      paths.push(value());
+    } else if (repair && flag === "--apply") apply = true;
+    else if (repair && flag === "--dry-run") preview = true;
+    else throw new OperationError(`Unexpected argument for make-docs project ${noun} ${verb}: ${flag}.`);
+  }
+  if (apply && preview) throw new OperationError("--apply and --dry-run cannot be combined.");
+  const input = operationId === "project.relations.list"
+    ? { ...(targetRoot ? { targetRoot } : {}), ...(paths.length ? { path: paths[0] } : {}) }
+    : { ...(targetRoot ? { targetRoot } : {}), ...(paths.length ? { paths } : {}), ...(repair ? { apply } : {}) };
+  const invocation = await invokeOperation(
+    operationId,
+    input,
+    createExecutionContext({
+      surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
+      cwd: targetRoot,
+      writesAllowed: repair,
+      dryRun: repair && !apply,
+    }),
+  );
+  if (json) {
+    printJson(invocation.value);
+  } else if (operationId === "project.relations.list") {
+    process.stdout.write(renderProjectRelations(invocation.value as unknown as ProjectRelationsResult));
+  } else if (operationId === "project.markdown-style.validate") {
+    process.stdout.write(renderMarkdownStyleValidate(invocation.value as unknown as MarkdownStyleValidateResult));
+  } else {
+    process.stdout.write(renderMarkdownStyleRepair(invocation.value as unknown as MarkdownStyleRepairResult));
+  }
+  if (operationId !== "project.relations.list") {
+    process.exitCode = markdownStyleExitCode(invocation.value as unknown as MarkdownStyleValidateResult | MarkdownStyleRepairResult);
+  }
 }

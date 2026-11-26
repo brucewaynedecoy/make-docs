@@ -1,5 +1,5 @@
 /** Intent profiles only. `all` is their union, never a tool assignment. */
-export const MCP_PROFILES = ["core", "setup", "workflow", "quality", "backlog"] as const;
+export const MCP_PROFILES = ["core", "setup", "workflow", "quality", "backlog", "factory"] as const;
 
 export type McpProfile = (typeof MCP_PROFILES)[number];
 

@@ -62,12 +62,12 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Blank HTML comments in the whole phase or index body, keeping line breaks, before `snapshot.ts` finds the Closeout Notes or Change History section. Add tests for a commented-out Closeout Notes heading, a commented-out Change History heading, and the evidence line after an earlier comment.
-- [x] t2: State in the design's CLI twin section that `committed` describes the current working tree, and that the agent decides prior completion from history. State in the user route guide that completed work gets a revision Phase unless the revision Wave test passes.
-- [x] t3: D-055: keep an unset resource choice unset in the setup migration stage plan. Show Skill file changes that full setup leaves as `skip`, and name `make-docs setup skills` in the dry run and the result. Add a regression test for each.
-- [x] t4: D-054: validate the prepared Store record in the Skill adoption review, and block an older install record with the `make-docs setup` route. Add a regression test.
-- [x] t5: Repair this repository's saved resource choice with `make-docs setup reconfigure --project-resources all`, then refresh the installed Skills with `make-docs setup skills`, using the owner-installed build.
-- [x] t6: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
+- [x] T1: Blank HTML comments in the whole phase or index body, keeping line breaks, before `snapshot.ts` finds the Closeout Notes or Change History section. Add tests for a commented-out Closeout Notes heading, a commented-out Change History heading, and the evidence line after an earlier comment.
+- [x] T2: State in the design's CLI twin section that `committed` describes the current working tree, and that the agent decides prior completion from history. State in the user route guide that completed work gets a revision Phase unless the revision Wave test passes.
+- [x] T3: D-055: keep an unset resource choice unset in the setup migration stage plan. Show Skill file changes that full setup leaves as `skip`, and name `make-docs setup skills` in the dry run and the result. Add a regression test for each.
+- [x] T4: D-054: validate the prepared Store record in the Skill adoption review, and block an older install record with the `make-docs setup` route. Add a regression test.
+- [x] T5: Repair this repository's saved resource choice with `make-docs setup reconfigure --project-resources all`, then refresh the installed Skills with `make-docs setup skills`, using the owner-installed build.
+- [x] T6: Last, pack the 2.0.9 candidate twice and save its matching SHA-256 in `.github/release-candidates/v2.0.9.sha256`.
 
 ### Acceptance criteria
 

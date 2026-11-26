@@ -74,13 +74,13 @@ Use the allow comment sparingly. The reason must explain why a project-relative 
 
 ## Validation
 
-Use `make-docs project path-hygiene validate` to audit local documentation. The default content scope needs neither the Store nor an installation manifest. It checks `docs/`, root routers and `README.md`, and local `.make-docs/system/` bodies. Repeated `--path <project-relative-file-or-directory>` arguments replace the default roots. Use `--include-skills` to include installed Skill text. It skips symbolic links, backup payloads, and operational directories. Explicit linked or unsafe paths are errors.
+Use `make-docs project paths validate` to audit local documentation. The default content scope needs neither the Store nor an installation manifest. It checks `docs/`, root routers and `README.md`, and local `.make-docs/system/` bodies. Repeated `--path <project-relative-file-or-directory>` arguments replace the default roots. Use `--include-skills` to include installed Skill text. It skips symbolic links, backup payloads, and operational directories. Explicit linked or unsafe paths are errors.
 
 Use `--scope managed` for installation checks. This requires Store inventory. An explicit `--manifest` selects legacy inventory only. Do not combine either with `--path`, or combine a manifest with content scope. A content scan is not installation evidence.
 
 Output defaults to JSON. Use `--format text` for a readable report. Exit codes are 0 for clean results, 1 for findings, and 2 for input or file errors.
 
-Use `make-docs project path-hygiene repair` to preview repairs. Add `--apply` to write them. Repairs change only current-project absolute paths, preserve allow comments and line endings, and keep Markdown links relative to their document. Other findings require manual review. CLI and MCP use the same operations; MCP writes require its normal write permission.
+Use `make-docs project paths repair` to preview repairs. Add `--apply` to write them. Repairs change only current-project absolute paths, preserve allow comments and line endings, and keep Markdown links relative to their document. Other findings require manual review. CLI and MCP use the same operations; MCP writes require its normal write permission.
 
 If the CLI is absent, review paths manually and report that the automated check did not run. Do not install a Python helper or create operational state for this check.
 

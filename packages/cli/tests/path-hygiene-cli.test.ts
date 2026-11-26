@@ -13,7 +13,7 @@ beforeEach(() => { root = realpathSync(mkdtempSync(path.join(os.tmpdir(), "path-
 afterEach(() => { vi.restoreAllMocks(); rmSync(root, { recursive: true, force: true }); });
 function put(file: string, text: string) { mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); writeFileSync(path.join(root, file), text); }
 function cli(...args: string[]) {
-  return spawnSync(process.execPath, ["--import", "tsx", "packages/cli/src/index.ts", "project", "path-hygiene", ...args, "--target", root], {
+  return spawnSync(process.execPath, ["--import", "tsx", "packages/cli/src/index.ts", "project", "paths", ...args, "--target", root], {
     cwd: repo, encoding: "utf8", env: { ...process.env, MAKE_DOCS_HOME: path.join(root, "absent-store") },
   });
 }
@@ -59,7 +59,7 @@ it("returns real CLI failure codes and readable text, and applies only when sele
 
 it("shares MCP scan results and requires MCP write permission for repair", async () => {
   put("docs/note.md", root + "/README.md\n");
-  const result = await callMakeDocsMcpTool("paths_validate", { targetRoot: root });
+  const result = await callMakeDocsMcpTool("project_paths_validate", { targetRoot: root });
   expect(result.result).toEqual(validateProjectPathHygiene({ projectRoot: root }));
-  await expect(callMakeDocsMcpTool("paths_repair", { targetRoot: root, apply: true })).rejects.toThrow();
+  await expect(callMakeDocsMcpTool("project_paths_repair", { targetRoot: root, apply: true })).rejects.toThrow();
 });

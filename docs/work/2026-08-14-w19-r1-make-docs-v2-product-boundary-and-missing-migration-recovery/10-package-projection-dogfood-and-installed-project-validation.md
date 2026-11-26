@@ -42,14 +42,14 @@ This phase implements migration checkpoint 13 and is the first phase allowed to 
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1–P9 closeouts/dispositions, checkpoint-13 readiness, active quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [x] t3: Reevaluate at minimum Q-001, Q-007, Q-017, Q-018, R-001, R-002, R-006, R-014, R-017, R-021, R-022, and R-025 plus closed R-003 packed/dev parity as a regression check; preserve Q-017's per-project authority and add newly relevant items.
-- [x] t4: Record each relevant item's ID or bounded gap label, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: Record an explicit no-blocker determination and finite package/fixture/platform/migration/correction/review budget before unlocking t8 when no blocker or gap remains.
-- [x] t6: Stop before package projection, dogfood, or installed-project mutation for any blocker, missing scenario/claim authority, unsafe resource budget, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [x] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from a green build, migration, or release recommendation.
-- [x] t8: Record the Stage 1 result, authority digests, all prior checkpoint evidence, exact fixture/platform budgets, and implementation unlock or stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P1–P9 closeouts/dispositions, checkpoint-13 readiness, active quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] T3: Reevaluate at minimum Q-001, Q-007, Q-017, Q-018, R-001, R-002, R-006, R-014, R-017, R-021, R-022, and R-025 plus closed R-003 packed/dev parity as a regression check; preserve Q-017's per-project authority and add newly relevant items.
+- [x] T4: Record each relevant item's ID or bounded gap label, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: Record an explicit no-blocker determination and finite package/fixture/platform/migration/correction/review budget before unlocking T8 when no blocker or gap remains.
+- [x] T6: Stop before package projection, dogfood, or installed-project mutation for any blocker, missing scenario/claim authority, unsafe resource budget, or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] T7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from a green build, migration, or release recommendation.
+- [x] T8: Record the Stage 1 result, authority digests, all prior checkpoint evidence, exact fixture/platform budgets, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -72,10 +72,10 @@ This phase implements migration checkpoint 13 and is the first phase allowed to 
 
 ### Tasks
 
-- [x] t9: Run the repository-authoritative template-to-CLI package projection only after verifying the P1 upstream tree and official projection command; do not hand-edit generated package copies.
-- [x] t10: Verify byte/metadata/catalog parity for contracts, prompts, references, templates, workflow resources, selected Skill assets, and removed Playbook/Protocol expectations across upstream and packaged provider trees.
-- [x] t11: Build and inspect the package artifact to prove provider discovery, stable URI identity, required contents, permissions, path layout, entry points, and absence of unapproved or stale retired assets.
-- [x] t12: Record the upstream and package fingerprints so unchanged evidence can be reused and any drift forces affected-only reprojection and validation.
+- [x] T9: Run the repository-authoritative template-to-CLI package projection only after verifying the P1 upstream tree and official projection command; do not hand-edit generated package copies.
+- [x] T10: Verify byte/metadata/catalog parity for contracts, prompts, references, templates, workflow resources, selected Skill assets, and removed Playbook/Protocol expectations across upstream and packaged provider trees.
+- [x] T11: Build and inspect the package artifact to prove provider discovery, stable URI identity, required contents, permissions, path layout, entry points, and absence of unapproved or stale retired assets.
+- [x] T12: Record the upstream and package fingerprints so unchanged evidence can be reused and any drift forces affected-only reprojection and validation.
 
 ### Acceptance criteria
 
@@ -98,10 +98,10 @@ This phase implements migration checkpoint 13 and is the first phase allowed to 
 
 ### Tasks
 
-- [x] t13: Apply the repository-authoritative dogfood workflow only after package projection passes, using dry-run/review, backup, conflict, ownership, and rollback safeguards from P4/P5.
-- [x] t14: Verify root `.make-docs/` and `docs/` managed outputs match the packaged source where parity is required while project-authored designs, plans, PRDs, work, guides, history, archives, evidence, configuration, and custom content remain project-owned.
-- [x] t15: Exercise root CLI/MCP resource list/read, optional projection, lifecycle receipts, general run capture, Naive-UAT system workflow, Persona routing, and exact selected optional integrations through dogfood without treating the root as upstream authority.
-- [x] t16: Review the dogfood diff and rollback evidence before accepting it; stop on unexpected project-document changes, ownership ambiguity, stale generated copies, or retired capability claims.
+- [x] T13: Apply the repository-authoritative dogfood workflow only after package projection passes, using dry-run/review, backup, conflict, ownership, and rollback safeguards from P4/P5.
+- [x] T14: Verify root `.make-docs/` and `docs/` managed outputs match the packaged source where parity is required while project-authored designs, plans, PRDs, work, guides, history, archives, evidence, configuration, and custom content remain project-owned.
+- [x] T15: Exercise root CLI/MCP resource list/read, optional projection, lifecycle receipts, general run capture, Naive-UAT system workflow, Persona routing, and exact selected optional integrations through dogfood without treating the root as upstream authority.
+- [x] T16: Review the dogfood diff and rollback evidence before accepting it; stop on unexpected project-document changes, ownership ambiguity, stale generated copies, or retired capability claims.
 
 ### Acceptance criteria
 
@@ -124,11 +124,11 @@ This phase implements migration checkpoint 13 and is the first phase allowed to 
 
 ### Tasks
 
-- [x] t17: Install the packed artifact into a clean external fixture and prove provider-only resource availability, explicit projection selections, routers, manifest provenance, update/uninstall, typed receipts, and bare-install Skill-free behavior.
-- [x] t18: Run the P5 migration coordinator against a finite representative matrix of clean managed, modified, ambiguous, pre-v2, resource-projection, legacy asset, path/symlink, Store, Persona-testing, and optional-agentics facets.
-- [x] t19: Prove the full thirteen-step order, rollback at material failure points, opaque `playbook_runs`, preserved project content, checkpoint dispositions, and no Playbook/Protocol reactivation across those fixtures.
-- [x] t20: Exercise CLI/native-MCP/system-workflow/selected-Skill access parity, canonical `user` default, explicit `maintainer`, installed-product qualification boundaries, evidence paths, findings/gates, and honest support status for the exact tested package.
-- [x] t21: Run the bounded cross-platform/security/privacy cases required by current claims; unsupported environments remain explicit rather than guessed or expanded by a green local result.
+- [x] T17: Install the packed artifact into a clean external fixture and prove provider-only resource availability, explicit projection selections, routers, manifest provenance, update/uninstall, typed receipts, and bare-install Skill-free behavior.
+- [x] T18: Run the P5 migration coordinator against a finite representative matrix of clean managed, modified, ambiguous, pre-v2, resource-projection, legacy asset, path/symlink, Store, Persona-testing, and optional-agentics facets.
+- [x] T19: Prove the full thirteen-step order, rollback at material failure points, opaque `playbook_runs`, preserved project content, checkpoint dispositions, and no Playbook/Protocol reactivation across those fixtures.
+- [x] T20: Exercise CLI/native-MCP/system-workflow/selected-Skill access parity, canonical `user` default, explicit `maintainer`, installed-product qualification boundaries, evidence paths, findings/gates, and honest support status for the exact tested package.
+- [x] T21: Run the bounded cross-platform/security/privacy cases required by current claims; unsupported environments remain explicit rather than guessed or expanded by a green local result.
 
 ### Acceptance criteria
 
@@ -151,11 +151,11 @@ This phase implements migration checkpoint 13 and is the first phase allowed to 
 
 ### Tasks
 
-- [x] t22: Run the repository-authoritative focused and proportional package/build/test suites, path-hygiene validation, PRD authority regression, work-contract validation, relative-link/anchor checks, scope audit, whitespace, and diff hygiene within the finite budget.
-- [x] t23: Verify unchanged fingerprints reuse prior valid evidence, corrections rerun only affected checks, and budget exhaustion produces `blocked` or owner decision rather than repeated unchanged execution.
-- [x] t24: Obtain independent end-to-end review of upstream/package/dogfood/installed-project parity, migrations, removals, UAT, support claims, scope, and evidence sufficiency; correct only actionable defects within budget.
-- [x] t25: Record checkpoint-13 evidence, exact package/build identities, fixture/platform matrix, scenario/finding/obligation/support dispositions, unresolved nonblocking items, and rollback state.
-- [x] t26: Prepare a bounded owner implementation-acceptance and release-readiness recommendation that explicitly does not stage, commit, integrate, push, publish, release, deploy, or deactivate preservation barriers without separate authorization.
+- [x] T22: Run the repository-authoritative focused and proportional package/build/test suites, path-hygiene validation, PRD authority regression, work-contract validation, relative-link/anchor checks, scope audit, whitespace, and diff hygiene within the finite budget.
+- [x] T23: Verify unchanged fingerprints reuse prior valid evidence, corrections rerun only affected checks, and budget exhaustion produces `blocked` or owner decision rather than repeated unchanged execution.
+- [x] T24: Obtain independent end-to-end review of upstream/package/dogfood/installed-project parity, migrations, removals, UAT, support claims, scope, and evidence sufficiency; correct only actionable defects within budget.
+- [x] T25: Record checkpoint-13 evidence, exact package/build identities, fixture/platform matrix, scenario/finding/obligation/support dispositions, unresolved nonblocking items, and rollback state.
+- [x] T26: Prepare a bounded owner implementation-acceptance and release-readiness recommendation that explicitly does not stage, commit, integrate, push, publish, release, deploy, or deactivate preservation barriers without separate authorization.
 
 ### Acceptance criteria
 

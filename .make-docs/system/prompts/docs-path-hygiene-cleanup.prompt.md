@@ -10,17 +10,17 @@ Before editing anything, read `docs/AGENTS.md`, and `.make-docs/system/reference
 Run the CLI checker. It selects local content without a manifest or Store. If the CLI is absent, review paths manually and report that the automated check did not run. Use repeated `--path <project-relative-file-or-directory>` arguments for a custom docs root or a narrower reviewed scope. Never create operational state to make this check run:
 
 ```bash
-make-docs project path-hygiene validate --format json
+make-docs project paths validate --format json
 ```
 
-Preview safe project-path repairs with `make-docs project path-hygiene repair --format text`. Add `--apply` to write the repairs.
+Preview safe project-path repairs with `make-docs project paths repair --format text`. Add `--apply` to write the repairs.
 
 For each still-valid finding, repair the documentation with a project-relative path or sanitized placeholder. Preserve full paths only when the reference allows the exception, and add or preserve the `make-docs-path-hygiene: allow` comment with a clear reason.
 
 After repairs, rerun:
 
 ```bash
-make-docs project path-hygiene validate --format text
+make-docs project paths validate --format text
 just docs-links docs
 just docs-style docs
 git diff --check

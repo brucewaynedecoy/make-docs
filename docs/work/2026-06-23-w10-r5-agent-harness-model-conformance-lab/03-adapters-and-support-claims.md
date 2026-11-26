@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Adapters and Support Claims
 
 ## Purpose
@@ -14,10 +18,10 @@ Build the first adapter path and support-claim gates without changing shipped ha
 
 ### Tasks
 
-- [x] t1: Start executable lab coverage with Codex and Claude Code only.
-- [x] t2: Record OpenCode, Goose, Pi, and future IDEs as future adapter targets, not shipped harnesses.
-- [x] t3: Gate support claims by scenario/harness/model/provider/runtime tuple.
-- [x] t4: Ensure validation commands can be scenario steps without replacing package validation.
+- [x] T1: Start executable lab coverage with Codex and Claude Code only.
+- [x] T2: Record OpenCode, Goose, Pi, and future IDEs as future adapter targets, not shipped harnesses.
+- [x] T3: Gate support claims by scenario/harness/model/provider/runtime tuple.
+- [x] T4: Ensure validation commands can be scenario steps without replacing package validation.
 
 ### Acceptance Criteria
 
@@ -33,10 +37,10 @@ Build the first adapter path and support-claim gates without changing shipped ha
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Updated the Conformance Lab Scenario and Result Contracts guide, which is now retired and preserved in Git history, to bind executable lab coverage to the then-current `HARNESSES` values in `packages/cli/src/types.ts`: `codex` and `claude-code`. |
-| t2 | The guide records OpenCode, Goose, Pi, and future agentic IDEs as future lab adapter targets that remain blocked or unattempted until accepted implementation and reviewed scenario results exist. |
-| t3 | The guide adds a support-claim gate that distinguishes no public claim, nominal tuple support, caveated tuple support, and stronger wording. Claims must stay scoped to the exact scenario/harness/model/provider/runtime tuple. |
-| t4 | The guide states that validation commands may appear in scenario steps, but they remain package validation evidence until a result record also captures tuple metadata, reviewer status, verdict, reason, and caveats. |
+| T1 | Updated the Conformance Lab Scenario and Result Contracts guide, which is now retired and preserved in Git history, to bind executable lab coverage to the then-current `HARNESSES` values in `packages/cli/src/types.ts`: `codex` and `claude-code`. |
+| T2 | The guide records OpenCode, Goose, Pi, and future agentic IDEs as future lab adapter targets that remain blocked or unattempted until accepted implementation and reviewed scenario results exist. |
+| T3 | The guide adds a support-claim gate that distinguishes no public claim, nominal tuple support, caveated tuple support, and stronger wording. Claims must stay scoped to the exact scenario/harness/model/provider/runtime tuple. |
+| T4 | The guide states that validation commands may appear in scenario steps, but they remain package validation evidence until a result record also captures tuple metadata, reviewer status, verdict, reason, and caveats. |
 
 ## Coverage Decisions
 

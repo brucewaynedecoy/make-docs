@@ -55,18 +55,18 @@ W20 R0 is complete. This phase consumes its agent-review capability and preserve
 
 ### Tasks
 
-- [ ] t1: Add or update failure-revealing testing fixtures under current product-owned resource, operation, static-adapter, package, and installed-product test owners.
-- [ ] t2: Give every scenario product maturity, current decision, available authority, selected and skipped types, executor boundaries, effort budget, stop, evidence and reuse state, gate effect, and expected failure.
-- [ ] t3: Add an under-testing case where an agent stops without evidence for a material current correctness decision.
-- [ ] t4: Add an over-testing case where a small change triggers broad or release-grade work without authority.
-- [ ] t5: Add a performance case that rejects a production-grade target for an unstable path and one that accepts bounded proof for a real feasibility cliff.
-- [ ] t6: Add an evidence case that reuses valid proof and rejects reuse after a material scope, build, environment, claim, or expiry change.
-- [ ] t7: Add a gate case that rejects a guided review, default unassisted result, or unowned performance target as a hard completion gate.
-- [ ] t8: Add an executor case that distinguishes agent-run proof, guided owner activity, and qualified unassisted human activity.
-- [ ] t9: Add a deferred-work case that rejects obligations made from `not-needed-now`, declined guided review, or skipped advisory work.
-- [ ] t10: Add a human-instruction case that fails for duplicate assertions, internal IDs, needless setup, unclear effort, hidden gate effect, or no safe stop.
-- [ ] t11: Add a Human Experience Review case that reuses evidence and rejects a fifth testing type or duplicate verdict.
-- [ ] t12: Keep every assertion tied to current PRD requirements and the exact declared static-adapter or installed-product claim.
+- [ ] T1: Add or update failure-revealing testing fixtures under current product-owned resource, operation, static-adapter, package, and installed-product test owners.
+- [ ] T2: Give every scenario product maturity, current decision, available authority, selected and skipped types, executor boundaries, effort budget, stop, evidence and reuse state, gate effect, and expected failure.
+- [ ] T3: Add an under-testing case where an agent stops without evidence for a material current correctness decision.
+- [ ] T4: Add an over-testing case where a small change triggers broad or release-grade work without authority.
+- [ ] T5: Add a performance case that rejects a production-grade target for an unstable path and one that accepts bounded proof for a real feasibility cliff.
+- [ ] T6: Add an evidence case that reuses valid proof and rejects reuse after a material scope, build, environment, claim, or expiry change.
+- [ ] T7: Add a gate case that rejects a guided review, default unassisted result, or unowned performance target as a hard completion gate.
+- [ ] T8: Add an executor case that distinguishes agent-run proof, guided owner activity, and qualified unassisted human activity.
+- [ ] T9: Add a deferred-work case that rejects obligations made from `not-needed-now`, declined guided review, or skipped advisory work.
+- [ ] T10: Add a human-instruction case that fails for duplicate assertions, internal IDs, needless setup, unclear effort, hidden gate effect, or no safe stop.
+- [ ] T11: Add a Human Experience Review case that reuses evidence and rejects a fifth testing type or duplicate verdict.
+- [ ] T12: Keep every assertion tied to current PRD requirements and the exact declared static-adapter or installed-product claim.
 
 ### Acceptance criteria
 
@@ -85,16 +85,16 @@ W20 R0 is complete. This phase consumes its agent-review capability and preserve
 
 ### Tasks
 
-- [ ] t13: Update static-adapter, setup, operation, package, or direct installed fixtures only where current architecture needs the new testing cases. Do not add a scenario registry, kit, or lab system.
-- [ ] t14: Keep agent-run Automated and Performance Testing distinct from human-run Guided Progress Review and Unassisted Goal Testing in direct evidence records.
-- [ ] t15: Record the qualified Unassisted Goal Test executor, environment, anti-coaching state, Persona route, and evidence integrity when that type is selected.
-- [ ] t16: Require every observed gate effect to match current authority. Reject unsupported blocking behavior.
-- [ ] t17: Run the failure-revealing direct set against each declared supported static-adapter method, including the applicable Codex and Claude Code methods.
-- [ ] t18: Record agent behavior in plain language. Do not infer support from a prompt file, tool card, or happy path alone.
-- [ ] t19: Preserve raw observations only when needed to support the result, finding, or support claim.
-- [ ] t20: Give every direct-proof failure one disposition: fix now, accepted bounded limitation, accepted future obligation, invalid run, blocked method, or rejected claim.
-- [ ] t21: Rerun only scenarios affected by a fix, shared harness change, evidence invalidation, or claim change.
-- [ ] t22: Confirm that passing results support only the exact harness, version, connection method, surface, operation set, executable, and installed package tested.
+- [ ] T13: Update static-adapter, setup, operation, package, or direct installed fixtures only where current architecture needs the new testing cases. Do not add a scenario registry, kit, or lab system.
+- [ ] T14: Keep agent-run Automated and Performance Testing distinct from human-run Guided Progress Review and Unassisted Goal Testing in direct evidence records.
+- [ ] T15: Record the qualified Unassisted Goal Test executor, environment, anti-coaching state, Persona route, and evidence integrity when that type is selected.
+- [ ] T16: Require every observed gate effect to match current authority. Reject unsupported blocking behavior.
+- [ ] T17: Run the failure-revealing direct set against each declared supported static-adapter method, including the applicable Codex and Claude Code methods.
+- [ ] T18: Record agent behavior in plain language. Do not infer support from a prompt file, tool card, or happy path alone.
+- [ ] T19: Preserve raw observations only when needed to support the result, finding, or support claim.
+- [ ] T20: Give every direct-proof failure one disposition: fix now, accepted bounded limitation, accepted future obligation, invalid run, blocked method, or rejected claim.
+- [ ] T21: Rerun only scenarios affected by a fix, shared harness change, evidence invalidation, or claim change.
+- [ ] T22: Confirm that passing results support only the exact harness, version, connection method, surface, operation set, executable, and installed package tested.
 
 ### Acceptance criteria
 
@@ -113,16 +113,16 @@ W20 R0 is complete. This phase consumes its agent-review capability and preserve
 
 ### Tasks
 
-- [ ] t23: Select one realistic installed-product goal that demonstrates the new testing experience through the public product path.
-- [ ] t24: Prepare the environment, safe starting state, expected time, cleanup, and any agent-run checks before inviting the person.
-- [ ] t25: Keep the normal human path to one small goal and normally one to five steps.
-- [ ] t26: Remove duplicate automated assertions, internal payload inspection, long identifiers, and technical setup that do not help the goal.
-- [ ] t27: State what is worth noticing, the advisory gate effect, the safe stop, and how feedback will be used.
-- [ ] t28: Compare the request with the prior technical walkthrough pattern and record why it is shorter, easier to understand, and more meaningful.
-- [ ] t29: Have the agent apply Human Experience Review to the request and installed result before offering an optional human exercise.
-- [ ] t30: Offer the Guided Progress Review. Record `experienced`, `feedback-recorded`, `declined`, `blocked-by-environment`, or `not-applicable` without making it a sign-off gate.
-- [ ] t31: Run one Unassisted Goal Test only if Phase 4 selected a material current uncertainty and a qualified person is available. Otherwise record `not-needed-now`.
-- [ ] t32: Convert material feedback into a finding with a clear disposition. Do not create an obligation from a decline or advisory skip.
+- [ ] T23: Select one realistic installed-product goal that demonstrates the new testing experience through the public product path.
+- [ ] T24: Prepare the environment, safe starting state, expected time, cleanup, and any agent-run checks before inviting the person.
+- [ ] T25: Keep the normal human path to one small goal and normally one to five steps.
+- [ ] T26: Remove duplicate automated assertions, internal payload inspection, long identifiers, and technical setup that do not help the goal.
+- [ ] T27: State what is worth noticing, the advisory gate effect, the safe stop, and how feedback will be used.
+- [ ] T28: Compare the request with the prior technical walkthrough pattern and record why it is shorter, easier to understand, and more meaningful.
+- [ ] T29: Have the agent apply Human Experience Review to the request and installed result before offering an optional human exercise.
+- [ ] T30: Offer the Guided Progress Review. Record `experienced`, `feedback-recorded`, `declined`, `blocked-by-environment`, or `not-applicable` without making it a sign-off gate.
+- [ ] T31: Run one Unassisted Goal Test only if Phase 4 selected a material current uncertainty and a qualified person is available. Otherwise record `not-needed-now`.
+- [ ] T32: Convert material feedback into a finding with a clear disposition. Do not create an obligation from a decline or advisory skip.
 
 ### Acceptance criteria
 
@@ -143,16 +143,16 @@ W20 R0 is complete. This phase consumes its agent-review capability and preserve
 
 ### Tasks
 
-- [ ] t33: Validate all changed upstream contracts, references, templates, prompts, routers, catalog entries, manifests, and generated expectations before projection.
-- [ ] t34: Materialize the accepted upstream resource set into the repository dogfood instance through the normal controlled path.
-- [ ] t35: Verify upstream and dogfood parity for all W21-owned resources and managed router pointers.
-- [ ] t36: Build the package and run the clean-install smoke path in a temporary project.
-- [ ] t37: Verify that the installed provider lists and resolves the new common contract and reference by stable identity.
-- [ ] t38: Verify that a clean installed project receives the accepted templates, prompts, lifecycle guidance, and managed router pointers.
-- [ ] t39: Verify update and reconfigure behavior against a project with user-authored router content and project-owned documents.
-- [ ] t40: Confirm that stale naive-UAT wording is absent from active generated human-facing paths except where compatibility requires it.
-- [ ] t41: Confirm that no mandatory Skill, new CLI command, new lifecycle stage, new frontmatter field, or new resource type entered the first release.
-- [ ] t42: Record exact package, dogfood, install, update, and resource-resolution evidence.
+- [ ] T33: Validate all changed upstream contracts, references, templates, prompts, routers, catalog entries, manifests, and generated expectations before projection.
+- [ ] T34: Materialize the accepted upstream resource set into the repository dogfood instance through the normal controlled path.
+- [ ] T35: Verify upstream and dogfood parity for all W21-owned resources and managed router pointers.
+- [ ] T36: Build the package and run the clean-install smoke path in a temporary project.
+- [ ] T37: Verify that the installed provider lists and resolves the new common contract and reference by stable identity.
+- [ ] T38: Verify that a clean installed project receives the accepted templates, prompts, lifecycle guidance, and managed router pointers.
+- [ ] T39: Verify update and reconfigure behavior against a project with user-authored router content and project-owned documents.
+- [ ] T40: Confirm that stale naive-UAT wording is absent from active generated human-facing paths except where compatibility requires it.
+- [ ] T41: Confirm that no mandatory Skill, new CLI command, new lifecycle stage, new frontmatter field, or new resource type entered the first release.
+- [ ] T42: Record exact package, dogfood, install, update, and resource-resolution evidence.
 
 ### Acceptance criteria
 
@@ -171,16 +171,16 @@ W20 R0 is complete. This phase consumes its agent-review capability and preserve
 
 ### Tasks
 
-- [ ] t43: Run the justified expanded integration pass across affected resource, lifecycle, prompt, router, static-adapter, install, update, package, and public-path boundaries.
-- [ ] t44: Run PRD authority validation, default-resource validation, path and link checks, package smoke, and `git diff --check`.
-- [ ] t45: Have the agent run the required W20 Human Experience Review over every applicable W21 promise using the best available Phase 2 through Phase 5 evidence. Do not require a human response without an explicit gate.
-- [ ] t46: Reconcile every `R-TEST-##` requirement to implementation evidence, direct installed evidence, Human Experience Review, or an accepted bounded gap.
-- [ ] t47: Reconcile every selected and skipped testing type, material finding, `PERF-###`, `NUAT-###`, and `O-###` item. Confirm that none is orphaned.
-- [ ] t48: Confirm that no advisory result, decline, `not-needed-now`, or invalid run changed a capability status without current authority.
-- [ ] t49: Confirm that W21 consumed W20 without changing W20 task IDs, evidence, or ownership.
-- [ ] t50: Record phase and capability status as `implemented`, `partially-implemented`, `not-implemented`, or `blocked`, with evidence and exact remaining gaps.
-- [ ] t51: Update required history and closeout records only after the evidence and findings agree with the claimed status.
-- [ ] t52: Stop before staging, commit, publication, release, or support-claim expansion unless the owner gives separate authority.
+- [ ] T43: Run the justified expanded integration pass across affected resource, lifecycle, prompt, router, static-adapter, install, update, package, and public-path boundaries.
+- [ ] T44: Run PRD authority validation, default-resource validation, path and link checks, package smoke, and `git diff --check`.
+- [ ] T45: Have the agent run the required W20 Human Experience Review over every applicable W21 promise using the best available Phase 2 through Phase 5 evidence. Do not require a human response without an explicit gate.
+- [ ] T46: Reconcile every `R-TEST-##` requirement to implementation evidence, direct installed evidence, Human Experience Review, or an accepted bounded gap.
+- [ ] T47: Reconcile every selected and skipped testing type, material finding, `PERF-###`, `NUAT-###`, and `O-###` item. Confirm that none is orphaned.
+- [ ] T48: Confirm that no advisory result, decline, `not-needed-now`, or invalid run changed a capability status without current authority.
+- [ ] T49: Confirm that W21 consumed W20 without changing W20 task IDs, evidence, or ownership.
+- [ ] T50: Record phase and capability status as `implemented`, `partially-implemented`, `not-implemented`, or `blocked`, with evidence and exact remaining gaps.
+- [ ] T51: Update required history and closeout records only after the evidence and findings agree with the claimed status.
+- [ ] T52: Stop before staging, commit, publication, release, or support-claim expansion unless the owner gives separate authority.
 
 ### Acceptance criteria
 

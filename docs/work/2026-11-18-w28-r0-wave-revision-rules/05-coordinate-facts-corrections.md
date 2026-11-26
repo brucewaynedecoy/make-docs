@@ -60,10 +60,10 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Update PRD 51 R-BACKLOG-SNAPSHOT-29 so that coordinate facts use the union of work and plan W/R directories, live and archived, and so that each Wave reports `archived`.
-- [x] t2: In `snapshot.ts`, discover dated W/R plan directories under `docs/plans/` and `.make-docs/archive/plans/` for coordinate facts only. Add `archived` and `planPaths` to each Wave entry in `schemas.ts`. A Wave is archived only when every work and plan directory for it is archived.
-- [x] t3: In `catalog.ts`, make the `parityMapping` of `BACKLOG-RULE-017` and `BACKLOG-RULE-018` name `wave-model.md` and its section URI. Confirm that `BACKLOG-AGENT-018` keeps its `oneSidedReason`.
-- [x] t4: Add tests for a plan-only revision, a plan-only Wave, the per-Wave `archived` rule, and both parity mappings. Regenerate the backlog-review Skill bundles and the MCP App widget.
+- [x] T1: Update PRD 51 R-BACKLOG-SNAPSHOT-29 so that coordinate facts use the union of work and plan W/R directories, live and archived, and so that each Wave reports `archived`.
+- [x] T2: In `snapshot.ts`, discover dated W/R plan directories under `docs/plans/` and `.make-docs/archive/plans/` for coordinate facts only. Add `archived` and `planPaths` to each Wave entry in `schemas.ts`. A Wave is archived only when every work and plan directory for it is archived.
+- [x] T3: In `catalog.ts`, make the `parityMapping` of `BACKLOG-RULE-017` and `BACKLOG-RULE-018` name `wave-model.md` and its section URI. Confirm that `BACKLOG-AGENT-018` keeps its `oneSidedReason`.
+- [x] T4: Add tests for a plan-only revision, a plan-only Wave, the per-Wave `archived` rule, and both parity mappings. Regenerate the backlog-review Skill bundles and the MCP App widget.
 
 ### Acceptance criteria
 

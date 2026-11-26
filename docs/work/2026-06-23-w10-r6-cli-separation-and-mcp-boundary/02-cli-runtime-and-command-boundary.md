@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # CLI Runtime and Command Boundary
 
 ## Objective
@@ -6,11 +10,11 @@ Preserve the current npm CLI behavior while documenting the future Rust agent-ru
 
 ## Tasks
 
-- [x] t1: Audit public docs for command posture and removed command references.
-- [x] t2: Keep no-command install/sync behavior intact.
-- [x] t3: Preserve explicit command behavior for `reconfigure`, `skills`, `backup`, and `uninstall`.
-- [x] t4: Add future dual-runtime documentation requirements for version/runtime disclosure and PATH-order behavior.
-- [x] t5: Avoid adding Rust or MCP bridge commands until implementation planning defines them.
+- [x] T1: Audit public docs for command posture and removed command references.
+- [x] T2: Keep no-command install/sync behavior intact.
+- [x] T3: Preserve explicit command behavior for `reconfigure`, `skills`, `backup`, and `uninstall`.
+- [x] T4: Add future dual-runtime documentation requirements for version/runtime disclosure and PATH-order behavior.
+- [x] T5: Avoid adding Rust or MCP bridge commands until implementation planning defines them.
 
 ## Acceptance Criteria
 
@@ -23,11 +27,11 @@ Preserve the current npm CLI behavior while documenting the future Rust agent-ru
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Audited [README.md](../../../README.md), [packages/cli/README.md](../../../packages/cli/README.md), current user/developer guides under `docs/assets/library/**`, `packages/cli/src/cli.ts`, and `packages/cli/tests/cli.test.ts` for public command posture, removed command references, and Rust/MCP wording. |
-| t2 | No-command install/sync behavior in `packages/cli/src/cli.ts` was not changed; the focused CLI test suite still passed. |
-| t3 | Added parser validation so `--dry-run` is rejected for lifecycle commands instead of being silently ignored by `backup` or `uninstall`, while `reconfigure` and `skills` dry-run behavior remains accepted and tested. |
-| t4 | Updated root README, package README, and CLI developer/user guides so current docs describe the npm TypeScript CLI as installer-maintainer, treat Rust/MCP as future unsupported surfaces, and state that future dual-runtime support requires runtime/version identity and parity. |
-| t5 | No Rust command, MCP bridge command, or command-router-first `npx` posture was added. |
+| T1 | Audited [README.md](../../../README.md), [packages/cli/README.md](../../../packages/cli/README.md), current user/developer guides under `docs/assets/library/**`, `packages/cli/src/cli.ts`, and `packages/cli/tests/cli.test.ts` for public command posture, removed command references, and Rust/MCP wording. |
+| T2 | No-command install/sync behavior in `packages/cli/src/cli.ts` was not changed; the focused CLI test suite still passed. |
+| T3 | Added parser validation so `--dry-run` is rejected for lifecycle commands instead of being silently ignored by `backup` or `uninstall`, while `reconfigure` and `skills` dry-run behavior remains accepted and tested. |
+| T4 | Updated root README, package README, and CLI developer/user guides so current docs describe the npm TypeScript CLI as installer-maintainer, treat Rust/MCP as future unsupported surfaces, and state that future dual-runtime support requires runtime/version identity and parity. |
+| T5 | No Rust command, MCP bridge command, or command-router-first `npx` posture was added. |
 
 ## Coverage Decisions
 

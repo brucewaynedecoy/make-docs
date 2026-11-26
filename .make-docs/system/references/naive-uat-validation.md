@@ -8,14 +8,14 @@ Use the workflow in `make-docs://system/reference/naive-uat-workflow.md` first. 
 
 The stable paths are:
 
-- `make-docs run uat persona resolve`
-- `make-docs run uat scenario validate`
-- `make-docs run uat target validate`
-- `make-docs run uat evidence-reference validate`
-- `make-docs run uat finding validate`
-- `make-docs run uat result validate`
+- `make-docs check uat persona`
+- `make-docs check uat scenario`
+- `make-docs check uat target`
+- `make-docs check uat evidence`
+- `make-docs check uat finding`
+- `make-docs check uat result`
 
-Each accepts `--payload-json <file-or-inline-JSON>` and `--json`. The payload is the same object as the derived MCP tool input. The Persona helper also accepts `--target-root <project>` and `--persona <configured-slug>`. Other helpers use the payload. All payloads can include `targetRoot` and `persona`. Omit `persona` to use canonical `user`. The MCP names replace punctuation in each stable operation ID with underscores and add `make_docs_`.
+Each accepts `--payload-json <file-or-inline-JSON>` and `--json`. The payload is the same object as the derived MCP tool input. The Persona helper also accepts `--target-root <project>` and `--persona <configured-slug>`. Other helpers use the payload. All payloads can include `targetRoot` and `persona`. Omit `persona` to use canonical `user`. Each MCP tool name is the CLI path after `make-docs`, joined with underscores, such as `check_uat_persona`.
 
 ## Reference Fields
 

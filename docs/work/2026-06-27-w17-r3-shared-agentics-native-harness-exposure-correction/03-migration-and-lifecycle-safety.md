@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # P3 Migration and Lifecycle Safety
 
 ## Goal
@@ -15,13 +19,13 @@ Migrate W17 R2 stub installs without damaging user-authored harness skills.
 
 ## Tasks
 
-- [x] t1: Classify clean manifest-owned W17 R2 generated stubs separately from modified stubs, custom harness skills, and ambiguous missing-manifest state.
-- [x] t2: Replace clean legacy stubs with symlink exposure when possible or managed copy mirrors when fallback is required.
-- [x] t3: Classify clean legacy duplicated per-harness payloads and migrate them to shared payload plus native exposure only when ownership and content evidence are clear.
-- [x] t4: Preserve modified stubs, modified copy mirrors, wrong-target symlinks, custom harness skill directories, malformed manifests, and ambiguous missing-manifest state for review.
-- [x] t5: Update audit, backup, uninstall, and sync to use link-aware filesystem behavior so symlink targets are not traversed or deleted destructively.
-- [x] t6: Ensure uninstall removes only reviewed Make Docs-owned symlink exposures or clean copy mirrors, and prunes empty directories only after unmanaged-descendant checks.
-- [x] t7: Ensure non-interactive runs fail before unsafe migration when a review decision is required.
+- [x] T1: Classify clean manifest-owned W17 R2 generated stubs separately from modified stubs, custom harness skills, and ambiguous missing-manifest state.
+- [x] T2: Replace clean legacy stubs with symlink exposure when possible or managed copy mirrors when fallback is required.
+- [x] T3: Classify clean legacy duplicated per-harness payloads and migrate them to shared payload plus native exposure only when ownership and content evidence are clear.
+- [x] T4: Preserve modified stubs, modified copy mirrors, wrong-target symlinks, custom harness skill directories, malformed manifests, and ambiguous missing-manifest state for review.
+- [x] T5: Update audit, backup, uninstall, and sync to use link-aware filesystem behavior so symlink targets are not traversed or deleted destructively.
+- [x] T6: Ensure uninstall removes only reviewed Make Docs-owned symlink exposures or clean copy mirrors, and prunes empty directories only after unmanaged-descendant checks.
+- [x] T7: Ensure non-interactive runs fail before unsafe migration when a review decision is required.
 
 ## Acceptance Criteria
 

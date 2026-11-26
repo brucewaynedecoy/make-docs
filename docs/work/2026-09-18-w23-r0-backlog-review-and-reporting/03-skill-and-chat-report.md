@@ -64,12 +64,12 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t1: Add the `backlog-review` first-party Skill source, entrypoint, references, examples, metadata, and declared support files.
-- [x] t2: Implement MCP-first, CLI-second, and agentic-fallback routing with clear method reporting.
-- [x] t3: Write the portable fallback that works without the maintainer checkout and does not claim a deterministic run.
-- [x] t4: Map every fallback rule to the stable rule catalog and add twin-change checks.
-- [x] t5: Add Skill instructions and examples that turn tool errors, warnings, and material limits into natural human explanations with context, effect, known limits, next action, and clear required or optional user action. Keep raw technical detail secondary and preserve exact meaning.
-- [x] t6: Add build, package, and extracted-Skill independence tests.
+- [x] T1: Add the `backlog-review` first-party Skill source, entrypoint, references, examples, metadata, and declared support files.
+- [x] T2: Implement MCP-first, CLI-second, and agentic-fallback routing with clear method reporting.
+- [x] T3: Write the portable fallback that works without the maintainer checkout and does not claim a deterministic run.
+- [x] T4: Map every fallback rule to the stable rule catalog and add twin-change checks.
+- [x] T5: Add Skill instructions and examples that turn tool errors, warnings, and material limits into natural human explanations with context, effect, known limits, next action, and clear required or optional user action. Keep raw technical detail secondary and preserve exact meaning.
+- [x] T6: Add build, package, and extracted-Skill independence tests.
 
 ### Acceptance criteria
 
@@ -89,11 +89,11 @@ This phase follows [PRD 51](../../prd/51-backlog-review-and-reporting.md) and th
 
 ### Tasks
 
-- [x] t6: Implement the shared report model with fact, inference, recommendation, confidence, limit, `waveStatus`, `statusReason`, and the four fixed portfolio tally fields.
-- [x] t7: Assign exactly one fixed wave status and one evidence-backed status reason, then implement current-focus, attention, open, closeout-needed, blocked or conflicted, paused or superseded, historical, and recommended-order reasoning.
-- [x] t8: Define the compact chat layout and omit empty sections without hiding material limits.
-- [x] t9: Add repository-relative source links and compact drill-down detail.
-- [x] t10: Run Guided Progress Review across small, medium, large, and conflict-heavy fixtures and revise the presentation.
+- [x] T6: Implement the shared report model with fact, inference, recommendation, confidence, limit, `waveStatus`, `statusReason`, and the four fixed portfolio tally fields.
+- [x] T7: Assign exactly one fixed wave status and one evidence-backed status reason, then implement current-focus, attention, open, closeout-needed, blocked or conflicted, paused or superseded, historical, and recommended-order reasoning.
+- [x] T8: Define the compact chat layout and omit empty sections without hiding material limits.
+- [x] T9: Add repository-relative source links and compact drill-down detail.
+- [x] T10: Run Guided Progress Review across small, medium, large, and conflict-heavy fixtures and revise the presentation.
 
 ### Acceptance criteria
 

@@ -21,6 +21,8 @@ import { lifecycleOperations } from "./lifecycle/registry-ops";
 import { performanceEvidenceOperations } from "./performance-evidence/ops";
 import { projectOperations } from "./project/ops";
 import { projectLayoutOperations } from "./project/layout";
+import { projectDoctorOperations } from "./project/doctor/ops";
+import { setupStoreOperations } from "./setup/store-ops";
 import { uatOperations } from "./uat/ops";
 import { prdOperations } from "./prd/ops";
 import { resourceOperations } from "./resource/ops";
@@ -33,15 +35,21 @@ import {
   resolveProjectHarnessAccessProjection,
 } from "./harness-policy";
 import { StoreAccessStateError, makeStoreAccessStateError } from "./store-access";
+import { storeChangedOutsideNextAction } from "../store/database";
 import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
+import { leafHelpEntry } from "./leaf-help-table";
+import { decompositionOperations } from "./decomposition/ops";
+import { projectSkillCheckOperations } from "./project/skill-check-ops";
+import { workQueueOperations } from "./work/work-queue/operations";
+import { factoryOperations } from "./factory/operations";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
  * deterministic operations exist. Identifiers follow `domain.verb` or
  * `domain.object.verb` — lowercase, dot-separated, hyphenated multiword
- * segments — and are stable and append-only. The CLI `run` tree, the MCP
- * tool list are surfaces derived
- * from or conformance-checked against this registry (R-REG-2, R-SURF-1).
+ * segments — and are stable and append-only. The CLI groups and the MCP
+ * tool list are surfaces derived from or conformance-checked against this
+ * registry (R-REG-2, R-SURF-1).
  */
 
 export type OperationMutation = "read" | "write";
@@ -53,11 +61,16 @@ export type OperationMutation = "read" | "write";
  */
 export type OperationStatus = "active" | "pending";
 
+/** PRD 39 R-TOP-1: the top-level groups. `run` is not a group. */
 export type OperationCliRoot =
   | "setup"
   | "project"
   | "resource"
-  | "run"
+  | "work"
+  | "backlog"
+  | "lifecycle"
+  | "factory"
+  | "check"
   | "mcp"
   | "update"
   | "uninstall";
@@ -75,8 +88,13 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   mutates: OperationMutation;
   /** Exact Store, project, and host-config access needed by this operation. */
   access: OperationAccess;
-  /** Optional read-only sub-operations must obtain their own Store admission. */
-  storeAdmission?: "required" | "optional";
+  /**
+   * Optional read-only sub-operations must obtain their own Store admission.
+   * `handler` (W30 R0 P3): the harness check still runs, and the handler
+   * opens its own Store session with no project folder, because the call acts
+   * on this machine, not on the folder where it runs.
+   */
+  storeAdmission?: "required" | "optional" | "handler";
   status: OperationStatus;
   /** Required for MCP-ready operations; independent of admission and access. */
   mcp?: McpToolMetadata;
@@ -90,7 +108,20 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   inputSchema: ZodType<TInput>;
   /** Active operations have one handler. Pending reservations have none. */
   handler?(input: TInput, context: OperationExecutionContext): TOutput | Promise<TOutput>;
+  /**
+   * W30 R0 P3: find the folder whose harness grant and Store admission apply,
+   * before the access check. A factory call names its project by path or by
+   * name, so the target is that project's checkout, not the current folder
+   * (PRD 53 R-FACTORY-63, R-FACTORY-67). It may instead return a typed refusal
+   * value, which the call returns without any Store admission. `explainDenial`
+   * may restate a Store access refusal, for example to name the project.
+   */
+  resolveTarget?(input: TInput, context: OperationExecutionContext): Promise<OperationTargetResolution> | OperationTargetResolution;
 }
+
+export type OperationTargetResolution =
+  | { targetRoot: string; explainDenial?: (error: StoreAccessStateError) => StoreAccessStateError }
+  | { refusal: JsonValue };
 
 export interface OperationDescriptor {
   id: string;
@@ -98,7 +129,7 @@ export interface OperationDescriptor {
   summary: string;
   mutates: OperationMutation;
   access: OperationAccess;
-  storeAdmission?: "required" | "optional";
+  storeAdmission?: "required" | "optional" | "handler";
   status: OperationStatus;
   pendingLineage?: string;
   cli: OperationCliProjection;
@@ -109,7 +140,7 @@ export interface OperationAccessFact {
   status: OperationStatus;
   cli: OperationCliProjection;
   access: OperationAccess;
-  storeAdmission?: "required" | "optional";
+  storeAdmission?: "required" | "optional" | "handler";
   mcpReady: boolean;
   commandRuleCandidate: boolean;
 }
@@ -148,6 +179,7 @@ export const ADMITTED_OPERATION_IDS = [
   "project.checkout-register.preview",
   "project.checkout-register.apply",
   "project.persona.list",
+  "project.register.list",
   "project.layout.preview",
   "project.layout.prepare",
   "project.layout.apply",
@@ -155,6 +187,10 @@ export const ADMITTED_OPERATION_IDS = [
   "project.surface.ensure",
   "project.path-hygiene.validate",
   "project.path-hygiene.repair",
+  "project.doctor.check",
+  "project.doctor.fix",
+  "setup.store.check",
+  "setup.store.clean",
   "lifecycle.start",
   "lifecycle.show",
   "lifecycle.list",
@@ -171,82 +207,123 @@ export const ADMITTED_OPERATION_IDS = [
   "uat.evidence-reference.validate",
   "uat.finding.validate",
   "uat.result.validate",
+  // W34 R0 P1: the Skill check operations (PRD 39 R-SKILL-CHECK).
+  "decomposition.output.validate",
+  "project.relations.list",
+  "project.markdown-style.validate",
+  "project.markdown-style.repair",
+  // W29 R0 P4: the work queue (PRD 52 R-WORK-QUEUE-12, PRD 39 R-RUN-4).
+  "work.queue.status",
+  "work.queue.sync",
+  "work.queue.next",
+  "work.queue.claim",
+  "work.queue.release",
+  "work.queue.report",
+  "work.queue.close",
+  "work.queue.export",
+  "work.queue.add",
+  // W30 R0 P3: the factory (PRD 53 R-FACTORY-49, PRD 39 R-RUN-4).
+  "factory.status",
+  "factory.tools.save",
+  "factory.workflow.save",
+  "factory.workflow.show",
+  "factory.workflow.list",
+  "factory.proof.save",
+  "factory.assignment.start",
+  "factory.assignment.save",
+  "factory.assignment.list",
+  "factory.restore",
+  // W30 R0 follow-up commands (PRD 53 R-FACTORY-69 to R-FACTORY-71).
+  "factory.tools.list",
+  "factory.file-backup.save",
+  "factory.grant-use.record",
+  // W30 R0 Store lifecycle fixes (owner decision 2026-11-24): the reviewed workflow removal.
+  "factory.workflow.clean",
 ] as const;
 
+/**
+ * Canonical CLI projection of each admitted operation (PRD 39 R-TOP-1,
+ * R-TOP-3, R-NAME): the top-level group and the path under it. W33 R0 P2
+ * moved every operation to its group from the name catalog
+ * (`name-catalog.ts`). The MCP tool name is derived from this path
+ * (R-NAME-3), so the two cannot drift.
+ */
 const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [OperationCliRoot, string]> = {
-  "prd.authority.validate": ["run", "prd authority validate"],
-  "performance.evidence.validate": ["run", "performance evidence validate"],
-  "work.item.resolve": ["run", "work item resolve"],
-  "work.evidence.record": ["run", "work evidence record"],
-  "work.evidence.read": ["run", "work evidence read"],
-  "work.backlog.snapshot": ["run", "work backlog snapshot"],
-  "work.backlog-cache.lookup": ["run", "work backlog-cache lookup"],
-  "work.backlog-cache.write": ["run", "work backlog-cache write"],
-  "backlog.review.open": ["run", "backlog review open"],
-  "backlog.review.refresh": ["run", "backlog review refresh"],
+  "prd.authority.validate": ["check", "prd"],
+  "performance.evidence.validate": ["check", "performance-evidence"],
+  "work.item.resolve": ["work", "item resolve"],
+  "work.evidence.record": ["work", "evidence record"],
+  "work.evidence.read": ["work", "evidence read"],
+  "work.backlog.snapshot": ["backlog", "snapshot"],
+  "work.backlog-cache.lookup": ["backlog", "cache lookup"],
+  "work.backlog-cache.write": ["backlog", "cache write"],
+  "backlog.review.open": ["backlog", "review open"],
+  "backlog.review.refresh": ["backlog", "review refresh"],
   "resource.list": ["resource", "list"],
   "resource.read": ["resource", "read"],
   "resource.ensure": ["resource", "ensure"],
   "project.state.status": ["project", "state status"],
   "project.state.recover": ["project", "state recover"],
-  "project.checkout-move.preview": ["project", "checkout-move preview"],
-  "project.checkout-move.apply": ["project", "checkout-move apply"],
-  "project.checkout-register.preview": ["project", "checkout-register preview"],
-  "project.checkout-register.apply": ["project", "checkout-register apply"],
+  "project.checkout-move.preview": ["project", "move preview"],
+  "project.checkout-move.apply": ["project", "move apply"],
+  "project.checkout-register.preview": ["project", "checkout preview"],
+  "project.checkout-register.apply": ["project", "checkout apply"],
   "project.persona.list": ["project", "persona list"],
+  "project.register.list": ["project", "list"],
   "project.layout.preview": ["project", "layout preview"],
   "project.layout.prepare": ["project", "layout prepare"],
   "project.layout.apply": ["project", "layout apply"],
   "project.layout.verify": ["project", "layout verify"],
   "project.surface.ensure": ["project", "surface ensure"],
-  "project.path-hygiene.validate": ["project", "path-hygiene validate"],
-  "project.path-hygiene.repair": ["project", "path-hygiene repair"],
-  "lifecycle.start": ["run", "lifecycle start"],
-  "lifecycle.show": ["run", "lifecycle show"],
-  "lifecycle.list": ["run", "lifecycle list"],
-  "lifecycle.checkpoint": ["run", "lifecycle checkpoint"],
-  "lifecycle.pause": ["run", "lifecycle pause"],
-  "lifecycle.resume": ["run", "lifecycle resume"],
-  "lifecycle.attach-evidence": ["run", "lifecycle attach-evidence"],
-  "lifecycle.complete": ["run", "lifecycle complete"],
-  "lifecycle.fail": ["run", "lifecycle fail"],
-  "lifecycle.abandon": ["run", "lifecycle abandon"],
-  "uat.scenario.validate": ["run", "uat scenario validate"],
-  "uat.persona.resolve": ["run", "uat persona resolve"],
-  "uat.target.validate": ["run", "uat target validate"],
-  "uat.evidence-reference.validate": ["run", "uat evidence-reference validate"],
-  "uat.finding.validate": ["run", "uat finding validate"],
-  "uat.result.validate": ["run", "uat result validate"],
-};
-
-const ADMITTED_CLI_USAGES: Partial<Record<(typeof ADMITTED_OPERATION_IDS)[number], string>> = {
-  "backlog.review.open": "make-docs run backlog review open --report-json <file-or-json> [--json]",
-  "backlog.review.refresh": "make-docs run backlog review refresh --envelope-json <file-or-json> [--json]",
-  "work.backlog.snapshot":
-    "make-docs run work backlog snapshot --target-root <project> [--json]",
-  "work.backlog-cache.lookup":
-    "make-docs run work backlog-cache lookup --target-root <project> --snapshot-json <file-or-json> [--json]",
-  "work.backlog-cache.write":
-    "make-docs run work backlog-cache write --target-root <project> --snapshot-json <file-or-json> --records-json <file-or-json> [--json]",
-  "performance.evidence.validate":
-    "make-docs run performance evidence validate [--target-root <project>] [--json]",
-  "project.persona.list": "make-docs project persona list [--target-root <path>] [--json]",
-  "project.layout.preview": "make-docs project layout preview [--map <source>=<destination>] [--target-root <path>] [--json]",
-  "project.layout.prepare": "make-docs project layout prepare --review <digest> --mode cli|manual [--map <source>=<destination>] [--target-root <path>] [--json]",
-  "project.layout.apply": "make-docs project layout apply <operation-id> [--target-root <path>] [--json]",
-  "project.layout.verify": "make-docs project layout verify <operation-id> [--target-root <path>] [--json]",
-  "project.state.status": "make-docs project state status [--json]",
-  "project.state.recover": "make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--json]",
-  "project.checkout-move.preview": "make-docs project checkout-move preview [--source-checkout <id>] [--target-root <path>] [--json]",
-  "project.checkout-move.apply": "make-docs project checkout-move apply --source-checkout <id> --source-root <path> --review <digest> [--target-root <path>] [--json]",
-  "project.checkout-register.preview": "make-docs project checkout-register preview [--target-root <path>] [--json]",
-  "project.checkout-register.apply": "make-docs project checkout-register apply --review <digest> [--target-root <path>] [--json]",
-  "resource.read": "make-docs resource read <uri>",
-  "resource.ensure": "make-docs resource ensure <uri>",
-  "project.surface.ensure":
-    "make-docs project surface ensure <archive|artifacts|assets>",
-  "project.path-hygiene.validate": "make-docs project path-hygiene validate",
-  "project.path-hygiene.repair": "make-docs project path-hygiene repair",
+  "project.path-hygiene.validate": ["project", "paths validate"],
+  "project.path-hygiene.repair": ["project", "paths repair"],
+  "project.doctor.check": ["project", "doctor check"],
+  "project.doctor.fix": ["project", "doctor fix"],
+  "setup.store.check": ["setup", "store check"],
+  "setup.store.clean": ["setup", "store clean"],
+  "lifecycle.start": ["lifecycle", "start"],
+  "lifecycle.show": ["lifecycle", "show"],
+  "lifecycle.list": ["lifecycle", "list"],
+  "lifecycle.checkpoint": ["lifecycle", "checkpoint"],
+  "lifecycle.pause": ["lifecycle", "pause"],
+  "lifecycle.resume": ["lifecycle", "resume"],
+  "lifecycle.attach-evidence": ["lifecycle", "attach-evidence"],
+  "lifecycle.complete": ["lifecycle", "complete"],
+  "lifecycle.fail": ["lifecycle", "fail"],
+  "lifecycle.abandon": ["lifecycle", "abandon"],
+  "uat.scenario.validate": ["check", "uat scenario"],
+  "uat.persona.resolve": ["check", "uat persona"],
+  "uat.target.validate": ["check", "uat target"],
+  "uat.evidence-reference.validate": ["check", "uat evidence"],
+  "uat.finding.validate": ["check", "uat finding"],
+  "uat.result.validate": ["check", "uat result"],
+  "decomposition.output.validate": ["check", "decomposition"],
+  "project.relations.list": ["project", "relations list"],
+  "project.markdown-style.validate": ["project", "markdown validate"],
+  "project.markdown-style.repair": ["project", "markdown repair"],
+  "work.queue.status": ["work", "status"],
+  "work.queue.sync": ["work", "sync"],
+  "work.queue.next": ["work", "next"],
+  "work.queue.claim": ["work", "claim"],
+  "work.queue.release": ["work", "release"],
+  "work.queue.report": ["work", "report"],
+  "work.queue.close": ["work", "close"],
+  "work.queue.export": ["work", "export"],
+  "work.queue.add": ["work", "add"],
+  "factory.status": ["factory", "status"],
+  "factory.tools.save": ["factory", "tools save"],
+  "factory.workflow.save": ["factory", "workflow save"],
+  "factory.workflow.show": ["factory", "workflow show"],
+  "factory.workflow.list": ["factory", "workflow list"],
+  "factory.proof.save": ["factory", "proof save"],
+  "factory.assignment.start": ["factory", "assignment start"],
+  "factory.assignment.save": ["factory", "assignment save"],
+  "factory.assignment.list": ["factory", "assignment list"],
+  "factory.restore": ["factory", "restore"],
+  "factory.tools.list": ["factory", "tools list"],
+  "factory.file-backup.save": ["factory", "file-backup save"],
+  "factory.grant-use.record": ["factory", "grant-use record"],
+  "factory.workflow.clean": ["factory", "workflow clean"],
 };
 
 export function operationDomain(id: string): string {
@@ -254,35 +331,46 @@ export function operationDomain(id: string): string {
 }
 
 /**
- * CLI display path of an identifier: its dot segments as argv tokens under
- * `make-docs run` (`resource.list` -> `resource list`). This is the
- * single derivation rule the `run` command tree is built from (R-REG-2);
- * surfaces and the runner reuse it rather than hand-maintaining command
+ * CLI path of an identifier under its group (`project.checkout-move.preview`
+ * -> `move preview` under `project`). The registry's explicit projection is
+ * the only source; surfaces reuse it rather than hand-maintaining command
  * strings.
  */
 export function operationCliPath(id: string): string {
-  return ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS]?.[1] ?? id.split(".").join(" ");
+  return operationCliProjection(id).path;
+}
+
+/** Full CLI path after `make-docs`: the group and the path (`project move preview`). */
+export function operationFullCliPath(id: string): string {
+  const projection = operationCliProjection(id);
+  return `${projection.root} ${projection.path}`;
+}
+
+function operationUsageLine(id: string, path: string): string {
+  const usage = leafHelpEntry(id).usage;
+  return usage ? `${path} ${usage}` : path;
 }
 
 export function operationCliProjection(id: string): OperationCliProjection {
   getOperation(id);
-  const [root, cliPath] = ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS] ?? [
-    "run",
-    id.split(".").join(" "),
-  ];
+  const projection = ADMITTED_CLI_PATHS[id as keyof typeof ADMITTED_CLI_PATHS];
+  if (projection === undefined) {
+    throw new OperationError(`Operation \`${id}\` has no CLI projection.`);
+  }
+  const [root, cliPath] = projection;
   return {
     root,
     path: cliPath,
-    command:
-      ADMITTED_CLI_USAGES[id as keyof typeof ADMITTED_CLI_USAGES] ??
-      `make-docs ${root} ${cliPath}`,
+    // W33 R0 P5: the usage line comes from the command's help entry, so
+    // `operationCliCommand`, group help, and `--help` name the same flags.
+    command: operationUsageLine(id, `make-docs ${root} ${cliPath}`),
   };
 }
 
 /**
  * The human CLI command form of a registered operation (R-TIER-1): the
  * command a reader runs by hand when the runner cannot execute the operation
- * itself. Derived from the registry identifier via {@link operationCliPath};
+ * itself. Read from the registry CLI projection via {@link operationCliProjection};
  * throws for unknown identifiers so a caller can never present a
  * command the CLI does not accept.
  */
@@ -310,7 +398,7 @@ export function assertOperationStoreAdmission(
   definition: Pick<OperationDefinition, "id" | "mutates" | "access" | "storeAdmission">,
 ): void {
   const admission = definition.storeAdmission ?? "required";
-  if (admission !== "required" && admission !== "optional") {
+  if (admission !== "required" && admission !== "optional" && admission !== "handler") {
     throw new Error(`Operation ${definition.id} declares unknown Store admission.`);
   }
   if (admission === "optional" && (definition.mutates !== "read" || definition.access.store !== "read")) {
@@ -325,11 +413,17 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...performanceEvidenceOperations,
     ...projectOperations,
     ...projectLayoutOperations,
+    ...projectDoctorOperations,
+    ...setupStoreOperations,
     ...workOperations,
     ...backlogReviewOperations,
     ...resourceOperations,
     ...lifecycleOperations,
     ...uatOperations,
+    ...decompositionOperations,
+    ...projectSkillCheckOperations,
+    ...workQueueOperations,
+    ...factoryOperations,
   ];
   for (const definition of definitions) {
     if (!OPERATION_ID_PATTERN.test(definition.id)) {
@@ -387,7 +481,11 @@ export function listOperationAccessFacts(): OperationAccessFact[] {
       operation.status === "active" &&
       operation.access.hostConfig === "none" &&
       !operation.id.startsWith("lifecycle.") &&
-      operation.id !== "project.state.recover",
+      operation.id !== "project.state.recover" &&
+      // A native command rule can never approve the `setup` word
+      // (harness-access/contract.ts FORBIDDEN_COMMAND_WORDS), so Store
+      // maintenance runs from a person's terminal or through MCP.
+      operation.cli.root !== "setup",
   }));
 }
 
@@ -541,7 +639,19 @@ export async function invokeOperation(
   if (!handler) {
     throw new OperationError(`Active operation \`${id}\` has no handler.`);
   }
-  const targetRoot = operationTargetRoot(parsed.data, context.cwd);
+  let resolved: OperationTargetResolution | null = null;
+  if (definition.resolveTarget) {
+    try {
+      resolved = await definition.resolveTarget(parsed.data, context);
+    } catch (error) {
+      throw scopeStoreAccessFailure(error, id, path.resolve(context.cwd));
+    }
+    if ("refusal" in resolved) {
+      return { operation: id, value: resolved.refusal, provenance: { operation: id, domain: operationDomain(id), source: context.surface } };
+    }
+  }
+  const targetRoot = resolved && "targetRoot" in resolved ? resolved.targetRoot : operationTargetRoot(parsed.data, context.cwd);
+  const explainDenial = resolved && "targetRoot" in resolved ? resolved.explainDenial : undefined;
   if (
     (context.surface === "cli" || context.surface === "mcp") &&
     definition.access.store !== "none" && definition.storeAdmission !== "optional"
@@ -553,25 +663,30 @@ export async function invokeOperation(
       list: listHarnessCommandRules,
       validate: validateRegistryHarnessCommandRules,
     };
-    assertHarnessOperationAllowed({
-      operation: id,
-      required: definition.access,
-      targetRoot,
-      storeRoot: context.storeRoot,
-      route: context.route,
-      callerIdentityRaw: context.callerIdentityRaw,
-      callerReference: context.callerReference,
-      mcpConnectionId: context.mcpConnectionId,
-      mcpConnectionKey: context.mcpConnectionKey,
-      commandRuleAuthority: authority,
-    });
+    try {
+      assertHarnessOperationAllowed({
+        operation: id,
+        required: definition.access,
+        targetRoot,
+        storeRoot: context.storeRoot,
+        route: context.route,
+        callerIdentityRaw: context.callerIdentityRaw,
+        callerReference: context.callerReference,
+        mcpConnectionId: context.mcpConnectionId,
+        mcpConnectionKey: context.mcpConnectionKey,
+        commandRuleAuthority: authority,
+      });
+    } catch (error) {
+      if (explainDenial && error instanceof StoreAccessStateError) throw explainDenial(error);
+      throw error;
+    }
   }
   const run = async () => {
     return (await handler(parsed.data, context)) as JsonValue;
   };
   let value: JsonValue;
   try {
-    value = definition.access.store === "none" || definition.storeAdmission === "optional"
+    value = definition.access.store === "none" || definition.storeAdmission === "optional" || definition.storeAdmission === "handler"
       ? await run()
       : await context.withStoreSession(
           definition.access.store,
@@ -594,7 +709,8 @@ export async function invokeOperation(
   };
 }
 
-function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: string): unknown {
+/** Map a Store failure to its typed, operation-scoped Store result (exported for tests). */
+export function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: string): unknown {
   if (error instanceof StoreAccessStateError) return error;
   const record = error && typeof error === "object" ? error as Record<string, unknown> : {};
   const code = typeof record.code === "string" ? record.code : "";
@@ -602,13 +718,18 @@ function scopeStoreAccessFailure(error: unknown, operation: string, targetRoot: 
     ? record.issue as Record<string, unknown>
     : null;
   if (code === "store-unavailable") {
-    const unsafe = issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
+    const changedOutside = issue?.code === "changed-outside" && typeof issue.path === "string";
+    const unsafe = changedOutside || issue?.code === "corrupt" || issue?.code === "schema-newer" || issue?.code === "schema-unknown";
     return makeStoreAccessStateError({
       code: unsafe ? "store-unsafe" : "store-unavailable",
       operation,
       reason: error instanceof Error ? error.message : String(error),
-      nextAction: unsafe
+      nextAction: changedOutside
+        ? storeChangedOutsideNextAction(path.dirname(String(issue!.path)))
+        : unsafe
         ? `Run \`make-docs project state status --target-root ${JSON.stringify(targetRoot)}\` and review the Store state.`
+        : typeof record.nextAction === "string" && record.nextAction
+        ? record.nextAction
         : "Restore access to the configured Make Docs Store, then retry only this operation.",
       details: { projectRoot: targetRoot, ...(issue ? { issue: { ...issue } } : {}) },
     });

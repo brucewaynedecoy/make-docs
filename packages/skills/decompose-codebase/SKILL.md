@@ -9,22 +9,21 @@ description: Plan and reverse-engineer software repositories into a structured P
 
 Use this skill to turn a repository into a code-first, plain-English documentation set and rebuild backlog. Treat planning and execution as separate capabilities in one skill, with planning-first as the default unless the user explicitly approves direct execution. Treat `docs/prd/` as the single active PRD namespace for the repository and archive earlier PRD sets under `.make-docs/archive/prds/`. The active PRD set describes the current authoritative shape of the product; it must never describe the editorial operation used to change that authority. Treat decomposition as a delegation-first workflow because single-agent execution degrades quickly on context-heavy repos. When delegation is available, the coordinating agent is coordination-only and must not author or edit output documents.
 
-Inside the make-docs repository, shipped lifecycle assets are authored from the accepted v2 source-of-truth layers: template-owned files start under `packages/docs/template/`, dogfood copies under root `docs/` validate those shipped assets, and project-owned lifecycle artifacts under `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` remain local project records. The installed skill remains self-contained: it ships bundled local copies under `./references/`, `./assets/templates/`, and `./scripts/` so it does not depend on a consumer repo having this repository's root source tree.
+Inside the make-docs repository, shipped lifecycle assets are authored from the accepted v2 source-of-truth layers: template-owned files start under `packages/docs/template/`, dogfood copies under root `docs/` validate those shipped assets, and project-owned lifecycle artifacts under `docs/designs/`, `docs/plans/`, `docs/prd/`, and `docs/work/` remain local project records. The installed skill remains self-contained: it ships bundled local copies under `./references/` and `./assets/templates/` so it does not depend on a consumer repo having this repository's root source tree.
 
 ## Workflow
 
-1. Run `scripts/probe_environment.py --format json` before deep analysis.
+1. Before deep analysis, list the tools that this session gives you: the MCP tools, such as a document index tool, a code index tool, and the Make Docs tools, and the subagent or parallel agent tools. Write that list in the plan. Config files on disk do not prove that the session has a tool.
 2. Determine whether the user wants planning or execution.
 3. Default to planning when the request is broad or when no approved plan exists.
-4. Confirm live session MCP access separately from local config detection.
-5. Read the relevant bundled reference files and skill-local templates before writing docs or delegating work.
+4. Read the relevant bundled reference files and skill-local templates before writing docs or delegating work.
 
 ## Bundled Assets
 
 - In an installed repository, live repo contracts and accepted lifecycle artifacts take priority over this skill's bundled projections.
 - In the make-docs source repository, template-owned shipped contracts start in `packages/docs/template/`; root `docs/` is dogfood validation or project-owned lifecycle content depending on the file.
 - The installed skill uses its bundled local projections under `./references/` and `./assets/templates/` only when live repo contracts are unavailable or the task explicitly concerns installed skill assets.
-- Paths such as `scripts/probe_environment.py` and `scripts/validate_output.py` refer to bundled skill-local assets, not repo-root utilities.
+- Paths such as `references/output-contract.md` refer to bundled skill-local assets, not repo-root files.
 
 ## Planning Mode
 
@@ -51,16 +50,28 @@ Inside the make-docs repository, shipped lifecycle assets are authored from the 
 - Generate the PRD core, adaptive subsystem/reference docs, and rebuild backlog using the templates under `assets/templates/`.
 - Always attempt delegated workstreams before single-agent execution when the harness or session policy allows it.
 - When delegation is available, assign shared-doc assembly and validation/fix work to dedicated workers rather than keeping those tasks on the coordinator.
-- Give each spawned agent a disjoint scope and require it to re-run its own MCP indexing in its own session when MCP tools are in use.
-- Run `scripts/validate_output.py --repo-root <repo-root>` before finishing.
+- Give each spawned agent a disjoint scope and require it to build its own indexes in its own session when it uses index tools.
+- Check the output as [Check the Output](#check-the-output) says before finishing.
 - Follow [references/execution-workflow.md](./references/execution-workflow.md).
 
-## MCP-first Behavior
+## Index Tools First
 
 - Prefer the workflow in [references/mcp-playbook.md](./references/mcp-playbook.md).
-- If `jdocmunch` is available, index the repository docs first and use it for doc discovery, section search, and reading.
-- If `jcodemunch` is available, index the codebase and use it for file trees, outlines, symbols, references, and dependency analysis.
-- If one or both recommended MCP servers are missing, recommend them, ask whether to proceed, and then fall back to local repo exploration without blocking the user.
+- If the session has a document index tool, index the repository docs first and use it for doc discovery, section search, and reading.
+- If the session has a code index tool, index the codebase and use it for file trees, outlines, symbols, references, and dependency analysis.
+- If the session has no index tool, say so, ask whether to proceed, and then use local repo exploration. Do not install a tool without the person's consent.
+
+## Check the Output
+
+Check the decomposition output before you finish. Use the first way that works:
+
+1. MCP tool: when the session has the Make Docs `check_decomposition` tool, call it for the repository root.
+2. CLI: otherwise run `make-docs check decomposition --target-root <repo-root>`.
+3. Manual review: otherwise check each rule in the `## Check Rules` section of [references/output-contract.md](./references/output-contract.md) by hand. Name the rule ID of each problem that you find.
+
+A manual result says that it is a manual review and uses the proof state `agent-reviewed`. It does not say that a Make Docs check ran. Do not install the CLI or any other tool without the person's consent.
+
+Each finding of the tool or the command names a rule ID from the same `## Check Rules` list. Fix each finding, then check again.
 
 ## Output Contract
 
@@ -97,8 +108,8 @@ Use these templates as skill-local projections. When a repository has live make-
 
 ## Harness Guidance
 
-- Use [references/harness-capability-matrix.md](./references/harness-capability-matrix.md) to choose parallelization and config-inspection behavior.
-- Treat `probe_environment.py` as a capability hint, not a proof of live session access.
+- Use [references/harness-capability-matrix.md](./references/harness-capability-matrix.md) to choose the delegation tier.
+- Trust the tools that the session lists, not config files or environment variables.
 - Default to planning even when the harness and MCP setup look execution-ready.
 
 ## Project Layout Boundary

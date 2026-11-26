@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # MCP Parity and Permissions
 
 ## Objective
@@ -6,11 +10,11 @@ Define MCP parity and permission checks before any MCP write surface is implemen
 
 ## Tasks
 
-- [x] t1: Map planned MCP tools to equivalent CLI/shared-core operations.
-- [x] t2: Define read-first inspection outputs for manifest, harnesses, skills, materialization mode, and compatibility state.
-- [x] t3: Define dry-run planning output for future installer-maintainer operations.
-- [x] t4: Specify permission requirements before write tools.
-- [x] t5: Add parity fixtures for manifest reads, config interpretation, asset provenance, compatibility classification, conflict handling, dry-run output, and write permissions.
+- [x] T1: Map planned MCP tools to equivalent CLI/shared-core operations.
+- [x] T2: Define read-first inspection outputs for manifest, harnesses, skills, materialization mode, and compatibility state.
+- [x] T3: Define dry-run planning output for future installer-maintainer operations.
+- [x] T4: Specify permission requirements before write tools.
+- [x] T5: Add parity fixtures for manifest reads, config interpretation, asset provenance, compatibility classification, conflict handling, dry-run output, and write permissions.
 
 ## Acceptance Criteria
 
@@ -22,11 +26,11 @@ Define MCP parity and permission checks before any MCP write surface is implemen
 
 | Task | Evidence |
 | --- | --- |
-| t1 | Added [CLI/MCP Operation Parity and Permissions](../../assets/maintainer/cli-mcp-operation-parity-and-permissions.md), which maps planned MCP capability labels to CLI/shared-core owners and states that labels are not shipped tool ids. |
-| t2 | The guide defines read-first output families for installed project state, manifest provenance, harnesses, skills, materialization mode, config overlay, and compatibility classification. |
-| t3 | The guide defines dry-run planning vocabulary for install/sync/reconfigure/skills plans and lifecycle backup/uninstall review plans without approving mutation. |
-| t4 | The guide keeps MCP writes blocked until a later permission model defines target scope, user approval, noninteractive behavior, conflict handling, backup/uninstall snapshot handling, provider/cache failure behavior, and result evidence. |
-| t5 | The guide specifies fixture families for manifest reads, config interpretation, asset provenance, compatibility classification, conflict handling, dry-run output, write permissions, runtime identity, and conformance evidence. |
+| T1 | Added [CLI/MCP Operation Parity and Permissions](../../assets/maintainer/cli-mcp-operation-parity-and-permissions.md), which maps planned MCP capability labels to CLI/shared-core owners and states that labels are not shipped tool ids. |
+| T2 | The guide defines read-first output families for installed project state, manifest provenance, harnesses, skills, materialization mode, config overlay, and compatibility classification. |
+| T3 | The guide defines dry-run planning vocabulary for install/sync/reconfigure/skills plans and lifecycle backup/uninstall review plans without approving mutation. |
+| T4 | The guide keeps MCP writes blocked until a later permission model defines target scope, user approval, noninteractive behavior, conflict handling, backup/uninstall snapshot handling, provider/cache failure behavior, and result evidence. |
+| T5 | The guide specifies fixture families for manifest reads, config interpretation, asset provenance, compatibility classification, conflict handling, dry-run output, write permissions, runtime identity, and conformance evidence. |
 
 ## Coverage Decisions
 

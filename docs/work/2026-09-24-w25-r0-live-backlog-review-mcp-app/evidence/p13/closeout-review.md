@@ -63,7 +63,7 @@ The owner accepted macOS as the tested GitHub Copilot client scope for the 2.0.5
 
 ## Git disposition
 
-The current branch is `w25-r0-p1-live-delivery-contract` at pre-commit base `93c0ae6389fa345e6ef2ea3da51942cc6ad70279`. The exact approved file list is in [commit-allowlist.txt](commit-allowlist.txt). It excludes `.playwright-mcp/`, `.codex/`, private config, Store data, temporary archives, and lasting installs. The owner approved one local commit for the W25 design, PRD, source, tests, Skill, work records, and selected evidence on 2026-10-26. P13 t4 is checked and W25 is complete in the approved bounded scope. The final staged list and diff still require a check before the commit. No push, PR, or publication is in scope for that decision.
+The current branch is `w25-r0-p1-live-delivery-contract` at pre-commit base `93c0ae6389fa345e6ef2ea3da51942cc6ad70279`. The exact approved file list is in [commit-allowlist.txt](commit-allowlist.txt). It excludes `.playwright-mcp/`, `.codex/`, private config, Store data, temporary archives, and lasting installs. The owner approved one local commit for the W25 design, PRD, source, tests, Skill, work records, and selected evidence on 2026-10-26. P13 T4 is checked and W25 is complete in the approved bounded scope. The final staged list and diff still require a check before the commit. No push, PR, or publication is in scope for that decision.
 
 The current allowlist has 77 paths: 37 tracked edits and 40 new files. The full binary review diff is `<LOCAL_TEMP>/w25-final-205-p13-SqCrHe/w25-review.patch`. It is outside Git. It must be regenerated if any allowed file changes before staging.
 

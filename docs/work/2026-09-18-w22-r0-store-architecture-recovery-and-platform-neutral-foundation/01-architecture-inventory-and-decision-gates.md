@@ -66,12 +66,12 @@ Human Experience Review is separate. P1 records whether the proposed target can 
 
 ### Tasks
 
-- [x] t1: Record the W22 R0 freeze rule and list allowed release-blocking containment exceptions.
-- [x] t2: Inventory Store schemas, tables, fields, migrations, writers, readers, retention, privacy, and recovery use.
-- [x] t3: Inventory project identity, checkout identity, path claims, file fingerprints, device and inode use, locks, process liveness, and file mutation guards.
-- [x] t4: Inventory harness receipts, native entries, executable identity, caller identity, operation access, machine approval, and project approval.
-- [x] t5: Inventory setup, system setup, status, verify, repair, recovery, resource selection, projection, CLI, JSON, and MCP paths.
-- [x] t6: Inventory current tests, real-platform proof, public docs, PRD rules, prior packages, and current consumers for each mechanism.
+- [x] T1: Record the W22 R0 freeze rule and list allowed release-blocking containment exceptions.
+- [x] T2: Inventory Store schemas, tables, fields, migrations, writers, readers, retention, privacy, and recovery use.
+- [x] T3: Inventory project identity, checkout identity, path claims, file fingerprints, device and inode use, locks, process liveness, and file mutation guards.
+- [x] T4: Inventory harness receipts, native entries, executable identity, caller identity, operation access, machine approval, and project approval.
+- [x] T5: Inventory setup, system setup, status, verify, repair, recovery, resource selection, projection, CLI, JSON, and MCP paths.
+- [x] T6: Inventory current tests, real-platform proof, public docs, PRD rules, prior packages, and current consumers for each mechanism.
 
 ### Acceptance criteria
 
@@ -95,12 +95,12 @@ Human Experience Review is separate. P1 records whether the proposed target can 
 
 ### Tasks
 
-- [x] t7: Create one append-only symptom table with observed behavior, confidence, platform, code path, authority owner, human promise, and missing proof.
-- [x] t8: Trace each mechanism to an accepted public capability or safety failure. Mark dependency-only justification as insufficient.
-- [x] t9: Assign `keep`, `rework`, or `remove` to every mechanism. State the evidence, migration effect, and public behavior effect.
-- [x] t10: Prepare the proposed minimal state and platform boundary map. Identify every conflict with current PRDs.
-- [x] t11: Present repository authority, Store authority, checkout identity, harness trust, setup composition, resource projection, platform support, and compatibility decisions one at a time.
-- [x] t12: Record owner decisions and update the P2 input matrix. Stop on any unresolved product choice.
+- [x] T7: Create one append-only symptom table with observed behavior, confidence, platform, code path, authority owner, human promise, and missing proof.
+- [x] T8: Trace each mechanism to an accepted public capability or safety failure. Mark dependency-only justification as insufficient.
+- [x] T9: Assign `keep`, `rework`, or `remove` to every mechanism. State the evidence, migration effect, and public behavior effect.
+- [x] T10: Prepare the proposed minimal state and platform boundary map. Identify every conflict with current PRDs.
+- [x] T11: Present repository authority, Store authority, checkout identity, harness trust, setup composition, resource projection, platform support, and compatibility decisions one at a time.
+- [x] T12: Record owner decisions and update the P2 input matrix. Stop on any unresolved product choice.
 
 ### Acceptance criteria
 

@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 02: Compatibility Classifier
 
 ## Purpose
@@ -20,9 +24,9 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ### Tasks
 
-- [x] t1: Validate manifest parseability, schema, package identity, selections, managed file records, skill records, and materialization provenance.
-- [x] t2: Compare managed-file hashes, managed-block state, selected-skill outputs, and required local bootstrap files against the filesystem.
-- [x] t3: Classify clean and modified v1/v2 states with evidence records.
+- [x] T1: Validate manifest parseability, schema, package identity, selections, managed file records, skill records, and materialization provenance.
+- [x] T2: Compare managed-file hashes, managed-block state, selected-skill outputs, and required local bootstrap files against the filesystem.
+- [x] T3: Classify clean and modified v1/v2 states with evidence records.
 
 ### Acceptance criteria
 
@@ -38,9 +42,9 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ### Tasks
 
-- [x] t4: Add conservative fallback recognition for known make-docs-managed paths and canonical content.
-- [x] t5: Classify malformed manifests separately from missing manifests.
-- [x] t6: Stop before mutation when fallback recognition is ambiguous.
+- [x] T4: Add conservative fallback recognition for known make-docs-managed paths and canonical content.
+- [x] T5: Classify malformed manifests separately from missing manifests.
+- [x] T6: Stop before mutation when fallback recognition is ambiguous.
 
 ### Acceptance criteria
 
@@ -50,16 +54,16 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ### Dependencies
 
-- t1
-- t2
+- T1
+- T2
 
 ## Stage 3 - Expose classifier evidence
 
 ### Tasks
 
-- [x] t7: Return structured evidence for manifest trust, filesystem trust, bootstrap trust, skill trust, and provider/cache trust.
-- [x] t8: Make classifier evidence printable in future migration UX without exposing internal-only noise.
-- [x] t9: Add focused tests for source-state evidence.
+- [x] T7: Return structured evidence for manifest trust, filesystem trust, bootstrap trust, skill trust, and provider/cache trust.
+- [x] T8: Make classifier evidence printable in future migration UX without exposing internal-only noise.
+- [x] T9: Add focused tests for source-state evidence.
 
 ### Acceptance criteria
 
@@ -69,9 +73,9 @@ The classifier should be callable by install, reconfigure, migration, backup, un
 
 ### Dependencies
 
-- t4
-- t5
-- t6
+- T4
+- T5
+- T6
 
 ## Implementation Notes
 

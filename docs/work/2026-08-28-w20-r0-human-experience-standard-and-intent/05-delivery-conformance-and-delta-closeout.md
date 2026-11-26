@@ -56,15 +56,15 @@ Evidence limits remain active:
 
 ### Tasks
 
-- [x] t1: Confirm that reviewed system-resource and default-asset changes exist first under `packages/docs/template/`.
-- [x] t2: Confirm that catalogs, resource discovery, validation, routers, and managed-block expectations include the Human Experience resources.
-- [x] t3: Build the CLI package projection through the supported package path.
-- [x] t4: Verify that the package contains the reviewed Human Experience contract, reference, templates, prompts, lifecycle edits, routers, and defaults.
-- [x] t5: Reseed only affected template-owned dogfood files after upstream review.
-- [x] t6: Verify required byte or semantic parity across upstream, package projection, and dogfood copies.
-- [x] t7: Pack and install the CLI into a clean project. Verify stable resource URIs through list and read operations.
-- [x] t8: Update an existing project with historical designs and modified user-owned router text. Verify managed changes and preserved user content.
-- [x] t9: Verify offline behavior and recovery for unavailable or invalid resource requests.
+- [x] T1: Confirm that reviewed system-resource and default-asset changes exist first under `packages/docs/template/`.
+- [x] T2: Confirm that catalogs, resource discovery, validation, routers, and managed-block expectations include the Human Experience resources.
+- [x] T3: Build the CLI package projection through the supported package path.
+- [x] T4: Verify that the package contains the reviewed Human Experience contract, reference, templates, prompts, lifecycle edits, routers, and defaults.
+- [x] T5: Reseed only affected template-owned dogfood files after upstream review.
+- [x] T6: Verify required byte or semantic parity across upstream, package projection, and dogfood copies.
+- [x] T7: Pack and install the CLI into a clean project. Verify stable resource URIs through list and read operations.
+- [x] T8: Update an existing project with historical designs and modified user-owned router text. Verify managed changes and preserved user content.
+- [x] T9: Verify offline behavior and recovery for unavailable or invalid resource requests.
 
 ### Result
 
@@ -74,15 +74,15 @@ Complete. The original P5 package evidence proves clean install, constructed upd
 
 ### Tasks
 
-- [x] t10: Run default-resource validation.
-- [x] t11: Run focused and full CLI tests for Human Experience propagation, resource access, setup, Store, migration, routers, and managed content.
-- [x] t12: Run packed-package smoke with dogfood parity.
-- [x] t13: Run the instruction-router check.
-- [x] t14: Run PRD authority, Markdown-link, and focused changed-file path checks.
-- [x] t15: Run `git diff --check` and inspect generated state.
-- [x] t16: Verify direct, indirect, none, missing, invalid, duplicate, unresolved, misleading, and historical validation cases.
-- [x] t17: Verify that no new resource type, mandatory Skill, experience frontmatter, repository-wide rewrite, or unexpected local projection exists.
-- [x] t18: Record versions, environment, results, evidence paths, and current testing decisions. Reuse unchanged evidence.
+- [x] T10: Run default-resource validation.
+- [x] T11: Run focused and full CLI tests for Human Experience propagation, resource access, setup, Store, migration, routers, and managed content.
+- [x] T12: Run packed-package smoke with dogfood parity.
+- [x] T13: Run the instruction-router check.
+- [x] T14: Run PRD authority, Markdown-link, and focused changed-file path checks.
+- [x] T15: Run `git diff --check` and inspect generated state.
+- [x] T16: Verify direct, indirect, none, missing, invalid, duplicate, unresolved, misleading, and historical validation cases.
+- [x] T17: Verify that no new resource type, mandatory Skill, experience frontmatter, repository-wide rewrite, or unexpected local projection exists.
+- [x] T18: Record versions, environment, results, evidence paths, and current testing decisions. Reuse unchanged evidence.
 
 ### Result
 
@@ -92,15 +92,15 @@ Complete. The current CLI suite passed 80 files and 1,264 tests. The build passe
 
 ### Tasks
 
-- [x] t19: Define the installed proof matrix from current static adapters and declared methods.
-- [x] t20: Prove direct-impact handling through the W19 R6 setup and harness-access promises.
-- [x] t21: Reuse the Human Experience fixture evidence for indirect-impact handling.
-- [x] t22: Reuse the Human Experience fixture evidence for a valid `none` result and preservation proof.
-- [x] t23: Verify that misleading agent-facing or headless wording does not hide a material human effect.
-- [x] t24: Verify that a missing product choice stops or keeps the method blocked instead of exposing an unsafe internal path.
-- [x] t25: Run deterministic structure checks for the applied results.
-- [x] t26: Prepare and record the agent Human Experience Review. Inspect the installed result. Record each promise, evidence, conclusion, reviewer, limit, and next action.
-- [x] t27: Record each tested harness, connection method, result, and bounded support claim under current static-adapter authority.
+- [x] T19: Define the installed proof matrix from current static adapters and declared methods.
+- [x] T20: Prove direct-impact handling through the W19 R6 setup and harness-access promises.
+- [x] T21: Reuse the Human Experience fixture evidence for indirect-impact handling.
+- [x] T22: Reuse the Human Experience fixture evidence for a valid `none` result and preservation proof.
+- [x] T23: Verify that misleading agent-facing or headless wording does not hide a material human effect.
+- [x] T24: Verify that a missing product choice stops or keeps the method blocked instead of exposing an unsafe internal path.
+- [x] T25: Run deterministic structure checks for the applied results.
+- [x] T26: Prepare and record the agent Human Experience Review. Inspect the installed result. Record each promise, evidence, conclusion, reviewer, limit, and next action.
+- [x] T27: Record each tested harness, connection method, result, and bounded support claim under current static-adapter authority.
 
 ### Result
 
@@ -110,15 +110,15 @@ Complete. Codex MCP, Codex command rules, and Claude Code MCP passed direct inst
 
 ### Tasks
 
-- [x] t28: Select the bounded installed Make Docs setup and harness-access flow.
-- [x] t29: Record the intended human, public goal, starting risk, and experience promises before closeout.
-- [x] t30: Use the installed package and real Codex and Claude Code paths for the applicable proof.
-- [x] t31: Inspect the real CLI and harness-facing surfaces. Do not accept documents alone as the outcome.
-- [x] t32: Capture the visible default result, safe alternatives, exact next actions, and optional detail without forcing internal identifiers into the normal path.
-- [x] t33: Apply the agent Human Experience Review for orientation, continuity, meaning, information amount, next action, recovery, control, and terms.
-- [x] t34: Keep Guided Progress Review optional. Record Unassisted Goal Testing as `not-needed-now` because current direct installed proof answers the closeout question.
-- [x] t35: Compare the result with the prior tuple prompt, missing-tool result, unsafe broad-rule risk, and repeated-setup risk.
-- [x] t36: Give every material finding a disposition and repeat only affected proof.
+- [x] T28: Select the bounded installed Make Docs setup and harness-access flow.
+- [x] T29: Record the intended human, public goal, starting risk, and experience promises before closeout.
+- [x] T30: Use the installed package and real Codex and Claude Code paths for the applicable proof.
+- [x] T31: Inspect the real CLI and harness-facing surfaces. Do not accept documents alone as the outcome.
+- [x] T32: Capture the visible default result, safe alternatives, exact next actions, and optional detail without forcing internal identifiers into the normal path.
+- [x] T33: Apply the agent Human Experience Review for orientation, continuity, meaning, information amount, next action, recovery, control, and terms.
+- [x] T34: Keep Guided Progress Review optional. Record Unassisted Goal Testing as `not-needed-now` because current direct installed proof answers the closeout question.
+- [x] T35: Compare the result with the prior tuple prompt, missing-tool result, unsafe broad-rule risk, and repeated-setup risk.
+- [x] T36: Give every material finding a disposition and repeat only affected proof.
 
 ### Human Experience Review
 
@@ -137,14 +137,14 @@ No material Human Experience gap remains for the W20 R0 capability claim. The ag
 
 ### Tasks
 
-- [x] t37: Test a new project created after activation.
-- [x] t38: Test an existing project with pre-activation historical designs.
-- [x] t39: Test a substantial design update that uses the current contract.
-- [x] t40: Test modified user-owned router text and project-owned documents.
-- [x] t41: Test a valid no-human-impact change with the short `none` form and preservation proof.
-- [x] t42: Test direct and indirect changes that activate full Human Experience Intent and downstream trace.
-- [x] t43: Verify that upgrade does not force repository-wide rewriting or overwrite modified project content.
-- [x] t44: Verify that future qualifying work finds the activation rule and stable authority without a mandatory Skill.
+- [x] T37: Test a new project created after activation.
+- [x] T38: Test an existing project with pre-activation historical designs.
+- [x] T39: Test a substantial design update that uses the current contract.
+- [x] T40: Test modified user-owned router text and project-owned documents.
+- [x] T41: Test a valid no-human-impact change with the short `none` form and preservation proof.
+- [x] T42: Test direct and indirect changes that activate full Human Experience Intent and downstream trace.
+- [x] T43: Verify that upgrade does not force repository-wide rewriting or overwrite modified project content.
+- [x] T44: Verify that future qualifying work finds the activation rule and stable authority without a mandatory Skill.
 
 ### Result
 
@@ -154,15 +154,15 @@ Complete. P2 through P4 provide direct, indirect, `none`, missing, historical, a
 
 ### Tasks
 
-- [x] t45: Reconcile `R-HX-01` through `R-HX-12` to implementation and evidence.
-- [x] t46: Reconcile applicable owner PRD requirements and `R-033`.
-- [x] t47: Record decisions for all four testing types and the Human Experience Review.
-- [x] t48: Complete the finding and obligation audit.
-- [x] t49: Bound product and release claims to exact installed paths, methods, and evidence.
-- [x] t50: Update backlog tasks, status, notes, and evidence links.
-- [x] t51: Create the W20 R0 history breadcrumb.
-- [x] t52: Run final link, path, generated-state, and diff checks.
-- [x] t53: Present the closeout and a short optional experience handoff. Do not require a response.
+- [x] T45: Reconcile `R-HX-01` through `R-HX-12` to implementation and evidence.
+- [x] T46: Reconcile applicable owner PRD requirements and `R-033`.
+- [x] T47: Record decisions for all four testing types and the Human Experience Review.
+- [x] T48: Complete the finding and obligation audit.
+- [x] T49: Bound product and release claims to exact installed paths, methods, and evidence.
+- [x] T50: Update backlog tasks, status, notes, and evidence links.
+- [x] T51: Create the W20 R0 history breadcrumb.
+- [x] T52: Run final link, path, generated-state, and diff checks.
+- [x] T53: Present the closeout and a short optional experience handoff. Do not require a response.
 
 ### Requirement Reconciliation
 

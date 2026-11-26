@@ -5,6 +5,7 @@ import path from "node:path";
 import { parseDocument } from "yaml";
 
 import { OperationError } from "../../types.js";
+import { readTaskLine } from "../task-line.js";
 import { BACKLOG_RULES } from "./catalog.js";
 import {
   BACKLOG_SNAPSHOT_SCHEMA_VERSION,
@@ -29,7 +30,6 @@ import {
 
 const RECORD_DIRECTORY = /^(\d{4}-\d{2}-\d{2})-w([1-9]\d*)-r(0|[1-9]\d*)(?:-|$)/i;
 const PHASE_FILE = /^(0[1-9]|[1-9]\d)-.+\.md$/;
-const TASK = /^- \[([ xX])\]\s+(?:(t[1-9]\d*):\s*)?(.+?)\s*$/;
 const MARKDOWN_LINK = /\[[^\]]+\]\(([^)]+)\)/g;
 const COMPLETE_STATUS = /^(?:complete|completed|closed)$/i;
 const CHANGE_HISTORY_HEADING = /^(\d{4}-\d{2}-\d{2}) — (W[1-9]\d* R(?:0|[1-9]\d*))(?: P[1-9]\d*)?$/;
@@ -55,9 +55,87 @@ interface GitCommandResult {
   errorCode: string | null;
 }
 
+/**
+ * A source of work file text other than the files on disk: the work store in
+ * store mode (PRD 51 R-BACKLOG-SNAPSHOT-31). A held file is read from the
+ * source; every other file, and every linked source document, from disk.
+ */
+export interface BacklogWorkFileSource {
+  /** Repository-relative work files that the source holds. */
+  files: readonly string[];
+  /** The text of a held file, or null when the source has no text for it. */
+  read(relativePath: string): string | null;
+}
+
 export interface BacklogSnapshotSeams {
   now?: () => Date;
   runGit?: (cwd: string, args: string[]) => GitCommandResult;
+  /** Store mode only: work file text from the work store. Without it, the snapshot reads the files exactly as before. */
+  workFiles?: BacklogWorkFileSource;
+}
+
+/** Reads work file text for the record reader. `read` throws when the file cannot be read. */
+interface WorkTextReader {
+  isFile(relativePath: string): boolean;
+  read(relativePath: string): string;
+}
+
+function diskTextReader(targetRoot: string): WorkTextReader {
+  const absolute = (relative: string) => path.join(targetRoot, ...relative.split("/"));
+  return {
+    isFile(relative) {
+      const file = absolute(relative);
+      return existsSync(file) && lstatSync(file).isFile() && !lstatSync(file).isSymbolicLink();
+    },
+    read(relative) {
+      return readFileSync(absolute(relative), "utf8");
+    },
+  };
+}
+
+function sourceTextReader(disk: WorkTextReader, source: BacklogWorkFileSource): WorkTextReader {
+  const held = new Set(source.files);
+  return {
+    isFile(relative) {
+      return (held.has(relative) && source.read(relative) !== null) || disk.isFile(relative);
+    },
+    read(relative) {
+      const text = held.has(relative) ? source.read(relative) : null;
+      return text ?? disk.read(relative);
+    },
+  };
+}
+
+/** Add the source's work files to the discovered records, and a record for a folder that exists only in the source. */
+function withSourceFiles(inventory: RecordInventory[], targetRoot: string, source: BacklogWorkFileSource): RecordInventory[] {
+  const roots: Array<{ relative: string; scope: WorkScope }> = [
+    { relative: "docs/work", scope: "live" },
+    { relative: ".make-docs/archive/work", scope: "archived" },
+  ];
+  const byPath = new Map(inventory.map((record) => [record.recordPath, { ...record, discoveredFiles: [...record.discoveredFiles] }]));
+  for (const file of source.files) {
+    if (!file.endsWith(".md")) continue;
+    const recordPath = path.posix.dirname(file);
+    const root = roots.find((candidate) => path.posix.dirname(recordPath) === candidate.relative);
+    const match = RECORD_DIRECTORY.exec(path.posix.basename(recordPath));
+    if (!root || !match) continue;
+    let record = byPath.get(recordPath);
+    if (!record) {
+      record = {
+        absolutePath: path.join(targetRoot, ...recordPath.split("/")),
+        recordPath,
+        scope: root.scope,
+        createdDate: match[1]!,
+        directoryCoordinate: `W${Number(match[2])} R${Number(match[3])}`,
+        discoveredFiles: [],
+      };
+      byPath.set(recordPath, record);
+    }
+    if (!record.discoveredFiles.includes(file)) record.discoveredFiles.push(file);
+  }
+  return [...byPath.values()]
+    .map((record) => ({ ...record, discoveredFiles: [...record.discoveredFiles].sort() }))
+    .sort((left, right) => left.recordPath.localeCompare(right.recordPath));
 }
 
 interface ParsedFrontmatter {
@@ -190,7 +268,7 @@ function uniqueDiagnostics(values: BacklogDiagnostic[]): BacklogDiagnostic[] {
   });
 }
 
-function resolveSafeTargetRoot(input: string): string {
+export function resolveSafeTargetRoot(input: string): string {
   const targetRoot = path.resolve(input);
   try {
     const stat = lstatSync(targetRoot);
@@ -426,14 +504,15 @@ function parseSourceLink(
 function parseTasks(body: string, phasePath: string): WorkTaskFact[] {
   const tasks: WorkTaskFact[] = [];
   for (const [index, line] of body.split("\n").entries()) {
-    const match = TASK.exec(line);
-    if (!match) continue;
+    // The shared task line reader: `t` and `T` name the same task, and the result uses `T` (PRD 51 R-BACKLOG-SNAPSHOT-33).
+    const task = readTaskLine(line);
+    if (!task) continue;
     const taskEvidence = evidence(phasePath, "task", index + 1);
-    const completed = match[1]!.toLowerCase() === "x";
+    const completed = task.checked;
     tasks.push({
-      id: nullableString(match[2]?.toUpperCase() ?? null, match[2] ? taskEvidence : undefined),
+      id: nullableString(task.id, task.id ? taskEvidence : undefined),
       phasePath,
-      text: { value: match[3]!.trim(), evidence: [taskEvidence] },
+      text: { value: task.text, evidence: [taskEvidence] },
       completed: nullableBoolean(completed, [taskEvidence]),
       recordedStatus: nullableString(completed ? "complete" : "open", taskEvidence),
     });
@@ -956,6 +1035,7 @@ function readRecord(
   targetRoot: string,
   inventory: RecordInventory,
   git: GitContext,
+  reader: WorkTextReader,
 ): { record: BacklogWorkRecordV1; diagnostics: BacklogDiagnostic[] } {
   const dates = recordDates(targetRoot, inventory, git);
   const diagnostics = [...dates.diagnostics];
@@ -972,7 +1052,7 @@ function readRecord(
 
   let indexText: string;
   try {
-    indexText = readFileSync(indexAbsolute, "utf8");
+    indexText = reader.read(indexPath);
   } catch {
     diagnostics.push(
       diagnostic("BACKLOG-VAL-002", inventory.recordPath, indexPath),
@@ -1006,18 +1086,13 @@ function readRecord(
     }
     if (!linkedPhasePaths.includes(resolved)) linkedPhasePaths.push(resolved);
     const absolute = path.join(targetRoot, ...resolved.split("/"));
-    if (
-      !inventory.discoveredFiles.includes(resolved) ||
-      !existsSync(absolute) ||
-      !lstatSync(absolute).isFile() ||
-      lstatSync(absolute).isSymbolicLink()
-    ) {
+    if (!inventory.discoveredFiles.includes(resolved) || !reader.isFile(resolved)) {
       diagnostics.push(diagnostic("BACKLOG-VAL-006", inventory.recordPath, indexPath, link.line));
       continue;
     }
     let phaseText: string;
     try {
-      phaseText = readFileSync(absolute, "utf8");
+      phaseText = reader.read(resolved);
     } catch {
       diagnostics.push(diagnostic("BACKLOG-VAL-006", inventory.recordPath, resolved));
       continue;
@@ -1065,7 +1140,7 @@ function readRecord(
   for (const file of inventory.discoveredFiles.filter((candidate) => PHASE_FILE.test(path.posix.basename(candidate)))) {
     if (linkedPhasePaths.includes(file)) continue;
     try {
-      const candidate = parseFrontmatter(readFileSync(path.join(targetRoot, ...file.split("/")), "utf8"));
+      const candidate = parseFrontmatter(reader.read(file));
       if (candidate.present && stringField(candidate, "kind") === "work" && /^W[1-9]\d* R(?:0|[1-9]\d*) P[1-9]\d*$/.test(stringField(candidate, "coordinate") ?? "")) {
         unlinkedCurrentPhasePaths.push(file);
         diagnostics.push(diagnostic("BACKLOG-VAL-007", inventory.recordPath, file));
@@ -1199,6 +1274,7 @@ export function buildBacklogSnapshot(
   let plans: PlanDirectory[];
   try {
     inventory = discoverRecords(targetRoot);
+    if (seams.workFiles) inventory = withSourceFiles(inventory, targetRoot, seams.workFiles);
     plans = discoverPlanDirectories(targetRoot);
   } catch (error) {
     if (error instanceof BacklogSnapshotError) throw error;
@@ -1209,7 +1285,9 @@ export function buildBacklogSnapshot(
   }
   const run = seams.runGit ?? defaultGit;
   const git = gitContext(targetRoot, run);
-  const results = inventory.map((record) => readRecord(targetRoot, record, git));
+  const disk = diskTextReader(targetRoot);
+  const reader = seams.workFiles ? sourceTextReader(disk, seams.workFiles) : disk;
+  const results = inventory.map((record) => readRecord(targetRoot, record, git, reader));
   const records = results.map((result) => result.record);
   const diagnostics = results.flatMap((result) => result.diagnostics);
   addDuplicateCoordinateDiagnostics(records, diagnostics);

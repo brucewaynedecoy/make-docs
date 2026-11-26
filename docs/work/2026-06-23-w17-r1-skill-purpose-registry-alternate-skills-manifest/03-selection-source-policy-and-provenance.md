@@ -1,13 +1,17 @@
+---
+status: "completed"
+---
+
 # P3 Selection Source Policy and Provenance
 
 ## Tasks
 
-- [x] t1: Add explicit alternate file-manifest input to the skills command or selection pipeline.
-- [x] t2: Update interactive skills UI to group by purpose and show candidate skill, source, harness support, trust, and provenance.
-- [x] t3: Update non-interactive selected-skill parsing so `all` expands against the effective manifest.
-- [x] t4: Enforce remote manifest policy: immutable ref plus digest before install.
-- [x] t5: Enforce remote skill payload policy: immutable ref plus integrity metadata before install.
-- [x] t6: Preserve `selectedSkills` as resolved skill names and add selection provenance without replacing `skillFiles`.
+- [x] T1: Add explicit alternate file-manifest input to the skills command or selection pipeline.
+- [x] T2: Update interactive skills UI to group by purpose and show candidate skill, source, harness support, trust, and provenance.
+- [x] T3: Update non-interactive selected-skill parsing so `all` expands against the effective manifest.
+- [x] T4: Enforce remote manifest policy: immutable ref plus digest before install.
+- [x] T5: Enforce remote skill payload policy: immutable ref plus integrity metadata before install.
+- [x] T6: Preserve `selectedSkills` as resolved skill names and add selection provenance without replacing `skillFiles`.
 
 ## Acceptance Criteria
 

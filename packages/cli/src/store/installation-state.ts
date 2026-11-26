@@ -4,16 +4,21 @@ import path from 'node:path';
 import { parseDocument } from 'yaml';
 import { recoverDeadStoreLeases } from './lease-recovery';
 import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAssetLock, type GlobalAssetLock } from './global-asset-lock';
-import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, formatStoreIssue, isSqliteContention, makeStoreIssue, openStoreSqliteConnection, STORE_BUSY_TIMEOUT_MS, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
+import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, fillInstallationOperationReceipt, formatStoreIssue, readStoreSchemaJournal, inspectStoreBrokenReferences, describeStoreBrokenReferences, listUnguardableStoreTables, isSqliteContention, STORE_WRITE_GUARD_LIMIT, STORE_WRITE_GUARD_SINCE_SCHEMA, makeStoreIssue, openStoreSqliteConnection, STORE_BUSY_TIMEOUT_MS, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
 import { resolveStoreRoot, getStoreDatabasePath } from './paths';
 import { validateAndMigrateManifest } from '../manifest';
 import { parseManagedBlock } from '../managed-block';
 import type { InstallManifest, ManifestFileEntry } from '../types';
 import { getCanonicalSkillDirectory, getHarnessSkillDirectory } from '../skill-paths';
 import { platform, PlatformOperationError, type FileMutationGuard } from '../platform';
+import { listRegisteredProjects, recordProjectInRegister, type ProjectListResult, type ProjectNameConflict } from './project-register';
+import { findInstallationLocks } from './root-path-match';
 export class InstallationStateError extends Error {
-    constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string, readonly issue?: StoreIssue) { super(message); this.name = 'InstallationStateError'; }
+    /** `nextAction`, when set, is the one step that the scoped Store error names (for example `make-docs setup` for a legacy schema). */
+    constructor(readonly code: 'store-unavailable' | 'writer-active' | 'ownership-unverified' | 'recovery-required' | 'snapshot-drift', message: string, readonly issue?: StoreIssue, readonly nextAction?: string) { super(message); this.name = 'InstallationStateError'; }
 }
+/** The next action for a Store at a supported legacy schema: only a reviewed `make-docs setup` converts it. */
+export const STORE_LEGACY_SCHEMA_NEXT_ACTION = 'Run make-docs setup to review and apply the Store conversion, then run this command again.';
 export interface InstallationLock {
     projectRoot: string;
     storeRoot: string;
@@ -61,7 +66,20 @@ interface Operation {
     before_ledger: string | null;
     after_ledger: string | null;
     plan_complete: number;
+    failure_code?: string | null;
+    failure_summary?: string | null;
+    failed_stage?: string | null;
+    next_action?: string | null;
 }
+/** Statuses after which an installation operation never resumes (PRD 38 R-MAINT-3). */
+const TERMINAL_STATUSES = new Set(['completed', 'rolled-back']);
+/**
+ * Statuses whose operation still holds recovery evidence and blocks its checkout.
+ * A `failed` operation stays recoverable: its recovery is closed only when
+ * `project state recover` moves it to `completed` or `rolled-back`
+ * (W32 R0 P2 T13, Store table catalog STORE_FAILED_RECOVERY_CLOSED).
+ */
+const isRecoverableStatus = (status: string) => status === 'pending' || status === 'failed';
 
 export type CompletedRemovalHandoffReview =
     | { status: 'none' }
@@ -178,7 +196,7 @@ export function readInstallationPathClaims(projectRoot: string, roots: string[],
         for (const row of db.prepare('SELECT * FROM installation_checkouts').all() as unknown as Checkout[]) {
             const ledger = db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {manifest_json: string} | undefined;
             if (ledger) for (const p of Object.keys((JSON.parse(ledger.manifest_json) as InstallManifest).files)) append(row, p, 'ownership');
-            for (const op of db.prepare("SELECT * FROM installation_operations WHERE checkout_id=? AND status='pending'").all(row.checkout_id) as unknown as Operation[]) {
+            for (const op of db.prepare("SELECT * FROM installation_operations WHERE checkout_id=? AND status IN ('pending','failed')").all(row.checkout_id) as unknown as Operation[]) {
                 for (const step of db.prepare('SELECT relative_path FROM installation_steps WHERE operation_id=?').all(op.operation_id) as {relative_path: string}[]) append(row, step.relative_path, 'pending', op.operation_id);
                 const intendedLedger = op.after_ledger ? JSON.parse(op.after_ledger) as InstallManifest | null : null;
                 if (intendedLedger) for (const p of Object.keys(intendedLedger.files)) append(row, p, 'pending', op.operation_id);
@@ -191,7 +209,11 @@ function assertNoOtherPendingPathClaims(root: string, paths: string[], storeRoot
     if (!paths.length) return;
     // Ordinary writers need pending reservations only. Do not parse every committed ledger per file.
     const conflict = withInstallationDatabase(root, db => {
-        const pending = db.prepare("SELECT o.operation_id,o.after_ledger,c.root_path FROM installation_operations o JOIN installation_checkouts c ON c.checkout_id=o.checkout_id WHERE o.status='pending' AND c.root_path<>?").all(root) as {operation_id: string; after_ledger: string | null; root_path: string}[];
+        // Exclude this checkout by its ID, never by exact path text: a commit keeps the old
+        // spelling of a folder renamed only by letter case (W32 R0 P3).
+        const own = checkout(db, root);
+        const pending = (db.prepare("SELECT o.operation_id,o.after_ledger,c.root_path,c.checkout_id FROM installation_operations o JOIN installation_checkouts c ON c.checkout_id=o.checkout_id WHERE o.status IN ('pending','failed')").all() as {operation_id: string; after_ledger: string | null; root_path: string; checkout_id: string}[])
+            .filter(op => op.checkout_id !== own?.checkout_id);
         if (!pending.length) return undefined;
         const canonicalPath = (base: string, p: string) => { const absolute = path.resolve(base, p); return path.join(canonicalInstallationPath(path.dirname(absolute)), path.basename(absolute)); };
         const requested = paths.map(p => canonicalPath(root, p));
@@ -222,6 +244,9 @@ export function registerDetachedInstallationOperation(operation: string, hooks: 
 function detachedSnapshot(db: StoreDatabase, op: Operation): DetachedInstallationPlan | null {
     const record = db.prepare("SELECT record_json FROM installation_migration_records WHERE checkout_id=? AND kind='snapshot' AND record_id=?").get(op.checkout_id, `detached:${op.operation_id}`) as {record_json: string} | undefined;
     if (!record) {
+        // A finished operation needs no plan. Store maintenance may prune it (STORE-RULE-005), so a
+        // missing plan of a completed or rolled-back operation reads as pruned, not as damage.
+        if (TERMINAL_STATUSES.has(op.status)) return null;
         if (detachedHooks.has(op.operation) || op.operation.startsWith('project.layout')) fail('recovery-required', 'The saved layout plan is missing. Preserve the files and restore its Store evidence.');
         return null;
     }
@@ -323,8 +348,9 @@ export function prepareDetachedInstallationOperation(projectRoot: string, operat
         const id = randomUUID();
         withInstallationDatabase(root, db => transaction(db, () => {
             const row = bindCheckout(db, root, operation === 'setup.skills.adopt' ? plan.afterLedger?.projectId : undefined);
-            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id) as {operation_id: string} | undefined;
+            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status IN ('pending','failed')").get(row.checkout_id) as {operation_id: string} | undefined;
             if (pending) fail('recovery-required', `Operation ${pending.operation_id} is pending. Inspect project state status.`);
+            recordProjectInRegister(db, { projectId: row.project_id, projectRoot: root });
             const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {manifest_json: string} | undefined)?.manifest_json ?? null;
             const afterLedger = plan.afterLedger === undefined ? ledger : plan.afterLedger === null ? null : JSON.stringify(plan.afterLedger);
             if (afterLedger) {
@@ -345,7 +371,17 @@ export function prepareDetachedInstallationOperation(projectRoot: string, operat
         return {schemaVersion: 1 as const, operationId: id, status: 'pending' as const, mode: plan.mode, reviewDigest: plan.reviewDigest, nextAction: hooks.nextAction(root, id, plan.mode)};
     } finally { releaseInstallationLock(lock); }
 }
-export function readDetachedInstallationOperation(projectRoot: string, operationId: string, operation: string, storeRoot?: string) {
+export type DetachedInstallationOperationState =
+    | { status: string; plan: DetachedInstallationPlan; planPruned: false }
+    | { status: string; plan: null; planPruned: true };
+/**
+ * Read a detached operation and its saved plan. With `allowPruned`, a completed or rolled-back
+ * operation whose plan Store maintenance removed reads as `planPruned`, not as damage.
+ * Without it, a missing plan stays an error, so callers that need the plan never get null.
+ */
+export function readDetachedInstallationOperation(projectRoot: string, operationId: string, operation: string, storeRoot?: string): { status: string; plan: DetachedInstallationPlan; planPruned: false };
+export function readDetachedInstallationOperation(projectRoot: string, operationId: string, operation: string, storeRoot: string | undefined, options: { allowPruned: true }): DetachedInstallationOperationState;
+export function readDetachedInstallationOperation(projectRoot: string, operationId: string, operation: string, storeRoot?: string, options: { allowPruned?: boolean } = {}): DetachedInstallationOperationState {
     const root = canonicalInstallationPath(projectRoot);
     return withInstallationDatabase(root, db => {
         const row = checkout(db, root);
@@ -354,11 +390,15 @@ export function readDetachedInstallationOperation(projectRoot: string, operation
         const op = db.prepare('SELECT * FROM installation_operations WHERE operation_id=? AND checkout_id=?').get(operationId, row.checkout_id) as unknown as Operation | undefined;
         if (!op || op.operation !== operation) fail('ownership-unverified', 'This operation does not belong to the requested layout and checkout.');
         const plan = detachedSnapshot(db, op);
+        if (!plan && TERMINAL_STATUSES.has(op.status)) {
+            if (options.allowPruned) return {status: op.status, plan: null, planPruned: true as const};
+            fail('recovery-required', `Operation ${operationId} is ${op.status}, and its saved plan was pruned.`);
+        }
         if (!plan) fail('recovery-required', 'The complete saved operation plan is absent.');
-        return {status: op.status, plan};
+        return {status: op.status, plan, planPruned: false as const};
     }, {storeRoot, readOnly: true});
 }
-function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string, issue?: StoreIssue): never { throw new InstallationStateError(code, message, issue); }
+function fail(code: ConstructorParameters<typeof InstallationStateError>[0], message: string, issue?: StoreIssue, nextAction?: string): never { throw new InstallationStateError(code, message, issue, nextAction); }
 /** Resolve absent leaves without trusting a symlink spelling of an external path. */
 export function canonicalInstallationPath(input: string): string {
     try {
@@ -377,6 +417,101 @@ export function validateInstallationStoreRoot(projectRoot: string, storeRoot = r
         const issue = makeStoreIssue('unsafe-path', store, 'validate Store root', new Error('The Make Docs Store must be outside the project.'));
         fail('store-unavailable', formatStoreIssue(issue), issue);
     }
+    return validateStoreStatePaths(store);
+}
+/**
+ * Read the Store with no project folder (W29 R0 P4 T10). A project resource
+ * URI names its project in full and never resolves from the current folder
+ * (PRD 52 R-WORK-URI-1), so this read checks only the Store paths. It opens
+ * the database read only, never creates or prepares a Store, and maps lock
+ * contention to the typed Store outcome.
+ */
+export function withStoreReadOnlyDatabase<T>(storeRoot: string, fn: (db: StoreDatabase) => T): T {
+    const store = validateStoreStatePaths(canonicalInstallationPath(storeRoot));
+    const databasePath = getStoreDatabasePath(store);
+    if (!lstatSync(databasePath, { throwIfNoEntry: false }))
+        return fail('store-unavailable', 'The Store is absent. Nothing was read or changed. Run make-docs setup in a project first.');
+    const release = acquireStoreAccess(store);
+    let db: StoreDatabase;
+    try {
+        db = openStoreSqliteConnection(databasePath, { readOnly: true }, 'read');
+    }
+    catch (e) {
+        release();
+        throw e;
+    }
+    try {
+        try {
+            return fn(db);
+        }
+        catch (error) {
+            if (!isSqliteContention(error))
+                throw error;
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'read Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+        }
+    }
+    finally {
+        db.close();
+        release();
+    }
+}
+/**
+ * Write the Store in one transaction with no project folder (W30 R0 P3). A
+ * factory write names its project by project ID, or acts on the machine, so
+ * this write checks only the Store paths. It never creates, prepares, or
+ * migrates a Store: a Store that is absent or not at the current schema is
+ * refused before any file is made. Lock contention maps to the typed Store
+ * outcome, and any error rolls the transaction back.
+ */
+export function withStoreWriteDatabase<T>(storeRoot: string, fn: (db: StoreDatabase) => T): T {
+    const store = validateStoreStatePaths(canonicalInstallationPath(storeRoot));
+    const databasePath = getStoreDatabasePath(store);
+    if (!lstatSync(databasePath, { throwIfNoEntry: false }))
+        return fail('store-unavailable', 'The Store is absent. Nothing was changed. Run make-docs setup in a project first.');
+    const c = classifyStoreCheckpoint9State(store);
+    if (c.state === 'supported-legacy')
+        fail('store-unavailable', `The Store uses supported legacy schema ${c.schemaVersion}. Nothing was changed. ${STORE_LEGACY_SCHEMA_NEXT_ACTION}`, undefined, STORE_LEGACY_SCHEMA_NEXT_ACTION);
+    if (c.state !== 'supported-current')
+        fail('store-unavailable', 'issue' in c && c.issue ? formatStoreIssue(c.issue) : `Store is ${c.state}.`, 'issue' in c ? c.issue : undefined);
+    const release = acquireStoreAccess(store);
+    let db: StoreDatabase;
+    try {
+        db = openStoreSqliteConnection(databasePath, {}, 'write');
+    }
+    catch (e) {
+        release();
+        throw e;
+    }
+    try {
+        try {
+            db.exec('BEGIN IMMEDIATE');
+            try {
+                const result = fn(db);
+                db.exec('COMMIT');
+                return result;
+            }
+            catch (error) {
+                try {
+                    db.exec('ROLLBACK');
+                }
+                catch {
+                    // The transaction may already be closed.
+                }
+                throw error;
+            }
+        }
+        catch (error) {
+            if (!isSqliteContention(error))
+                throw error;
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'write Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+        }
+    }
+    finally {
+        db.close();
+        release();
+    }
+}
+function validateStoreStatePaths(store: string): string {
     for (const suffix of ['store.db', 'store.db-wal', 'store.db-shm', 'store-access.lock', 'removal.lock', 'installation-bootstrap.lock', 'installation-lease-recovery.lock']) {
         const child = path.join(store, suffix);
         try {
@@ -468,7 +603,7 @@ function prepareStore(projectRoot: string, storeRoot: string): void {
         if (current.state === 'supported-current')
             return;
         if (current.state === 'supported-legacy' && reviewedStoreBridgeDepth === 0)
-            fail('store-unavailable', `The Store uses supported legacy schema ${current.schemaVersion}. Run make-docs setup to review and apply the compatibility bridge. No project files changed.`);
+            fail('store-unavailable', `The Store uses supported legacy schema ${current.schemaVersion}. No project files changed. ${STORE_LEGACY_SCHEMA_NEXT_ACTION}`, undefined, STORE_LEGACY_SCHEMA_NEXT_ACTION);
         if (current.state !== 'supported-legacy' && current.state !== 'absent') {
             const issue = ('issue' in current ? current.issue : undefined) ?? {
                 code: current.state === 'corrupt' ? 'corrupt' as const : current.state === 'newer-unknown' ? 'schema-newer' as const : 'schema-unknown' as const,
@@ -760,6 +895,22 @@ function sameCheckoutEvidence(left: CheckoutVerificationEvidence, right: Checkou
     return canonicalJson(left.ownershipFacts) === canonicalJson(right.ownershipFacts);
 }
 
+/**
+ * Move proof against saved checkout evidence (PRD 38 R-CHECKOUT-6). The trusted saved
+ * full-file facts are the Store ledger, and `current` already proved every owned target file
+ * against it. Bind and separate checkout registration save no evidence (NULL). Only the path
+ * update (applyInstallationCheckoutMove) and explicit legacy identity repair write it, and a
+ * later commit never does (W32 R0 P2 t7). So no evidence, or evidence for an older ledger, is
+ * not stale damage: saved evidence must still name the same project, and evidence for the
+ * same ledger must still match exactly.
+ */
+function savedEvidenceAccepts(saved: CheckoutVerificationEvidence | null, current: CheckoutVerificationEvidenceV2): boolean {
+    if (!saved) return true;
+    if (saved.projectId !== current.projectId) return false;
+    if (saved.ledgerDigest !== current.ledgerDigest) return true;
+    return sameCheckoutEvidence(saved, current);
+}
+
 function assertCheckoutIdentity(row: Checkout, root: string): void {
     const id = readDeclarativeProjectId(root);
     if (id && id !== row.project_id)
@@ -818,15 +969,48 @@ interface CheckoutMoveReceipt {
     appliedAt: string;
 }
 
-/** Read only. It never creates a checkout, a lease, or a review row. */
+/**
+ * The oldest Store schema that checkout move review, checkout move, and separate checkout
+ * registration use as it is (PRD 38 R-CHECKOUT-8, R-CHECKOUT-9). Schema 6 is the schema
+ * that Make Docs 2.0.5 to 2.0.9 wrote. Its checkout, ledger, operation, lock, and migration
+ * record tables have every column that these actions read and write, so they do not
+ * migrate the Store. A setup review shows the Store conversion separately, and only a
+ * reviewed setup applies it. Schema 7 adds `project_register`, which these actions write
+ * only when it exists. Schema 7 and schema 8 are also used as they are after schema 9 is
+ * current: schema 8 adds only the work store tables (W29 R0 P2), and schema 9 adds only
+ * the factory tables (W30 R0 P2). These actions never read or write either set.
+ */
+const CHECKOUT_BINDING_MIN_STORE_SCHEMA = 6;
+/** Classify the Store for checkout binding actions. Unsafe Stores, including a Store whose write guard changed or whose version was set back, stay refused. */
+function checkoutBindingStore(store: string): { usable: true; schemaVersion: number } | { usable: false; reason: string } {
+    const c = classifyStoreCheckpoint9State(store);
+    if (c.state === 'supported-current') return { usable: true, schemaVersion: c.schemaVersion };
+    if (c.state === 'supported-legacy' && c.schemaVersion >= CHECKOUT_BINDING_MIN_STORE_SCHEMA) return { usable: true, schemaVersion: c.schemaVersion };
+    if (c.state === 'supported-legacy') return { usable: false, reason: `The Store uses schema ${c.schemaVersion}. Run make-docs setup to review the Store conversion first.` };
+    if (c.state === 'absent') return { usable: false, reason: 'The Store is absent.' };
+    return { usable: false, reason: `The Store is ${c.state}: ${c.reason}` };
+}
+/** Write the project register only when this Store schema has it (schema 7 and later). */
+function recordProjectInRegisterWhenPresent(db: StoreDatabase, input: { projectId: string; projectRoot: string }): void {
+    if (readStoreUserVersion(db) >= 7) recordProjectInRegister(db, input);
+}
+function readStoreUserVersion(db: StoreDatabase): number {
+    return Number((db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version);
+}
+
+/**
+ * Read only. It never creates a checkout, a lease, or a review row. It reads a schema 6
+ * Store as it is and never migrates it (W32 R0 P2 follow-up).
+ */
 export function previewInstallationCheckoutMove(projectRoot: string, sourceCheckoutId?: string, storeRoot?: string): CheckoutMovePreview {
     const root = canonicalInstallationPath(projectRoot);
     const id = readDeclarativeProjectId(root);
     const base = { schemaVersion: 1 as const, projectId: id, targetRoot: root };
     if (!id) return { ...base, status: 'none', candidates: [], nextAction: 'A valid projectId in .make-docs/config.yaml is required before checkout move.' };
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
-    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
-        return { ...base, status: 'blocked', candidates: [], nextAction: 'The Store must use the current schema before checkout move.' };
+    const usable = checkoutBindingStore(store);
+    if (!usable.usable)
+        return { ...base, status: 'blocked', candidates: [], nextAction: `${usable.reason} Checkout move needs a usable Store.` };
     return withInstallationDatabase(root, db => previewInstallationCheckoutMoveInDatabase(db, root, id, sourceCheckoutId), {storeRoot: store, readOnly: true});
 }
 
@@ -840,7 +1024,7 @@ function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: stri
         const bound = checkout(db, root);
         if (bound && bound.project_id === id) {
             assertCheckoutIdentity(bound, root);
-            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending' LIMIT 1").get(bound.checkout_id) as { operation_id: string } | undefined;
+            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status IN ('pending','failed') LIMIT 1").get(bound.checkout_id) as { operation_id: string } | undefined;
             if (pending) return { ...base, status: 'recovery-required' as const, candidates: [], nextAction: `Run make-docs project state status --target-root ${JSON.stringify(root)} before recovery.` };
             const ledger = db.prepare('SELECT 1 FROM installation_ledgers WHERE checkout_id=?').get(bound.checkout_id);
             const removed = !ledger && hasCompletedRemoval(db, bound.checkout_id);
@@ -864,23 +1048,24 @@ function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: stri
             if (sourceCheckoutId && row.checkout_id !== sourceCheckoutId) blockers.push('Another source checkout was selected.');
             if (lstatSync(row.root_path, {throwIfNoEntry: false})) blockers.push('The source path still exists.');
             if (claimed) blockers.push('Another checkout claims the target path.');
-            if (db.prepare("SELECT 1 FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id)) blockers.push('The source has pending work.');
-            for (const lockedRoot of [row.root_path, root]) {
-                const lock = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(lockedRoot) as {pid: number; hostname: string} | undefined;
-                if (lock) blockers.push(isDead(lock.pid, lock.hostname) ? 'A dead writer lock needs recovery.' : 'A writer is active.');
-            }
+            if (db.prepare("SELECT 1 FROM installation_operations WHERE checkout_id=? AND status IN ('pending','failed')").get(row.checkout_id)) blockers.push('The source has pending work.');
+            const locks = new Map([row.root_path, root].flatMap(lockedRoot => findInstallationLocks(db, lockedRoot)).map(lock => [lock.root_path, lock]));
+            for (const lock of locks.values())
+                blockers.push(isDead(lock.pid, lock.hostname) ? 'A dead writer lock needs recovery.' : 'A writer is active.');
             if (db.prepare("SELECT 1 FROM tool_operations WHERE status='pending' LIMIT 1").get()) blockers.push('A tool operation is pending.');
             const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {manifest_json: string} | undefined)?.manifest_json ?? null;
             const saved = parseCheckoutVerification(row);
+            // An unknown or unreadable evidence form is never replaced from current bytes (R-CHECKOUT-14).
+            const unreadableEvidence = row.verification_json !== null && !saved;
             let current: CheckoutVerificationEvidenceV2 | null = null;
-            if (!ledger || !saved) blockers.push('The source lacks a saved ledger or ownership proof.');
+            if (!ledger || unreadableEvidence) blockers.push('The source lacks a saved ledger or ownership proof.');
             else {
                 try { current = checkoutVerificationEvidence(db, root, id, row.checkout_id, ledger); }
                 catch (error) { blockers.push(error instanceof Error ? error.message : String(error)); }
-                if (current && !sameCheckoutEvidence(saved, current)) blockers.push('Target ownership does not match the saved Store facts.');
+                if (current && !savedEvidenceAccepts(saved, current)) blockers.push('Target ownership does not match the saved Store facts.');
                 if (current && current.ownershipFacts.length === 0) blockers.push('The target has no independent managed ownership fact.');
             }
-            const reviewDigest = blockers.length || !current || !saved || !ledger ? null : sha(canonicalJson({
+            const reviewDigest = blockers.length || !current || !ledger ? null : sha(canonicalJson({
                 schemaVersion: 1, projectId: id, checkoutId: row.checkout_id,
                 sourceRoot: canonicalInstallationPath(row.root_path), sourceKey: row.root_path_key,
                 targetRoot: root, targetKey, configDigest, ledgerDigest: sha(ledger),
@@ -889,7 +1074,7 @@ function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: stri
                     const stat = lstatSync(absolute, {throwIfNoEntry: false});
                     return [fact.path, stat?.isSymbolicLink() ? `link:${readlinkSync(absolute)}` : stat?.isFile() ? `file:${sha(readFileSync(absolute))}` : 'missing'];
                 }),
-                savedEvidenceDigest: sha(row.verification_json!), targetEvidence: current,
+                savedEvidenceDigest: row.verification_json ? sha(row.verification_json) : null, targetEvidence: current,
             }));
             return { checkoutId: row.checkout_id, sourceRoot: row.root_path, targetRoot: root, available: blockers.length === 0, blockers, reviewDigest };
         });
@@ -908,8 +1093,9 @@ function previewInstallationCheckoutMoveInDatabase(db: StoreDatabase, root: stri
 export function registerSeparateInstallationCheckout(projectRoot: string, reviewDigest: string, storeRoot?: string) {
     const root = canonicalInstallationPath(projectRoot);
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
-    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
-        fail('store-unavailable', 'Separate checkout registration requires a current Store.');
+    const usable = checkoutBindingStore(store);
+    if (!usable.usable)
+        fail('store-unavailable', `${usable.reason} Separate checkout registration needs a usable Store. No Store state changed.`);
     return withInstallationDatabase(root, db => transaction(db, () => {
         const id = readDeclarativeProjectId(root);
         if (!id) fail('ownership-unverified', 'A valid config projectId is required.');
@@ -919,6 +1105,7 @@ export function registerSeparateInstallationCheckout(projectRoot: string, review
         const checkoutId = randomUUID();
         db.prepare('INSERT INTO installation_checkouts (checkout_id,project_id,root_path,created_at,root_path_key,verified_at,verification_json) VALUES (?,?,?,?,?,?,?)')
             .run(checkoutId, id, root, now(), platform.comparisonKey(root), null, null);
+        recordProjectInRegisterWhenPresent(db, { projectId: id, projectRoot: root });
         return { status: 'registered' as const, projectId: id, checkoutId, targetRoot: root,
             effect: 'new-checkout-binding' as const, projectFilesChanged: false,
             nextAction: 'Run setup for this target to review its own installation state.' };
@@ -929,8 +1116,10 @@ export function registerSeparateInstallationCheckout(projectRoot: string, review
 export function applyInstallationCheckoutMove(projectRoot: string, sourceCheckoutId: string, sourceRoot: string, reviewDigest: string, storeRoot?: string) {
     const root = canonicalInstallationPath(projectRoot);
     const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
-    if (classifyStoreCheckpoint9State(store).state !== 'supported-current')
-        fail('store-unavailable', 'Checkout move requires a current Store. No Store state changed.');
+    // Apply never migrates the Store schema (R-CHECKOUT-8). A schema 6 Store is changed as it is.
+    const usable = checkoutBindingStore(store);
+    if (!usable.usable)
+        fail('store-unavailable', `${usable.reason} Checkout move needs a usable Store. No Store state changed.`);
     return withInstallationDatabase(root, db => transaction(db, () => {
         const alreadyBound = checkout(db, root);
         if (alreadyBound?.checkout_id === sourceCheckoutId && canonicalInstallationPath(sourceRoot) !== root) {
@@ -961,6 +1150,7 @@ export function applyInstallationCheckoutMove(projectRoot: string, sourceCheckou
         const receipt = { schemaVersion: 1, operation: 'project.checkout-move.apply', projectId: row.project_id, checkoutId: sourceCheckoutId, sourceRoot: row.root_path, targetRoot: root, reviewDigest, ledgerDigest: sha(ledger), evidenceDigest: sha(verificationJson), appliedAt: verifiedAt };
         db.prepare("INSERT INTO installation_migration_records (checkout_id,kind,record_id,record_json) VALUES (?,'receipt',?,?)")
             .run(sourceCheckoutId, `checkout-move:${randomUUID()}`, JSON.stringify(receipt));
+        recordProjectInRegisterWhenPresent(db, { projectId: row.project_id, projectRoot: root });
         return { status: 'completed' as const, ...receipt,
             effect: 'checkout-binding-moved' as const, projectFilesChanged: false,
             nextAction: 'Continue setup for this target.' };
@@ -969,7 +1159,13 @@ export function applyInstallationCheckoutMove(projectRoot: string, sourceCheckou
 
 export function getInstallationCheckoutId(projectRoot: string, storeRoot?: string): string {
     const root = canonicalInstallationPath(projectRoot);
-    return withInstallationDatabase(root, db => transaction(db, () => bindCheckout(db, root).checkout_id), { storeRoot });
+    return withInstallationDatabase(root, db => transaction(db, () => {
+        const prior = checkout(db, root);
+        const row = bindCheckout(db, root);
+        // A new binding is a Store write for the project (R-REGISTER-1). A read of an existing one is not.
+        if (!prior) recordProjectInRegister(db, { projectId: row.project_id, projectRoot: root });
+        return row.checkout_id;
+    }), { storeRoot });
 }
 /** Read an existing checkout binding without creating or changing Store state. */
 export function getExistingInstallationCheckoutId(projectRoot: string, storeRoot?: string): string | null {
@@ -1004,10 +1200,8 @@ export function acquireInstallationLock(projectRoot: string, storeRoot?: string)
                 } | undefined;
                 if (machine)
                     fail('recovery-required', `Tool operation ${machine.operation_id} is pending. Inspect project state status before managed changes.`);
-                const owner = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(root) as {
-                    pid: number;
-                    hostname: string;
-                } | undefined;
+                // A lock in another spelling of this folder still guards it (W32 R0 P3).
+                const owner = findInstallationLocks(db, root)[0];
                 if (!owner)
                     db.prepare('INSERT INTO installation_locks VALUES (?,?,?,?,?)').run(root, token, process.pid, platform.hostname, now());
                 return owner;
@@ -1037,9 +1231,7 @@ export function assertInstallationLockActive(lock: InstallationLock): void {
     if (current?.globalLock)
         assertGlobalAssetLockActive(current.globalLock);
     withInstallationDatabase(lock.projectRoot, db => { const identity = checkout(db, lock.projectRoot); if (identity)
-        assertCheckoutIdentity(identity, lock.projectRoot); const row = db.prepare('SELECT token FROM installation_locks WHERE root_path=?').get(lock.projectRoot) as {
-        token: string;
-    } | undefined; if (row?.token !== lock.token)
+        assertCheckoutIdentity(identity, lock.projectRoot); const rows = findInstallationLocks(db, lock.projectRoot); if (rows.length !== 1 || rows[0].token !== lock.token)
         fail('writer-active', 'Checkout lock ownership changed.'); }, { storeRoot: lock.storeRoot, readOnly: true });
 }
 export function releaseInstallationLock(lock: InstallationLock): void {
@@ -1051,12 +1243,10 @@ export function releaseInstallationLock(lock: InstallationLock): void {
     const owned = current?.token === lock.token ? current : undefined;
     try {
         withInstallationDatabase(lock.projectRoot, db => {
-            const row = db.prepare('SELECT token FROM installation_locks WHERE root_path=?').get(lock.projectRoot) as {
-                token: string;
-            } | undefined;
-            if (row?.token !== lock.token)
+            const row = findInstallationLocks(db, lock.projectRoot).find(candidate => candidate.token === lock.token);
+            if (!row)
                 fail('writer-active', 'Checkout lock ownership changed.');
-            db.prepare('DELETE FROM installation_locks WHERE root_path=? AND token=?').run(lock.projectRoot, lock.token);
+            db.prepare('DELETE FROM installation_locks WHERE root_path=? AND token=?').run(row.root_path, lock.token);
         }, { storeRoot: lock.storeRoot });
     }
     finally {
@@ -1132,8 +1322,8 @@ export function removeInstallationManifest(projectRoot: string): void {
         return withInstallationOperation(root, 'setup.remove', () => removeInstallationManifest(root));
     withInstallationDatabase(root, db => { db.prepare('UPDATE installation_operations SET after_ledger=? WHERE operation_id=?').run('null', op.id); }, { storeRoot: op.storeRoot });
 }
-function commitOperation(db: StoreDatabase, id: string, root: string, rollback = false): void {
-    transaction(db, () => {
+function commitOperation(db: StoreDatabase, id: string, root: string, rollback = false): ProjectNameConflict | null {
+    return transaction(db, () => {
         const op = db.prepare('SELECT * FROM installation_operations WHERE operation_id=?').get(id) as unknown as Operation;
         const ledger = rollback ? op.before_ledger : op.after_ledger;
         if (ledger && ledger !== 'null') {
@@ -1149,10 +1339,18 @@ function commitOperation(db: StoreDatabase, id: string, root: string, rollback =
         else
             db.prepare('DELETE FROM installation_ledgers WHERE checkout_id=?').run(op.checkout_id);
         const owner = db.prepare('SELECT project_id FROM installation_checkouts WHERE checkout_id=?').get(op.checkout_id) as { project_id: string };
-        const evidence = checkoutVerificationEvidence(db, root, owner.project_id, op.checkout_id, ledger, false);
-        db.prepare('UPDATE installation_checkouts SET root_path=?,root_path_key=?,verified_at=?,verification_json=? WHERE checkout_id=?')
-            .run(root, platform.comparisonKey(root), now(), JSON.stringify(evidence), op.checkout_id);
+        const declaredId = readDeclarativeProjectId(root);
+        if (declaredId && declaredId !== owner.project_id)
+            fail('ownership-unverified', 'The config project identity conflicts with the saved installation ledger.');
+        // The checkout path and its verification change only through the path-update rule
+        // (applyInstallationCheckoutMove, PRD 38 R-CHECKOUT-1). A commit never rewrites them.
         db.prepare('UPDATE installation_operations SET status=?,finished_at=? WHERE operation_id=?').run(rollback ? 'rolled-back' : 'completed', now(), id);
+        // The bounded receipt is filled in the same transaction as the terminal state (W32 R0 P2 T11).
+        fillInstallationOperationReceipt(db, id);
+        // R-REGISTER-1: the commit records the config name that the operation may have written.
+        // Work already started, so a name problem never stops the commit or a recovery. The
+        // stored name stays, and the problem is returned. The next operation start refuses it.
+        return recordProjectInRegister(db, { projectId: owner.project_id, projectRoot: root, onNameConflict: 'keep' }).nameConflict;
     });
 }
 export function withInstallationOperation<T>(projectRoot: string, operation: string, fn: () => T, options: {
@@ -1173,10 +1371,11 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
     const lock = acquireInstallationLock(root, options.storeRoot);
     let opId: string | null = null;
     let projectMutationStarted = false;
+    let stage: InstallationFailureStage = 'prepare';
     try {
         const bound = withInstallationDatabase(root, db => transaction(db, () => {
             const row = bindCheckout(db, root, options.projectId);
-            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id) as {
+            const pending = db.prepare("SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status IN ('pending','failed')").get(row.checkout_id) as {
                 operation_id: string;
             } | undefined;
             if (pending)
@@ -1184,6 +1383,9 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
             const ledger = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {
                 manifest_json: string;
             } | undefined)?.manifest_json ?? null;
+            // R-REGISTER-1 and R-ID-8: a name that another project holds stops the operation here,
+            // before any project file changes.
+            recordProjectInRegister(db, { projectId: row.project_id, projectRoot: root });
             const id = randomUUID();
             db.prepare('INSERT INTO installation_operations (operation_id,checkout_id,operation,status,before_ledger,after_ledger,created_at,finished_at) VALUES (?,?,?,?,?,?,?,NULL)').run(id, row.checkout_id, operation, 'pending', ledger, ledger, now());
             return { id, projectId: row.project_id };
@@ -1196,6 +1398,7 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
             withInstallationDatabase(root, db => transaction(db, () => { db.prepare('UPDATE installation_steps SET applied=1 WHERE operation_id=? AND ordinal=0').run(bound.id); }), { storeRoot: lock.storeRoot });
         }
         projectMutationStarted = true;
+        stage = 'apply';
         ensureDeclarativeIdentity(root);
         const result = fn();
         if (result && typeof (result as {
@@ -1203,6 +1406,7 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
         }).then === 'function')
             fail('recovery-required', 'Installation operation callback must be synchronous.');
         sealInstallationOperation(root);
+        stage = 'verify';
         assertInstallationLockActive(lock);
         withInstallationDatabase(root, db => {
             const rows = db.prepare('SELECT * FROM installation_steps WHERE operation_id=? ORDER BY ordinal').all(bound.id) as unknown as Step[];
@@ -1210,24 +1414,58 @@ export function withInstallationOperation<T>(projectRoot: string, operation: str
             for (const step of last.values())
                 if (!subsumedByAncestor(root, step, last) && !matches(root, step.relative_path, JSON.parse(step.after_json)))
                     fail('snapshot-drift', `Output changed before final commit: ${step.relative_path}`);
+            stage = 'commit';
             commitOperation(db, bound.id, root);
         }, { storeRoot: lock.storeRoot });
         return result;
     }
     catch (e) {
+        // R-LIFE-6: record the failure before the lock is released. A failure to record it keeps
+        // the operation pending with all its recovery evidence and never claims success.
+        const failed = opId ? recordInstallationOperationFailure(root, lock.storeRoot, opId, operation, stage, e) : false;
+        const label = failed ? 'Failed operation' : 'Pending operation';
         if (e instanceof StoreUnavailableError)
-            e.message = formatStoreIssue(e.issue, { projectMutationStarted, ...(opId ? { pendingOperationId: opId } : {}) });
+            e.message = formatStoreIssue(e.issue, { projectMutationStarted, ...(opId ? { pendingOperationId: opId, operationFailed: failed } : {}) });
         else if (e instanceof InstallationStateError && e.issue)
-            e.message = formatStoreIssue(e.issue, { projectMutationStarted, ...(opId ? { pendingOperationId: opId } : {}) });
+            e.message = formatStoreIssue(e.issue, { projectMutationStarted, ...(opId ? { pendingOperationId: opId, operationFailed: failed } : {}) });
         else if (opId && e instanceof Error)
             e.message += projectMutationStarted
-                ? ` Project files may have changed. Pending operation: ${opId}. Run make-docs project state status before recovery.`
-                : ` No project files changed. Pending operation: ${opId}. Run make-docs project state status.`;
+                ? ` Project files may have changed. ${label}: ${opId}. Run make-docs project state status before recovery.`
+                : ` No project files changed. ${label}: ${opId}. Run make-docs project state status.`;
         throw e;
     }
     finally {
         active.delete(root);
         releaseInstallationLock(lock);
+    }
+}
+type InstallationFailureStage = 'prepare' | 'apply' | 'verify' | 'commit';
+/** A stable failure code from the error type only. Raw messages never enter the Store. */
+function installationFailureCode(error: unknown): string {
+    if (error instanceof InstallationStateError) return error.code;
+    if (error instanceof StoreUnavailableError) return 'store-unavailable';
+    if (error instanceof PlatformOperationError) return 'platform-error';
+    return 'operation-error';
+}
+/**
+ * Mark a pending installation operation `failed` with its R-LIFE-6 fields. The fields are
+ * bounded, fixed text: no raw error message, terminal output, or file content. Returns false
+ * when the Store cannot record it; the operation then stays pending with its evidence.
+ */
+function recordInstallationOperationFailure(root: string, storeRoot: string, operationId: string, operation: string, stage: InstallationFailureStage, error: unknown): boolean {
+    try {
+        const code = installationFailureCode(error);
+        const summary = `The ${operation.slice(0, 200)} operation stopped during ${stage} (${code}).`;
+        const nextAction = `Run make-docs project state status --target-root ${JSON.stringify(root)} before recovery.`.slice(0, 1024);
+        return withInstallationDatabase(root, db => {
+            const changed = db.prepare(`UPDATE installation_operations
+                SET status='failed', failure_code=?, failure_summary=?, failed_stage=?, next_action=?
+                WHERE operation_id=? AND status='pending'`).run(code, summary, stage, nextAction, operationId);
+            return Number(changed.changes) === 1;
+        }, { storeRoot });
+    }
+    catch {
+        return false;
     }
 }
 function targetPath(root: string, relative: string): string {
@@ -1299,6 +1537,14 @@ function savePayload(root: string, opId: string, ordinal: number, label: string,
     if (sha(readFileSync(target)) !== sha(bytes))
         fail('snapshot-drift', 'Backup payload verification failed.');
     return relative;
+}
+/** The pending operation ID of the active installation operation for this root, if any. */
+export function getActiveInstallationOperationId(projectRoot: string): string | null { return active.get(canonicalInstallationPath(projectRoot))?.id ?? null; }
+/** Project-relative backup payloads of the prior file bytes, one per journaled file step. */
+export function readInstallationOperationBackups(projectRoot: string, operationId: string, storeRoot?: string): Array<{ relativePath: string; backup: string }> {
+    const root = canonicalInstallationPath(projectRoot);
+    return withInstallationDatabase(root, db => (db.prepare('SELECT relative_path, before_json FROM installation_steps WHERE operation_id=? ORDER BY ordinal').all(operationId) as Array<{ relative_path: string; before_json: string }>)
+        .flatMap(step => { const before = JSON.parse(step.before_json) as FileState; return before.kind === 'file' && before.payload ? [{ relativePath: step.relative_path, backup: before.payload }] : []; }), { storeRoot, readOnly: true });
 }
 export function recordPlannedFileChange(projectRoot: string, relativePath: string, after: PlannedFileState, apply: () => void): void { preparePlannedFileChange(projectRoot, relativePath, after, apply)(); }
 export function sealInstallationOperation(projectRoot: string): void { const root = canonicalInstallationPath(projectRoot); const op = active.get(root); if (!op)
@@ -1503,7 +1749,7 @@ function selectDetachedCopyFallback(root: string, op: Operation, plan: DetachedI
     validateAndMigrateManifest(replacement.afterLedger, 'Prepared copy fallback ledger');
     withInstallationDatabase(root, db => transaction(db, () => {
         const current = db.prepare('SELECT * FROM installation_operations WHERE operation_id=?').get(op.operation_id) as unknown as Operation;
-        if (current.status !== 'pending' || canonicalJson(detachedSnapshot(db, current)) !== canonicalJson(plan)) fail('snapshot-drift', 'Pending operation changed before fallback selection.');
+        if (!isRecoverableStatus(current.status) || canonicalJson(detachedSnapshot(db, current)) !== canonicalJson(plan)) fail('snapshot-drift', 'Pending operation changed before fallback selection.');
         db.prepare('DELETE FROM installation_steps WHERE operation_id=?').run(op.operation_id);
         for (const [i, change] of replacement.changes.entries()) db.prepare('INSERT INTO installation_steps VALUES (?,?,?,?,?,0)').run(op.operation_id, i + 1, change.path, JSON.stringify(change.before), JSON.stringify(change.after));
         db.prepare('UPDATE installation_operations SET after_ledger=? WHERE operation_id=?').run(JSON.stringify(replacement.afterLedger), op.operation_id);
@@ -1523,8 +1769,32 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
         if (c.state === 'supported-legacy')
             return { ...base, status: 'unregistered', projectId: id, storeAvailable: true, nextAction: 'Run make-docs setup and review legacy transfer.' };
         if (c.state !== 'supported-current')
-            fail('store-unavailable', `Store is ${c.state}.`);
+            fail('store-unavailable', 'issue' in c && c.issue ? formatStoreIssue(c.issue) : `Store is ${c.state}.`, 'issue' in c ? c.issue : undefined);
         return withInstallationDatabase(root, db => {
+            const schema = readStoreSchemaJournal(db);
+            const storeSchema = {
+                schemaVersion: schema.schemaVersion,
+                journalVersions: schema.journal.map(row => row.version),
+                missingVersions: schema.missingVersions,
+                warning: schema.missingVersions.length ? `The Store schema journal has no row for version ${schema.missingVersions.join(', ')}. Make Docs keeps the Store as it is.` : null,
+            };
+            // Integrity facts that do not block: references that were already broken, and
+            // virtual tables that SQLite cannot give guard triggers.
+            const brokenReferences = inspectStoreBrokenReferences(db);
+            const unguardableTables = listUnguardableStoreTables(db);
+            const storeIntegrity = {
+                brokenReferences,
+                brokenReferencesWarning: describeStoreBrokenReferences(brokenReferences),
+                unguardableTables,
+                unguardableWarning: unguardableTables.length
+                    ? `SQLite cannot guard ${unguardableTables.map(entry => `${entry.kind} table ${entry.table}`).join(', ')}, so a program that is not Make Docs can still write it. No Make Docs data lives there. Run make-docs setup store check to review it.`
+                    : null,
+                // A guard problem never reaches status: the guarded open refuses the Store as store-unsafe first.
+                writeGuard: {
+                    state: schema.schemaVersion >= STORE_WRITE_GUARD_SINCE_SCHEMA ? 'intact' as const : 'not-installed' as const,
+                    limit: STORE_WRITE_GUARD_LIMIT,
+                },
+            };
             const toolOperations = (db.prepare("SELECT operation_id AS operationId,operation,started_at AS startedAt,status FROM tool_operations WHERE status='pending' ORDER BY started_at LIMIT 10").all() as {
                 operationId: string;
                 operation: string;
@@ -1536,14 +1806,11 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
             const row = checkout(db, root);
             if (!row) {
                 const prior = id ? db.prepare('SELECT 1 FROM installation_checkouts WHERE project_id=? LIMIT 1').get(id) : null;
-                return { ...base, status: prior ? 'ownership-unverified' : id ? 'portable-unregistered' : 'unregistered', projectId: id, storeAvailable: true, nextAction: prior ? 'Review checkout move or separate checkout registration before setup.' : id ? 'Run make-docs setup --adopt to register this checkout.' : 'Run make-docs setup and review this checkout.' };
+                return { ...base, status: prior ? 'ownership-unverified' : id ? 'portable-unregistered' : 'unregistered', projectId: id, storeAvailable: true, storeSchema, storeIntegrity, nextAction: prior ? 'Review checkout move or separate checkout registration before setup.' : id ? 'Run make-docs setup --adopt to register this checkout.' : 'Run make-docs setup and review this checkout.' };
             }
             assertCheckoutIdentity(row, root);
-            const lock = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(root) as {
-                pid: number;
-                hostname: string;
-            } | undefined;
-            const pending = db.prepare("SELECT * FROM installation_operations WHERE checkout_id=? AND status='pending'").get(row.checkout_id) as unknown as Operation | undefined;
+            const lock = findInstallationLocks(db, root)[0];
+            const pending = db.prepare("SELECT * FROM installation_operations WHERE checkout_id=? AND status IN ('pending','failed')").get(row.checkout_id) as unknown as Operation | undefined;
             const prepared = pending ? detachedSnapshot(db, pending) : null;
             const manifest = (db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {
                 manifest_json: string;
@@ -1556,12 +1823,30 @@ export function readInstallationStatus(projectRoot: string, storeRoot?: string) 
                         : `make-docs project state recover ${pending.operation_id} --rollback --dry-run --target-root ${JSON.stringify(root)}`
                 : null;
             const removed = !manifest && hasCompletedRemoval(db, row.checkout_id);
-            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ? {operation_id: pending.operation_id, operation: pending.operation, planComplete: Boolean(pending.plan_complete), ...(prepared ? {mode: prepared.mode, reviewDigest: prepared.reviewDigest} : {})} : null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : removed ? 'unregistered' : 'portable-unregistered', nextAction: pendingAction ?? (lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : removed ? 'Review the completed removal before setup.' : 'Run make-docs setup --adopt to complete this checkout.') };
+            return { ...base, projectId: row.project_id, checkoutId: row.checkout_id, storeAvailable: true, storeSchema, storeIntegrity, installationVersion: manifest ? JSON.parse(manifest).packageVersion : null, pendingOperation: pending ? {operation_id: pending.operation_id, operation: pending.operation, status: pending.status, planComplete: Boolean(pending.plan_complete), ...(pending.status === 'failed' ? {failure: {code: pending.failure_code ?? null, summary: pending.failure_summary ?? null, stage: pending.failed_stage ?? null, nextAction: pending.next_action ?? null}} : {}), ...(prepared ? {mode: prepared.mode, reviewDigest: prepared.reviewDigest} : {})} : null, status: lock && !isDead(lock.pid, lock.hostname) ? 'writer-active' : pending ? 'recovery-required' : manifest ? 'ready' : removed ? 'unregistered' : 'portable-unregistered', nextAction: pendingAction ?? (lock ? 'Wait for the active writer.' : manifest ? 'No recovery is required.' : removed ? 'Review the completed removal before setup.' : 'Run make-docs setup --adopt to complete this checkout.') };
         }, { storeRoot: store, readOnly: true });
     }
     catch (e) {
         return { ...base, status: e instanceof InstallationStateError ? e.code : 'store-unavailable', storeAvailable: false, nextAction: e instanceof Error ? e.message : String(e) };
     }
+}
+
+/**
+ * List every project that the Store knows (`project list`, PRD 38 R-REGISTER-3).
+ * Reads only. It never creates a Store, a checkout, or a register row. A Store
+ * that is absent, on a legacy schema, or unsafe gives the typed Store outcome.
+ */
+export function readProjectRegisterList(projectRoot: string, storeRoot?: string): ProjectListResult {
+    const root = canonicalInstallationPath(projectRoot);
+    const store = validateInstallationStoreRoot(root, storeRoot ?? resolveStoreRoot());
+    const c = classifyStoreCheckpoint9State(store);
+    if (c.state === 'absent')
+        fail('store-unavailable', 'The Store is absent, so it knows no projects. Nothing was changed. Run make-docs setup in a project first.', undefined, 'Run make-docs setup in a project first.');
+    if (c.state === 'supported-legacy')
+        fail('store-unavailable', `The Store uses supported legacy schema ${c.schemaVersion}. No project files changed. ${STORE_LEGACY_SCHEMA_NEXT_ACTION}`, undefined, STORE_LEGACY_SCHEMA_NEXT_ACTION);
+    if (c.state !== 'supported-current')
+        fail('store-unavailable', 'issue' in c && c.issue ? formatStoreIssue(c.issue) : `Store is ${c.state}.`, 'issue' in c ? c.issue : undefined);
+    return withInstallationDatabase(root, db => listRegisteredProjects(db), { storeRoot: store, readOnly: true });
 }
 
 /**
@@ -1591,7 +1876,7 @@ export function reviewCompletedRemovalHandoff(
             ).get(row.checkout_id) as { manifest_json: string } | undefined;
             if (currentLedger) return noHandoff();
             const pending = db.prepare(
-                "SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status='pending' LIMIT 1",
+                "SELECT operation_id FROM installation_operations WHERE checkout_id=? AND status IN ('pending','failed') LIMIT 1",
             ).get(row.checkout_id) as { operation_id: string } | undefined;
             if (pending) return noHandoff();
 
@@ -1875,15 +2160,15 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
         return { ordered, remaining, conflicts };
     };
     const state = read();
-    if (state.op.status === 'pending' && mode === 'resume' && state.steps.some(step=>isRetiredSkillPath(root,step.relative_path) && JSON.parse(step.after_json).kind !== 'missing')) return {schemaVersion:1 as const,operationId,mode,dryRun,status:'blocked',changes:[],conflicts:['This saved plan writes retired .make-docs/agentics paths. Preserve its Store evidence and saved bytes; a current reviewed Skill layout cutover is required.']};
-    if (state.op.status === 'pending' && mode === 'rollback' && state.steps.some(step=>isRetiredSkillPath(root,step.relative_path) && JSON.parse(step.before_json).kind !== 'missing')) return {schemaVersion:1 as const,operationId,mode,dryRun,status:'blocked',changes:[],conflicts:['Rollback would recreate retired .make-docs/agentics paths. This cutover supports forward resume only. Preserve the reviewed backup and Store bytes; inspect --resume --dry-run.']};
+    if (isRecoverableStatus(state.op.status) && mode === 'resume' && state.steps.some(step=>isRetiredSkillPath(root,step.relative_path) && JSON.parse(step.after_json).kind !== 'missing')) return {schemaVersion:1 as const,operationId,mode,dryRun,status:'blocked',changes:[],conflicts:['This saved plan writes retired .make-docs/agentics paths. Preserve its Store evidence and saved bytes; a current reviewed Skill layout cutover is required.']};
+    if (isRecoverableStatus(state.op.status) && mode === 'rollback' && state.steps.some(step=>isRetiredSkillPath(root,step.relative_path) && JSON.parse(step.before_json).kind !== 'missing')) return {schemaVersion:1 as const,operationId,mode,dryRun,status:'blocked',changes:[],conflicts:['Rollback would recreate retired .make-docs/agentics paths. This cutover supports forward resume only. Preserve the reviewed backup and Store bytes; inspect --resume --dry-run.']};
     const { ordered, remaining, conflicts } = select(state);
-    const result = { schemaVersion: 1 as const, operationId, mode, dryRun, status: state.op.status === 'pending' ? (conflicts.length ? 'blocked' : 'ready') : state.op.status, changes: ordered.map(s => ({ path: s.relative_path, to: JSON.parse(mode === 'resume' ? s.after_json : s.before_json).kind })), conflicts };
+    const result = { schemaVersion: 1 as const, operationId, mode, dryRun, status: isRecoverableStatus(state.op.status) ? (conflicts.length ? 'blocked' : 'ready') : state.op.status, changes: ordered.map(s => ({ path: s.relative_path, to: JSON.parse(mode === 'resume' ? s.after_json : s.before_json).kind })), conflicts };
     if (mode === 'resume' && !state.op.plan_complete)
         return { ...result, status: 'blocked', conflicts: ['The complete change plan was not saved. Review rollback; do not infer missing steps.'] };
     if (state.op.operation === 'legacy.recovery')
         return { ...result, status: 'blocked', conflicts: ['Legacy recovery needs its verified migration snapshot; no generic replay is safe.'] };
-    if (dryRun || state.op.status !== 'pending')
+    if (dryRun || !isRecoverableStatus(state.op.status))
         return result;
     if (conflicts.length)
         fail('snapshot-drift', `Recovery preserves changed files: ${[...new Set(conflicts)].join(', ')}`);
@@ -1891,20 +2176,21 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
     if (state.steps.some(step => path.isAbsolute(step.relative_path)))
         recoverDeadStoreLeases(canonicalInstallationPath(resolveStoreRoot()));
     // A crashed lock can be released only with same-host process death evidence.
-    withInstallationDatabase(root, db => transaction(db, () => { const owner = db.prepare('SELECT pid,hostname FROM installation_locks WHERE root_path=?').get(root) as {
-        pid: number;
-        hostname: string;
-    } | undefined; if (owner) {
+    // Delete a dead lock only when its path matches this folder by the platform key. A lock
+    // that matches only on doubt (its path cannot be resolved) stays, and recovery stops.
+    withInstallationDatabase(root, db => transaction(db, () => { const owners = findInstallationLocks(db, root); for (const owner of owners) {
+        if (owner.match !== 'same')
+            fail('ownership-unverified', `A writer lock at ${owner.root_path} may guard this checkout, but Make Docs cannot resolve that path. Make Docs keeps the lock. No project files changed.`);
         if (!isDead(owner.pid, owner.hostname))
             fail('writer-active', 'Prior writer is live or cannot be proven inactive.');
-        db.prepare('DELETE FROM installation_locks WHERE root_path=?').run(root);
-    } }), { storeRoot: store });
+    } for (const owner of owners)
+        db.prepare('DELETE FROM installation_locks WHERE root_path=? AND token=?').run(owner.root_path, owner.token); }), { storeRoot: store });
     const lock = acquireInstallationLock(root, store);
     try {
         if (state.op.operation === 'setup.skills.adopt' || state.steps.some(step => path.isAbsolute(step.relative_path)))
             held.get(root)!.globalLock = acquireGlobalAssetLock(root);
         let current = read();
-        if (current.op.status !== 'pending')
+        if (!isRecoverableStatus(current.op.status))
             return { ...result, status: current.op.status };
         assertNoOtherPendingPathClaims(root, [...current.steps.map(s => s.relative_path), ...Object.keys(current.op.after_ledger ? JSON.parse(current.op.after_ledger)?.files ?? {} : {})], store);
         const locked = select(current);
@@ -1966,15 +2252,25 @@ export function recoverInstallationOperation(projectRoot: string, operationId: s
             const recorded = entry?.skillExposure?.mode;
             if (!recorded || inspect(root, exposure).kind !== (recorded === 'symlink' ? 'symlink' : 'directory')) fail('snapshot-drift', 'Final native exposure and ownership mode disagree.');
         }
-        withInstallationDatabase(root, db => commitOperation(db, operationId, root, mode === 'rollback'), { storeRoot: store });
-        return { ...result, changes: current.steps.map(s => ({path: s.relative_path, to: JSON.parse(mode === 'resume' ? s.after_json : s.before_json).kind})), status: mode === 'resume' ? 'completed' : 'rolled-back' };
+        const projectNameConflict = withInstallationDatabase(root, db => commitOperation(db, operationId, root, mode === 'rollback'), { storeRoot: store });
+        return { ...result, changes: current.steps.map(s => ({path: s.relative_path, to: JSON.parse(mode === 'resume' ? s.after_json : s.before_json).kind})), status: mode === 'resume' ? 'completed' : 'rolled-back',
+            // Reported, not refused: the recovery finished and the stored name stayed.
+            ...(projectNameConflict ? { projectNameConflict } : {}) };
     }
     finally {
         releaseInstallationLock(lock);
     }
 }
 export type MigrationRecordKind = 'receipt' | 'quiescence' | 'snapshot' | 'backup' | 'legacy-import';
-export function recordMigrationState(projectRoot: string, kind: MigrationRecordKind, id: string, value: unknown, storeRoot?: string): void { const cid = getInstallationCheckoutId(projectRoot, storeRoot); withInstallationDatabase(projectRoot, db => db.prepare('INSERT INTO installation_migration_records VALUES (?,?,?,?) ON CONFLICT(checkout_id,kind,record_id) DO UPDATE SET record_json=excluded.record_json').run(cid, kind, id, JSON.stringify(value)), { storeRoot }); }
+export function recordMigrationState(projectRoot: string, kind: MigrationRecordKind, id: string, value: unknown, storeRoot?: string): void {
+    const root = canonicalInstallationPath(projectRoot);
+    // The binding, the register row (R-REGISTER-1), and the record commit together.
+    withInstallationDatabase(root, db => transaction(db, () => {
+        const row = bindCheckout(db, root);
+        recordProjectInRegister(db, { projectId: row.project_id, projectRoot: root });
+        db.prepare('INSERT INTO installation_migration_records VALUES (?,?,?,?) ON CONFLICT(checkout_id,kind,record_id) DO UPDATE SET record_json=excluded.record_json').run(row.checkout_id, kind, id, JSON.stringify(value));
+    }), { storeRoot });
+}
 export function readMigrationState<T = unknown>(projectRoot: string, kind: MigrationRecordKind, id: string, storeRoot?: string): T | null { if (!hasInstallationSchema(projectRoot, storeRoot))
     return null; return withInstallationDatabase(projectRoot, db => { const row = checkout(db, canonicalInstallationPath(projectRoot)); if (!row)
     return null; assertCheckoutIdentity(row, canonicalInstallationPath(projectRoot)); const record = db.prepare('SELECT record_json FROM installation_migration_records WHERE checkout_id=? AND kind=? AND record_id=?').get(row.checkout_id, kind, id) as {
@@ -2072,6 +2368,10 @@ function adoptLegacyProjectIdentity(db: StoreDatabase, root: string, projectId: 
     ));
     db.prepare('UPDATE installation_checkouts SET project_id=?,verified_at=?,verification_json=? WHERE checkout_id=?')
         .run(projectId, verifiedAt, verificationJson, current.checkout_id);
+    // The temporary ID named only this checkout. Its register row goes with it, so it neither
+    // lists a project with no checkout nor holds the config name (W32 R0 P3).
+    db.prepare('DELETE FROM project_register WHERE project_id=? AND NOT EXISTS (SELECT 1 FROM installation_checkouts WHERE project_id=?)')
+        .run(current.project_id, current.project_id);
 }
 
 /** Save useful legacy records and exact source provenance in one Store transaction. */
@@ -2099,6 +2399,7 @@ export function importInstallationState(projectRoot: string, input: {
             const prior = db.prepare("SELECT record_json FROM installation_migration_records WHERE checkout_id=? AND kind='legacy-import' AND record_id=?").get(row.checkout_id, input.importId);
             if (prior)
                 return;
+            recordProjectInRegister(db, { projectId: row.project_id, projectRoot: root });
             const ledger = db.prepare('SELECT manifest_json FROM installation_ledgers WHERE checkout_id=?').get(row.checkout_id) as {
                 manifest_json: string;
             } | undefined;

@@ -38,14 +38,14 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [x] t1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P5 closeout, active lock/quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
-- [x] t2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
-- [x] t3: Reevaluate at minimum Q-018, closed R-023 as a regression check, and the receipt-field generalization question; include Q-019 only if Persona storage is proposed and add newly relevant live items.
-- [x] t4: Record each relevant item's ID or bounded gap label, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
-- [x] t5: Record an explicit no-blocker determination and finite migration/busy/failure/correction/review budget before unlocking t8 when no blocker or gap remains.
-- [x] t6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
-- [x] t7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from a schema migration or task.
-- [x] t8: Record the Stage 1 result, authority digests, P5 checkpoint evidence, receipt-field disposition, and implementation unlock or stop result.
+- [x] T1: Verify the exact worktree, branch, HEAD, free disk, dirty-state allowlist, accepted P5 closeout, active lock/quiescence, and implementation authorization; stop on unexpected user work or unsafe growth.
+- [x] T2: Reread every Source PRD and PRD 03 from the live worktree and record each revision or content digest.
+- [x] T3: Reevaluate at minimum Q-018, closed R-023 as a regression check, and the receipt-field generalization question; include Q-019 only if Persona storage is proposed and add newly relevant live items.
+- [x] T4: Record each relevant item's ID or bounded gap label, digest, impact, classification (`blocking`, `impacted-nonblocking`, `unrelated`, `closed-regression-check`, or `new-authority-gap`), disposition, and rationale.
+- [x] T5: Record an explicit no-blocker determination and finite migration/busy/failure/correction/review budget before unlocking T8 when no blocker or gap remains.
+- [x] T6: Stop before implementation for any blocker or authority gap and present an owner decision package with source anchors, affected phase and PRDs, bounded options and trade-offs, recommendation, consequences, exact PRD/register/history edits, focused validation, and a decision-only commit boundary; create no standalone decision file.
+- [x] T7: Require canonical authority updates, focused validation, a separate decision commit, and its recorded SHA before unlock; never infer closure from a schema migration or task.
+- [x] T8: Record the Stage 1 result, authority digests, P5 checkpoint evidence, receipt-field disposition, and implementation unlock or stop result.
 
 ### Acceptance criteria
 
@@ -75,10 +75,10 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [x] t9: Add ordered idempotent schema migrations for general `runs` and `run_evidence` relations with stable project/run/evidence identities, lifecycle stages, statuses, checkpoints, optimistic versions, bounded metadata, and timestamps defined by PRD 38. Add one internal checkpoint journal that stores only checkpoint and receipt-projection metadata and no Store payload.
-- [x] t10: Keep the existing `playbook_runs` relation and rows byte-opaque and unchanged during checkpoint-9 migration and current lifecycle operations. Exclude them from current lifecycle listings, conversions, inference, merging, and new foreign-key behavior. Do not change the existing explicit project-prune contract.
-- [x] t11: Classify the Store before any setup mutation and fail closed for corrupt, unknown, newer, or indeterminate state. Commit checkpoint-9 schema DDL, `user_version`, and the internal journal row in one SQLite write transaction with bounded busy handling. Use that transaction as the Store rollback and cross-process serialization boundary. Do not replace or restore the whole Store or its database after commit.
-- [x] t12: Prove repeat application is idempotent, the integrated fresh and existing setup paths cannot bypass checkpoint 9, concurrent writers serialize, and an interrupted migration cannot expose a partial current schema or journal.
+- [x] T9: Add ordered idempotent schema migrations for general `runs` and `run_evidence` relations with stable project/run/evidence identities, lifecycle stages, statuses, checkpoints, optimistic versions, bounded metadata, and timestamps defined by PRD 38. Add one internal checkpoint journal that stores only checkpoint and receipt-projection metadata and no Store payload.
+- [x] T10: Keep the existing `playbook_runs` relation and rows byte-opaque and unchanged during checkpoint-9 migration and current lifecycle operations. Exclude them from current lifecycle listings, conversions, inference, merging, and new foreign-key behavior. Do not change the existing explicit project-prune contract.
+- [x] T11: Classify the Store before any setup mutation and fail closed for corrupt, unknown, newer, or indeterminate state. Commit checkpoint-9 schema DDL, `user_version`, and the internal journal row in one SQLite write transaction with bounded busy handling. Use that transaction as the Store rollback and cross-process serialization boundary. Do not replace or restore the whole Store or its database after commit.
+- [x] T12: Prove repeat application is idempotent, the integrated fresh and existing setup paths cannot bypass checkpoint 9, concurrent writers serialize, and an interrupted migration cannot expose a partial current schema or journal.
 
 ### Acceptance criteria
 
@@ -102,11 +102,11 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [x] t13: Activate the P3-pending `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` handlers. Preserve the `make-docs run lifecycle <operation>` CLI paths and derived MCP tools. Implement PRD-defined transition validation and optimistic concurrency. Reads accept every status. Checkpoints accept `active` or `paused`. Evidence attachment accepts every status without changing status or reopening a terminal run. Pause accepts `active`; resume accepts `paused`; complete accepts `active`; and fail and abandon accept `active` or `paused`. Terminal runs reject checkpoints and later status transitions.
-- [x] t14: Restrict current `run_type` and lifecycle/status vocabularies to the PRD-defined values; reject unknown values rather than converting them into arbitrary metadata.
-- [x] t15: Store only bounded evidence references with kind, project-relative path or sanitized external reference, optional digest, and timestamp; reject bodies, screenshots, recordings, logs, prompts, secrets, credentials, and arbitrary payloads.
-- [x] t16: Keep repository PRDs, work, scenarios, findings, evidence artifacts, gates, and history authoritative; Store rows are rebuildable operational projection and never close those records.
-- [x] t17: Implement `run-capture-unavailable` as a typed no-repository-mutation, no-automatic-retry outcome that is nonblocking unless a direct Store/run-capture gate explicitly requires success.
+- [x] T13: Activate the P3-pending `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon` handlers. Preserve the `make-docs run lifecycle <operation>` CLI paths and derived MCP tools. Implement PRD-defined transition validation and optimistic concurrency. Reads accept every status. Checkpoints accept `active` or `paused`. Evidence attachment accepts every status without changing status or reopening a terminal run. Pause accepts `active`; resume accepts `paused`; complete accepts `active`; and fail and abandon accept `active` or `paused`. Terminal runs reject checkpoints and later status transitions.
+- [x] T14: Restrict current `run_type` and lifecycle/status vocabularies to the PRD-defined values; reject unknown values rather than converting them into arbitrary metadata.
+- [x] T15: Store only bounded evidence references with kind, project-relative path or sanitized external reference, optional digest, and timestamp; reject bodies, screenshots, recordings, logs, prompts, secrets, credentials, and arbitrary payloads.
+- [x] T16: Keep repository PRDs, work, scenarios, findings, evidence artifacts, gates, and history authoritative; Store rows are rebuildable operational projection and never close those records.
+- [x] T17: Implement `run-capture-unavailable` as a typed no-repository-mutation, no-automatic-retry outcome that is nonblocking unless a direct Store/run-capture gate explicitly requires success.
 
 ### Acceptance criteria
 
@@ -130,9 +130,9 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [x] t18: Return a typed receipt for each successful Store mutation containing run identity, operation, Store schema version, resulting optimistic version, and commit time, plus only additional fields explicitly approved by the Stage 1 receipt-generalization disposition.
-- [x] t19: Make receipt serialization stable across CLI and MCP while preserving the distinction between a Store commit and repository write, validation, publication, external delivery, UAT acceptance, or phase closure.
-- [x] t20: Prove failed, conflicted, unavailable, and rolled-back lifecycle mutations cannot emit a success receipt and that retry uses the latest explicit optimistic version rather than hidden repetition. For checkpoint 9, project receipt persistence projects idempotently from the committed journal, retries once, and returns a typed stop result if both attempts fail.
+- [x] T18: Return a typed receipt for each successful Store mutation containing run identity, operation, Store schema version, resulting optimistic version, and commit time, plus only additional fields explicitly approved by the Stage 1 receipt-generalization disposition.
+- [x] T19: Make receipt serialization stable across CLI and MCP while preserving the distinction between a Store commit and repository write, validation, publication, external delivery, UAT acceptance, or phase closure.
+- [x] T20: Prove failed, conflicted, unavailable, and rolled-back lifecycle mutations cannot emit a success receipt and that retry uses the latest explicit optimistic version rather than hidden repetition. For checkpoint 9, project receipt persistence projects idempotently from the committed journal, retries once, and returns a typed stop result if both attempts fail.
 
 ### Acceptance criteria
 
@@ -156,10 +156,10 @@ This phase implements migration checkpoint 9. The Store receives `runs` and `run
 
 ### Tasks
 
-- [x] t21: Run focused schema, integrated-setup migration, transition, cross-process concurrency, busy, evidence-reference, receipt, CLI/MCP parity, privacy, transactional rollback, journal recovery, typed double-projection-failure, quiescence, migration-safety, deterministic-kit, and whitespace validation within the existing finite budget. Do not run frozen Playbook package operations for conformance proof. Do not expand the fixed 20-case Store budget or five planned Store failure points.
-- [x] t22: Compare pre/post fixtures to prove checkpoint-9 migration and current lifecycle operations keep every legacy `playbook_runs` row and unrelated Store table unchanged. Prove that current lifecycle listings exclude legacy rows. Preserve the existing explicit project-prune contract.
-- [x] t23: Obtain independent review of transactional safety, pre-mutation classification, cross-process serialization, journal recovery, typed projection failure, repository-vs-Store authority, receipt semantics, unavailable behavior, legacy preservation, active quiescence, and migration safety; correct only actionable defects within budget.
-- [x] t24: Record checkpoint-9 completion evidence, exact schema/operation versions, remaining nonblocking items, and the locked checkpoint-10/P7 handoff while keeping quiescence active.
+- [x] T21: Run focused schema, integrated-setup migration, transition, cross-process concurrency, busy, evidence-reference, receipt, CLI/MCP parity, privacy, transactional rollback, journal recovery, typed double-projection-failure, quiescence, migration-safety, deterministic-kit, and whitespace validation within the existing finite budget. Do not run frozen Playbook package operations for conformance proof. Do not expand the fixed 20-case Store budget or five planned Store failure points.
+- [x] T22: Compare pre/post fixtures to prove checkpoint-9 migration and current lifecycle operations keep every legacy `playbook_runs` row and unrelated Store table unchanged. Prove that current lifecycle listings exclude legacy rows. Preserve the existing explicit project-prune contract.
+- [x] T23: Obtain independent review of transactional safety, pre-mutation classification, cross-process serialization, journal recovery, typed projection failure, repository-vs-Store authority, receipt semantics, unavailable behavior, legacy preservation, active quiescence, and migration safety; correct only actionable defects within budget.
+- [x] T24: Record checkpoint-9 completion evidence, exact schema/operation versions, remaining nonblocking items, and the locked checkpoint-10/P7 handoff while keeping quiescence active.
 
 ### Acceptance criteria
 

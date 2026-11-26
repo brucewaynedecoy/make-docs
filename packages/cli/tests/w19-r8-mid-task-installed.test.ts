@@ -82,7 +82,7 @@ describe("W19 R8 installed mid-task access", () => {
       expect(independentBefore.isError, JSON.stringify(independentBefore)).not.toBe(true);
 
       const blocked = await client.callTool({
-        name: "project_status",
+        name: "project_state_status",
         arguments: { targetRoot: project },
       });
       expect(blocked.isError).toBe(true);
@@ -96,7 +96,7 @@ describe("W19 R8 installed mid-task access", () => {
       ]);
 
       const retried = await client.callTool({
-        name: "project_status",
+        name: "project_state_status",
         arguments: { targetRoot: project },
       });
       expect(retried.isError, JSON.stringify(retried)).not.toBe(true);

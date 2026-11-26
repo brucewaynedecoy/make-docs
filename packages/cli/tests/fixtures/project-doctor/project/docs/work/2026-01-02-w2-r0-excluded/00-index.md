@@ -1,0 +1,1 @@
+- [ ] t1: This folder is excluded in the exclusion test.

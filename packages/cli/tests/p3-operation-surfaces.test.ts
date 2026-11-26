@@ -1,6 +1,8 @@
 import { LEGACY_COMPATIBILITY_OPERATION_IDS } from "../src/migration";
 import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync, existsSync } from "node:fs";
+import { withInstallationDatabase } from "../src/store/installation-state";
+import { getStoreDatabasePath, resolveStoreRoot } from "../src/store/paths";
 import os from "node:os";
 import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -64,7 +66,24 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     ];
     const w23R0P2Ids = ["work.backlog.snapshot"];
     const w23R0P5Ids = ["work.backlog-cache.lookup", "work.backlog-cache.write"];
-    const p3Admitted = admitted.filter((entry) => !entry.id.startsWith("backlog.review.") && !entry.id.startsWith("project.path-hygiene.") && !entry.id.startsWith("project.checkout-move.") && !entry.id.startsWith("project.checkout-register.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id) && !w23R0P5Ids.includes(entry.id));
+    // W32 R0 P3 admits `project.register.list` (`make-docs project list`) separately.
+    const w32R0P3Ids = ["project.register.list"];
+    // W34 R0 P1 admits the four Skill check operations (PRD 39 R-SKILL-CHECK-1).
+    const w34R0P1Ids = ["decomposition.output.validate", "project.relations.list", "project.markdown-style.validate", "project.markdown-style.repair"];
+    // W29 R0 P4 admits the nine work queue operations (PRD 52 R-WORK-QUEUE-12).
+    const w29R0P4Ids = ["status", "sync", "next", "claim", "release", "report", "close", "export", "add"].map((verb) => `work.queue.${verb}`);
+    // W30 R0 P3 admits the ten factory operations (PRD 53 R-FACTORY-49).
+    const w30R0P3Ids = ["factory.status","factory.tools.save","factory.workflow.save","factory.workflow.show","factory.workflow.list","factory.proof.save","factory.assignment.start","factory.assignment.save","factory.assignment.list","factory.restore","factory.tools.list","factory.file-backup.save","factory.grant-use.record","factory.workflow.clean"];
+    expect(admitted.filter(entry => w30R0P3Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
+      w30R0P3Ids.map(id => ({ id, status: "active" })),
+    );
+    expect(admitted.filter(entry => w29R0P4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
+      w29R0P4Ids.map(id => ({ id, status: "active" })),
+    );
+    expect(admitted.filter(entry => w34R0P1Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
+      w34R0P1Ids.map(id => ({ id, status: "active" })),
+    );
+    const p3Admitted = admitted.filter((entry) => !w34R0P1Ids.includes(entry.id) && !w29R0P4Ids.includes(entry.id) && !w30R0P3Ids.includes(entry.id) && !w32R0P3Ids.includes(entry.id) && !entry.id.startsWith("backlog.review.") && !entry.id.startsWith("project.path-hygiene.") && !entry.id.startsWith("project.doctor.") && !entry.id.startsWith("setup.store.") && !entry.id.startsWith("project.checkout-move.") && !entry.id.startsWith("project.checkout-register.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id) && !w23R0P5Ids.includes(entry.id));
     expect(admitted.filter(entry => r2P4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "performance.evidence.validate", status: "active" },
     ]);
@@ -81,6 +100,9 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(admitted.filter(entry => w23R0P5Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "work.backlog-cache.lookup", status: "active" },
       { id: "work.backlog-cache.write", status: "active" },
+    ]);
+    expect(admitted.filter(entry => w32R0P3Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
+      { id: "project.register.list", status: "active" },
     ]);
     const p5Admitted = admitted.filter((entry) => entry.id.startsWith("project.path-hygiene."));
     expect(admitted.map((entry) => entry.id)).toEqual([...ADMITTED_OPERATION_IDS]);
@@ -99,14 +121,21 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
       expect(operationCliCommand(entry.id)).toBe(entry.cli.command);
     }
 
-    expect(operationCliCommand("resource.list")).toBe("make-docs resource list");
-    expect(operationCliCommand("resource.read")).toBe("make-docs resource read <uri>");
-    expect(operationCliCommand("resource.ensure")).toBe("make-docs resource ensure <uri>");
+    // W33 R0 P5: the usage line comes from each command's help entry.
+    expect(operationCliCommand("resource.list")).toBe(
+      "make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json] [--target <dir>]",
+    );
+    expect(operationCliCommand("resource.read")).toBe(
+      "make-docs resource read <uri> [--origin <effective|local|installed>] [--format raw|json] [--target <dir>]",
+    );
+    expect(operationCliCommand("resource.ensure")).toBe(
+      "make-docs resource ensure <uri> --allow-write --approve resource-projection-write [--dry-run] [--target <dir>]",
+    );
     expect(operationCliCommand("project.surface.ensure")).toBe(
-      "make-docs project surface ensure <archive|artifacts|assets>",
+      "make-docs project surface ensure <archive|artifacts|assets> [--dry-run] [--target-root <path>] [--json]",
     );
     expect(operationCliCommand("uat.evidence-reference.validate")).toBe(
-      "make-docs run uat evidence-reference validate",
+      "make-docs check uat evidence [--payload-json <file-or-json>] [--target-root <project>] [--persona <slug>] [--json]",
     );
 
     const lineages = Object.fromEntries(
@@ -127,13 +156,16 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(LEGACY_COMPATIBILITY_OPERATION_IDS.some((id) => id.startsWith("protocol."))).toBe(false);
     for (const id of LEGACY_COMPATIBILITY_OPERATION_IDS) {
       expect(() => operationCliCommand(id)).toThrow("Unknown operation identifier");
-      expect(() => deriveMcpToolName(id)).toThrow("Missing MCP tool name for operation");
+      expect(() => deriveMcpToolName(id)).toThrow("Unknown operation identifier");
     }
   });
 
   it("keeps activated UAT inputs strict and rejects unknown IDs", async () => {
     await expect(invokeOperation("uat.scenario.validate", {}, createExecutionContext({ surface: "test" }))).rejects.toThrow();
-    await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow("verified installation evidence in the Store");
+    // Register D-069, option B (W29 R0 P6): with no Store, a write command refuses before it opens the Store and creates none.
+    // The refusal for a Store without installation evidence is covered in w22-r1-ownership.test.ts.
+    await expect(runCli(["project", "surface", "ensure", "assets"])).rejects.toThrow("This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store.");
+    expect(existsSync(getStoreDatabasePath(resolveStoreRoot()))).toBe(false);
     expect(() => getOperation("unknown.operation")).toThrow("Unknown operation identifier");
   });
 
@@ -143,7 +175,10 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     await runCliEntry(runCli, ["project", "surface", "ensure", "assets"], {
       machineReadable: false, writeError: (value) => { humanError += value; },
     });
-    expect(humanError).toBe("This project does not have verified installation evidence in the Store. Run `make-docs setup reconfigure` before you ensure a project surface.\n");
+    // Register D-069, option B (W29 R0 P6): no Store gives the typed Store refusal and creates no Store.
+    expect(humanError).toContain("This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store.");
+    expect(humanError).toContain("Run make-docs setup to create the Store, then run this command again.");
+    expect(existsSync(getStoreDatabasePath(resolveStoreRoot()))).toBe(false);
   });
 
   it("keeps CLI, derived MCP tools, and native MCP resources byte- and provenance-equivalent", async () => {
@@ -415,6 +450,9 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     );
     __setResourceOperationRuntimeForTests(() => ({ provider, project: projectState }));
     const input = { uri: entry.identity.uri, targetRoot: project };
+    // A write command no longer creates a missing Store (register D-069, option B, W29 R0 P6).
+    // Create it here the way the shared Store session used to, so this test keeps checking permission and approval.
+    withInstallationDatabase(project, () => undefined);
 
     await expect(
       runCli(["resource", "ensure", entry.identity.uri, "--target", project]),

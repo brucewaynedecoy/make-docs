@@ -43,7 +43,7 @@ Implementation is not authorized by this package. The affected real project and 
 
 ## Usage Notes
 
-- Use task IDs t1-t16 across the one phase. Do not reset IDs between stages.
+- Use task IDs T1-T16 across the one phase. Do not reset IDs between stages.
 - Recheck branch, HEAD, dirty files, disk, installed CLI, and relevant Store state before implementation. Preserve concurrent edits. Do not create or switch a branch or worktree without explicit user permission.
 - Do not edit the affected real project or its Store. Build fixtures in disposable roots. Use an isolated copy only after its source and privacy boundary are reviewed.
 - Build one tarball after source tests pass. Record its digest. Use that exact tarball for every packed case and the owner review.

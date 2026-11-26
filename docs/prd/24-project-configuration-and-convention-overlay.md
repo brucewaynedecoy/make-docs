@@ -30,6 +30,7 @@ Install, reconfigure, provider refresh, package sync, cache recovery, audit, bac
 - R-CONFIG-STATE-6 (MUST): a path-only move reads config but does not create it, mint identity, rewrite comments or settings, add a checkout ID, or apply changed desired settings. Later setup refreshes the bound installation record and separately reviews any desired-state changes. Missing or conflicting identity follows a separately admitted repair; move apply cannot bootstrap it.
 - R-CONFIG-STATE-7 (MUST): a monorepo root and an independently configured kit remain separate explicit targets with their own project and checkout identities. Parent approval cannot retarget, adopt, or change nested kit bindings. Registering a distinct checkout is a separate reviewed project-write/adoption action under [PRD 38](38-global-store-and-project-state.md#checkout-binding-and-path-update-safety-r-checkout).
 - R-CONFIG-STATE-8 (MUST): explicit adoption on a new machine reads valid saved harness, method, Skill, capability, and resource choices before fresh defaults. The machine's maximum method restricts a saved method but never selects one. Missing or conflicting desired settings remain unanswered choices. Setup does not rewrite a valid project ID or mint a second one to finish adoption.
+- R-CONFIG-STATE-9 (MUST): `projectName` is optional declarative identity next to `projectId`. Its form and its Store record follow [PRD 38](38-global-store-and-project-state.md) R-ID-8. Config validation refuses a `projectName` that does not match that form.
 
 ### Presentation Overlay
 
@@ -105,6 +106,13 @@ The project harness-integration schema is separate from `harnessCapabilities`. I
 - R-CONFIG-HARNESS-4 (MUST): effective access is the intersection of valid machine intent, live native configuration, verified Store receipt, and project intent. The more restrictive valid state wins.
 - R-CONFIG-HARNESS-5 (MUST): setup preserves unknown fields and user-owned harness entries. Malformed, conflicting, or unsafe known entries stop automatic change and receive a reviewable diagnostic.
 - R-CONFIG-HARNESS-6 (MUST): the production project setup flow writes the reviewed harness selection and connection intent through one comment- and unknown-key-preserving `.make-docs/config.yaml` writer. Dry-run shows the exact change. A skipped machine method can write `disable` or preserve the current project choice, as reviewed. Setup never requires a test helper or manual file edit to create valid project intent.
+
+### Work and Factory Settings
+
+- R-CONFIG-WORK-1 (MUST): an optional top-level `work` block holds shared work store intent: `projection` (`on` or `off`, default `on`) for the `docs/work/` repo copy, `syncHold` for the repository-relative work folders or files that sync never writes or removes, and `tracker` for the selected tracker connection name and its field map. [PRD 52](52-work-store-and-work-queue.md) owns their meaning. The local store is the only v1 connection.
+- R-CONFIG-WORK-2 (MUST): an optional top-level `factory` block holds portable workflow choices: each workflow's type and type version; the roles it needs, with each role's job, the capabilities it needs, what it returns, and the context kinds it gets; its round limit and other limits; its gates and added escalation events; its optional steps such as preflight; its integration owner role; and its human channel kind. [PRD 53](53-factory-setup-and-orchestration.md) owns their meaning, and its never-log list applies to the whole block.
+- R-CONFIG-WORK-3 (MUST): neither block holds grants, tool bindings, task handles, machine IDs, machine paths, digests, receipts, claims, locks, proof results, or secrets. Those stay in the Store or in the tools that own them. Validation rejects them in either block. In the `work` block, it names each such key and what it holds, and it refuses a field map value that looks like a key or a token.
+- R-CONFIG-WORK-4 (MUST): Make Docs writes these blocks only through the same comment- and unknown-key-preserving config writer that setup uses, after the person reviews the change. Dry run shows the exact change. An absent block keeps the defaults: repo copies on, no tracker map beyond the local store, and no factory workflow.
 
 ### Validation
 
@@ -242,6 +250,46 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Adoption reads valid saved methods and selections. A complete local resource set may become the reviewed selection for this checkout. If a legacy config has no resource selection, adoption keeps its bytes and records the applied selection in the Store. New installs save an explicit resource selection in config.
 - Rationale: A cloned project should keep its declared choices without treating local bytes as prior Store ownership.
 - Source: [Portable checkout adoption plan](../plans/2026-11-13-w22-r2-portable-checkout-adoption/02-prd-authority.md).
+
+### 2026-11-21 — W29 R0 and W30 R0
+
+- Affected requirement or section: `Work and Factory Settings` (R-CONFIG-WORK-1 to R-CONFIG-WORK-4).
+- Previous contract: Config had no `work` or `factory` key, and the validator rejected unknown top-level keys.
+- Replacement contract: Optional `work` and `factory` blocks hold portable work store and workflow intent. They hold no machine state, grants, or secrets, and use the preserving config writer.
+- Rationale: Teammates and other machines need the same work and workflow intent, while machine bindings and permissions stay local.
+- Source: [W29 R0 plan](../plans/2026-11-21-w29-r0-work-store/00-overview.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: R-CONFIG-STATE-9.
+- Previous contract: `projectId` was the only project identity in config.
+- Replacement contract: config may also hold a short `projectName` under PRD 38 R-ID-8.
+- Rationale: project resource URIs need a readable name for the project.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
+
+### 2026-11-23 — W29 R0 P4
+
+- Affected requirement or section: R-CONFIG-WORK-1.
+- Previous contract: the `work` block held `projection` and `tracker`, and the config validator did not accept a `work` key yet.
+- Replacement contract: the `work` block also holds `syncHold`, a list of work folders or files under `docs/work/` or `.make-docs/archive/work/` that a person holds, so sync never writes or removes them. The config validator accepts the `work` block and checks it against the work block contract.
+- Rationale: the owner chose on 2026-11-23 that the sync hold list lives in project config as paths that a person sets (W29 R0 P4 T19).
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-work-queue-operations)
+
+### 2026-11-23 — W29 R0 P5
+
+- Affected requirement or section: R-CONFIG-WORK-3.
+- Previous contract: the `work` block refused any key it did not accept with the same message, and the field map accepted any value in the field name form.
+- Replacement contract: validation names each state or secret key in the `work` block with its own words (`work-block-state-field`), and refuses a field map value that looks like a key or a token.
+- Rationale: W29 R0 P5 T4. A person who pastes a digest or a token into the block learns why it does not belong there.
+- Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
+
+### 2026-11-23 — W30 R0 Factory Owner Review
+
+- Affected requirement or section: R-CONFIG-WORK-2.
+- Previous contract: the `factory` block held each workflow's type, roles, capability needs, limits, optional steps, and added escalation events.
+- Replacement contract: the block also holds the type version, each role's job, returns, and context kinds, the round limit, the gates, the integration owner role, and the human channel kind. These fields are the portable definition that the factory's resolved plan joins with the Store binding. The PRD 53 never-log list applies to the whole block. This is new behavior.
+- Rationale: the owner approved the resolved workflow plan on 2026-11-23. The portable half of the plan must live in committed config.
+- Source: [Factory design](../designs/2026-11-21-factory.md) and [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-55.
 
 ## Source Anchors
 

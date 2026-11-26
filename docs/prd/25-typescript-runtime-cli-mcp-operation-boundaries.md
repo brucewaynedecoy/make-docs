@@ -60,22 +60,27 @@ Packed-package validation executes the generated tarball through `npx --package`
 ### MCP Profile Exposure
 
 - R-MCP-PROFILE-1 (MUST): one Make Docs CLI, operation registry, operation core, resource resolver, and access policy serve all MCP profiles. Profile selection narrows exposure only. It does not grant Store, project, or host-configuration access or change operation inputs, outputs, write gates, approvals, or typed errors.
-- R-MCP-PROFILE-2 (MUST): the intent profiles are `core`, `setup`, `workflow`, `quality`, and `backlog`. `core` covers installed state, manifest, config, common system resources, and operation-domain discovery. `setup` covers install, sync, repair, compatibility, and layout. `workflow` covers lifecycle, project-state context, and work evidence. `quality` covers PRD, performance-evidence, UAT, and related validation. `backlog` covers backlog snapshots, the backlog review cache, and the Backlog Review MCP App. A tool or resource may belong to more than one intent profile.
-- R-MCP-PROFILE-3 (MUST): `all` is the exact deduplicated union of the five intent profiles for ready tools and native MCP resources. `make-docs mcp` defaults to `all` over stdio and preserves the existing single-server connection. `make-docs mcp --profile core|setup|workflow|quality|backlog|all` selects a filtered stdio server. Unknown profiles fail before startup with the allowed choices.
+- R-MCP-PROFILE-2 (MUST): the intent profiles are `core`, `setup`, `workflow`, `quality`, `backlog`, and `factory`. `core` covers installed state, manifest, config, common system resources, and operation-domain discovery. `setup` covers install, sync, repair, compatibility, and layout. `workflow` covers lifecycle, project-state context, and work evidence. `quality` covers PRD, performance-evidence, UAT, and related validation. `backlog` covers backlog snapshots, the backlog review cache, the work queue, and the Backlog Review MCP App. `factory` covers factory setup, tool list, workflow, workflow removal, proof, assignment, file backup, grant use, status, and copy restore operations. A tool or resource may belong to more than one intent profile.
+- R-MCP-PROFILE-3 (MUST): `all` is the exact deduplicated union of the six intent profiles for ready tools and native MCP resources. `make-docs mcp` defaults to `all` over stdio and preserves the existing single-server connection. `make-docs mcp --profile core|setup|workflow|quality|backlog|factory|all` selects a filtered stdio server. Unknown profiles fail before startup with the allowed choices.
 - R-MCP-PROFILE-4 (MUST): each ready tool and native MCP resource has an explicit nonempty profile assignment. `tools/list` and `resources/list` return only assigned entries for a selected profile. Calls and reads outside that profile fail without running the hidden tool or exposing the hidden resource bytes. An allowed resource returns the same bytes and provenance in each profile and in `all`. CLI resource operations keep their full canonical inventory.
 - R-MCP-PROFILE-5 (MUST): the `backlog` profile includes `work.backlog.snapshot`, `work.backlog-cache.lookup`, and `work.backlog-cache.write` regardless of the cache's Store access. It owns the Backlog Review UI resource. When the app operations `backlog.review.open` and `backlog.review.refresh` are admitted, their MCP tools use explicit names from the checked name map and belong to `backlog` and `all`. The app's owning authority defines their detailed behavior. Profile membership does not change cache write access.
-- R-MCP-PROFILE-6 (MUST): the same server factory may serve fixed Streamable HTTP paths `/mcp/core`, `/mcp/setup`, `/mcp/workflow`, `/mcp/quality`, `/mcp/backlog`, and `/mcp/all` where a supported MCP App or host needs HTTP. Stdio remains supported. Transport and route selection do not bypass caller identity, operation admission, authorization, or write permission. Local HTTP binds to loopback by default; public deployment needs separate authority.
+- R-MCP-PROFILE-6 (MUST): the same server factory may serve fixed Streamable HTTP paths `/mcp/core`, `/mcp/setup`, `/mcp/workflow`, `/mcp/quality`, `/mcp/backlog`, `/mcp/factory`, and `/mcp/all` where a supported MCP App or host needs HTTP. Stdio remains supported. Transport and route selection do not bypass caller identity, operation admission, authorization, or write permission. Local HTTP binds to loopback by default; public deployment needs separate authority.
 - R-MCP-PROFILE-7 (SHOULD): hosts that support tool search or deferred loading should use them with short, task-specific profile descriptions. A profile reduces model-visible context only when the host selectively connects or defers definitions. About ten functions per namespace is a design target, not a protocol limit. Profile metadata does not force a host to defer tools.
+- R-MCP-PROFILE-8 (MUST): the work queue tools `work_status`, `work_sync`, `work_next`, `work_claim`, `work_release`, `work_report`, `work_close`, `work_export`, and `work_add` belong to `backlog`, `workflow`, and `all`. The factory tools belong to `factory` and `all`. [PRD 52](52-work-store-and-work-queue.md) and [PRD 53](53-factory-setup-and-orchestration.md) own their behavior. Profile membership does not change write permission or Store access.
+- R-MCP-PROFILE-9 (MUST): the project doctor tools `project_doctor_check` and `project_doctor_fix` belong to `quality`, `setup`, and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR owns their behavior. `project_doctor_check` reads only. `project_doctor_fix` needs the existing project write permission and Store write permission.
+- R-MCP-PROFILE-10 (MUST): `project_list` belongs to `core` and `all`. `setup_store_check` and `setup_store_clean` belong to `setup` and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-STORE-CMD owns their behavior. `project_list` and `setup_store_check` read only. `setup_store_clean` needs the Store write permission.
+- R-MCP-PROFILE-11 (MUST): `check_decomposition` belongs to `quality` and `all`. `project_relations_list` belongs to `workflow` and `all`. `project_markdown_validate` belongs to `setup`, `quality`, and `all`. `project_markdown_repair` belongs to `setup` and `all`. [PRD 39](39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK owns their behavior. `check_decomposition`, `project_relations_list`, and `project_markdown_validate` read only and need the project read permission. `project_markdown_repair` needs the existing project write permission.
 
 ### Current MCP Surface
 
 The current MCP surface must:
 
+- name every tool by [PRD 39](39-cli-command-model-and-operation-registry.md) R-NAME-3, as its CLI path after `make-docs` with underscores, and keep a renamed tool's old name as a hidden alias only under PRD 39 R-MIG-1;
 - inspect installed project state, manifest provenance, package runtime metadata, config labels, operation domains, and compatibility classification through the same loaders used by the CLI;
 - list, read, and ensure peer `contract`, `prompt`, `reference`, and `template` resources with the same URI normalization, local-projection trust checks, installed-provider fallback, bytes, media types, and typed failures as the canonical CLI resource operations;
 - use native MCP resource discovery/read where supported without creating a second registry, resolver, or content representation;
 - produce dry-run install/sync plans from the CLI planner before mutation;
-- expose exactly one MCP tool for every admitted registry operation, with its unique name from the checked MCP name map and its description, input shape, mutation classification, and pending status from the registry definition;
+- expose exactly one MCP tool for every admitted registry operation, with its unique name derived from its CLI path under PRD 39 R-NAME-3 and its description, input shape, mutation classification, and pending status from the registry definition;
 - route every admitted tool through the shared operation core so input validation, pending-lineage refusal, dry-run behavior, named approvals, and write gating cannot diverge by surface;
 - require `allowWrite=true` for every mutating tool while allowing `dryRun=true` to exercise the same operation without writes; and
 - prove registry-to-MCP parity in both directions so no admitted operation lacks a tool and no tool invents an unregistered operation.
@@ -84,7 +89,7 @@ New projection mutations, deterministic validators, and no-scripts replacements 
 
 ### Development Contract
 
-- Operations project to the canonical `resource`, `project`, or `run` CLI subtree declared by registry metadata. CLI/MCP parity is derived from or conformance-checked against the operation registry rather than maintained by hand. Modular operation domains use the shared operation core's typed contracts, injected execution context for uniform dry-run, write-permission, and approval gating, and one-way surface-to-core dependencies; [39-cli-command-model-and-operation-registry.md](39-cli-command-model-and-operation-registry.md) owns the public grammar and registry.
+- Operations project to the canonical CLI group declared by registry metadata under [PRD 39](39-cli-command-model-and-operation-registry.md) R-TOP-1. CLI/MCP parity is derived from or conformance-checked against the operation registry rather than maintained by hand. Modular operation domains use the shared operation core's typed contracts, injected execution context for uniform dry-run, write-permission, and approval gating, and one-way surface-to-core dependencies; [39-cli-command-model-and-operation-registry.md](39-cli-command-model-and-operation-registry.md) owns the public grammar and registry.
 
 Deterministic logic must live in modular TypeScript operation domains, not skill-local scripts and not monolithic catch-all files.
 
@@ -99,7 +104,7 @@ Playbooks and Protocols have no runtime, registry, compiler, package, or MCP sur
 ### Operation Access Contract
 
 - R-ACCESS-1 (MUST): every admitted operation declares `access.store`, `access.project`, and `access.hostConfig` as `none`, `read`, or `write`, except that `hostConfig` permits only `none` or `write`. This metadata is part of the operation definition and is not inferred from a command name or transport.
-- R-ACCESS-2 (MUST): the operation runner opens no Store session when `access.store` is `none`. `resource.list` and `resource.read` use `store: none`, `project: read`, and `hostConfig: none`; their installed-provider path remains available without a harness integration method.
+- R-ACCESS-2 (MUST): the operation runner opens no Store session when `access.store` is `none`. `resource.list` and `resource.read` use `store: none`, `project: read`, and `hostConfig: none`; their installed-provider path remains available without a harness integration method. A system-resource read never opens a Store session. A `make-docs://project/<project>/` read under [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-5 opens one read-only Store session itself, after the harness check for Store read, and a native MCP `resources/read` of such a URI uses the same handler and sends the MCP connection, as a tool call does. An agent's project URI read uses the harness grant of the folder where the agent works, never the grant of the project that the URI names: a Store read grant there allows every project URI. When that folder is not a Make Docs project, the read is refused as `store-not-configured`, and the refusal says so without telling the person to set that folder up. The direct CLI route needs no grant.
 - R-ACCESS-3 (MUST): CLI, MCP, command-rule, and first-party extension adapters invoke the same operation core. An adapter exposes only the operations admitted for its harness and connection method. MCP is one adapter method, not a universal harness requirement.
 - R-ACCESS-4 (MUST): command-rule generation uses the verified Make Docs executable and the smallest admitted command prefixes. It never approves shell wrappers, package runners, `setup system`, update, uninstall, backup, removal, or another broader command family.
 - R-ACCESS-5 (MUST): host configuration writes require a separate system approval and an adapter-owned planner. The planner preserves unknown and user-owned entries, verifies the exact applied result, and records a Store receipt. For TOML, preservation includes valid repeated arrays of tables, repeated key names in separate array elements, and repeated nested normal-table paths under separate elements. Duplicate keys inside one element, duplicate normal-table headers, and normal-table versus array-table conflicts remain blocked. Project setup cannot use its project approval as host-write authority.
@@ -142,7 +147,7 @@ The following operations are accepted for the 2.0.6 target. They are unavailable
 
 MCP must not expose hidden provider state as the only way to understand a repository. Local declarative config and the always-present documentation routers keep the project understandable. Installation ownership and operational records belong only to the global Store under [PRD 38](38-global-store-and-project-state.md); a local manifest is not required or restored. Local system-resource bodies remain optional.
 
-The resource resolver accepts only stable system-resource URIs, resolves a trustworthy selected local projection before the installed provider, and rejects traversal, invalid type segments, stale or divergent projected content, and unavailable provider state with typed errors. Projection provenance records provider, version or immutable ref, hash algorithm, hash set, local path, ownership state, offline expectation, and recovery guidance.
+The resource resolver accepts stable system-resource URIs and the `make-docs://project/` URIs of [PRD 52](52-work-store-and-work-queue.md). A project URI reads the work store read-only and never uses a projection. For system-resource URIs, the resolver resolves a trustworthy selected local projection before the installed provider, and rejects traversal, invalid type segments, stale or divergent projected content, and unavailable provider state with typed errors. Projection provenance records provider, version or immutable ref, hash algorithm, hash set, local path, ownership state, offline expectation, and recovery guidance.
 
 The shared Persona resolver reads shipped defaults and valid declarative config without Store access. `project.persona.list` and `project.layout.preview` are read-only operations. Persona discovery performs no bootstrap or directory creation. Layout preview binds its inventory, map, config-derived audience resolution, and planned link edits in the returned review digest.
 
@@ -156,18 +161,20 @@ Configuration supplies declarative identity, desired settings, audience mappings
 
 - The reusable Naive-UAT system workflow remains available through first-class contracts, prompts, references, and templates. Where that workflow invokes deterministic behavior, it uses canonical typed TypeScript CLI operations; equivalent MCP exposure delegates to the same operation definitions and returns identical typed results rather than a second implementation.
 - The TypeScript registry owns only the deterministic seams required by current authority: scenario identity/version validation, Persona resolution/defaulting, installed-target and evidence-reference validation, lifecycle run/checkpoint operations, and finding/result receipt validation. [PRD 46](46-naive-end-user-acceptance-testing.md) and [PRD 47](47-persona-model.md) remain authoritative for selecting exactly one configured Persona mapped to `user` or `maintainer`, defaulting omitted input to canonical `user`, and governing UAT policy plus scenario/evidence semantics.
-- P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` as pending with `pendingLineage: W19 R1 P7`. Their CLI paths use `make-docs run uat scenario validate`, `make-docs run uat persona resolve`, `make-docs run uat target validate`, `make-docs run uat evidence-reference validate`, `make-docs run uat finding validate`, and `make-docs run uat result validate`. Each operation projects to an MCP tool. A pending entry must return a typed pending result and must not claim that its handler exists.
+- P3 registers `uat.scenario.validate`, `uat.persona.resolve`, `uat.target.validate`, `uat.evidence-reference.validate`, `uat.finding.validate`, and `uat.result.validate` as pending with `pendingLineage: W19 R1 P7`. Their CLI paths use `make-docs check uat scenario`, `make-docs check uat persona`, `make-docs check uat target`, `make-docs check uat evidence`, `make-docs check uat finding`, and `make-docs check uat result`. Each operation projects to an MCP tool. A pending entry must return a typed pending result and must not claim that its handler exists.
 - The UAT workflow reuses `lifecycle.start`, `lifecycle.show`, `lifecycle.list`, `lifecycle.checkpoint`, `lifecycle.pause`, `lifecycle.resume`, `lifecycle.attach-evidence`, `lifecycle.complete`, `lifecycle.fail`, and `lifecycle.abandon`. It does not define a second lifecycle operation set.
 - Canonical append-only `NUAT-###` scenario identity and version authority remains in the active PRD that owns the primary external outcome; rendered or executed evidence remains project evidence bound to that exact version or digest and never becomes operation-registry authority.
 - A first-party Naive-UAT Skill, when selected, is an optional access adapter whose shims delegate to the same typed CLI operations and may adapt arguments or receipt formatting only. It contains no UAT policy, scenario authority, evidence semantics, state machine, or correctness-only behavior.
 
 ### First-Party Skill Runtime Boundary
 
-- R-SKILL-RUNTIME-1 (MUST): the seven bundled first-party Skills use the same typed CLI/shared-core behavior as other callers. Their instructions may guide selection, review, and sequencing, but must not add a private state engine or duplicate deterministic installation, adoption, or UAT policy. PRDs [08](08-skills-catalog-and-distribution.md) and [16](16-package-runtime-and-deployment-boundaries.md) own the source and bundle contract.
-- R-SKILL-RUNTIME-2 (MUST): `preflight`, `factory`, and `human-experience` require explicit invocation. Installing them does not activate them, activate a sibling Skill, or add a required lifecycle gate. Their portable references must work without this maintainer repository or personal mirrors. `preflight` includes its own Store guidance.
+- R-SKILL-RUNTIME-1 (MUST): the bundled first-party Skills use the same typed CLI/shared-core behavior as other callers. Their instructions may guide selection, review, and sequencing, but must not add a private state engine or duplicate deterministic installation, adoption, or UAT policy. PRDs [08](08-skills-catalog-and-distribution.md) and [16](16-package-runtime-and-deployment-boundaries.md) own the source and bundle contract.
+- R-SKILL-RUNTIME-2 (MUST): `preflight`, `factory`, `factory-setup`, and `human-experience` require explicit invocation. Installing them does not activate them, activate a sibling Skill, or add a required lifecycle gate. Their portable references must work without this maintainer repository or personal mirrors. `preflight` includes its own Store guidance.
 - R-SKILL-RUNTIME-3 (MUST): ordinary review and project work may continue when the CLI or optional capture is unavailable, with a truthful unavailable result. Skills must not write directly to the Store, create local fallback state, or queue a substitute capture. Required CLI-managed installation and adoption state must succeed before managed changes, as owned by PRD [38](38-global-store-and-project-state.md).
-- R-SKILL-RUNTIME-4 (MUST): `factory` remains an execution and review aid within accepted project authority. It cannot replace PRDs or backlogs or authorize implementation by itself. `human-experience` must preserve the difference between agent evidence review and lived human review. The `naive-uat` adapter keeps its stable name, shared workflow, and existing testing policy.
+- R-SKILL-RUNTIME-4 (MUST): `factory` runs accepted project work within accepted project authority. It records setup, assignments, proofs, and backups only through the typed factory and work operations, which save them in the Store. It cannot replace PRDs or backlogs or authorize implementation by itself. Authority comes from the accepted backlog, the scope the person gives, and the person's Store-only grants. `factory-setup` saves setup only through the same operations. `human-experience` must preserve the difference between agent evidence review and lived human review. The `naive-uat` adapter keeps its stable name, shared workflow, and existing testing policy.
 - R-SKILL-RUNTIME-5 (MUST): reviewed adoption is an extension of `setup skills` through the existing installation and operation services. Ordinary `setup` offers bundled choices without adoption flags. PRD [39](39-cli-command-model-and-operation-registry.md) owns exact command validation; PRD [28](28-shared-agentics-installation-and-harness-exposure.md) owns eligibility and review. This change adds no independent Skill installer or MCP write authority.
+- R-SKILL-RUNTIME-6 (MUST): the work store readiness, claim, report, close, and sync rules and the factory readiness, escalation, and acceptance rules each have a CLI form and an agent form in a system resource. A change to one form requires a review of the other in the same change set. The work store agent form lets a project without the CLI keep using `docs/work/` as the authority. The factory has no agent form for saving: without the CLI and a usable Store, factory setup stops and says why.
+- R-SKILL-RUNTIME-7 (MUST): when a first-party Skill check has a Make Docs operation, the Skill text tells the agent to use the MCP tool when the session has it, otherwise the CLI command, otherwise the agent form in the Skill text by hand. A manual result says that it is a manual review, uses the proof state `agent-reviewed`, and does not claim that a Make Docs check ran. The agent installs nothing without the person's consent, and a manual repair needs the person's agreement first. Each operation and its agent form share one rule ID list, and a test fails when an ID exists on one side only. A change to a rule on one side needs a review of the other side in the same change set. [PRD 39](39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK owns the operations.
 
 These W19 R5 requirements record accepted direction. The owner accepted the R5 backlog on 2026-09-09 and authorized implementation. Implementation tasks and evidence remain pending.
 
@@ -180,7 +187,7 @@ Skills that currently depend on standalone scripts must be rewritten in the same
 #### Domain and Script Classification
 
 - A deterministic fact-of-record or a fiddly, genuinely reused canonical-identity or parse primitive belongs in a focused TypeScript operation behind the stable registry. Derivation, judgment, and generation that an agent can perform correctly from contracts, prompts, references, templates, and project files do not become registry operations.
-- Selected-skill prose, references, examples, metadata, and routing may remain skill assets, but they never become the sole owner of deterministic Make Docs behavior. Thin compatibility wrappers may remain only after an equivalent shared operation exists. Custom user scripts remain custom and outside this migration unless explicitly brought into scope by a later PRD.
+- Selected-skill prose, references, examples, metadata, and routing may remain skill assets, but they never become the sole owner of deterministic Make Docs behavior. A first-party Skill ships no Python and no hand-written script. A file in a Skill `scripts/` folder is a generated bundle of CLI source under [PRD 08](08-skills-catalog-and-distribution.md) R-SKILL-BUNDLE-7. The Skill text is the agent form of each Skill check under R-SKILL-RUNTIME-7. Custom user scripts remain custom and outside this migration unless explicitly brought into scope by a later PRD.
 - Each retained operation exposes deterministic inputs, outputs, read-only or dry-run behavior where applicable, provenance, and error semantics shared by CLI and MCP. Modules align with operation domains and remain testable without the CLI parser or MCP transport.
 
 #### Performance Evidence Validation Twin
@@ -403,6 +410,118 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Rationale: A path repair must not become a permission or host-configuration repair through an adapter.
 - Source: [Checkout move plan](../plans/2026-10-31-w22-r1-checkout-move-and-block-ownership/02-setup-path-move-flow.md) and [authority work](../work/2026-10-31-w22-r1-checkout-move-and-block-ownership/01-authority-and-ownership.md).
 
+
+### 2026-11-21 — W29 R0 and W30 R0
+
+- Affected requirement or section: R-MCP-PROFILE-2, R-MCP-PROFILE-3, R-MCP-PROFILE-6, R-MCP-PROFILE-8, R-SKILL-RUNTIME-1, R-SKILL-RUNTIME-2, R-SKILL-RUNTIME-4, R-SKILL-RUNTIME-6.
+- Previous contract: Five intent profiles. `factory` was an execution and review aid that kept worker status only in the selected tool and saved no setup or assignments.
+- Replacement contract: Six intent profiles, including `factory`. Work queue tools join `backlog` and `workflow`. `factory` and `factory-setup` record setup, assignments, proofs, and backups only through typed operations in the Store, and still cannot authorize implementation by themselves. Shared work store and factory rules have a CLI form and an agent form.
+- Rationale: Saved, proved setup and durable assignments let work survive crashes and lost replies without a workflow engine.
+- Source: [Work store design](../designs/2026-11-21-work-store.md) and [factory design](../designs/2026-11-21-factory.md).
+
+### 2026-11-22 — W29 R0 P1
+
+- Affected requirement or section: the resource resolver paragraph and R-MCP-PROFILE-8.
+- Previous contract: the resolver accepted only stable system-resource URIs, and the work queue had eight MCP tools.
+- Replacement contract: the resolver also accepts `make-docs://project/` URIs, which read the work store read-only through the same CLI and MCP surfaces. `work_add` joins the work queue tools.
+- Rationale: quick items live only in the work store, and the owner asked to read them by URI.
+- Source: [PRD 52](52-work-store-and-work-queue.md) and [W29 R0 P1 work](../work/2026-11-21-w29-r0-work-store/01-record-model-and-rule-catalog.md).
+
+### 2026-11-22 — W31 R0
+
+- Affected requirement or section: new R-MCP-PROFILE-9.
+- Previous contract: no MCP tool checked or fixed project files.
+- Replacement contract: `project_doctor_check` and `project_doctor_fix` belong to `quality`, `setup`, and `all`.
+- Rationale: agents need the same doctor as people.
+- Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
+
+### 2026-11-22 — W32 R0
+
+- Affected requirement or section: new R-MCP-PROFILE-10.
+- Previous contract: no MCP tool listed projects or maintained the Store.
+- Replacement contract: `project_register_list` in `core` and `all`; `setup_store_check` and `setup_store_clean` in `setup` and `all`.
+- Rationale: agents need the same commands as people.
+- Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
+
+### 2026-11-22 — W33 R0
+
+- Affected requirement or section: `Current MCP Surface` and R-MCP-PROFILE-10.
+- Previous contract: tool names came from a hand-picked map with no aliases, and the project list tool was `project_register_list`.
+- Replacement contract: every tool name is derived from its CLI path, renamed tools keep hidden aliases for the migration window, and the project list tool is `project_list`.
+- Rationale: one naming rule for commands and tools (register D-065).
+- Source: [Command tree and tool names design](../designs/2026-11-22-command-tree-and-tool-names.md) and [W33 R0 plan](../plans/2026-11-22-w33-r0-command-tree-and-tool-names/00-overview.md).
+
+### 2026-11-22 — W33 R0 P1
+
+- Affected requirement or section: R-MCP-PROFILE-10.
+- Previous contract: R-MCP-PROFILE-10 put `project_list` in `core` and `all` but still said that `project_register_list` reads only.
+- Replacement contract: R-MCP-PROFILE-10 says that `project_list` and `setup_store_check` read only. The W33 R0 P1 name catalog test checks that every tool name in the R-MCP-PROFILE requirements is a current or new catalog name.
+- Rationale: the name catalog showed the stale tool name. The owner accepted the catalog names on 2026-11-22.
+- Source: [W33 R0 P1](../work/2026-11-22-w33-r0-command-tree-and-tool-names/01-name-catalog-and-rules.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p1-name-catalog-and-rules).
+
+### 2026-11-22 — W31 R0 P3
+
+- Affected requirement or section: R-MCP-PROFILE-9.
+- Previous contract: `project_doctor_fix` needed only project write permission.
+- Replacement contract: it also needs Store write permission.
+- Rationale: the reviewed write path records each change in the Store.
+- Source: [W31 R0 P3 evidence](../work/2026-11-22-w31-r0-task-id-case-and-project-doctor/evidence.md).
+
+### 2026-11-23 — W33 R0 P4
+
+- Affected requirement or section: `Current MCP Surface`, `Development Contract`, the PRD tool lists, and the R-MCP-PROFILE check.
+- Previous contract: the MCP surface took each name from a checked name map, operations projected to the `resource`, `project`, or `run` subtree, the UAT tool paths were `make-docs run uat ...`, and the name catalog test accepted a former tool name in the R-MCP-PROFILE lines.
+- Replacement contract: each tool name derives from its CLI path under PRD 39 R-NAME-3, operations project to their PRD 39 R-TOP-1 group, the UAT paths are `make-docs check uat ...`, and the name catalog test fails an R-MCP-PROFILE line that names a former tool name.
+- Rationale: W33 R0 P2 derived every name from the CLI path, so the old text named a map and paths that no longer exist.
+- Source: [W33 R0 P4](../work/2026-11-22-w33-r0-command-tree-and-tool-names/04-shipped-text-and-skills.md) and its [evidence report](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#p4-shipped-text-and-skills).
+
+### 2026-11-23 — W34 R0
+
+- Affected requirement or section: new R-SKILL-RUNTIME-7 and `Domain and Script Classification`.
+- Previous contract: Skills could ship helper scripts beside the CLI, and thin compatibility wrappers could stay after an equivalent shared operation existed. No rule set the order of the MCP tool, the CLI command, and the agent form for a Skill check.
+- Replacement contract: a first-party Skill ships no Python and no hand-written script. A Skill check uses the MCP tool, then the CLI command, then the agent form by hand, and a manual result says so and uses `agent-reviewed`. Each check and its agent form share one rule ID list, and a test fails on a one-sided ID. The MCP profile membership of the four new tools (R-MCP-PROFILE-11) follows the name catalog entries that W34 R0 P1 adds.
+- Rationale: one home for Skill check logic (register D-064).
+- Source: [Skill scripts into the CLI design](../designs/2026-11-23-skill-scripts-into-the-cli.md) and [W34 R0 plan](../plans/2026-11-23-w34-r0-skill-scripts-into-the-cli/00-overview.md).
+
+### 2026-11-23 — W34 R0 P1
+
+- Affected requirement or section: new R-MCP-PROFILE-11.
+- Previous contract: no requirement named the MCP profiles of the four Skill check tools.
+- Replacement contract: R-MCP-PROFILE-11 puts `check_decomposition` in `quality` and `all`, `project_relations_list` in `workflow` and `all`, `project_markdown_validate` in `setup`, `quality`, and `all`, and `project_markdown_repair` in `setup` and `all`, and names the read or write access of each. A W34 R0 P1 test checks that the profile lists in code match this line.
+- Rationale: the four tools landed in W34 R0 P1, and each ready tool needs an explicit profile under R-MCP-PROFILE-4 (register D-064).
+- Source: [W34 R0 P1](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/01-cli-operations-and-ported-tests.md) and its [evidence report](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#p1-cli-operations-and-ported-tests).
+
+### 2026-11-23 — W29 R0 P4 Second Pass
+
+- Affected requirement or section: R-ACCESS-2.
+- Previous contract: `resource.read` was Store-free for every URI.
+- Replacement contract: `resource.read` still declares `store: none`, so the runner opens no Store session and system-resource reads stay Store-free. Only a project URI read opens its own read-only Store session after the harness check for Store read.
+- Rationale: PRD 52 R-WORK-URI-5 routes project URIs through `resource read`. Keeping the declared access unchanged keeps harness command rules and Store-free system reads as they are.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass)
+
+### 2026-11-23 — W29 R0 P4 Second Pass Review Fixes
+
+- Affected requirement or section: R-ACCESS-2.
+- Previous contract: R-ACCESS-2 did not say whose harness grant a project URI read uses, and a native MCP read of a project URI sent no MCP connection.
+- Replacement contract: the grant of the folder where the agent works decides, and a Store read grant there allows every project URI. A folder that is not a project is refused as `store-not-configured`, without a setup step for that folder. Native project URI reads send the MCP connection.
+- Rationale: an independent review of the W29 R0 P4 second pass found that a read of another project from a folder with no project told the person to run setup in that folder. The rule is new behavior.
+- Source: [W29 R0 P4 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-second-pass-review-fixes)
+
+### 2026-11-23 — W30 R0 Follow-Up Commands
+
+- Affected requirement or section: R-MCP-PROFILE-2.
+- Previous contract: the `factory` profile covered factory setup, workflow, proof, assignment, status, and copy restore operations.
+- Replacement contract: the `factory` profile also covers `factory_tools_list`, `factory_file_backup_save`, and `factory_grant_use_record`. They belong to `factory` and `all` under R-MCP-PROFILE-8. This is new behavior.
+- Rationale: the owner approved three follow-up commands, which [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-69 to R-FACTORY-71 own.
+- Source: the owner's decisions of 2026-11-23 on the three W30 R0 follow-ups, recorded in the [W30 R0 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#follow-up-commands) and the [register](03-open-questions-and-risk-register.md) D-077.
+
+### 2026-11-24 — W30 R0 Store Lifecycle Fixes
+
+- Affected requirement or section: R-MCP-PROFILE-2.
+- Previous contract: the `factory` profile covered thirteen factory tools.
+- Replacement contract: the `factory` profile also covers `factory_workflow_clean`, the reviewed workflow removal. It belongs to `factory` and `all` under R-MCP-PROFILE-8. This is new behavior.
+- Rationale: the owner required a reviewed workflow removal, which [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-73 owns.
+- Source: the owner's audit of the factory tables and the owner's decisions of 2026-11-24 (option A for each finding), recorded in the [W30 R0 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#store-lifecycle-fixes).
 
 ## Source Anchors
 

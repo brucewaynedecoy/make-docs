@@ -37,11 +37,16 @@ describe("operation domain modules", () => {
       "prd",
       "performance",
       "project",
+      "setup",
       "work",
       "backlog",
       "resource",
       "lifecycle",
       "uat",
+      // W34 R0 P1 (PRD 39 R-SKILL-CHECK-1).
+      "decomposition",
+      // W30 R0 P3 (PRD 53).
+      "factory",
     ]);
 
     const identifiers = domains.flatMap((domain) => domain.commands.map((command) => command.id));
@@ -54,6 +59,7 @@ describe("operation domain modules", () => {
       "project.checkout-move.preview",
       "project.checkout-move.apply",
       "project.state.status",
+      "project.register.list",
       "project.state.recover",
       "project.surface.ensure",
       "project.path-hygiene.validate",
@@ -63,12 +69,30 @@ describe("operation domain modules", () => {
       "project.layout.prepare",
       "project.layout.apply",
       "project.layout.verify",
+      "project.doctor.check",
+      "project.doctor.fix",
+      // W34 R0 P1 (PRD 39 R-SKILL-CHECK-1).
+      "project.relations.list",
+      "project.markdown-style.validate",
+      "project.markdown-style.repair",
+      "setup.store.check",
+      "setup.store.clean",
       "work.item.resolve",
       "work.evidence.record",
       "work.evidence.read",
       "work.backlog.snapshot",
       "work.backlog-cache.lookup",
       "work.backlog-cache.write",
+      // W29 R0 P4 work queue (PRD 52).
+      "work.queue.status",
+      "work.queue.sync",
+      "work.queue.next",
+      "work.queue.claim",
+      "work.queue.release",
+      "work.queue.report",
+      "work.queue.close",
+      "work.queue.export",
+      "work.queue.add",
       "backlog.review.open",
       "backlog.review.refresh",
       "resource.list",
@@ -90,6 +114,22 @@ describe("operation domain modules", () => {
       "uat.evidence-reference.validate",
       "uat.finding.validate",
       "uat.result.validate",
+      "decomposition.output.validate",
+      // W30 R0 P3 factory (PRD 53).
+      "factory.status",
+      "factory.tools.save",
+      "factory.workflow.save",
+      "factory.workflow.show",
+      "factory.workflow.list",
+      "factory.proof.save",
+      "factory.assignment.start",
+      "factory.assignment.save",
+      "factory.assignment.list",
+      "factory.restore",
+      "factory.tools.list",
+      "factory.file-backup.save",
+      "factory.grant-use.record",
+      "factory.workflow.clean",
     ]);
     expect(new Set(identifiers).size).toBe(identifiers.length);
 
@@ -119,8 +159,18 @@ describe("operation domain modules", () => {
       "project.layout.prepare",
       "project.layout.apply",
       "project.layout.verify",
+      "project.doctor.fix",
+      "project.markdown-style.repair",
+      "setup.store.clean",
       "work.evidence.record",
       "work.backlog-cache.write",
+      "work.queue.sync",
+      "work.queue.claim",
+      "work.queue.release",
+      "work.queue.report",
+      "work.queue.close",
+      "work.queue.export",
+      "work.queue.add",
       "resource.ensure",
       "lifecycle.start",
       "lifecycle.checkpoint",
@@ -130,6 +180,15 @@ describe("operation domain modules", () => {
       "lifecycle.complete",
       "lifecycle.fail",
       "lifecycle.abandon",
+      "factory.tools.save",
+      "factory.workflow.save",
+      "factory.proof.save",
+      "factory.assignment.start",
+      "factory.assignment.save",
+      "factory.restore",
+      "factory.file-backup.save",
+      "factory.grant-use.record",
+      "factory.workflow.clean",
     ]);
 
     const prunedNames = [
@@ -181,7 +240,7 @@ describe("operation domain modules", () => {
       target: phasePath,
     });
     expect(result.value.coordinate).toEqual({ w: 10, r: 8, p: 1 });
-    expect(result.value.uncheckedTasks.map((task) => task.id)).toEqual(["t2"]);
+    expect(result.value.uncheckedTasks.map((task) => task.id)).toEqual(["T2"]);
   });
 
   test("runs lifecycle domain operations without CLI parser or MCP transport setup", () => {

@@ -384,6 +384,8 @@ describe.skipIf(!sqliteAvailable)("store database (stage 2)", () => {
     const childScript = `
       const { DatabaseSync } = require("node:sqlite");
       const db = new DatabaseSync(process.env.STORE_DB_PATH);
+      // A Make Docs writer registers the schema v7 write guard function (registerStoreWriteGuard).
+      db.function("make_docs_write_guard", () => null);
       db.exec("PRAGMA busy_timeout = 5000");
       db.exec("PRAGMA journal_mode = WAL");
       const stmt = db.prepare(
@@ -483,14 +485,16 @@ describe.skipIf(!sqliteAvailable)("store database (stage 2)", () => {
       expect(evidence[0]?.payload).toEqual({ approvedBy: "reviewer" });
       expect(evidence[0]?.repoRoot).toBe("/tmp/project-a");
 
-      // Project pruning leaves every other project intact.
-      deleteProjectRows(db, "proj-a");
-      expect(readProjectRegistryEntry(db, "proj-a")).toBeNull();
-      expect(readPlaybookRunRecord(db, "proj-a", "run-1")).toBeNull();
+      // Project pruning leaves every other project intact. W32 R0 P3: it keeps the
+      // read-only legacy projects table and legacy Playbook rows (R-LIFE-2, R-PS-6).
+      expect(deleteProjectRows(db, "proj-a").removed).toEqual({ run_evidence: 0, runs: 0, work_evidence: 1, project_register: 0 });
+      expect(readProjectRegistryEntry(db, "proj-a")).not.toBeNull();
+      expect(readPlaybookRunRecord(db, "proj-a", "run-1")?.record).toEqual({ status: "running", currentStep: "step-2" });
       expect(listWorkEvidence(db, { projectId: "proj-a" })).toHaveLength(0);
       expect(readProjectRegistryEntry(db, "proj-b")?.rootPath).toBe("/tmp/project-b");
       expect(listWorkEvidence(db, { projectId: "proj-b" })).toHaveLength(1);
       expect(listProjectRegistryEntries(db).map((entry) => entry.projectId)).toEqual([
+        "proj-a",
         "proj-b",
       ]);
     });

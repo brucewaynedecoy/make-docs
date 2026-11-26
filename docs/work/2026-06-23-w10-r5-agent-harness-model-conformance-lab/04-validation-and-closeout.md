@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Validation and Closeout
 
 ## Purpose
@@ -13,11 +17,11 @@ Validate and close conformance-lab implementation with evidence that lab assets 
 
 ### Tasks
 
-- [x] t1: Run relevant CLI tests for touched install, audit, backup, skills, managed-block, or validation surfaces.
-- [x] t2: Run `npm run validate:defaults -w packages/cli` when template or router evidence is touched.
-- [x] t3: Run `npm run smoke:pack` when package proof surfaces are touched.
-- [x] t4: Verify lab assets are absent from shipped template and package copies unless a later accepted design explicitly promotes them.
-- [x] t5: Update support-claim docs and risk entries only with reviewed result evidence.
+- [x] T1: Run relevant CLI tests for touched install, audit, backup, skills, managed-block, or validation surfaces.
+- [x] T2: Run `npm run validate:defaults -w packages/cli` when template or router evidence is touched.
+- [x] T3: Run `npm run smoke:pack` when package proof surfaces are touched.
+- [x] T4: Verify lab assets are absent from shipped template and package copies unless a later accepted design explicitly promotes them.
+- [x] T5: Update support-claim docs and risk entries only with reviewed result evidence.
 
 ### Acceptance Criteria
 
@@ -33,11 +37,11 @@ Validate and close conformance-lab implementation with evidence that lab assets 
 
 | Task | Evidence |
 | --- | --- |
-| t1 | `npm test -w packages/cli -- --reporter=dot` passed with 17 test files and 280 tests. |
-| t2 | `npm run validate:defaults -w packages/cli` passed with 24 consistency tests. |
-| t3 | `npm run smoke:pack` passed, including first install, sync, skill sync, and uninstall package-smoke coverage. |
-| t4 | `find packages/docs/template packages/cli/template -path '*conformance*' -print`, `rg -n "conformance|conformance-lab" packages/docs/template packages/cli/template packages/cli/dist packages/cli/package.json`, and `npm pack --dry-run --json --ignore-scripts -w packages/cli` proved zero conformance-lab matches in shipped template, copied template, CLI dist/package metadata, and the 100-file dry-run tarball. |
-| t5 | No support-claim docs or risk-register entries were updated because no reviewed tuple-specific result evidence existed. The Conformance Lab Scenario and Result Contracts guide, which is now retired and preserved in Git history, kept support wording gated on reviewed result records. |
+| T1 | `npm test -w packages/cli -- --reporter=dot` passed with 17 test files and 280 tests. |
+| T2 | `npm run validate:defaults -w packages/cli` passed with 24 consistency tests. |
+| T3 | `npm run smoke:pack` passed, including first install, sync, skill sync, and uninstall package-smoke coverage. |
+| T4 | `find packages/docs/template packages/cli/template -path '*conformance*' -print`, `rg -n "conformance|conformance-lab" packages/docs/template packages/cli/template packages/cli/dist packages/cli/package.json`, and `npm pack --dry-run --json --ignore-scripts -w packages/cli` proved zero conformance-lab matches in shipped template, copied template, CLI dist/package metadata, and the 100-file dry-run tarball. |
+| T5 | No support-claim docs or risk-register entries were updated because no reviewed tuple-specific result evidence existed. The Conformance Lab Scenario and Result Contracts guide, which is now retired and preserved in Git history, kept support wording gated on reviewed result records. |
 
 ## Additional Hygiene
 

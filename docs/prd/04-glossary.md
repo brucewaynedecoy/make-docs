@@ -14,7 +14,12 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Reference | An explanatory system resource containing guidance or workflow context without becoming the normative Contract or executable behavior. | [PRD 06](06-template-contracts-and-generated-assets.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
 | Template | A reusable authored output shape delivered as a system resource. | [PRD 06](06-template-contracts-and-generated-assets.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
 | System-resource URI | The stable identity `make-docs://system/<type>/<posix-relative-path>`, where `<type>` is singular `contract`, `prompt`, `reference`, or `template`. It identifies logical content rather than an installation path. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) |
+| Project-resource URI | The identity `make-docs://project/<project>/<family>/...` of a record of one named project. `.../tasks/` lists its quick items, `.../tasks/<n>` names one, and `.../backlog/W29/R0/P1/` names a backlog unit. A read uses the work store read-only. | [PRD 52](52-work-store-and-work-queue.md), [PRD 21](21-project-tool-directory-and-resource-tiers.md) |
 | Resource provider | The installed machine/package source that lists and reads immutable Make Docs system resources when a trustworthy project-local resource does not supply the selected identity. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) |
+| Project doctor | The `make-docs project doctor check` and `make-docs project doctor fix` commands. `check` reads the project and reports findings with a review digest. `fix` applies only the reviewed changes. The first check is `task-id-case`. | [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) |
+| Project register | The Store table `project_register`, with one row per project: ID, name, and first and last seen times. `make-docs project list` reads it. | [PRD 38](38-global-store-and-project-state.md), [PRD 39](39-cli-command-model-and-operation-registry.md) |
+| Store maintenance | `make-docs setup store check` and `make-docs setup store clean`. `check` reports what fixed rules would remove and what needs a decision. `clean` backs up the Store and removes only what fixed rules prove safe. | [PRD 38](38-global-store-and-project-state.md), [PRD 39](39-cli-command-model-and-operation-registry.md) |
+| Store write guard | Triggers on every Store table that call a function only Make Docs connections register, so other programs cannot write the Store by accident. | [PRD 38](38-global-store-and-project-state.md) |
 | Project projection | An optional local materialization of selected system-resource bodies under `.make-docs/system/{contracts,prompts,references,templates}/`. The configured-harness router skeleton and typed directories are always local. Resource list/read availability does not require projected bodies. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 21](21-project-tool-directory-and-resource-tiers.md) |
 | Resource provenance | Typed evidence identifying a resource's logical identity, origin/provider, package version or immutable reference, ownership class, local path when applicable, and content digest. A matching digest proves bytes, not trust or managed ownership. | [PRD 17](17-system-asset-materialization-and-local-bootstrap.md), [PRD 18](18-compatibility-classification-and-migration-safety.md) |
 | Router | A small harness-appropriate instruction surface that directs readers or agents to stable resource identities and typed CLI/MCP operations without duplicating policy or performing hidden mutation. | [PRD 15](15-agent-instruction-ownership-and-managed-blocks.md), [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) |
@@ -82,6 +87,22 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Revision Phase | The next unused `P` in the same W/R that changes the result of a completed Phase. It carries no other coordinate marker. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Revision Wave | The next unused `R` of a Wave. It is a change order that revisits or rearchitects a substantial part of completed work, with its own plan and work backlog. `R0` is the base revision. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment) |
 | Change History | The dated, non-normative record of scope edits in a committed plan or work backlog. It follows the requirement-history shape. | [PRD 14](14-lifecycle-workflow-and-coverage-passes.md#coordinate-selection-and-amendment), [PRD 51](51-backlog-review-and-reporting.md) |
+| Work store | The local, Store-backed record of a project's work: waves, revisions, phases, stages, tasks, quick items, their status, dependencies, links, claims, and assignment references. When the machine has a usable Store, it is the work authority. Without one, `docs/work/` is the authority. | [PRD 52](52-work-store-and-work-queue.md), [PRD 38](38-global-store-and-project-state.md) |
+| Repo copy (of work) | The `docs/work/` files that Make Docs writes from the work store in the current backlog format. Sync imports edits to them. Copies are on by default and can be turned off in config. | [PRD 52](52-work-store-and-work-queue.md), [PRD 24](24-project-configuration-and-convention-overlay.md) |
+| Ready unit | A work unit whose dependencies are closed and that has no live claim, no open blocker, no unsettled sync conflict, and an open parent. | [PRD 52](52-work-store-and-work-queue.md) |
+| Claim | A time-limited hold on one work unit by one claimant. The claimant renews it at each check. Another claimant can take an expired claim only after it checks the old task handle. | [PRD 52](52-work-store-and-work-queue.md), [PRD 53](53-factory-setup-and-orchestration.md) |
+| Quick item | A task-level work unit made directly from a request, with no design, plan, or PRD. It lives only in the work store, has a plain project number such as `7` (written `task 7` in human text), and is routed like any other unit. | [PRD 52](52-work-store-and-work-queue.md), [PRD 53](53-factory-setup-and-orchestration.md) |
+| Factory | The opt-in, tool-agnostic area of Make Docs that saves and proves a person's agent tool setup and runs ready work through workers, review, and correction. It has no workflow engine. The person's own tools do the work. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Front desk | The factory role that talks to the person through the workflow's human channel and turns requests into work units or quick items. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Foreman | The factory role that takes ready work, chooses the team, assigns jobs, judges results, accepts units inside the given scope, and escalates. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Builder | The factory role that does one bounded job and returns the actual result and its evidence. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Reviewer | The factory role that checks a candidate against the requirements. It never reviews work it built. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Workflow type | A shipped or project-owned reference resource that defines a factory workflow's roles, capability needs, steps, limits, and result. v1 ships build then review, lead and specialists, and staged backlog. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 06](06-template-contracts-and-generated-assets.md) |
+| Human channel | The one saved way a factory workflow sends a message to the person and receives the answer. The last resort is wait in session. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Escalation floor | The fixed minimum set of events that always reach the person: an action outside the granted authority, a scope change, a stopped correction loop, a missing tool or permission, and work ready to accept. A workflow can add events but cannot remove these. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Grant | One person's Store-only permission on one machine for a factory action outside the default authority, such as a merge, deploy, publish, or spend. Its scope is `once`, `run`, or `standing`, and it can have an expiry time. It is never committed. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
+| Resolved plan | The record that the CLI generates for one factory workflow by joining its config entry, its Store binding, and its workflow type. The Store keeps it as immutable revisions with a digest. Each assignment names the revision it runs under. It is data, not a program, and it is not a plan under `docs/plans/`. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
+| Correction round | One return of a factory job to its builder after review found defects. The CLI counts rounds on each assignment and refuses a round past the workflow's limit. | [PRD 53](53-factory-setup-and-orchestration.md) |
 
 ## Requirement History
 
@@ -100,6 +121,38 @@ This glossary defines the typed and operational vocabulary used across the activ
 - Replacement contract: One row requires both conditions, and deployment is extra evidence only. Deployed or done but uncommitted work is not complete.
 - Rationale: The two rows could disagree about the same phase. The owner chose one definition that requires both conditions, and a commit.
 - Source: [W28 R0 work](../work/2026-11-18-w28-r0-wave-revision-rules/07-schema-version-and-completion-rules.md).
+
+### 2026-11-21 — W29 R0 and W30 R0
+
+- Affected requirement or section: `Terms` — Work store, Repo copy (of work), Ready unit, Claim, Quick item, Project-resource URI, Factory, Front desk, Foreman, Builder, Reviewer, Workflow type, Human channel, Escalation floor, Grant.
+- Previous contract: No shared terms existed for Store-backed work records or saved agent orchestration.
+- Replacement contract: The glossary defines the work store and factory vocabulary owned by PRD 52 and PRD 53.
+- Rationale: The new capability owners need one stable vocabulary across PRDs, plans, and work.
+- Source: [W29 R0 plan](../plans/2026-11-21-w29-r0-work-store/00-overview.md) and [W30 R0 plan](../plans/2026-11-21-w30-r0-factory/00-overview.md).
+
+### 2026-11-22 — W31 R0
+
+- Affected requirement or section: `Terms` — Project doctor.
+- Previous contract: no shared term for a project-wide check and fix.
+- Replacement contract: the glossary defines the project doctor owned by PRD 39.
+- Rationale: plans, work, and guides need one name for it.
+- Source: [Task ID case and project doctor design](../designs/2026-11-22-task-id-case-and-project-doctor.md) and [W31 R0 plan](../plans/2026-11-22-w31-r0-task-id-case-and-project-doctor/00-overview.md).
+
+### 2026-11-22 — W32 R0
+
+- Affected requirement or section: `Terms` — Project register, Store maintenance, Store write guard.
+- Previous contract: no shared terms for these Store parts.
+- Replacement contract: the glossary defines them, owned by PRD 38 and PRD 39.
+- Rationale: plans, work, and guides need one name for each.
+- Source: [Store review and maintenance design](../designs/2026-11-22-store-review-and-maintenance.md) and [W32 R0 plan](../plans/2026-11-22-w32-r0-store-review-and-maintenance/00-overview.md).
+
+### 2026-11-23 — W30 R0 Factory Owner Review
+
+- Affected requirement or section: `Terms` — Grant, Resolved plan, Correction round.
+- Previous contract: Grant had no scope. No term named the joined workflow record or the round count.
+- Replacement contract: Grant has a scope and an optional expiry. Resolved plan and Correction round are defined. This is new behavior.
+- Rationale: the owner approved scoped grants, correction rounds, and the resolved workflow plan on 2026-11-23.
+- Source: [Factory design](../designs/2026-11-21-factory.md) and [PRD 53](53-factory-setup-and-orchestration.md).
 
 ## Source Anchors
 

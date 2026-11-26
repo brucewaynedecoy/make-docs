@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 3: Harness Adapter Registry and Surface Resolution
 
 ## Purpose
@@ -19,10 +23,10 @@ This phase establishes adapter-owned harness behavior. It should include current
 
 ### Tasks
 
-- [x] t1: Implement a harness adapter registry that loads adapter declarations by stable harness id.
-- [x] t2: Define adapter interfaces for supported output kinds, surfaces, path templates, project/global/export scope, preconditions, exposure modes, lifecycle rules, and conformance requirements.
-- [x] t3: Add current harness adapter declarations for the supported Make Docs harness set without broadening public support claims beyond available evidence.
-- [x] t4: Add a fixture-only future-harness adapter that proves new harness support can model native and agents-standard surfaces without changing package-planner code.
+- [x] T1: Implement a harness adapter registry that loads adapter declarations by stable harness id.
+- [x] T2: Define adapter interfaces for supported output kinds, surfaces, path templates, project/global/export scope, preconditions, exposure modes, lifecycle rules, and conformance requirements.
+- [x] T3: Add current harness adapter declarations for the supported Make Docs harness set without broadening public support claims beyond available evidence.
+- [x] T4: Add a fixture-only future-harness adapter that proves new harness support can model native and agents-standard surfaces without changing package-planner code.
 
 ### Acceptance criteria
 
@@ -38,10 +42,10 @@ This phase establishes adapter-owned harness behavior. It should include current
 
 ### Tasks
 
-- [x] t5: Implement surface resolution for `native`, `agents-standard`, and `auto`.
-- [x] t6: Model project, global, and export-only scopes.
-- [x] t7: Enforce adapter preconditions such as harness support, project trust, plugin support, skill support, selected scope, symlink availability, or copy-mirror fallback.
-- [x] t8: Make unsupported or unknown preconditions route to review or manual stop before writes.
+- [x] T5: Implement surface resolution for `native`, `agents-standard`, and `auto`.
+- [x] T6: Model project, global, and export-only scopes.
+- [x] T7: Enforce adapter preconditions such as harness support, project trust, plugin support, skill support, selected scope, symlink availability, or copy-mirror fallback.
+- [x] T8: Make unsupported or unknown preconditions route to review or manual stop before writes.
 
 ### Acceptance criteria
 
@@ -58,9 +62,9 @@ This phase establishes adapter-owned harness behavior. It should include current
 
 ### Tasks
 
-- [x] t9: Reuse W17 R3 symlink-preferred and copy-mirror fallback behavior for package-generated harness exposures.
-- [x] t10: Ensure Windows symlink unavailability, disabled symlinks, or permission failures use managed copy mirrors rather than generic stubs.
-- [x] t11: Ensure lifecycle operations unlink symlink exposures without following targets and remove only reviewed Make Docs-owned copy mirrors.
+- [x] T9: Reuse W17 R3 symlink-preferred and copy-mirror fallback behavior for package-generated harness exposures.
+- [x] T10: Ensure Windows symlink unavailability, disabled symlinks, or permission failures use managed copy mirrors rather than generic stubs.
+- [x] T11: Ensure lifecycle operations unlink symlink exposures without following targets and remove only reviewed Make Docs-owned copy mirrors.
 
 ### Acceptance criteria
 

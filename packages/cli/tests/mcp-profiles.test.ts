@@ -11,12 +11,60 @@ import {
   listOperationAccessFacts,
 } from "../src/operations/registry";
 import { listMakeDocsMcpTools } from "../src/mcp/tools";
+import { NAME_CATALOG } from "../src/operations/name-catalog";
 
 // Reviewed W24 inventory. Names are independent of runtime assignment logic.
 const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
   core: [
+    "setup_config_read", "setup_status", "setup_manifest_read", "mcp_domains_list",
+    "project_persona_list", "project_state_status", "project_list", "resource_list", "resource_read",
+  ],
+  setup: [
+    "setup_compatibility_check", "setup_config_read", "setup_plan", "setup_status", "setup_manifest_read",
+    "project_checkout_preview", "project_checkout_apply", "project_move_preview", "project_move_apply",
+    "project_layout_apply", "project_layout_prepare", "project_layout_preview", "project_layout_verify",
+    "project_paths_repair", "project_paths_validate", "project_state_recover",
+    "project_state_status", "project_surface_ensure", "resource_ensure",
+    "project_doctor_check", "project_doctor_fix",
+    "setup_store_check", "setup_store_clean",
+    "project_markdown_validate", "project_markdown_repair",
+  ],
+  workflow: [
+    "lifecycle_abandon", "lifecycle_attach_evidence", "lifecycle_checkpoint", "lifecycle_complete",
+    "lifecycle_fail", "lifecycle_list", "lifecycle_pause", "lifecycle_resume", "lifecycle_show",
+    "lifecycle_start", "project_persona_list", "work_evidence_read", "work_evidence_record",
+    "work_item_resolve",
+    "project_relations_list",
+    // W29 R0 P4 work queue (PRD 52 R-WORK-QUEUE-12).
+    "work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add",
+  ],
+  quality: [
+    "check_performance_evidence", "check_prd", "project_paths_validate",
+    "check_uat_evidence", "check_uat_finding", "check_uat_persona",
+    "check_uat_result", "check_uat_scenario", "check_uat_target",
+    "project_doctor_check", "project_doctor_fix",
+    "check_decomposition", "project_markdown_validate",
+  ],
+  backlog: [
+    "backlog_cache_lookup", "backlog_cache_write", "backlog_review_open", "backlog_review_refresh", "backlog_snapshot",
+    "work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add",
+  ],
+  // W30 R0 P3 factory tools (PRD 25 R-MCP-PROFILE-8).
+  factory: ["factory_status", "factory_tools_save", "factory_workflow_save", "factory_workflow_show", "factory_workflow_list", "factory_proof_save", "factory_assignment_start", "factory_assignment_save", "factory_assignment_list", "factory_restore", "factory_tools_list", "factory_file_backup_save", "factory_grant_use_record", "factory_workflow_clean"],
+};
+
+/** W34 R0 P1 tools (PRD 25 R-MCP-PROFILE-11). They landed after W33 R0 and have no former names. */
+const W34_R0_P1_TOOLS = new Set(["check_decomposition", "project_relations_list", "project_markdown_validate", "project_markdown_repair"]);
+/** W29 R0 P4 work queue tools (PRD 25 R-MCP-PROFILE). They landed after W33 R0 and have no former names. */
+const W29_R0_P4_TOOLS = new Set(["work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add"]);
+/** W30 R0 P3 factory tools (PRD 25 R-MCP-PROFILE-8). They landed after W33 R0 and have no former names. */
+const W30_R0_P3_TOOLS = new Set(["factory_status", "factory_tools_save", "factory_workflow_save", "factory_workflow_show", "factory_workflow_list", "factory_proof_save", "factory_assignment_start", "factory_assignment_save", "factory_assignment_list", "factory_restore", "factory_tools_list", "factory_file_backup_save", "factory_grant_use_record", "factory_workflow_clean"]);
+
+// The W24 inventory under the names before W33 R0 (evidence for W33 R0 P2 A6).
+const PRE_W33_PROFILES: Record<McpProfile, string[]> = {
+  core: [
     "config", "install_status", "manifest", "domains",
-    "personas", "project_status", "resource_list", "resource_read",
+    "personas", "project_status", "project_list", "resource_list", "resource_read",
   ],
   setup: [
     "compatibility", "config", "install_plan", "install_status", "manifest",
@@ -24,6 +72,8 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "layout_apply", "layout_prepare", "layout_preview", "layout_verify",
     "paths_repair", "paths_validate", "project_recover",
     "project_status", "surface_ensure", "resource_ensure",
+    "project_doctor_check", "project_doctor_fix",
+    "setup_store_check", "setup_store_clean",
   ],
   workflow: [
     "lifecycle_abandon", "lifecycle_attach_evidence", "lifecycle_checkpoint", "lifecycle_complete",
@@ -35,9 +85,29 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "performance_validate", "prd_validate", "paths_validate",
     "uat_evidence_validate", "uat_finding_validate", "uat_persona_resolve",
     "uat_result_validate", "uat_scenario_validate", "uat_target_validate",
+    "project_doctor_check", "project_doctor_fix",
   ],
   backlog: ["backlog_cache_read", "backlog_cache_write", "backlog_review_open", "backlog_review_refresh", "backlog_snapshot"],
+  // The factory profile is new in W30 R0 P3; its tools have no former names.
+  factory: [],
 };
+
+describe("W33 R0 P2 profile membership", () => {
+  test("keeps the same members in every profile, by operation; only the names change", () => {
+    const renamed = new Map(NAME_CATALOG.filter((entry) => entry.formerMcp).map((entry) => [entry.formerMcp!, entry.newMcp]));
+    const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
+    for (const profile of MCP_PROFILES) {
+      const expected = PRE_W33_PROFILES[profile].map((name) => {
+        const next = renamed.get(name);
+        expect(next, name).toBeDefined();
+        return next!;
+      });
+      const members = ready.filter((tool) => tool.mcp!.profiles.includes(profile)).map((tool) => tool.name);
+      expect(members.filter((name) => !W34_R0_P1_TOOLS.has(name) && !W29_R0_P4_TOOLS.has(name) && !W30_R0_P3_TOOLS.has(name)).sort(), profile).toEqual(expected.sort());
+      expect(members.sort(), profile).toEqual([...EXPECTED_PROFILES[profile]].sort());
+    }
+  });
+});
 
 describe("W24 R0 P1 MCP metadata", () => {
   afterEach(() => {
@@ -45,11 +115,12 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 49 ready tools, including checkout move, with all equal to the intent union", () => {
+  test("assigns all 81 ready tools, including checkout move, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    expect(names).toHaveLength(49);
-    expect(new Set(names).size).toBe(49);
+    // 54 before W34 R0 P1, which added 4 (PRD 25 R-MCP-PROFILE-11), W29 R0 P4 added 9, W30 R0 P3 added 10, and the W30 R0 follow-up added 3.
+    expect(names).toHaveLength(81);
+    expect(new Set(names).size).toBe(81);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }
@@ -87,9 +158,9 @@ describe("W24 R0 P1 MCP metadata", () => {
   test("shared assignments retain one descriptor and one input contract", () => {
     const tools = listMakeDocsMcpTools();
     for (const name of [
-      "config", "install_status", "manifest",
-      "project_status", "personas",
-      "paths_validate",
+      "setup_config_read", "setup_status", "setup_manifest_read",
+      "project_state_status", "project_persona_list",
+      "project_paths_validate",
     ]) {
       const matches = tools.filter((tool) => tool.name === name);
       expect(matches).toHaveLength(1);

@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 04: Package Parity and Closeout
 
 ## Objective
@@ -12,13 +16,13 @@ Prove config behavior remains stable through template packaging, dogfood validat
 
 ## Tasks
 
-- [x] t1: If a default config template is introduced, author it first under `packages/docs/template/`.
-- [x] t2: Copy any template-owned config artifacts through the accepted package preparation path.
-- [x] t3: Add smoke-pack or dry-run checks for config template parity.
-- [x] t4: Add install/reconfigure tests proving existing project config is preserved.
-- [x] t5: Add backup/audit tests classifying local config separately from make-docs-owned manifest, conflicts, provider, and cache state.
-- [x] t6: Reindex docs and run touched-file Markdown link checks after docs closeout.
-- [x] t7: Record a history breadcrumb only when implementation lands, not during this planning-only round.
+- [x] T1: If a default config template is introduced, author it first under `packages/docs/template/`.
+- [x] T2: Copy any template-owned config artifacts through the accepted package preparation path.
+- [x] T3: Add smoke-pack or dry-run checks for config template parity.
+- [x] T4: Add install/reconfigure tests proving existing project config is preserved.
+- [x] T5: Add backup/audit tests classifying local config separately from make-docs-owned manifest, conflicts, provider, and cache state.
+- [x] T6: Reindex docs and run touched-file Markdown link checks after docs closeout.
+- [x] T7: Record a history breadcrumb only when implementation lands, not during this planning-only round.
 
 ## Acceptance Criteria
 

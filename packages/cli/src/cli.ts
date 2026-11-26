@@ -49,22 +49,34 @@ import {
   resolveCliOperationLaunch,
   type CliOperationLaunch,
 } from "./operations/context";
-import { invokeOperation } from "./operations/registry";
+import { invokeOperation, listOperations } from "./operations/registry";
 import {
   MCP_SERVER_PROFILES,
   parseMcpServerProfile,
   type McpServerProfile,
 } from "./operations/mcp-metadata";
 import { OperationError } from "./operations/types";
-import { runRunCommand } from "./run/cli";
+import { OPERATION_GROUP_SUMMARIES, isOperationGroup, renderCommandLines, renderCommandListFooter, renderOperationGroupHelp, runRunCommand } from "./run/cli";
+import { resolveLeafHelp } from "./run/leaf-help";
 import { runProjectCommand, runResourceCommand } from "./run/root-operations";
+import {
+  cliAliasNotice,
+  formerRunGroupTargets,
+  resolveCliMigration,
+  runWithCliAlias,
+  withCliRenamedTo,
+} from "./operations/migration-aliases";
 import {
   previewStoreCompatibilityBridge,
   resolveStoreRoot,
   classifyStoreCheckpoint9State,
   loadSqliteDriver,
+  openStoreSqliteConnection,
+  ProjectNameInvalidError,
+  ProjectNameTakenError,
   type StoreCompatibilityBridgePreview,
 } from "./store";
+import { describeProjectNameForSetup } from "./store/project-register";
 import {
   readInstallationStatus,
   readDeclarativeProjectId,
@@ -74,6 +86,7 @@ import {
   reviewCompletedRemovalHandoff,
   type CompletedRemovalHandoffReview,
 } from "./store/installation-state";
+import { storedRootMatches } from "./store/root-path-match";
 import { cloneSelections, defaultSelections, hasEffectiveCapabilities } from "./profile";
 import { inferLocalResourceProjection } from "./project-projection";
 import { applySkillRegistrySelectionMetadata } from "./skill-catalog";
@@ -122,16 +135,34 @@ import {
 import { redactMcpNativeValue } from "./mcp-connection";
 
 /**
- * The seven-command top level per PRD 39 R-TOP-1.
+ * The eleven top-level groups per PRD 39 R-TOP-1. `run` is not a group.
  */
 type Command =
   | "setup"
   | "project"
   | "resource"
-  | "run"
+  | "work"
+  | "backlog"
+  | "lifecycle"
+  | "factory"
+  | "check"
   | "mcp"
   | "update"
   | "uninstall";
+
+const COMMANDS: readonly Command[] = [
+  "setup",
+  "project",
+  "resource",
+  "work",
+  "backlog",
+  "lifecycle",
+  "factory",
+  "check",
+  "mcp",
+  "update",
+  "uninstall",
+];
 type SetupSubcommand = "system" | "reconfigure" | "skills" | "backup" | "remove";
 type InstallIntent = "apply" | "reconfigure";
 type RenderedActionKind = "generate" | "update" | "skip" | "remove";
@@ -329,14 +360,18 @@ function previewPostBridgeInstallationManifest(
   const driver = loadSqliteDriver();
   if (!driver.available) return null;
   const targetRoot = realpathSync(targetDir);
-  const db = new driver.sqlite.DatabaseSync(classification.databasePath, { readOnly: true });
+  const db = openStoreSqliteConnection(classification.databasePath, { readOnly: true }, "predict post-bridge Store ledger");
   try {
     const rows = db.prepare(
       `SELECT installation_checkouts.root_path, installation_ledgers.manifest_json
        FROM installation_checkouts
        JOIN installation_ledgers USING (checkout_id)`,
     ).all() as Array<{ root_path: string; manifest_json: string }>;
-    const row = rows.find((candidate) => path.resolve(candidate.root_path) === targetRoot);
+    // Compare with the platform key, as checkout lookup does. Schema 3 has no root_path_key
+    // column, so the key comes from the path. More than one match is doubt, so no ledger is
+    // predicted (W32 R0 P3).
+    const matches = rows.filter((candidate) => storedRootMatches(candidate.root_path, targetRoot));
+    const row = matches.length === 1 ? matches[0] : undefined;
     if (!row) return null;
     return validateAndMigrateManifest(
       JSON.parse(row.manifest_json),
@@ -353,9 +388,40 @@ export async function runCli(
   priorProjectMutationApplied = false,
 ): Promise<void> {
   const resolvedLaunch = resolveCliLaunchArgv(argv);
-  argv = resolvedLaunch.argv;
+  // PRD 39 R-MIG-1: an old CLI path runs as a hidden alias in its window, or
+  // returns `command-renamed` after it. The notice goes to stderr so stdout
+  // JSON stays clean. It prints only after the command succeeds: a failure
+  // writes one JSON error to stderr, and that error carries `renamedTo`.
+  const migration = resolveCliMigration(resolvedLaunch.argv);
+  if (!migration) {
+    return runResolvedCli(resolvedLaunch, priorProjectRecovery, priorProjectMutationApplied);
+  }
+  await runWithCliAlias(migration.alias, () =>
+    runResolvedCli({ ...resolvedLaunch, argv: migration.argv }, priorProjectRecovery, priorProjectMutationApplied),
+  );
+  process.stderr.write(cliAliasNotice(migration.alias));
+}
+
+async function runResolvedCli(
+  resolvedLaunch: ReturnType<typeof resolveCliLaunchArgv>,
+  priorProjectRecovery: SetupProjectRecoveryReview | null,
+  priorProjectMutationApplied: boolean,
+): Promise<void> {
+  const argv = resolvedLaunch.argv;
   if (argv[0] === "--version" || argv[0] === "-v") {
     output.write(`${readPackageMeta().version}\n`);
+    return;
+  }
+  // W33 R0 P5: `--help` or `-h` after any registry command prints that
+  // command's help before its own option parser runs. Help reads nothing.
+  const leafHelp = resolveLeafHelp(argv);
+  if (leafHelp !== null) {
+    output.write(leafHelp);
+    return;
+  }
+  if (argv[0] === "setup" && argv[1] === "store") {
+    const { runSetupStoreCommand } = await import("./run/setup-store");
+    await runSetupStoreCommand(argv.slice(2), resolvedLaunch.launch);
     return;
   }
   const parsed = parseArgs(argv);
@@ -364,8 +430,8 @@ export async function runCli(
     return;
   }
 
-  if (parsed.command === "run") {
-    await runRunCommand(parsed.runArgs, {}, resolvedLaunch.launch);
+  if (isOperationGroup(parsed.command)) {
+    await runRunCommand([parsed.command, ...parsed.runArgs], {}, resolvedLaunch.launch);
     return;
   }
 
@@ -375,7 +441,7 @@ export async function runCli(
   }
 
   if (parsed.command === "project") {
-    if (parsed.runArgs[0] === "path-hygiene" && ["validate", "repair"].includes(parsed.runArgs[1] ?? "")) {
+    if (parsed.runArgs[0] === "paths" && ["validate", "repair"].includes(parsed.runArgs[1] ?? "")) {
       await runProjectPathHygieneCommand(
         parsed.runArgs.slice(2),
         parsed.runArgs[1] === "repair",
@@ -595,7 +661,7 @@ export async function runCli(
       output.write("Choose Move this checkout, Register a separate checkout, or Cancel.\n");
     }
     if (!interactive || parsed.dryRun) {
-      const nextAction = "Review the saved paths. Use an interactive setup to choose Move or Register separate, or use project checkout-move preview/apply with its exact digest.";
+      const nextAction = "Review the saved paths. Use an interactive setup to choose Move or Register separate, or use make-docs project move preview/apply with its exact digest.";
       if (jsonOutput) writeCanonicalSetupResult({ status: "blocked", dryRun: parsed.dryRun, targetRoot: targetDir, storeBridge: storeBridgePreview, checkoutMove, storeMutationState: "none", projectChanged: false, projectMutationState: "none", projectActions: [], failedCondition: "Checkout identity needs a path choice.", nextAction });
       else output.write(`Next: ${nextAction}\n`);
       return;
@@ -1522,7 +1588,11 @@ export async function runCli(
       nextAction: observedStoreBridge.nextAction,
     };
   } catch (error) {
-    const failedCondition = error instanceof Error ? error.message : String(error);
+    // A project name refusal states its reason once, and its own next action below.
+    const nameRefusal = error instanceof ProjectNameInvalidError || error instanceof ProjectNameTakenError ? error : null;
+    const failedCondition = nameRefusal
+      ? `${nameRefusal.reason} Make Docs refused this Store write.`
+      : error instanceof Error ? error.message : String(error);
     let observedStoreBridge = storeBridgePreview;
     try {
       observedStoreBridge = previewStoreCompatibilityBridge(storeRoot);
@@ -1536,7 +1606,10 @@ export async function runCli(
       blockers: observedStoreBridge.blockers,
       nextAction,
     };
-    const storeMutationState = observedStoreBridge.storeState === "supported-current"
+    // A Store that needed no conversion was not changed by the bridge, so it reports "none".
+    const storeMutationState = storeBridgePreview.changes.store.length === 0
+      ? "none" as const
+      : observedStoreBridge.storeState === "supported-current"
       ? "applied" as const
       : observedStoreBridge.storeState === storeBridgePreview.storeState &&
           observedStoreBridge.sourceSchemaVersion === storeBridgePreview.sourceSchemaVersion
@@ -1559,7 +1632,7 @@ export async function runCli(
         nextAction,
       });
     } else {
-      output.write(`Setup stopped at the Store prerequisite. ${failedCondition}\nNext: ${nextAction}\n`);
+      output.write(`${nameRefusal ? "Setup stopped at the project name." : "Setup stopped at the Store prerequisite."} ${failedCondition}\nNext: ${nextAction}\n`);
     }
     return;
   }
@@ -1948,7 +2021,7 @@ async function runProjectPathHygieneCommand(
       } else if (repair && arg === "--dry-run") {
         preview = true;
       } else {
-        throw new Error(`Unknown project path-hygiene option: \`${arg}\`.`);
+        throw new Error(`Unknown project paths option: \`${arg}\`.`);
       }
     }
     if (apply && preview) throw new Error("--apply and --dry-run cannot be combined.");
@@ -1974,7 +2047,7 @@ async function runProjectPathHygieneCommand(
       }),
     );
     const result = invocation.value as unknown as import("./path-hygiene").PathHygieneRepairResult;
-    if (format === "json") output.write(JSON.stringify(result, null, 2) + "\n");
+    if (format === "json") output.write(JSON.stringify(withCliRenamedTo(result), null, 2) + "\n");
     else {
       output.write("Scope: " + result.inventorySource + "; checked " + result.checkedFiles + " file(s).\n");
       for (const finding of result.findings) output.write(finding.file + ":" + finding.line + ":" + finding.column + " " + (finding.allowed ? "allowed " : "") + finding.kind + " " + finding.match + "\n");
@@ -2384,15 +2457,7 @@ function parseArgs(argv: string[]): ParsedArgs {
   rejectRemovedReconfigureFlag(args);
   rejectRemovedCommand(args);
 
-  if (
-    args[0] === "setup" ||
-    args[0] === "project" ||
-    args[0] === "resource" ||
-    args[0] === "run" ||
-    args[0] === "mcp" ||
-    args[0] === "update" ||
-    args[0] === "uninstall"
-  ) {
+  if ((COMMANDS as readonly string[]).includes(args[0] ?? "")) {
     parsed.command = args.shift() as Command;
   }
 
@@ -2404,7 +2469,7 @@ function parseArgs(argv: string[]): ParsedArgs {
   }
 
   if (
-    parsed.command === "run" ||
+    isOperationGroup(parsed.command) ||
     parsed.command === "resource" ||
     parsed.command === "project"
   ) {
@@ -2713,12 +2778,28 @@ function rejectRemovedUpdateReconfigure(args: string[]): void {
  */
 function rejectRemovedCommand(args: string[]): void {
   const command = args[0];
+  if (command === "run") {
+    // PRD 39 R-TOP-1, R-MIG-1: `run` is not a root. Its commands that shipped
+    // run as aliases before this point; any other `run` spelling names the groups.
+    // A former `run` group word names the new groups that took its commands.
+    const groups = formerRunGroupTargets(args[1]);
+    if (groups.length > 0) {
+      const named = groups.map((group) => `\`${group}\``).join(" and ");
+      const help = groups.map((group) => `\`make-docs ${group} --help\``).join(" or ");
+      throw new Error(
+        `\`make-docs run\` is no longer a command group. The \`run ${args[1]}\` commands moved to the ${named} ${groups.length === 1 ? "group" : "groups"}. Run ${help} to see them.`,
+      );
+    }
+    throw new Error(
+      "`make-docs run` is no longer a command group. Its commands moved to the `work`, `backlog`, `lifecycle`, and `check` groups. Run `make-docs --help` to see every group.",
+    );
+  }
   const replacements: Record<string, string> = {
     init: "make-docs setup",
     reconfigure: "make-docs setup reconfigure",
     skills: "make-docs setup skills",
     backup: "make-docs setup backup",
-    operations: "make-docs run <domain> <verb>",
+    operations: "make-docs <group> <command>",
   };
   const replacement = command ? replacements[command] : undefined;
   if (!replacement) {
@@ -2785,6 +2866,9 @@ function renderSystemSetupResult(result: import("./setup-system").SystemSetupRes
 }
 
 function storePrerequisiteFailureAction(error: unknown): string {
+  if (error instanceof ProjectNameInvalidError || error instanceof ProjectNameTakenError) {
+    return error.nextAction.replace("run the command again", "run `make-docs setup` again");
+  }
   if (error instanceof Checkpoint9ReceiptProjectionError) {
     return "Restore write access for the Store receipt projection, then run `make-docs setup` to verify and resume the recorded bridge.";
   }
@@ -2800,6 +2884,15 @@ function storePrerequisiteFailureAction(error: unknown): string {
     }
   }
   return "Correct the reported Store prerequisite, then run `make-docs setup` again to review a new exact bridge plan.";
+}
+
+/** The project name, or the name that setup proposes, for the setup JSON result (W29 R0 P5 T8). */
+function setupProjectNameJson(targetRoot: string): { name: string | null; nameProposal: { name: string; source: string } | null } {
+  const described = describeProjectNameForSetup(targetRoot);
+  return {
+    name: described.name,
+    nameProposal: described.proposal ? { name: described.proposal.name, source: described.proposal.source } : null,
+  };
 }
 
 function writeCanonicalSetupResult(input: {
@@ -2890,6 +2983,7 @@ function writeCanonicalSetupResult(input: {
     checkoutMove: input.checkoutMove ?? null,
     project: {
       state: input.status === "complete" || input.status === "partial" ? "ready" : input.status,
+      ...setupProjectNameJson(input.targetRoot),
       changed: input.projectChanged,
       mutationState: input.projectMutationState ?? (
         input.projectChanged ? (input.dryRun ? "planned" : "applied") : "none"
@@ -3108,6 +3202,8 @@ function printPlan(options: {
         : []),
       `Selection source: ${selectionSource}`,
       `Project surface: ${selectedCapabilities.join(", ") || "none"}`,
+      // W29 R0 P5 T8 (PRD 38 R-ID-8): setup shows the name, or proposes one. It does not write it.
+      describeProjectNameForSetup(targetDir).text,
       `Local resource projection: ${selectedResourceTypes === undefined ? "legacy install (not yet selected)" : selectedResourceTypes.join(", ") || "none"}`,
       "Resource provider reads need no Store access.",
       "Local copies reduce CLI dependence. They do not grant harness or Store access.",
@@ -3520,6 +3616,97 @@ Resource options:
   --project-resources <csv|all|none>
                                   Copy only the selected system resource types into this project.`;
 
+/** Plain-words capability of each top-level group (PRD 39 R-TOP-1), in help order. */
+const COMMAND_SUMMARIES: Readonly<Record<Command, string>> = {
+  setup: "Install, sync, or remove Make Docs in this project. Set up this computer and check the Store.",
+  project: "See and repair this project: state, checkouts, Personas, layout, paths, Markdown style, relations, and the doctor.",
+  resource: "List, read, or copy Make Docs system resources.",
+  ...OPERATION_GROUP_SUMMARIES,
+  mcp: "Serve Make Docs tools to agents over MCP.",
+  update: "Update the installed make-docs tool.",
+  uninstall: "Remove make-docs from this computer.",
+};
+
+/**
+ * `make-docs setup --help`: one plain-words line per command (W33 R0 P5).
+ * `setup` is also a command, so its own options follow this list.
+ */
+export function renderSetupHelp(): string {
+  const store = listOperations().filter((operation) => operation.cli.root === "setup");
+  return [
+    "make-docs setup",
+    "",
+    "Install Make Docs in this project, or sync it with your saved choices.",
+    "A new install in a terminal opens a guided wizard. A sync shows the planned changes first.",
+    "",
+    "Usage:",
+    "  make-docs setup [options]",
+    "  make-docs setup <command> [options]",
+    "",
+    "Commands:",
+    "  make-docs setup [write]",
+    "      Install Make Docs in this project, or sync it with your saved choices.",
+    "  make-docs setup system [write]",
+    "      Set up Codex, Claude Code, and GitHub Copilot CLI support on this computer, after your review.",
+    "  make-docs setup reconfigure [write]",
+    "      Change the saved project choices of an install.",
+    "  make-docs setup skills [write]",
+    "      Sync, adopt, or remove the managed Skills.",
+    "  make-docs setup backup [write]",
+    "      Back up this project's managed files.",
+    "  make-docs setup remove [write]",
+    "      Remove this project's managed files, with an optional backup first.",
+    ...renderCommandLines(store),
+    "",
+    "setup store checks and cleans the Make Docs Store. People run it in a terminal.",
+    "Agents use the MCP tools setup_store_check and setup_store_clean.",
+    ...renderCommandListFooter(store),
+  ].join("\n");
+}
+
+/** `make-docs --help`: the groups by capability, in plain words. */
+export function renderTopLevelHelp(): string {
+  const empty = (command: Command) =>
+    isOperationGroup(command) && !listOperations().some((operation) => operation.cli.root === command);
+  const groups = COMMANDS.map((command) =>
+    `  ${command.padEnd(11)}  ${COMMAND_SUMMARIES[command]}${empty(command) ? " No commands yet." : ""}`,
+  ).join("\n");
+  return `make-docs
+
+Set up Make Docs, work with your project's docs and backlog, and serve tools to agents.
+
+Usage:
+  make-docs
+  make-docs <group> <command> [options]
+  make-docs <group> --help
+
+Bare command:
+  Run make-docs with no command to see install status (when installed) or start
+  a guided setup (when not installed). Bare invocation never syncs.
+
+Global flags:
+  --version, -v   Print the installed make-docs version and exit.
+  --help, -h      Show help for a group or command.
+
+Groups:
+${groups}
+
+Examples:
+  make-docs
+  make-docs setup --yes
+  make-docs setup system --dry-run
+  make-docs project state status
+  make-docs resource list
+  make-docs work item resolve 'W18 R11 P2'
+  make-docs backlog snapshot --target-root .
+  make-docs lifecycle list
+  make-docs check prd
+  make-docs mcp
+
+Use --help or -h with a group to list its commands.
+`;
+}
+
 function printHelp(command?: Command, setupSubcommand?: SetupSubcommand): void {
   if (command === "setup") {
     switch (setupSubcommand) {
@@ -3687,25 +3874,8 @@ Examples:
 `);
         return;
       default:
-        output.write(`make-docs setup
-
-Install make-docs into a new target or sync an existing install using saved selections.
-Interactive fresh installs open the selection wizard; syncs review planned changes first.
-
-Usage:
-  make-docs setup [options]
-  make-docs setup system [options]
-  make-docs setup reconfigure [options]
-  make-docs setup skills [options]
-  make-docs setup backup [options]
-  make-docs setup remove [options]
-
-Subcommands:
-  system       Configure reviewed machine-level harness support.
-  reconfigure  Change saved project selections for an existing install.
-  skills       Change, sync, or remove managed skills.
-  backup       Create a backup of managed files.
-  remove       Remove this project's managed files, with an optional backup first.
+        output.write(`${renderSetupHelp()}
+Options for make-docs setup itself:
 
 ${SETUP_SHARED_OPTIONS}
 
@@ -3722,64 +3892,16 @@ Examples:
     }
   }
 
+  if (isOperationGroup(command)) {
+    output.write(renderOperationGroupHelp(command));
+    return;
+  }
+
   switch (command) {
-    case "project":
-      output.write(`make-docs project
-
-Manage project support surfaces and installation state in the global Make Docs Store.
-
-Usage:
-  make-docs project surface ensure <archive|artifacts|assets>
-  make-docs project state status [--target-root <path>] [--json]
-  make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
-  make-docs project path-hygiene <validate|repair> [--target <dir>] [--scope content|managed] [--path <path> ...] [--manifest <path>] [--include-skills] [--allow-comment-token <text>] [--format text|json]
-  Repair previews by default. Add --apply to write, or --dry-run to preview.
-
-The ensure command checks Store installation evidence and configured routers
-before it creates the selected on-demand directory. It reports the applied or
-unchanged state, plan dispositions, receipt, and next check.
-
-State status reads the Store and reports pending work without changing files.
-State recover requires an operation ID and exactly one recovery mode.
-Use --resume to apply the remaining verified steps of a complete saved plan.
-Use --rollback to restore verified prior file state. Changed files block recovery.
-Add --dry-run to inspect recovery without applying changes.
-
-The path-hygiene command checks local docs by default through the same typed
-operation that the MCP tool and migration checkpoint use.
-`);
-      return;
-    case "resource":
-      output.write(`make-docs resource
-
-List, read, or explicitly ensure stable system resources.
-
-Usage:
-  make-docs resource list [--type <contract|prompt|reference|template>] [--prefix <path>] [--origin <effective|local|installed>] [--format table|json] [--target <dir>]
-  make-docs resource read <uri> [--origin <effective|local|installed>] [--format raw|json] [--target <dir>]
-  make-docs resource ensure <uri> --allow-write --approve resource-projection-write [--dry-run] [--target <dir>]
-`);
-      return;
-    case "run":
-      output.write(`make-docs run
-
-Run deterministic registry operations. The operation tree is derived from the
-operation registry; use \`make-docs run\` with no arguments to list operations.
-
-Usage:
-  make-docs run <domain> <verb> [options]
-
-Examples:
-  make-docs run lifecycle list --repo-root .
-  make-docs run lifecycle show --run-id <run-id>
-  make-docs run package plan --harness codex --output-kind plugin --surface native --scope project user/run-stack
-  make-docs run work item resolve 'W18 R11 P2'
-`);
-      return;
     case "mcp":
       output.write(`make-docs mcp
 
-Run the TypeScript-owned make-docs MCP server over stdio.
+Serve Make Docs tools to agents over MCP. The server talks over stdio.
 
 Usage:
   make-docs mcp [--profile <name>] [--help]
@@ -3789,18 +3911,20 @@ Options:
   --help, -h       Show help for this command.
 
 Profiles:
-  core      Installed state, config, common resource tools, and operation domains.
+  core      Install state, settings, system resources, and the list of tool areas.
   setup     Install plans, repair, compatibility, and layout.
   workflow  Lifecycle, project context, and work evidence.
   quality   Requirements, performance evidence, and user test checks.
-  backlog   Backlog snapshots and the review cache.
+  backlog   Backlog snapshots, the review cache, and the work queue.
+  factory   Factory setup, workflows, proofs, assignments, status, and copy restore.
   all       All ready tools and native resources.
 
 Behavior:
-  The default all profile keeps the existing single-server connection working.
+  The default profile, all, gives every ready tool in one server.
   Native resource lists and reads use the selected profile.
-  The MCP server exposes read-first and plan-first tools for installed-state inspection, manifest/config reads, compatibility classification, dry-run install planning, and deterministic registry operations.
-  MCP tools delegate to the same operation registry and core used by \`make-docs run\`; write operations require allowWrite=true, enforced uniformly by the operation core.
+  Tools read and plan first. A tool that writes needs allowWrite=true.
+  Each MCP tool name is its CLI path with underscores, such as work_item_resolve for \`make-docs work item resolve\`.
+  MCP tools run the same operations as the CLI groups.
 
 Examples:
   make-docs mcp
@@ -3810,21 +3934,19 @@ Examples:
     case "update":
       output.write(`make-docs update
 
-Update the installed make-docs tool itself (machine-level self-management).
-Detects the install manager that owns a persistent global install and
-delegates to it; when detection is ambiguous it prints the exact command
-instead of acting. For remote execution (npx, pnpm dlx, bunx) there is
-nothing persistent to update, since the runner fetches the requested
-version. Every run applies any pending global-store schema migration, and a
-pre-v2 project install in the working directory triggers the
-warning-and-choice migration flow before delegation.
+Update the make-docs tool on this computer. This is a machine-level change.
+It finds the package manager that installed make-docs and asks it to update.
+When it cannot tell which one, it prints the exact command instead.
+With npx, pnpm dlx, or bunx, nothing is installed, so there is nothing to
+update. Each run also updates the Make Docs Store format when needed. When this
+folder has an install from before version 2, it first asks how to move it.
 
 Usage:
   make-docs update [--target <dir>] [--yes] [--help]
 
 Options:
-  --target <dir>                   Check a different project directory for pre-v2 state.
-  --yes                            Skip interactive prompts where confirmation is not safety-critical.
+  --target <dir>                   Check this project folder for an install from before version 2.
+  --yes                            Skip questions that are not about safety.
   --help, -h                       Show help for this command.
 
 To change a project's install, use \`make-docs setup\` or \`make-docs setup reconfigure\`.
@@ -3833,70 +3955,32 @@ To change a project's install, use \`make-docs setup\` or \`make-docs setup reco
     case "uninstall":
       output.write(`make-docs uninstall
 
-Remove make-docs' machine-level footprint: the global store at ~/.make-docs/
-and the installed binary when one is present. It confirms before removing,
-reports that no binary is installed for remote-execution users, and never
-touches repository content. When the install method is ambiguous it prints
-the exact removal command instead of acting.
+Remove the make-docs tool from this computer. This is a machine-level change.
+It never changes project files. It asks before it removes anything. With no
+terminal, it stops and removes nothing unless you add --yes.
+With npx, pnpm dlx, or bunx, nothing is installed, and it says so. When it
+cannot tell how make-docs was installed, it prints the exact command and
+removes nothing.
+
+It keeps the Make Docs Store unless you add --remove-store. The Store is in
+MAKE_DOCS_HOME when that is set, else in ~/.make-docs/. --remove-store deletes
+the Store only after the tool is removed, or when nothing is installed (npx and
+other runners). It keeps the Store when the tool removal fails or when it
+cannot tell how make-docs was installed. It always keeps the Store clean
+backups in <store>/backup/ and tells you how to delete them.
 
 Usage:
   make-docs uninstall [--yes] [--remove-store] [--help]
 
 Options:
-  --yes                            Confirm removal without an interactive prompt.
+  --yes                            Remove without a question.
+  --remove-store                   Also delete the Make Docs Store records. Backups in <store>/backup/ stay.
   --help, -h                       Show help for this command.
 
 To remove make-docs from a project, use \`make-docs setup remove\`.
 `);
       return;
     default:
-      output.write(`make-docs
-
-Manage make-docs installs, run registry operations, and serve MCP.
-
-Usage:
-  make-docs
-  make-docs setup [system|reconfigure|skills|backup|remove] [options]
-  make-docs project surface ensure <archive|artifacts|assets>
-  make-docs project state status [--target-root <path>] [--json]
-  make-docs project state recover <operation-id> --resume|--rollback [--dry-run] [--target-root <path>] [--json]
-  make-docs project path-hygiene validate [options]
-  make-docs resource <list|read|ensure> [options]
-  make-docs run <domain> <verb> [options]
-  make-docs mcp
-  make-docs update
-  make-docs uninstall
-
-Bare command:
-  Run make-docs with no command to see install status (when installed) or start
-  a guided setup (when not installed). Bare invocation never syncs.
-
-Global flags:
-  --version, -v   Print the installed make-docs version and exit.
-  --help, -h      Show help for a command.
-
-Commands:
-  setup        Install or sync this project; subcommands system, reconfigure, skills, backup, remove.
-  project      Manage canonical project support surfaces.
-  resource     List, read, or ensure stable system resources.
-  run          Run deterministic registry operations.
-  mcp          Run the TypeScript MCP server over stdio.
-  update       Update the installed make-docs tool itself.
-  uninstall    Remove make-docs' machine-level footprint.
-
-Examples:
-  make-docs
-  make-docs --version
-  make-docs setup --yes
-  make-docs setup system --dry-run
-  make-docs setup reconfigure
-  make-docs setup skills --dry-run
-  make-docs setup remove --backup
-  make-docs resource list
-  make-docs run lifecycle list
-  make-docs mcp
-
-Use --help or -h with any command for command-specific options and examples.
-`);
+      output.write(renderTopLevelHelp());
   }
 }

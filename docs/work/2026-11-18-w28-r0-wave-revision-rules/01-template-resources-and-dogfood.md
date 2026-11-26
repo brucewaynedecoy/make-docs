@@ -69,16 +69,16 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t1: Rewrite `packages/docs/template/.make-docs/system/references/wave-model.md`. Change four parts:
+- [x] T1: Rewrite `packages/docs/template/.make-docs/system/references/wave-model.md`. Change four parts:
   - **Terms:** Wave as the scope, Revision as a revision Wave, and new rows for revision Phase and Phase complete. Remove the "redesigned design" example.
   - **Line 7:** remove the claim that the encoding "is extended to designs".
   - **`## Resolution Rules`:** replace it with `## Decision Procedure`. That section holds the five steps, the significant deviation test, the revision Wave test, and the owner gates. Keep the scan, `w1-r0`, and "no drift to newer Waves" rules.
   - **New sections:** add `## Change History`, `## Rebuild From The PRD`, and `## Adoption`. Follow PRD 14 R-COORD-1 to R-COORD-21.
-- [x] t2: In `planning-workflow.md`, change two parts:
+- [x] T2: In `planning-workflow.md`, change two parts:
   - **Line 37:** replace the lineage line with the decision procedure.
   - **Lines 65, 92, and 109:** replace "scoped delta vs regenerated full backlog" with three choices: in-place amendment, rebuild (owner gate), or a new backlog for a new Wave or a revision Wave.
-- [x] t3: In `execution-workflow.md` (around line 161) and `prd-change-management.md` (lines 120–121), replace the delta-backlog rule. PRD maintenance work goes into the lineage Wave's backlog, under PRD 14 R-COORD-17.
-- [x] t4: In `lifecycle.md` `## Default Ordering`, add one pointer: approved plans and backlogs are amended under `wave-model.md`, with a Change History entry.
+- [x] T3: In `execution-workflow.md` (around line 161) and `prd-change-management.md` (lines 120–121), replace the delta-backlog rule. PRD maintenance work goes into the lineage Wave's backlog, under PRD 14 R-COORD-17.
+- [x] T4: In `lifecycle.md` `## Default Ordering`, add one pointer: approved plans and backlogs are amended under `wave-model.md`, with a Change History entry.
 
 ### Acceptance criteria
 
@@ -94,19 +94,19 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t5: In `contracts/output-contract.md`, change four parts:
+- [x] T5: In `contracts/output-contract.md`, change four parts:
   - **Line 37:** change-oriented work uses the lineage W/R directory.
   - **Line 220:** keep the task-ID rule.
   - **Line 261:** replace the delta-directory rule.
   - **Line 264:** active-work updates also need a Change History entry after the first commit.
-- [x] t6: In `contracts/design-contract.md` line 51, `Coordinate Handoff` names the classification from the decision procedure and its test evidence. Remove the old trigger list.
-- [x] t7: In `prompts/designs-to-plan-change.prompt.md` line 16 and in `prompts/prd-change-to-work.prompt.md`, resolve the coordinate with the decision procedure, stop at owner gates, and amend the lineage plan or backlog with Change History. Otherwise, create a new one only for a new Wave or a revision Wave.
-- [x] t8: In `templates/plan-overview.md`, `plan-prd.md`, `plan-prd-change.md`, and `plan-prd-decompose.md`, make four changes:
+- [x] T6: In `contracts/design-contract.md` line 51, `Coordinate Handoff` names the classification from the decision procedure and its test evidence. Remove the old trigger list.
+- [x] T7: In `prompts/designs-to-plan-change.prompt.md` line 16 and in `prompts/prd-change-to-work.prompt.md`, resolve the coordinate with the decision procedure, stop at owner gates, and amend the lineage plan or backlog with Change History. Otherwise, create a new one only for a new Wave or a revision Wave.
+- [x] T8: In `templates/plan-overview.md`, `plan-prd.md`, `plan-prd-change.md`, and `plan-prd-decompose.md`, make four changes:
   - Classification becomes `new-wave` or `revision-wave`, with a note that legacy `revision` means `revision-wave`.
   - The Evidence line names the test that applied.
   - Add an optional `## Change History` with the PRD 14 R-COORD-14 entry shape.
   - In `plan-prd-change.md`, change "Delta backlog" to "Work backlog (lineage or new)".
-- [x] t9: In `templates/work-index.md`, add the optional `## Change History` at the end. In `templates/work-phase.md`, add an optional `Revises:` line under `## Purpose`.
+- [x] T9: In `templates/work-index.md`, add the optional `## Change History` at the end. In `templates/work-phase.md`, add an optional `Revises:` line under `## Purpose`.
 
 ### Acceptance criteria
 
@@ -122,11 +122,11 @@ There are no performance candidates.
 
 ### Tasks
 
-- [x] t10: In `packages/docs/template/docs/plans/AGENTS.md` and `CLAUDE.md`, replace "Plans are written before execution, not retroactively" with the amendment rule. In `packages/docs/template/docs/work/AGENTS.md` and `CLAUDE.md`, add the in-place edit and Change History line.
-- [x] t11: Reseed each template-owned file changed in t1 to t10 into `./.make-docs/` and `./docs/`, with review. Confirm that each pair is byte-identical. Confirm that no project-owned file changed. Do not edit `packages/cli/template/` by hand.
-- [x] t12: Rewrite the coordinate-choice sections of `docs/assets/user/concepts-wave-revision-phase-coordinates.md` (around lines 74–79 and 108–111) for the PRD 14 procedure. Add a short note on older records: before W28, Revisions were also used for fixes and add-ons.
-- [x] t13: Run `grep` over `packages/docs/template/` and the dogfood copies for the retired trigger list and the delta-backlog rule. Run `make-docs run prd authority validate --target-root .` and `make-docs project path-hygiene validate`.
-- [x] t14: Check the resource catalog and digests with the repository's existing tooling. Follow these steps:
+- [x] T10: In `packages/docs/template/docs/plans/AGENTS.md` and `CLAUDE.md`, replace "Plans are written before execution, not retroactively" with the amendment rule. In `packages/docs/template/docs/work/AGENTS.md` and `CLAUDE.md`, add the in-place edit and Change History line.
+- [x] T11: Reseed each template-owned file changed in T1 to T10 into `./.make-docs/` and `./docs/`, with review. Confirm that each pair is byte-identical. Confirm that no project-owned file changed. Do not edit `packages/cli/template/` by hand.
+- [x] T12: Rewrite the coordinate-choice sections of `docs/assets/user/concepts-wave-revision-phase-coordinates.md` (around lines 74–79 and 108–111) for the PRD 14 procedure. Add a short note on older records: before W28, Revisions were also used for fixes and add-ons.
+- [x] T13: Run `grep` over `packages/docs/template/` and the dogfood copies for the retired trigger list and the delta-backlog rule. Run `make-docs run prd authority validate --target-root .` and `make-docs project path-hygiene validate`.
+- [x] T14: Check the resource catalog and digests with the repository's existing tooling. Follow these steps:
   1. Confirm that `packages/docs/template/.make-docs/system-resources.catalog.json` and its dogfood copy still list every changed resource under an unchanged URI. If a resource was added, renamed, or removed, update both catalog copies.
   2. Run `npm run validate:defaults -w packages/cli`, which runs the consistency, template-link, and package-safety tests.
   3. Run `node scripts/copy-template-to-cli.mjs` and `npm run build -w packages/cli` to refresh the bundled template.

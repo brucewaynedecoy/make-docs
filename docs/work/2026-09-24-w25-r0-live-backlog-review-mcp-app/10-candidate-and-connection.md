@@ -42,9 +42,9 @@ Bear steps 6 and 15; P9 tested source; W26 R0 P3 required proof; current project
 
 ### Tasks
 
-- [x] t1: Record package source/name/version, source revision and dirty inputs, lockfile, generated asset and Skill hashes, tarball hash, install path, executable, arguments, working directory, environment, and setup records. (Step 6; evidence: candidate packet.)
-- [x] t2: Show the exact connection/configuration diff, unrelated-setting preservation, rollback diff, trigger, and retained old candidate. Obtain owner approval for the revised first-party replacement before mutation. The unsafe intermediate change stopped Codex startup. The owner commented all Make Docs settings, then asked for a safer approach. The candidate setup added a complete managed entry. (Step 6; evidence: P10 packet.)
-- [x] t3: After approval, install and bind only the reviewed candidate. Verify the running host loads those exact bytes. Apply only the approved rollback if needed. The restarted Codex app used the saved 2.0.5 entry. Its read-only tools worked. The candidate process path and hash match this packet. (Step 6; evidence: host binding receipt.)
+- [x] T1: Record package source/name/version, source revision and dirty inputs, lockfile, generated asset and Skill hashes, tarball hash, install path, executable, arguments, working directory, environment, and setup records. (Step 6; evidence: candidate packet.)
+- [x] T2: Show the exact connection/configuration diff, unrelated-setting preservation, rollback diff, trigger, and retained old candidate. Obtain owner approval for the revised first-party replacement before mutation. The unsafe intermediate change stopped Codex startup. The owner commented all Make Docs settings, then asked for a safer approach. The candidate setup added a complete managed entry. (Step 6; evidence: P10 packet.)
+- [x] T3: After approval, install and bind only the reviewed candidate. Verify the running host loads those exact bytes. Apply only the approved rollback if needed. The restarted Codex app used the saved 2.0.5 entry. Its read-only tools worked. The candidate process path and hash match this packet. (Step 6; evidence: host binding receipt.)
 
 ### Acceptance criteria
 

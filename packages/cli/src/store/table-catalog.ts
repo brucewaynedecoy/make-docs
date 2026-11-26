@@ -1,0 +1,2081 @@
+import { createHash } from "node:crypto";
+import { WORK_STORE_RMIN_ROWS } from "./work-store-schema";
+import { FACTORY_STORE_RMIN_ROWS } from "./factory-store-schema";
+import { splitFactoryBackupPath } from "./factory-backup-path";
+
+/**
+ * W32 R0 P1 Store table catalog and fixed maintenance rules (PRD 38 R-MAINT).
+ *
+ * This module is a contract only. It names every Store table and every
+ * `installation_migration_records` kind with its purpose, writers, readers,
+ * record class (R-MIN-1), maintenance class (R-MAINT-2), and retention. It
+ * states each fixed rule (R-MAINT-3) and each decision item (R-MAINT-4) as a
+ * precise condition with a read-only candidate query and the proofs that must
+ * pass before a row changes. No code in this module writes the Store. The
+ * `setup store check` and `setup store clean` operations (W32 R0 P4) apply
+ * these rules. A change to any entry changes the catalog digest.
+ */
+
+export const STORE_TABLE_CATALOG_ID = "make-docs.store-table-catalog.v1";
+export const STORE_TABLE_CATALOG_VERSION = 1;
+
+/** The physical schema version that this catalog describes. */
+export const STORE_TABLE_CATALOG_PHYSICAL_SCHEMA_VERSION = 9;
+
+/** PRD 38 R-MIN-1 record classes, in PRD order. */
+export const STORE_RECORD_CLASSES = [
+  "repository-canonical and portable",
+  "Store-canonical and non-rebuildable",
+  "Store-cached and rebuildable",
+  "live-machine fact verified at use time",
+  "short-lived mutation guard",
+  "historical evidence",
+  "obsolete and removable after migration",
+] as const;
+export type StoreRecordClass = (typeof STORE_RECORD_CLASSES)[number];
+
+/** PRD 38 R-MAINT-2 maintenance classes. */
+export const STORE_MAINTENANCE_CLASSES = ["keep", "bounded", "disposable"] as const;
+export type StoreMaintenanceClass = (typeof STORE_MAINTENANCE_CLASSES)[number];
+
+export const STORE_TABLE_NAMES = [
+  "projects",
+  "playbook_runs",
+  "work_evidence",
+  "runs",
+  "run_evidence",
+  "store_checkpoint_journal",
+  "installation_checkouts",
+  "installation_ledgers",
+  "installation_operations",
+  "installation_steps",
+  "installation_locks",
+  "installation_migration_records",
+  "installation_transfers",
+  "tool_operations",
+  "store_schema_journal",
+  "store_migration_receipts",
+  "backlog_review_cache",
+  "project_register",
+  "work_units",
+  "work_dependencies",
+  "work_links",
+  "work_claims",
+  "work_sync_ledger",
+  "work_sync_conflicts",
+  "work_sync_checkouts",
+  "factory_machine_tools",
+  "factory_capability_proofs",
+  "factory_workflow_plans",
+  "factory_workflow_bindings",
+  "factory_grants",
+  "factory_grant_uses",
+  "factory_assignments",
+  "factory_proof_results",
+  "factory_backups",
+] as const;
+export type StoreTableName = (typeof STORE_TABLE_NAMES)[number];
+
+export const STORE_MIGRATION_RECORD_KINDS = ["receipt", "quiescence", "snapshot", "backup", "legacy-import"] as const;
+export type StoreMigrationRecordKind = (typeof STORE_MIGRATION_RECORD_KINDS)[number];
+
+export const STORE_FIXED_RULE_IDS = [
+  "STORE-RULE-001",
+  "STORE-RULE-002",
+  "STORE-RULE-003",
+  "STORE-RULE-004",
+  "STORE-RULE-005",
+  "STORE-RULE-006",
+  "STORE-RULE-007",
+  "STORE-RULE-008",
+  "STORE-RULE-009",
+] as const;
+export type StoreFixedRuleId = (typeof STORE_FIXED_RULE_IDS)[number];
+
+export const STORE_DECISION_ITEM_IDS = ["STORE-DECISION-001", "STORE-DECISION-002", "STORE-DECISION-003", "STORE-DECISION-004", "STORE-DECISION-005"] as const;
+export type StoreDecisionItemId = (typeof STORE_DECISION_ITEM_IDS)[number];
+
+/* ------------------------------------------------------------------------ */
+/* Retention settings (t6)                                                  */
+/* ------------------------------------------------------------------------ */
+
+export interface StoreMaintenanceSetting {
+  value: number;
+  unit: "days" | "rows" | "files";
+  /** True when PRD 38 fixes the value. False when it is an owner decision. */
+  fixedByPrd: boolean;
+  reason: string;
+}
+
+/**
+ * Retention windows and kept counts. Values with `fixedByPrd: false` are
+ * owner decisions in the P1 acceptance gate.
+ */
+export const STORE_MAINTENANCE_SETTINGS = Object.freeze({
+  terminalOperationRetentionDays: {
+    value: 30,
+    unit: "days",
+    fixedByPrd: false,
+    reason: "A completed or rolled-back operation has no resume or rollback path, so its saved bytes, ledgers, and plans only help a person inspect a recent problem; 30 days keeps a month of exact evidence. Failed operations and the removal handoff row are never trimmed.",
+  },
+  harnessReceiptHistoryKeptCount: {
+    value: 10,
+    unit: "rows",
+    fixedByPrd: false,
+    reason: "Receipts are a few kilobytes each, so 10 older receipts for each harness and method keep a long audit trail at almost no cost.",
+  },
+  lifecycleRunReviewAgeDays: {
+    value: 90,
+    unit: "days",
+    fixedByPrd: false,
+    reason: "A lifecycle run can stay open through a long Wave; 90 days without an update flags only runs that a person likely forgot, and the item is a report, never a removal.",
+  },
+  workClaimExpiredReviewDays: {
+    value: 7,
+    unit: "days",
+    fixedByPrd: true,
+    reason: "PRD 38 R-MAINT-4 reports a work claim that expired more than 7 days ago (owner decision 2026-11-23, W29 R0 P4 T14). A week covers a long weekend and a slow takeover, and the item is a report, never a removal.",
+  },
+  storeBackupKeptCount: {
+    value: 3,
+    unit: "files",
+    fixedByPrd: true,
+    reason: "PRD 38 R-MAINT-5 keeps the three newest Store backups.",
+  },
+} satisfies Record<string, StoreMaintenanceSetting>);
+export type StoreMaintenanceSettingId = keyof typeof STORE_MAINTENANCE_SETTINGS;
+
+/**
+ * Operation statuses after which an installation operation can never resume.
+ * `failed` is not terminal here: PRD 38 keeps a failed row while recovery is
+ * possible. STORE_FAILED_RECOVERY_CLOSED says when that recovery is closed,
+ * and no rule touches a failed operation's rows.
+ */
+export const STORE_TERMINAL_INSTALLATION_STATUSES = ["completed", "rolled-back"] as const;
+
+/** Statuses whose rows still hold recovery evidence. */
+export const STORE_RECOVERABLE_INSTALLATION_STATUSES = ["pending", "failed"] as const;
+
+/**
+ * JSON keys in `installation_steps.before_json` and `after_json` that hold
+ * saved file bytes in the Store. `payload` is not one of them: it is a
+ * repository-relative path to a backup file under
+ * `.make-docs/backup/operations/<operation>/` (installation-state.ts
+ * savePayload), so it stays as the link that owns that file.
+ */
+export const STORE_SAVED_BYTE_KEYS = ["contentBase64"] as const;
+
+/**
+ * Schema v7 columns on installation_operations that hold the bounded receipt
+ * of a terminal operation (PRD 38 R-MIN installation_operations, R-DB-7). The
+ * commit to `completed` or `rolled-back` fills them in the same transaction
+ * (database.ts fillInstallationOperationReceipt), and the v7 migration
+ * backfilled them for every terminal row. STORE-RULE-004 nulls the full
+ * ledgers only after these are filled. The name keeps its P1 form.
+ */
+export const STORE_PLANNED_OPERATION_RECEIPT_COLUMNS = Object.freeze([
+  { column: "before_ledger_digest", meaning: "SHA-256 of the full before_ledger text, or NULL when there was none." },
+  { column: "after_ledger_digest", meaning: "SHA-256 of the full after_ledger text, or NULL when there was none." },
+  { column: "step_count", meaning: "The number of installation_steps rows of the operation." },
+  { column: "applied_step_count", meaning: "The number of those steps with applied = 1." },
+] as const);
+
+/** The R-LIFE-6 failure columns on installation_operations (schema v7). */
+export const STORE_OPERATION_FAILURE_COLUMNS = Object.freeze([
+  { column: "failure_code", meaning: "A stable code from the error type, such as `snapshot-drift` or `operation-error`." },
+  { column: "failure_summary", meaning: "A short fixed sentence: the operation, the stage, and the code. Never a raw error message, terminal output, or file content." },
+  { column: "failed_stage", meaning: "The stage that failed: `prepare`, `apply`, `verify`, or `commit`." },
+  { column: "next_action", meaning: "The last safe next action, which names `make-docs project state status` for the checkout." },
+] as const);
+
+/**
+ * When a `failed` installation operation's recovery is closed (W32 R0 P2 T13,
+ * FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED). Until a later rule says otherwise, no
+ * fixed rule touches a failed operation's rows.
+ */
+export const STORE_FAILED_RECOVERY_CLOSED = Object.freeze({
+  followUp: "FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED",
+  openStatuses: ["failed"] as const,
+  closingStatuses: ["completed", "rolled-back"] as const,
+  definition: "A failed installation operation's recovery is closed only when `make-docs project state recover <operation> --resume` or `--rollback` commits it, so its status becomes `completed` or `rolled-back`. While its status is `failed`, its recovery is open. No time limit, lock loss, or clean closes it.",
+  whileOpen: "No fixed rule touches the operation, its steps, its detached plan or atomic write intents, the lock on its checkout, or its quiescence barrier. It blocks new operations on its checkout, tool changes, and Store removal like a pending operation.",
+  afterClosed: "The row is terminal and keeps its failure fields as history. The terminal rules (STORE-RULE-003, STORE-RULE-004, STORE-RULE-005) then count its retention window from its new finished_at, like any completed or rolled-back operation.",
+});
+
+/* ------------------------------------------------------------------------ */
+/* Proofs                                                                   */
+/* ------------------------------------------------------------------------ */
+
+export const STORE_MAINTENANCE_PROOF_IDS = [
+  "owner-process-dead",
+  "package-manager-idle",
+  "lock-token-absent",
+  "checkout-folder-missing",
+] as const;
+export type StoreMaintenanceProofId = (typeof STORE_MAINTENANCE_PROOF_IDS)[number];
+
+/** Each proof gives one of three results. Only `proven` lets a rule act. */
+export type StoreProofResult = "proven" | "refuted" | "unknown";
+
+export interface StoreMaintenanceProof {
+  id: StoreMaintenanceProofId;
+  title: string;
+  /** The exact check. */
+  check: string;
+  /** The existing code that performs or models the check. */
+  source: string;
+  proven: string;
+  refuted: string;
+  unknown: string;
+}
+
+export const STORE_MAINTENANCE_PROOFS: readonly StoreMaintenanceProof[] = Object.freeze([
+  {
+    id: "owner-process-dead",
+    title: "The owner process is dead",
+    check: "platform.processLiveness(pid, hostname) returns `dead`. That means the row's host is this host, the pid is a positive safe integer, and process.kill(pid, 0) fails with ESRCH.",
+    source: "packages/cli/src/platform.ts processLiveness, used by installation-state.ts isDead and lease-recovery.ts assertOwnerDead",
+    proven: "`dead`: the owner stopped.",
+    refuted: "`alive`: the owner still runs, so the row stays.",
+    unknown: "`unknown`: another host, an invalid pid, or a permission error. The row stays, and the report says that its owner cannot be checked from this machine.",
+  },
+  {
+    id: "package-manager-idle",
+    title: "No package manager run is still active",
+    check: "The metadata has a known `manager` (npm, pnpm, bun, or brew) and the `command` string that Make Docs ran. The process list of this host can be read in full, and no live process other than this check names that manager in any word (as a bare word, a path, or a `.js`, `.cjs`, `.sh`, or `.rb` file such as `npm-cli.js` or `brew.rb`) or names the make-docs package. A manager can change its process title, so any run of it counts, whatever its arguments. `binaryPath` is the Make Docs CLI path, not the manager, so the check never uses it. Children of the dead owner cannot be found after it exits, so they give no proof.",
+    source: "packages/cli/src/store/maintenance.ts packageManagerIdleProof and readProcessList (W32 R0 P4). The metadata comes from self/update-tool.ts and self/uninstall-tool.ts.",
+    proven: "The full process list holds no process that names the recorded manager or the make-docs package.",
+    refuted: "A process names the manager or the make-docs package, so the row stays pending.",
+    unknown: "Any doubt: the process list cannot be read or is empty, the metadata has no known `manager` or no `command`, or a process whose command line cannot be read could be the manager or its interpreter. The row stays pending, and the report says why.",
+  },
+  {
+    id: "lock-token-absent",
+    title: "The lock that the barrier names is gone",
+    check: "The quiescence record JSON parses and has a 64-character hex `lockTokenDigest`, and no `installation_locks` row has a token whose SHA-256 hex digest equals it.",
+    source: "packages/cli/src/migration.ts writeQuiescence and digest (SHA-256 hex of the lock token)",
+    proven: "No lock row has that token.",
+    refuted: "A lock row with that token exists, so the barrier stays.",
+    unknown: "The record JSON is unreadable or has no digest. The row stays, and the report says why.",
+  },
+  {
+    id: "checkout-folder-missing",
+    title: "The checkout folder is missing",
+    check: "lstat of `installation_checkouts.root_path` fails with ENOENT.",
+    source: "New in W32 R0 P4, with the same path rules as installation-state.ts canonicalInstallationPath.",
+    proven: "The folder does not exist.",
+    refuted: "The folder exists.",
+    unknown: "Any other error, such as a permission error or an unmounted drive. The report says that the folder cannot be checked.",
+  },
+]);
+
+/* ------------------------------------------------------------------------ */
+/* Table catalog (t1)                                                       */
+/* ------------------------------------------------------------------------ */
+
+export interface StoreRMinRowClaim {
+  row: string;
+  classCell: string;
+}
+
+export interface StoreRowClassEntry {
+  /** Which rows of the table this entry covers, in plain words. */
+  rows: string;
+  maintenanceClass: StoreMaintenanceClass;
+  /** The fixed rule that removes or trims these rows. Keep rows have none. */
+  rule: StoreFixedRuleId | null;
+  /** The limit for bounded rows that no fixed rule trims. */
+  limit: string | null;
+}
+
+export interface StoreTableCatalogEntry {
+  table: StoreTableName;
+  /** The schema version that creates the table. */
+  sinceSchema: number;
+  /** `planned` tables do not exist in the physical schema yet. */
+  schemaStatus: "physical" | "planned";
+  /** Physical columns, in schema order. A planned table lists its planned columns. */
+  columns: readonly string[];
+  purpose: string;
+  writers: readonly string[];
+  readers: readonly string[];
+  recordClass: StoreRecordClass | "declared per kind";
+  /** Each PRD 38 R-MIN row that governs this table's fields: the start of its first cell and its exact Class cell. */
+  rMinRows: readonly StoreRMinRowClaim[];
+  rowClasses: readonly StoreRowClassEntry[];
+  retention: string;
+  decisionItems: readonly StoreDecisionItemId[];
+  humanMeaning: string;
+}
+
+const keepRows = (rows: string): StoreRowClassEntry => ({ rows, maintenanceClass: "keep", rule: null, limit: null });
+
+export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.freeze<StoreTableCatalogEntry[]>([
+  {
+    table: "projects",
+    sinceSchema: 1,
+    schemaStatus: "physical",
+    columns: ["project_id", "root_path", "package_name", "package_version", "registered_at", "last_seen_at"],
+    purpose: "Legacy discovery mirror of each project's manifest, keyed by project ID with one root path.",
+    writers: ["None current. registry-mirror.ts mirrorProjectManifest and rebuildProjectRegistry have no caller. Project prune keeps every row (W32 R0 P3)."],
+    readers: ["Legacy import identity adoption"],
+    recordClass: "obsolete and removable after migration",
+    rMinRows: [{ row: "`projects`:", classCell: "Obsolete and removable after migration" }],
+    rowClasses: [keepRows("Every row. It is a read-only legacy input.")],
+    retention: "Keep read-only until legacy import no longer reads it, then drop the table in a later migration.",
+    decisionItems: [],
+    humanMeaning: "An old list of projects. Make Docs no longer writes it and keeps it only so an old install can still be imported.",
+  },
+  {
+    table: "playbook_runs",
+    sinceSchema: 1,
+    schemaStatus: "physical",
+    columns: ["project_id", "run_id", "record", "created_at", "updated_at"],
+    purpose: "Legacy Playbook run state, kept as opaque JSON.",
+    writers: ["None current. state-rows.ts createPlaybookRunRecord, transitionPlaybookRunRecord, and upsertPlaybookRunRecord have no caller. Project prune keeps every row (R-LIFE-2, R-PS-6)."],
+    readers: ["Explicit export", "Compatibility", "Removal review"],
+    recordClass: "historical evidence",
+    rMinRows: [{ row: "`playbook_runs`:", classCell: "Historical evidence" }],
+    rowClasses: [keepRows("Every row. Maintenance never reads or changes the opaque record.")],
+    retention: "Preserve until its bridge exit and a separate export or deletion approval.",
+    decisionItems: [],
+    humanMeaning: "Old Playbook history. Make Docs keeps it untouched until a person approves its export or removal.",
+  },
+  {
+    table: "work_evidence",
+    sinceSchema: 1,
+    schemaStatus: "physical",
+    columns: ["project_id", "wave_slug", "phase_path", "evidence_kind", "payload", "repo_root", "recorded_at"],
+    purpose: "Recorded sign-offs and decisions for work phases that the repository cannot rebuild.",
+    writers: ["`work.evidence.record` and lifecycle checkpoint evidence through project-state.ts recordWorkEvidence", "Delete only: state-rows.ts deleteProjectRows through lifecycle.ts pruneProjectFromStore, which has no caller"],
+    readers: ["Work evidence read", "Wave status", "Lifecycle views", "Export", "Compatibility"],
+    recordClass: "historical evidence",
+    rMinRows: [{ row: "`work_evidence`:", classCell: "Historical evidence for old rows; current rows are Store-canonical recorded decisions" }],
+    rowClasses: [keepRows("Every row.")],
+    retention: "Keep. Maintenance never removes it. A payload above 64 KiB of JSON is refused under R-MAINT-6 (state-rows.ts WORK_EVIDENCE_PAYLOAD_LIMIT_BYTES).",
+    decisionItems: [],
+    humanMeaning: "Your recorded sign-offs and decisions. Maintenance never removes them.",
+  },
+  {
+    table: "runs",
+    sinceSchema: 2,
+    schemaStatus: "physical",
+    columns: ["project_id", "run_id", "run_type", "lifecycle_stage", "status", "checkpoint", "version", "metadata", "started_at", "updated_at", "finished_at"],
+    purpose: "General lifecycle runs and their legal state.",
+    writers: ["Lifecycle operation core in lifecycle-runs.ts", "Delete only: state-rows.ts deleteProjectRows through lifecycle.ts pruneProjectFromStore, which has no caller"],
+    readers: ["Lifecycle show, list, transition, and evidence", "Status", "Export"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "`runs`:", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row, open or terminal.")],
+    retention: "Retain until an explicit scoped project-state cleanup after export and terminal-state review. A run left open past the review age is a decision item.",
+    decisionItems: ["STORE-DECISION-002"],
+    humanMeaning: "Your lifecycle runs. A run that stayed open for a long time is shown to you, never removed.",
+  },
+  {
+    table: "run_evidence",
+    sinceSchema: 2,
+    schemaStatus: "physical",
+    columns: ["project_id", "run_id", "evidence_id", "evidence_kind", "reference_type", "reference_value", "digest", "recorded_at"],
+    purpose: "Bounded evidence references for lifecycle runs.",
+    writers: ["Lifecycle evidence operation in lifecycle-runs.ts", "Delete only: state-rows.ts deleteProjectRows through lifecycle.ts pruneProjectFromStore, which has no caller"],
+    readers: ["Lifecycle evidence readers", "Status", "Export"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "`run_evidence`:", classCell: "Store-canonical when the external reference is non-rebuildable; Store-cached for a repository reference" }],
+    rowClasses: [keepRows("Every row. No fixed rule prunes repository references.")],
+    retention: "Follow the run. Repository references may be rebuilt, but no fixed rule removes them.",
+    decisionItems: [],
+    humanMeaning: "Links from a lifecycle run to its evidence. They stay with their run.",
+  },
+  {
+    table: "store_checkpoint_journal",
+    sinceSchema: 2,
+    schemaStatus: "physical",
+    columns: ["receipt_id", "checkpoint", "project_root_digest", "snapshot_id", "committed_at", "receipt_json"],
+    purpose: "Old checkpoint-9 cutover receipts.",
+    writers: ["None current after the bridge cutover. Schema v5 copied each row into store_migration_receipts."],
+    readers: ["Compatibility", "Export", "Bridge remaining-state check"],
+    recordClass: "historical evidence",
+    rMinRows: [{ row: "`store_checkpoint_journal`:", classCell: "Historical evidence, then disposable" }],
+    rowClasses: [
+      { rows: "A row whose receipt ID is also in store_migration_receipts.", maintenanceClass: "disposable", rule: "STORE-RULE-007", limit: null },
+      keepRows("A row with no matching migration receipt."),
+    ],
+    retention: "Disposable once a store_migration_receipts row with the same receipt ID exists. Otherwise keep.",
+    decisionItems: [],
+    humanMeaning: "Old copies of migration receipts. Once the newer receipt table holds the same receipt, the old copy can go.",
+  },
+  {
+    table: "installation_checkouts",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "project_id", "root_path", "created_at", "root_path_key", "verified_at", "verification_json"],
+    purpose: "Binds one local clone or worktree to its project ID, with its folder path and last verification.",
+    writers: ["Reviewed checkout bind (installation-state.ts bindCheckout)", "Separate checkout registration (registerSeparateInstallationCheckout)", "The path-update rule: checkout move (applyInstallationCheckoutMove), the only writer of root_path and verification after bind", "Explicit legacy identity repair (adoptLegacyProjectIdentity)"],
+    readers: ["Installation", "Recovery", "Status", "Setup", "Removal", "Lock planning", "`project list` and Store maintenance (W32 R0)"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [
+      { row: "`installation_checkouts`: `checkout_id`", classCell: "Store-canonical and non-rebuildable" },
+      { row: "`installation_checkouts.root_path`", classCell: "Store-cached and rebuildable mutable lookup" },
+      { row: "`installation_checkouts.root_device`", classCell: "Obsolete and removable after migration" },
+    ],
+    rowClasses: [keepRows("Every row. A missing folder is a decision item, never an automatic removal.")],
+    retention: "Retain until explicit reviewed checkout-state removal. Only the path-update rule replaces root_path and verification.",
+    decisionItems: ["STORE-DECISION-001"],
+    humanMeaning: "Which folders on this machine belong to which project. A folder that is gone is shown to you, never removed for you.",
+  },
+  {
+    table: "installation_ledgers",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "manifest_json", "updated_at"],
+    purpose: "The current ownership record of each checkout: which files Make Docs applied and their digests.",
+    writers: ["Shared install, resource apply, and layout operations through installation-state.ts commitOperation"],
+    readers: ["Verify", "Refresh", "Repair", "Remove", "Audit", "Status", "Recovery", "Skill adoption path claims"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [
+      { row: "`installation_ledgers.manifest_json`", classCell: "Store-canonical and non-rebuildable current ownership record" },
+      { row: "Target project last-applied ownership", classCell: "Store-canonical and non-rebuildable minimum last-applied state" },
+    ],
+    rowClasses: [keepRows("Every row.")],
+    retention: "Retain while Make Docs claims local applied ownership. Delete on `setup remove` or verified ownership release.",
+    decisionItems: [],
+    humanMeaning: "The list of files that Make Docs put in each project. It stays while Make Docs owns those files.",
+  },
+  {
+    table: "installation_operations",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["operation_id", "checkout_id", "operation", "status", "before_ledger", "after_ledger", "created_at", "finished_at", "plan_complete", "failure_code", "failure_summary", "failed_stage", "next_action", "before_ledger_digest", "after_ledger_digest", "step_count", "applied_step_count"],
+    purpose: "The shared mutation journal: one row for each installation operation, with its before and after ledgers.",
+    writers: ["Shared mutation journal in installation-state.ts (withInstallationOperation, detached plans, legacy recovery import)"],
+    readers: ["Setup", "Status", "Recover", "Audit", "Store maintenance", "Removal", "Tool operation and Store removal guards"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "`installation_operations`:", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [
+      keepRows("A pending or failed row while recovery is possible."),
+      { rows: "The full before and after ledgers of a completed or rolled-back row after the retention window, once its v7 receipt columns are filled. Never the removal handoff row.", maintenanceClass: "bounded", rule: "STORE-RULE-004", limit: null },
+      keepRows("The bounded receipt of a completed or rolled-back row: operation, status, times, step counts, ledger digests, and failure summary."),
+      keepRows("The latest completed `setup.remove` of a checkout with no current ledger. Setup reads its full before-ledger to offer setup after removal."),
+    ],
+    retention: "Keep pending and failed rows while recovery is possible; STORE_FAILED_RECOVERY_CLOSED says when a failed row's recovery ends. After a completed or rolled-back state and the retention window, keep the bounded receipt in the v7 receipt columns and null the full ledgers.",
+    decisionItems: ["STORE-DECISION-001", "STORE-DECISION-003"],
+    humanMeaning: "A record of each change Make Docs made to a project. Old finished records keep a short summary.",
+  },
+  {
+    table: "installation_steps",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["operation_id", "ordinal", "relative_path", "before_json", "after_json", "applied"],
+    purpose: "Ordered file steps of each installation operation, with saved file bytes for recovery.",
+    writers: ["Shared mutation journal in installation-state.ts"],
+    readers: ["Apply", "Verify", "Resume", "Rollback", "Status", "Store maintenance"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "`installation_steps`:", classCell: "Store-canonical and non-rebuildable while recovery is open; bounded history after closure" }],
+    rowClasses: [
+      keepRows("Every step of a pending or failed operation."),
+      { rows: "Saved file contents (`contentBase64`) of a completed or rolled-back operation's steps after the retention window. Never the removal handoff row, and never while a detached plan or atomic intent of the operation exists.", maintenanceClass: "bounded", rule: "STORE-RULE-003", limit: null },
+      keepRows("The path, applied state, kind, digest, mode, and `payload` backup file link of each step of a completed or rolled-back operation."),
+    ],
+    retention: "Keep exact recovery evidence while the operation is pending or failed. After a completed or rolled-back state and the retention window, remove saved file contents (`contentBase64`) and keep path, applied state, digests, and `payload` backup file links.",
+    decisionItems: [],
+    humanMeaning: "The file-by-file steps of each change. Old copies of file contents are removed once the change is long finished.",
+  },
+  {
+    table: "installation_locks",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["root_path", "token", "pid", "hostname", "acquired_at"],
+    purpose: "One mutation lock for each checkout root while a writer runs.",
+    writers: ["Platform lock service: installation-state.ts acquireInstallationLock, releaseInstallationLock, and accepted stale recovery"],
+    readers: ["Current writer", "Status", "Store maintenance", "Tool operation and Store removal guards"],
+    recordClass: "short-lived mutation guard",
+    rMinRows: [{ row: "`installation_locks`:", classCell: "Short-lived mutation guard" }],
+    rowClasses: [
+      keepRows("A lock whose owner is alive or cannot be checked, or that guards a pending operation."),
+      { rows: "A lock whose owner is proven dead and that guards no pending operation.", maintenanceClass: "disposable", rule: "STORE-RULE-001", limit: null },
+    ],
+    retention: "Delete on release or accepted stale recovery. A lock whose owner is proven dead and that guards no pending operation is disposable.",
+    decisionItems: [],
+    humanMeaning: "A sign that says a Make Docs command is changing a project. A sign left by a command that crashed is removed.",
+  },
+  {
+    table: "installation_migration_records",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "kind", "record_id", "record_json"],
+    purpose: "Migration and installation evidence for each checkout, by declared kind.",
+    writers: ["Migration (migration.ts)", "Installation operations (installation-state.ts)", "Harness receipts (harness-integration-receipts.ts)", "Legacy import (legacy-installation.ts)", "Schema v5 bridge"],
+    readers: ["Migration", "Recovery", "Status", "Export", "Bridge checks", "Store maintenance"],
+    recordClass: "declared per kind",
+    rMinRows: [{ row: "`installation_migration_records`:", classCell: "Declared per kind in the Store table catalog under R-MAINT-1" }],
+    rowClasses: [
+      keepRows("Each kind declares its own row classes in STORE_MIGRATION_RECORD_KIND_CATALOG."),
+    ],
+    retention: "Each kind and record family declares its class and retention.",
+    decisionItems: ["STORE-DECISION-001"],
+    humanMeaning: "Saved plans, receipts, and backups from changes and migrations. Each kind has its own rule.",
+  },
+  {
+    table: "installation_transfers",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "source_path", "source_digest", "status", "imported_at"],
+    purpose: "Legacy proof that old project-local state was imported once.",
+    writers: ["None current after the bridge cutover."],
+    readers: ["Compatibility reader", "Bridge remaining-state check"],
+    recordClass: "obsolete and removable after migration",
+    rMinRows: [{ row: "`installation_transfers`:", classCell: "Obsolete and removable after migration" }],
+    rowClasses: [keepRows("Every row. It is read-only legacy history.")],
+    retention: "Preserve through the local-state transfer bridge, then remove only after its exit and separate approval.",
+    decisionItems: [],
+    humanMeaning: "Old proof that a past import happened. It stays until a person approves its removal.",
+  },
+  {
+    table: "tool_operations",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["operation_id", "operation", "status", "pid", "hostname", "metadata_json", "started_at", "finished_at"],
+    purpose: "Machine-wide tool operations (`tool.update`, `tool.uninstall`, `setup.system.harness`), machine harness receipts, and the schema v5 bridge marker.",
+    writers: ["Tool operation journal (tool-operations.ts runRecordedToolOperation)", "Machine harness setup (harness-system-operations.ts, harness-integration-receipts.ts)", "Schema v5 bridge"],
+    readers: ["Tool mutation", "Harness history", "Status", "Store maintenance", "Store removal guard", "Installation lock acquisition"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "`tool_operations`:", classCell: "Store-canonical while active; bounded history after terminal result" }],
+    rowClasses: [
+      keepRows("A pending row whose owner is alive or cannot be checked, and every pending `setup.system.harness` row."),
+      { rows: "A pending `tool.update` or `tool.uninstall` whose owner is proven dead and whose package manager is idle. It becomes `failed` with reason `abandoned` and stays as history.", maintenanceClass: "bounded", rule: "STORE-RULE-002", limit: null },
+      keepRows("The current harness receipt pointer (`setup.system.receipt-current`) and the compatibility bridge marker."),
+      { rows: "Machine harness receipts and observations beyond the kept count for each harness and method.", maintenanceClass: "bounded", rule: "STORE-RULE-009", limit: null },
+      keepRows("Completed and failed `tool.update` and `tool.uninstall` rows."),
+      keepRows("Completed and failed `setup.system.harness` rows."),
+    ],
+    retention: "Keep active rows through recovery. Mark an abandoned tool update or uninstall as failed. Keep the current harness receipt and a fixed number of older receipts.",
+    decisionItems: [],
+    humanMeaning: "A record of Make Docs updating or removing itself and of machine harness setup. A crashed update stops blocking the machine.",
+  },
+  {
+    table: "store_schema_journal",
+    sinceSchema: 3,
+    schemaStatus: "physical",
+    columns: ["schema_version", "description", "committed_at"],
+    purpose: "One row for each accepted schema version.",
+    writers: ["Each schema migration transaction"],
+    readers: ["Store status: `project state status` (installation-state.ts readInstallationStatus through database.ts readStoreSchemaJournal), which reports a missing version"],
+    recordClass: "historical evidence",
+    rMinRows: [{ row: "`store_schema_journal`:", classCell: "Historical evidence" }],
+    rowClasses: [keepRows("Every row.")],
+    retention: "Retain one immutable row per accepted schema version for the Store lifetime.",
+    decisionItems: [],
+    humanMeaning: "The history of Store upgrades. It is never removed.",
+  },
+  {
+    table: "store_migration_receipts",
+    sinceSchema: 5,
+    schemaStatus: "physical",
+    columns: ["receipt_id", "operation", "project_root_digest", "source_schema_version", "target_schema_version", "snapshot_id", "result", "committed_at", "receipt_json"],
+    purpose: "Receipts of explicit Store schema migrations.",
+    writers: ["Schema v5 bridge copy", "database.ts migrateStoreDatabaseAtCheckpoint9, whose receipt names the current target version under the v7 CHECK"],
+    readers: ["Compatibility", "Status history", "Bridge checks", "Export", "STORE-RULE-007"],
+    recordClass: "historical evidence",
+    rMinRows: [{ row: "Receipt history", classCell: "Historical evidence" }],
+    rowClasses: [keepRows("Every row.")],
+    retention: "Retain until the owning history policy or bridge exit permits scoped removal. No fixed rule removes it.",
+    decisionItems: [],
+    humanMeaning: "Proof of each Store upgrade. It is kept.",
+  },
+  {
+    table: "backlog_review_cache",
+    sinceSchema: 6,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "record_path", "record_digest", "snapshot_schema_version", "rule_catalog_version", "skill_version", "fragment_json", "created_at", "updated_at"],
+    purpose: "Optional per-record backlog review cache.",
+    writers: ["Backlog review cache service (operations/work/backlog/cache-service.ts)"],
+    readers: ["Backlog review cache readers", "Validation", "Pruning", "Store status"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: "Backlog review cache", classCell: "Store-cached and rebuildable" }],
+    rowClasses: [
+      { rows: "A row whose snapshot schema, rule catalog, or Skill version is older than the current version.", maintenanceClass: "disposable", rule: "STORE-RULE-008", limit: null },
+      { rows: "A row for the current versions.", maintenanceClass: "bounded", rule: null, limit: "512 rows for each checkout, trimmed by the cache writer (BACKLOG_REVIEW_CACHE_MAX_ENTRIES_PER_CHECKOUT)." },
+    ],
+    retention: "May be deleted or rebuilt at any time. Rows for old versions are disposable. Rows for a checkout whose folder is missing are part of that decision item.",
+    decisionItems: ["STORE-DECISION-001"],
+    humanMeaning: "A speed-up for backlog reviews. Entries from older Make Docs versions are removed.",
+  },
+  {
+    table: "project_register",
+    sinceSchema: 7,
+    schemaStatus: "physical",
+    columns: ["project_id", "project_name", "first_seen_at", "last_seen_at"],
+    purpose: "One row for each project that the Store knows. Schema v7 adds it empty; each later Store write for a project fills its row.",
+    writers: [
+      "project-register.ts recordProjectInRegister, in the same transaction as each Store write for the project (R-ID-8, R-REGISTER-1): the start and the commit of every installation operation (setup, install apply, adoption, setup remove, recover), detached operation preparation, a new checkout binding, migration records, legacy import, checkout register, checkout move, backlog cache write, work evidence record, and lifecycle start, state changes, and evidence. A start refuses a taken name; a commit or a recovery keeps the stored name and reports the clash",
+      "Delete only: legacy identity adoption removes the temporary project ID's row, and state-rows.ts deleteProjectRows removes a pruned project's row once no checkout of it is bound",
+    ],
+    readers: ["`project list` (`project.register.list`)", "Name refusal at each register write", "lifecycle.ts pruneProjectFromStore remaining-project count"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: "`project_register`:", classCell: "Store-cached and rebuildable from each bound checkout's `.make-docs/config.yaml` and `installation_checkouts`" }],
+    rowClasses: [keepRows("Every row while any checkout of the project is bound.")],
+    retention: "Retain while any checkout of the project is bound. Replace the name when config names the project differently.",
+    decisionItems: [],
+    humanMeaning: "The list of your projects, with their short names.",
+  },
+  {
+    table: "work_units",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: [
+      "project_id", "store_id", "kind", "coordinate", "parent_store_id", "title", "body", "recorded_status", "status",
+      "close_outcome", "unresolved_dependencies_json", "gates_json", "blockers_json", "source_path", "copy_state", "revision", "note", "note_at",
+    ],
+    purpose: "One row for each work unit of a project: wave, revision, phase, stage, task, or quick item, with its status, gates, blockers, and record revision (PRD 52).",
+    writers: ["work-store.ts putWorkUnit and createQuickItem, with an expected version on every write, in the same transaction as the project's register row"],
+    readers: ["work-store.ts readWorkUnit, findWorkUnitByCoordinate, and listWorkUnits, for the work operations, the backlog snapshot, the factory, status, and export"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work store records (schema v8)", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row while the project is bound. Quick items have no repo copy, so their rows are the only record of them.")],
+    retention: "Retain while the project is bound. Remove only under explicit scoped project-state cleanup after export. No fixed rule removes a unit.",
+    decisionItems: [],
+    humanMeaning: "Your work items: backlog units and quick items. Maintenance never removes them.",
+  },
+  {
+    table: "work_dependencies",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["project_id", "unit_store_id", "ordinal", "depends_on_store_id", "source_text", "source_path", "source_line"],
+    purpose: "The dependencies of each work unit: the unit it waits for, by store ID in the same project, and the bullet text it came from.",
+    writers: ["work-store.ts putWorkUnit, which replaces a unit's dependency list with the unit in one write"],
+    readers: ["work-store.ts readWorkUnit and listWorkUnits, for readiness, the ready order, and wait reasons"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work store records (schema v8)", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row while its unit exists. Deleting a unit deletes its dependency rows.")],
+    retention: "Retain with the unit. A unit that another unit depends on cannot be deleted first.",
+    decisionItems: [],
+    humanMeaning: "Which work waits for which. Maintenance never removes it.",
+  },
+  {
+    table: "work_links",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["unit_store_id", "ordinal", "direction", "kind", "path", "anchor"],
+    purpose: "The links of each work unit to its design, plan, PRD sections, evidence, request, and work file, in both directions (R-WORK-STORE-5).",
+    writers: ["work-store.ts putWorkUnit, which replaces a unit's link list with the unit in one write"],
+    readers: ["work-store.ts readWorkUnit and listWorkUnits, for project resource URIs, status, and export"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work store records (schema v8)", classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row while its unit exists. Deleting a unit deletes its link rows.")],
+    retention: "Retain with the unit.",
+    decisionItems: [],
+    humanMeaning: "Where each work item points in your documents. Maintenance never removes it.",
+  },
+  {
+    table: "work_claims",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["claim_id", "project_id", "unit_store_id", "claimant", "task_handle", "claimed_at", "renewed_at", "expires_at", "takeover_observation"],
+    purpose: "The claim on a work unit: who holds it, the task handle, and when it ends. The UNIQUE unit_store_id column allows one claim row for each unit, live or expired (R-WORK-QUEUE-6).",
+    writers: ["work-store.ts claimWorkUnit (claim, renewal, and takeover after a handle check), releaseWorkClaim, and the close write, each with the unit's expected version"],
+    readers: ["work-store.ts readWorkClaim and checkWorkUnitWriteClaim, for readiness, the factory, and status"],
+    recordClass: "short-lived mutation guard",
+    rMinRows: [{ row: "Work claims", classCell: "Short-lived mutation guard" }],
+    rowClasses: [{
+      rows: "Every row, live or expired.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each work unit, enforced by the schema. Release, close, and takeover delete or replace it, and deleting a unit deletes its claim. No fixed rule removes an expired claim: an expired claim holds its unit until a takeover after a handle check or a release (PRD 52 R-WORK-QUEUE-4, R-WORK-QUEUE-7).",
+    }],
+    retention: "Delete on release, close, or expiry takeover. Never retained as history.",
+    decisionItems: ["STORE-DECISION-004"],
+    humanMeaning: "Who is working on what right now. A claim that ran out stays until someone checks the old task and takes over, or releases it. Store check lists a claim that ran out more than 7 days ago.",
+  },
+  {
+    table: "work_sync_ledger",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "target_path", "unit_store_ids_json", "digest_algorithm", "last_applied_digest", "store_revision", "synced_at", "entry_version"],
+    purpose: "The last applied digest of each repo copy file in one checkout, so sync can tell a person's edit from its own write (R-WORK-STORE-7, R-WORK-SYNC-1).",
+    writers: ["work-store.ts putSyncLedgerEntry and deleteSyncLedgerEntry, with an expected entry version, for work store sync"],
+    readers: ["work-store.ts readSyncLedgerEntry and listSyncLedger, for sync, status, export, and repo copy removal"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: "Work sync ledger", classCell: "Store-canonical and non-rebuildable minimum last-applied state" }],
+    rowClasses: [keepRows("Every row while its repo copy exists. Removing a checkout removes its rows.")],
+    retention: "Retain while the repo copy exists. The sync writer removes a row after a verified copy removal or with the repo copy off. No fixed rule removes it, because a lost row makes sync stop the file as a conflict.",
+    decisionItems: [],
+    humanMeaning: "What Make Docs last wrote to each work file in this folder. It stays while the file is a copy of the work store.",
+  },
+  {
+    table: "work_sync_conflicts",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "target_path", "kind", "file_digest", "ledger_digest", "store_revision", "affected_unit_store_ids_json", "detected_at", "entry_version"],
+    purpose: "An unsettled sync conflict for one repo copy file in one checkout, with the units it blocks (R-WORK-SYNC-4, R-WORK-SYNC-5).",
+    writers: ["work-store.ts putSyncConflict and deleteSyncConflict, with an expected entry version, for work store sync and settle"],
+    readers: ["work-store.ts listSyncConflicts, for sync, status, readiness, and settle"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: "Work sync conflicts", classCell: "Store-cached and rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each repo copy file in each checkout, enforced by the primary key. Settle deletes it, the next sync rebuilds it, and removing a checkout removes its rows.",
+    }],
+    retention: "Delete when settled; rebuilt by the next sync.",
+    decisionItems: [],
+    humanMeaning: "Work files where both the file and the work store changed. They wait for you to pick a side.",
+  },
+  {
+    table: "work_sync_checkouts",
+    sinceSchema: 8,
+    schemaStatus: "physical",
+    columns: ["checkout_id", "first_synced_at"],
+    purpose: "Marks each checkout whose first work sync is done, so only that first sync imports without writing a file (R-WORK-SYNC-9).",
+    writers: ["work-store.ts markWorkSyncCheckout, at the end of a checkout's first work store sync"],
+    readers: ["work-store.ts readWorkSyncCheckout, for work store sync"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: "Work sync checkouts", classCell: "Store-cached and rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each checkout, enforced by the primary key. Removing a checkout removes its row. A lost row only makes the next sync of that checkout import without writing, and that sync writes the row again.",
+    }],
+    retention: "Retain while the checkout is bound; removing a checkout removes it.",
+    decisionItems: [],
+    humanMeaning: "Which folders have had their first work sync. A folder's first sync only reads its work files; later syncs write them.",
+  },
+  {
+    table: "factory_machine_tools",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["tool_id", "tool_kind", "tool_label", "state", "reported_version", "capabilities_json", "reported_at", "entry_version"],
+    purpose: "One row for each agent tool on this machine: its kind, label, state (`available`, `missing`, or `blocked`), reported version, and discovered capabilities. Every project on the machine shares it (PRD 53 R-FACTORY-15).",
+    writers: ["factory-store.ts saveFactoryMachineTool, with an expected record version, for factory tools save"],
+    readers: ["factory-store.ts readFactoryMachineTool and listFactoryMachineTools, for the current plan, drift, status, and the local copies"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.tools, classCell: "Store-cached and rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each tool on the machine, enforced by the primary key. A tools save replaces a tool's row, and a gone tool stays as `missing`. No fixed rule removes a row, because a lost row makes the workflow drift.",
+    }],
+    retention: "Replace on each tools save; remove with Store removal.",
+    decisionItems: [],
+    humanMeaning: "The agent tools that factory setup found on this computer, and whether each one is there now.",
+  },
+  {
+    table: "factory_capability_proofs",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["tool_id", "capability_id", "method", "tool_version", "proved_at", "result", "not_covered_json"],
+    purpose: "One proof for each capability of each machine tool: how setup proved it, the tool version the agent reported, the proof time, the result, and what the proof did not cover (R-FACTORY-10).",
+    writers: ["factory-store.ts saveFactoryMachineTool, which replaces a tool's proofs with the tool in one write"],
+    readers: ["factory-store.ts readFactoryMachineTool and listFactoryMachineTools, for the current plan, drift, and the local copies"],
+    recordClass: "Store-cached and rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.tools, classCell: "Store-cached and rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one row for each capability of each tool, enforced by the primary key. A tools save replaces a tool's proofs, and deleting a tool deletes its proofs.",
+    }],
+    retention: "Replace with the tool on each tools save; remove with the tool.",
+    decisionItems: [],
+    humanMeaning: "What setup checked that each tool can really do, and when.",
+  },
+  {
+    table: "factory_workflow_plans",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["project_id", "workflow_name", "revision", "plan_digest", "plan_json", "config_digest", "binding_digest", "created_at"],
+    purpose: "Immutable resolved plan revisions of each project workflow, as canonical JSON with its SHA-256 digest (R-FACTORY-56). A trigger refuses any change to a saved row, and a unique key allows one revision for each digest.",
+    writers: ["factory-store.ts saveFactoryPlanRevision, for factory workflow save; it adds a revision only when no kept revision has its digest, and removes older revisions in the same write", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts readFactoryPlanRevision and listFactoryPlanRevisions, for proof save, assignment start and save, workflow show, status, restore, and drift"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.plans, classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "For each workflow: the `ready` revision, each revision that a retained assignment names (open or final), and the 10 newest other revisions (FACTORY_PLAN_KEEP_NEWEST). Each save removes the older revisions in the same write, and removing the workflow removes them all (R-FACTORY-57).",
+    }],
+    retention: "Keep the `ready` revision, each revision that a retained assignment names (open or final), and the 10 newest other revisions; remove all with the workflow.",
+    decisionItems: [],
+    humanMeaning: "The exact saved shape of each factory workflow, one numbered version for each change. Old versions are trimmed when a new one is saved.",
+  },
+  {
+    table: "factory_workflow_bindings",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["project_id", "workflow_name", "roles_json", "worktree_method", "channel_ref", "wake_method", "wake_ref", "known_losses_json", "ready_revision", "readiness", "entry_version"],
+    purpose: "The saved choices of one project workflow on this machine: the tool for each role, the working-copy method, the human channel account reference and the wake binding, the accepted known losses, the `ready` plan revision, and the readiness state (R-FACTORY-23).",
+    writers: ["factory-store.ts saveFactoryWorkflowBinding (never sets `ready`) and markFactoryReadyRevision (only after a passed test task), each with an expected record version", "factory-store.ts saveFactoryProofResult, which ends the `ready` state when a failed test task ran under the `ready` plan", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts readFactoryWorkflowBinding and listFactoryWorkflowBindings, for the Skills, status, restore, drift, and the local copies"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.bindings, classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row until the person changes the workflow or removes it with the reviewed removal `factory workflow clean`.")],
+    retention: "Retain until the person changes the workflow or removes it with the reviewed removal.",
+    decisionItems: [],
+    humanMeaning: "How each factory workflow is wired on this computer. Maintenance never removes it.",
+  },
+  {
+    table: "factory_grants",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["grant_id", "project_id", "workflow_name", "action", "scope", "run_id", "expires_at", "spent_at", "granted_by", "granted_at", "entry_version"],
+    purpose: "A person's permission for one action outside the default authority, with its scope (`once`, `run`, or `standing`), its lifecycle run, an optional expiry, and when a `once` grant was spent (R-FACTORY-24). Never in config, a copy, or a plan.",
+    writers: ["factory-store.ts saveFactoryGrant, revokeFactoryGrant, useFactoryGrant, useFactoryGrantOnClaim, and startFactoryAssignment (which spends a `reset-correction-rounds` grant)", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts listFactoryGrants and useFactoryGrant, for assignment checks, workflow show, and status; each read uses the (project, workflow, action) index, and a grant use reads only the grants that can still hold"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.grants, classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row until the person revokes it or removes the workflow. A spent `once` grant, an ended `run` grant, and an expired grant stay as history until then, as their use rows do: they show why a recorded use was allowed, so no rule trims them (owner decision 2026-11-24).")],
+    retention: "Retain until the person revokes it or removes the workflow. Spent, ended, and expired grants stay until the workflow is removed.",
+    decisionItems: [],
+    humanMeaning: "What you allowed the factory to do without asking, such as a merge. Maintenance never removes it.",
+  },
+  {
+    table: "factory_grant_uses",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["use_id", "project_id", "workflow_name", "grant_id", "action", "scope", "unit_store_id", "run_id", "used_at"],
+    purpose: "One row for each recorded use of a grant: the grant ID, its action and scope, the work unit, the lifecycle run, and the time (R-FACTORY-72). It holds no content and no claim ID. A revoke of the grant keeps its use rows.",
+    writers: ["factory-store.ts useFactoryGrant, in the same transaction as the grant check: for `factory assignment save --grant-use`, `factory grant-use record`, and a `reset-correction-rounds` grant that `factory assignment start` spends", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts listFactoryGrantUses (the newest 50, through the workflow and use time index) and countFactoryGrantUses, for workflow show"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.grantUses, classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row until the person removes the workflow. It is the only record that an action outside the default authority was done under a grant, so maintenance never removes it, also after the grant is revoked.")],
+    retention: "Retain until the person removes the workflow. A revoke of the grant keeps its use rows.",
+    decisionItems: [],
+    humanMeaning: "Each time the factory used one of your permissions, such as for a merge: which permission, for which work, and when. Maintenance never removes it.",
+  },
+  {
+    table: "factory_assignments",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["assignment_id", "project_id", "workflow_name", "checkout_id", "unit_store_id", "role", "part_label", "tool_id", "task_handle", "run_id", "status", "checked_at", "round_count", "plan_revision", "plan_digest", "history_json", "entry_version"],
+    purpose: "One job (work unit, role, and part label) run by one tool in one checkout, with its status, round count, plan revision, and 20 newest status changes (R-FACTORY-27). A partial unique index allows one open assignment for each job, and a trigger refuses a change to a final assignment. It never holds a claim ID.",
+    writers: ["factory-store.ts startFactoryAssignment and updateFactoryAssignment, each after a check of the unit's live claim, with an expected record version for updates", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`, which refuses an open assignment", "work-store.ts deletePrunedProjectWorkRows, which removes a pruned project's final assignments of each workflow that has no backup record, and refuses an open one; no foreign key removes an assignment by cascade"],
+    readers: ["factory-store.ts readFactoryAssignment and listFactoryAssignments, for the Skills, status, takeover, and the plan keep rule"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.assignments, classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [keepRows("Every row: open assignments until final, and each final assignment until the reviewed workflow removal or the scoped cleanup of a pruned project.")],
+    retention: "Keep open assignments until final; keep each final assignment until the reviewed workflow removal or the scoped cleanup of a pruned project.",
+    decisionItems: [],
+    humanMeaning: "Which tool is doing which job, and what happened to it. Maintenance never removes it.",
+  },
+  {
+    table: "factory_proof_results",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["project_id", "workflow_name", "outcome", "test_task", "plan_digest", "path_json", "manual_steps_json", "recorded_at", "entry_version"],
+    purpose: "The latest passed and the latest failed test task of each workflow, with the plan digest it ran under, the path it exercised, and the manual steps still open (R-FACTORY-12).",
+    writers: ["factory-store.ts saveFactoryProofResult, with an expected record version, for factory proof save", "factory-store.ts removeFactoryWorkflowRows, for the reviewed removal `factory workflow clean`", "work-store.ts deletePrunedProjectWorkRows, for a pruned project's workflows that have no backup record"],
+    readers: ["factory-store.ts readFactoryProofResult, for readiness (the latest test result for a plan decides), status, and markFactoryReadyRevision"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.proofs, classCell: "Store-canonical and non-rebuildable" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "At most one passed and one failed row for each workflow, enforced by the primary key. A new result of the same outcome replaces the last. The two rows are all that the rule \"the latest test result for a plan decides\" needs: a failed result of the `ready` plan ends its `ready` state in the same write, so no older result is ever read.",
+    }],
+    retention: "Retain the latest passing and latest failing proof per workflow; remove both with the workflow.",
+    decisionItems: [],
+    humanMeaning: "The last passed and the last failed test run of each factory workflow.",
+  },
+  {
+    table: "factory_backups",
+    sinceSchema: 9,
+    schemaStatus: "physical",
+    columns: ["project_id", "assignment_id", "original_path", "backup_path", "content_digest", "backed_up_at"],
+    purpose: "A record of each file that the factory copied to `.make-docs/backup/factory/` before a worker changed it in a folder without git (R-FACTORY-44). The bytes stay in that folder; the row holds the paths, the digest, and the assignment.",
+    writers: ["operations/factory/backups.ts backupFactoryFileBeforeChange through factory-store.ts recordFactoryBackup, and cleanupFactoryBackups and removeFactoryWorkflowBackups through deleteFactoryBackupRecord, each only together with the backup file"],
+    readers: ["factory-store.ts listFactoryBackups and listFactoryBackupsOfWorkflow, for cleanup, the reviewed workflow removal, and restore help", "work-store.ts deletePrunedProjectWorkRows, which keeps every workflow that has a backup record", "maintenance.ts evaluateStoreDecisions, for STORE-DECISION-005"],
+    recordClass: "Store-canonical and non-rebuildable",
+    rMinRows: [{ row: FACTORY_STORE_RMIN_ROWS.backups, classCell: "Store-canonical and non-rebuildable while the backup exists" }],
+    rowClasses: [{
+      rows: "Every row.",
+      maintenanceClass: "bounded",
+      rule: null,
+      limit: "Factory cleanup, not a Store maintenance rule, deletes a row and its file when the assignment's work is accepted or closed, and any backup older than 30 days (R-FACTORY-45). A row goes only together with its file (R-FACTORY-74): a due row whose file is in another checkout, or in a folder that moved or is gone, stays, and the cleanup result reports it. The reviewed workflow removal deletes the rows and files of its workflow, and drops a row whose files are not found on this computer now, after the review listed it (register D-078, option B). It never touches an installation recovery backup.",
+    }],
+    retention: "Delete when the assignment's work is accepted or closed, after 30 days, or with the workflow, and only together with the backup file.",
+    decisionItems: ["STORE-DECISION-005"],
+    humanMeaning: "Copies of your files from before a factory worker changed them, in a folder without git. They are removed after the work is accepted or after 30 days.",
+  },
+]);
+
+/**
+ * PRD 38 R-MIN rows that name no Store table. Each one says where its record
+ * lives instead. The drift test needs every R-MIN row to be claimed by a table,
+ * a record kind, or this list.
+ */
+export const STORE_NON_TABLE_RMIN_ROWS: readonly (StoreRMinRowClaim & { location: string })[] = Object.freeze([
+  { row: "Project config `projectId`", classCell: "Repository-canonical and portable", location: "Repository file `.make-docs/config.yaml`." },
+  { row: "Global config machine preferences", classCell: "Store-canonical and non-rebuildable", location: "Store file `config.json`, not a table." },
+  { row: "Global manifest minimum", classCell: "Store-canonical and non-rebuildable", location: "Store file for the global manifest, not a table." },
+  { row: "Project config `work` and `factory` blocks", classCell: "Repository-canonical and portable", location: "Repository file `.make-docs/config.yaml`." },
+]);
+
+/* ------------------------------------------------------------------------ */
+/* installation_migration_records kinds (t2)                                */
+/* ------------------------------------------------------------------------ */
+
+export const STORE_MIGRATION_RECORD_FAMILY_IDS = [
+  "migration-receipt",
+  "checkout-move-receipt",
+  "harness-receipt-current",
+  "harness-receipt",
+  "harness-receipt-observation",
+  "legacy-quiescence",
+  "detached-plan",
+  "detached-original-plan",
+  "migration-snapshot",
+  "atomic-write-intent",
+  "migration-backup",
+  "legacy-import-receipt",
+  "bridge-evidence",
+] as const;
+export type StoreMigrationRecordFamilyId = (typeof STORE_MIGRATION_RECORD_FAMILY_IDS)[number];
+
+export interface StoreMigrationRecordFamily {
+  id: StoreMigrationRecordFamilyId;
+  /** How a row is matched, in plain words. */
+  match: string;
+  /** The record ID test. `null` when the family is matched by its JSON. */
+  recordIdPattern: RegExp | null;
+  writers: readonly string[];
+  maintenanceClass: StoreMaintenanceClass;
+  rule: StoreFixedRuleId | null;
+  retention: string;
+}
+
+export interface StoreMigrationRecordKindEntry {
+  kind: StoreMigrationRecordKind;
+  purpose: string;
+  readers: readonly string[];
+  recordClass: StoreRecordClass;
+  /** Families in match order. A row that matches none is kept and reported as unclassified. */
+  families: readonly StoreMigrationRecordFamily[];
+  humanMeaning: string;
+}
+
+const SHA256_ID = /^sha256:[0-9a-f]{64}$/;
+const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+
+export const STORE_MIGRATION_RECORD_KIND_CATALOG: readonly StoreMigrationRecordKindEntry[] = Object.freeze<StoreMigrationRecordKindEntry[]>([
+  {
+    kind: "receipt",
+    purpose: "Receipts that prove a past migration, checkout move, or project harness change.",
+    readers: ["Migration verify", "Checkout move retry", "Project harness status and history", "Compatibility bridge checks", "Export"],
+    recordClass: "historical evidence",
+    families: [
+      { id: "migration-receipt", match: "Record ID is `sha256:` plus 64 hex characters.", recordIdPattern: SHA256_ID, writers: ["migration.ts commit receipt", "Legacy import"], maintenanceClass: "keep", rule: null, retention: "Keep for the checkout lifetime." },
+      { id: "checkout-move-receipt", match: "Record ID starts with `checkout-move:`.", recordIdPattern: /^checkout-move:/, writers: ["installation-state.ts applyInstallationCheckoutMove"], maintenanceClass: "keep", rule: null, retention: "Keep for the checkout lifetime. A move retry reads it." },
+      { id: "harness-receipt-current", match: "Record ID starts with `harness-receipt-current:project:`.", recordIdPattern: /^harness-receipt-current:project:/, writers: ["harness-integration-receipts.ts recordHarnessIntegrationReceipt"], maintenanceClass: "keep", rule: null, retention: "Keep while the harness integration exists." },
+      { id: "harness-receipt-observation", match: "Record ID starts with `harness-receipt-observation:`.", recordIdPattern: /^harness-receipt-observation:/, writers: ["harness-integration-receipts.ts recordHarnessIntegrationReceiptObservation"], maintenanceClass: "bounded", rule: "STORE-RULE-009", retention: "Keep the kept count of newest history rows for each checkout, harness, and method." },
+      { id: "harness-receipt", match: "Record ID is a UUID, and the JSON has `scope` `project`, a `harnessId`, and a `connectionMethod`.", recordIdPattern: new RegExp(`^${UUID}$`), writers: ["harness-integration-receipts.ts recordHarnessIntegrationReceipt"], maintenanceClass: "bounded", rule: "STORE-RULE-009", retention: "Keep the kept count of newest history rows for each checkout, harness, and method." },
+    ],
+    humanMeaning: "Receipts of past changes. Only old harness receipts beyond the kept count are removed.",
+  },
+  {
+    kind: "quiescence",
+    purpose: "The legacy quiescence barrier that stops old writers during a migration.",
+    readers: ["Migration", "Legacy operation guard (migration.ts assertLegacyOperationNotQuiesced)"],
+    recordClass: "short-lived mutation guard",
+    families: [
+      { id: "legacy-quiescence", match: "Record ID is `legacy`.", recordIdPattern: /^legacy$/, writers: ["migration.ts acquireProjectMigrationLock and bindQuiescenceToSnapshot", "Legacy import"], maintenanceClass: "disposable", rule: "STORE-RULE-006", retention: "Kept today. STORE-RULE-006 is inactive, because the bound barrier that every setup leaves is the post-migration freeze. A later phase may remove only an unbound barrier (no snapshotId) left by a crash, with owner approval." },
+    ],
+    humanMeaning: "A sign that stops old Make Docs writers after a migration. It is kept.",
+  },
+  {
+    kind: "snapshot",
+    purpose: "Saved plans for detached installation operations and frozen migration snapshots.",
+    readers: ["Detached operation resume and verify (installation-state.ts)", "Migration verify"],
+    recordClass: "Store-canonical and non-rebuildable",
+    families: [
+      { id: "detached-plan", match: "Record ID is `detached:` plus an operation ID.", recordIdPattern: /^detached:/, writers: ["installation-state.ts detached plan start and replan"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is active since W32 R0 P4." },
+      { id: "detached-original-plan", match: "Record ID is `detached-original:` plus an operation ID.", recordIdPattern: /^detached-original:/, writers: ["installation-state.ts detached plan start for `setup.skills.adopt`"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is active since W32 R0 P4." },
+      { id: "migration-snapshot", match: "Record ID is `sha256:` plus 64 hex characters.", recordIdPattern: SHA256_ID, writers: ["migration.ts freeze snapshot"], maintenanceClass: "keep", rule: null, retention: "Keep. A migration receipt names it." },
+    ],
+    humanMeaning: "Saved plans. A plan for a change that finished long ago is removed.",
+  },
+  {
+    kind: "backup",
+    purpose: "Atomic write intents of detached operations and migration backup manifests.",
+    readers: ["Detached operation recovery (installation-state.ts)", "Migration restore"],
+    recordClass: "Store-canonical and non-rebuildable",
+    families: [
+      { id: "atomic-write-intent", match: "Record ID is `atomic:` plus an operation ID, a colon, and a step ordinal.", recordIdPattern: /^atomic:.+:\d+$/, writers: ["installation-state.ts atomic write save"], maintenanceClass: "disposable", rule: "STORE-RULE-005", retention: "Disposable once its operation has been completed or rolled back for the retention window. The rule is active since W32 R0 P4." },
+      { id: "migration-backup", match: "Any other record ID.", recordIdPattern: /^(?!atomic:)/, writers: ["migration.ts backup manifest", "Legacy import"], maintenanceClass: "keep", rule: null, retention: "Keep. It is the restore path for a migration." },
+    ],
+    humanMeaning: "Backup notes. A note for a change that finished long ago is removed. Migration backups are kept.",
+  },
+  {
+    kind: "legacy-import",
+    purpose: "Proof of a legacy install import and the schema v5 bridge evidence.",
+    readers: ["Legacy import retry (legacy-installation.ts)", "Compatibility bridge checks"],
+    recordClass: "historical evidence",
+    families: [
+      { id: "bridge-evidence", match: "Record ID starts with `w22-p5:`.", recordIdPattern: /^w22-p5:/, writers: ["Schema v5 bridge", "Checkpoint-9 ledger projection"], maintenanceClass: "keep", rule: null, retention: "Keep through the bridge exit." },
+      { id: "legacy-import-receipt", match: "Any other record ID.", recordIdPattern: /^(?!w22-p5:)/, writers: ["installation-state.ts importInstallationState"], maintenanceClass: "keep", rule: null, retention: "Keep for the checkout lifetime." },
+    ],
+    humanMeaning: "Proof that an old install was imported. It is kept.",
+  },
+]);
+
+/**
+ * Classify one `installation_migration_records` row. Returns `null` when no
+ * family matches. An unclassified row is kept and reported.
+ */
+export function classifyMigrationRecord(
+  kind: string,
+  recordId: string,
+  recordJson: string,
+): StoreMigrationRecordFamilyId | null {
+  const entry = STORE_MIGRATION_RECORD_KIND_CATALOG.find((candidate) => candidate.kind === kind);
+  if (!entry) return null;
+  for (const family of entry.families) {
+    if (family.recordIdPattern && !family.recordIdPattern.test(recordId)) continue;
+    if (family.id === "harness-receipt" && !isProjectHarnessReceiptJson(recordJson)) continue;
+    return family.id;
+  }
+  return null;
+}
+
+function isProjectHarnessReceiptJson(recordJson: string): boolean {
+  try {
+    const value = JSON.parse(recordJson) as Record<string, unknown> | null;
+    return Boolean(value) && value!.scope === "project" && typeof value!.harnessId === "string" && typeof value!.connectionMethod === "string";
+  } catch {
+    return false;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Fixed rules (t4)                                                         */
+/* ------------------------------------------------------------------------ */
+
+export type StoreRuleAction =
+  | "delete-row"
+  | "mark-failed-abandoned"
+  | "strip-saved-bytes"
+  | "null-full-ledgers";
+
+export interface StoreRuleCandidateQuery {
+  table: StoreTableName;
+  /**
+   * Read-only SELECT. Named parameters come from {@link storeMaintenanceSqlParameters}.
+   * A non-NULL `skip_reason` column means the rule must skip that row and report the reason.
+   */
+  sql: string;
+  /** Result columns that identify one row. */
+  key: readonly string[];
+  /**
+   * Optional. Turn one SQL row into the row that the proofs, the key, and the reason read, or into null to leave the
+   * row out. It is for a value that SQL cannot split safely, and it must only compute from the row. Only a decision
+   * item may use it: a fixed rule rechecks and deletes rows by their SQL columns, so {@link storeCatalogDrift}
+   * reports a fixed rule that has one, and the rule evaluation throws.
+   */
+  derive?: (row: Record<string, unknown>) => Record<string, unknown> | null;
+}
+
+/** A rule that is `inactive` reports its candidates as skipped and never changes a row. */
+export type StoreRuleActivation =
+  | { state: "active" }
+  | { state: "inactive"; until: StoreFollowUpId; reason: string };
+
+export interface StoreFixedRule {
+  id: StoreFixedRuleId;
+  title: string;
+  /** The start of the PRD 38 R-MAINT-3 bullet that this rule states. */
+  prdBullet: string;
+  action: StoreRuleAction;
+  activation: StoreRuleActivation;
+  /** Every clause must hold before the rule acts on a row. */
+  condition: readonly string[];
+  /** The rows that pass the SQL part of the condition. Proofs run on each one. */
+  candidates: readonly StoreRuleCandidateQuery[];
+  proofs: readonly StoreMaintenanceProofId[];
+  settings: readonly StoreMaintenanceSettingId[];
+  /** What the rule does to a row that passes every clause. */
+  effect: string;
+  /** When the rule must skip a row and report why. */
+  skipWhen: readonly string[];
+  /** The compare-and-change check at write time. See {@link STORE_RULE_WRITE_CONTRACT}. */
+  recheck: StoreRuleRecheck;
+  humanMeaning: string;
+}
+
+export interface StoreRuleRecheck {
+  /**
+   * For each candidate query, in order: the result columns whose checked
+   * values the write must match exactly. Each list includes every key column
+   * of its query.
+   */
+  columnsByQuery: readonly (readonly string[])[];
+  /** What the write's WHERE clause matches, in plain words. */
+  match: string;
+}
+
+/**
+ * The write contract for every fixed rule. W32 R0 P4 must implement it.
+ * `check` and `clean` can run far apart, and another Make Docs command can
+ * change a row in between, so no rule trusts a value it read earlier.
+ */
+export const STORE_RULE_WRITE_CONTRACT = Object.freeze({
+  implementedIn: "W32 R0 P4",
+  steps: [
+    "Run every change of one clean inside one BEGIN IMMEDIATE write transaction, after the backup.",
+    "Inside that transaction, run the rule's candidate query again for the row's key, and run its proofs again.",
+    "Change or delete the row with a compare-and-change statement: its WHERE clause names the key and every recheck column with the exact value that the check proved.",
+    "When the statement changes no row, or a value or proof differs, skip the row and report that it changed after the check. Never retry with the new values in the same clean.",
+  ],
+} as const);
+
+const TERMINAL_SQL = `('completed','rolled-back')`;
+const RECOVERABLE_SQL = `('pending','failed')`;
+
+/** A JSON field that reads as NULL when the column is not valid JSON, so a bad row never fails the query. */
+const jsonField = (column: string, jsonPath: string) =>
+  `(CASE WHEN json_valid(${column}) THEN json_extract(${column}, '${jsonPath}') END)`;
+const jsonTypeOf = (column: string, jsonPath: string) =>
+  `(CASE WHEN json_valid(${column}) THEN json_type(${column}, '${jsonPath}') END)`;
+
+const savedBytesPresent = (column: string) => `(${jsonTypeOf(column, "$.contentBase64")} IS NOT NULL)`;
+
+/**
+ * True when a detached plan or an atomic write intent of operation `o` still
+ * exists. The detached plan reader (installation-state.ts detachedSnapshot)
+ * compares the plan with the operation's steps and after-ledger, and the
+ * atomic intent check (atomicTemporaryStates) needs `contentBase64` in a step,
+ * even for a completed operation.
+ */
+const detachedEvidenceExists = (o: string) => `EXISTS (
+                   SELECT 1 FROM installation_migration_records r
+                    WHERE r.checkout_id = ${o}.checkout_id
+                      AND (
+                        (r.kind = 'snapshot' AND (r.record_id = 'detached:' || ${o}.operation_id OR r.record_id = 'detached-original:' || ${o}.operation_id))
+                        OR (r.kind = 'backup' AND substr(r.record_id, 1, length('atomic:' || ${o}.operation_id || ':')) = 'atomic:' || ${o}.operation_id || ':')
+                      ))`;
+export const DETACHED_EVIDENCE_REASON = "A detached plan or an atomic write intent of this operation still exists, and its readers compare it with the steps and ledgers.";
+
+const fullLedger = (column: string) => `(${column} IS NOT NULL AND ${column} <> 'null')`;
+export const RECEIPT_COLUMNS_EMPTY_REASON = "The bounded receipt columns of this operation are empty, so its ledgers have no saved fingerprint yet.";
+
+/** The same UUID shape that {@link classifyMigrationRecord} uses, as a SQLite GLOB. */
+const hexGlob = (count: number) => "[0-9a-f]".repeat(count);
+const UUID_GLOB = `${hexGlob(8)}-${hexGlob(4)}-${hexGlob(4)}-${hexGlob(4)}-${hexGlob(12)}`;
+
+/**
+ * True when operation `o` is the latest completed operation of its checkout,
+ * is a `setup.remove`, and the checkout has no current ledger. Setup reads the
+ * full before-ledger of that row to offer setup after removal
+ * (installation-state.ts reviewCompletedRemovalHandoff), with no time limit.
+ */
+const removalHandoff = (o: string) => `(${o}.operation = 'setup.remove' AND ${o}.status = 'completed'
+          AND NOT EXISTS (SELECT 1 FROM installation_ledgers led WHERE led.checkout_id = ${o}.checkout_id)
+          AND ${o}.operation_id = (
+            SELECT h.operation_id FROM installation_operations h
+             WHERE h.checkout_id = ${o}.checkout_id AND h.status = 'completed'
+             ORDER BY h.finished_at DESC, h.operation_id DESC LIMIT 1))`;
+export const REMOVAL_HANDOFF_REASON = "This is the latest completed removal of a checkout with no ledger. Setup reads its full before-ledger to offer setup after removal.";
+
+export const STORE_FIXED_RULES: readonly StoreFixedRule[] = Object.freeze<StoreFixedRule[]>([
+  {
+    id: "STORE-RULE-001",
+    title: "Dead-owner lock with no pending operation",
+    prdBullet: "a lock whose owner is proven dead and that guards no pending or failed operation",
+    action: "delete-row",
+    activation: { state: "active" },
+    condition: [
+      "The row is in installation_locks.",
+      "No installation_operations row with status `pending` or `failed` belongs to a checkout at the lock's path. P4 compares `platform.comparisonKey(l.root_path)` with `c.root_path_key`, and also compares the raw root_path. The SQL below can only approximate that key with `lower()`, which matches more paths, never fewer. On any doubt about the comparison, the lock stays.",
+      "The owner-process-dead proof passes for the lock's pid and hostname.",
+    ],
+    candidates: [{
+      table: "installation_locks",
+      sql: `SELECT l.root_path, l.token, l.pid, l.hostname, l.acquired_at
+        FROM installation_locks l
+        WHERE NOT EXISTS (
+          SELECT 1 FROM installation_operations o
+          JOIN installation_checkouts c ON c.checkout_id = o.checkout_id
+          WHERE o.status IN ${RECOVERABLE_SQL}
+            AND (c.root_path = l.root_path OR c.root_path_key = l.root_path OR c.root_path_key = lower(l.root_path))
+        )
+        ORDER BY l.root_path`,
+      key: ["root_path"],
+    }],
+    proofs: ["owner-process-dead"],
+    settings: [],
+    effect: "Delete the lock row.",
+    skipWhen: [
+      "The owner's liveness is `unknown`, for example a lock from another host.",
+      "platform.comparisonKey cannot describe the lock path, for example a path that no longer resolves. The lock stays.",
+    ],
+    recheck: { columnsByQuery: [["root_path", "token", "pid", "hostname"]], match: "The lock row with the same root_path, token, pid, and hostname, and still no pending or failed operation on a checkout whose root_path equals the lock path or whose root_path_key equals platform.comparisonKey of it." },
+    humanMeaning: "A lock left by a Make Docs command that crashed, with no unfinished change behind it, is removed so that the next command can run.",
+  },
+  {
+    id: "STORE-RULE-002",
+    title: "Abandoned tool update or uninstall",
+    prdBullet: "a pending `tool.update` or `tool.uninstall` whose owner is proven dead",
+    action: "mark-failed-abandoned",
+    activation: { state: "inactive", until: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE", reason: "The package-manager-idle check exists (W32 R0 P4, maintenance.ts packageManagerIdleProof). The owner decided on 2026-11-23 to keep this rule off. `setup store check` reports what the check would find, so the owner can revisit the decision." },
+    condition: [
+      "The row is in tool_operations with status `pending` and operation `tool.update` or `tool.uninstall`.",
+      "The owner-process-dead proof passes for the row's pid and hostname.",
+      "The package-manager-idle proof passes for the row's `manager` and `command` metadata.",
+    ],
+    candidates: [{
+      table: "tool_operations",
+      sql: `SELECT operation_id, operation, status, pid, hostname, metadata_json
+        FROM tool_operations
+        WHERE status = 'pending' AND operation IN ('tool.update', 'tool.uninstall')
+        ORDER BY started_at, operation_id`,
+      key: ["operation_id"],
+    }],
+    proofs: ["owner-process-dead", "package-manager-idle"],
+    settings: [],
+    effect: "Set status to `failed`, set finished_at to the clean time, and merge `{\"outcome\":\"abandoned\",\"reason\":\"abandoned\",\"changeOutcome\":\"unknown\"}` into metadata_json. The row stays as history.",
+    skipWhen: [
+      "The rule is inactive.",
+      "The owner's liveness is `unknown`.",
+      "The package-manager-idle proof is `unknown` or `refuted`.",
+    ],
+    recheck: { columnsByQuery: [["operation_id", "operation", "status", "pid", "hostname", "metadata_json"]], match: "The tool operation with the same operation_id and operation, status still `pending`, the same pid and hostname, and the same metadata_json that the package-manager-idle proof checked." },
+    humanMeaning: "A Make Docs update or uninstall that crashed stops blocking the machine. Make Docs records it as failed and does not guess whether the package manager changed anything.",
+  },
+  {
+    id: "STORE-RULE-003",
+    title: "Saved file contents of a terminal operation",
+    prdBullet: "saved `contentBase64` bytes in `installation_steps` of a terminal operation after the retention window",
+    action: "strip-saved-bytes",
+    activation: { state: "active" },
+    condition: [
+      "The step's operation has status `completed` or `rolled-back`. A `failed` operation is never terminal here.",
+      "The operation's finished_at is set and is earlier than the clean time minus terminalOperationRetentionDays.",
+      "The step's before_json or after_json is valid JSON with a `contentBase64` key. A `payload` key is a backup file path, not bytes, and stays.",
+      "No `detached:` or `detached-original:` plan and no `atomic:` write intent of the operation remains.",
+      "The operation is not the removal handoff row: the latest completed `setup.remove` of a checkout with no current ledger.",
+    ],
+    candidates: [{
+      table: "installation_steps",
+      sql: `SELECT s.operation_id, s.ordinal, s.before_json, s.after_json, o.status AS operation_status, o.finished_at AS operation_finished_at,
+               CASE
+                 WHEN ${removalHandoff("o")} THEN '${REMOVAL_HANDOFF_REASON}'
+                 WHEN ${detachedEvidenceExists("o")} THEN '${DETACHED_EVIDENCE_REASON}'
+               END AS skip_reason
+        FROM installation_steps s
+        JOIN installation_operations o ON o.operation_id = s.operation_id
+        WHERE o.status IN ${TERMINAL_SQL}
+          AND o.finished_at IS NOT NULL AND o.finished_at < :terminalCutoff
+          AND (${savedBytesPresent("s.before_json")} OR ${savedBytesPresent("s.after_json")})
+        ORDER BY s.operation_id, s.ordinal`,
+      key: ["operation_id", "ordinal"],
+    }],
+    proofs: [],
+    settings: ["terminalOperationRetentionDays"],
+    effect: "Remove the `contentBase64` key from before_json and after_json. Keep `payload` (the backup file path), kind, digest, mode, target, relative_path, and applied. This frees little space unless a step holds `contentBase64`; the backup files that `payload` names stay until FOLLOW-UP-LATER-OPERATION-BACKUP-FILES.",
+    skipWhen: [
+      "The operation is the removal handoff row.",
+      "A detached plan or an atomic write intent of the operation still exists.",
+      "before_json or after_json is not valid JSON. The step is kept and reported as unreadable.",
+    ],
+    recheck: { columnsByQuery: [["operation_id", "ordinal", "before_json", "after_json", "operation_status", "operation_finished_at"]], match: "The step with the same operation_id and ordinal and the same before_json and after_json, whose operation still has the checked terminal status and finished_at, and still no detached plan or atomic intent." },
+    humanMeaning: "Old copies of file contents kept inside the Store, from a change that finished more than the retention window ago, are removed. The record of which files changed, and the link to each backup file, stays.",
+  },
+  {
+    id: "STORE-RULE-004",
+    title: "Full ledgers of a terminal operation",
+    prdBullet: "the full before and after ledgers in `installation_operations` of a terminal operation after the retention window",
+    action: "null-full-ledgers",
+    activation: { state: "active" },
+    condition: [
+      "The operation has status `completed` or `rolled-back`. A `failed` operation is never terminal here.",
+      "Its finished_at is set and is earlier than the clean time minus terminalOperationRetentionDays.",
+      "Its before_ledger or after_ledger holds a full ledger: not NULL and not `null`.",
+      "Its bounded receipt columns (STORE_PLANNED_OPERATION_RECEIPT_COLUMNS, schema v7) are filled, and each ledger digest (`sha256:` plus the hex SHA-256 of the exact ledger text) matches the ledger text that it replaces.",
+      "No `detached:` or `detached-original:` plan and no `atomic:` write intent of the operation remains, because the detached plan reader compares its after-ledger with the operation's after_ledger.",
+      "The operation is not the removal handoff row: the latest completed `setup.remove` of a checkout with no current ledger.",
+    ],
+    candidates: [{
+      table: "installation_operations",
+      sql: `SELECT o.operation_id, o.status, o.finished_at, o.before_ledger, o.after_ledger,
+               o.before_ledger_digest, o.after_ledger_digest, o.step_count, o.applied_step_count,
+               CASE
+                 WHEN ${removalHandoff("o")} THEN '${REMOVAL_HANDOFF_REASON}'
+                 WHEN o.step_count IS NULL OR o.applied_step_count IS NULL
+                   OR (${fullLedger("o.before_ledger")} AND o.before_ledger_digest IS NULL)
+                   OR (${fullLedger("o.after_ledger")} AND o.after_ledger_digest IS NULL)
+                   THEN '${RECEIPT_COLUMNS_EMPTY_REASON}'
+                 WHEN ${detachedEvidenceExists("o")} THEN '${DETACHED_EVIDENCE_REASON}'
+               END AS skip_reason
+        FROM installation_operations o
+        WHERE o.status IN ${TERMINAL_SQL}
+          AND o.finished_at IS NOT NULL AND o.finished_at < :terminalCutoff
+          AND (${fullLedger("o.before_ledger")} OR ${fullLedger("o.after_ledger")})
+        ORDER BY o.operation_id`,
+      key: ["operation_id"],
+    }],
+    proofs: [],
+    settings: ["terminalOperationRetentionDays"],
+    effect: "After the receipt columns are filled and read back, set each full ledger (before_ledger, after_ledger) to NULL in the same transaction. A ledger that is NULL or `null` stays as it is. Every other column stays.",
+    skipWhen: [
+      "The receipt columns are empty or do not match the ledger text.",
+      "A detached plan or an atomic write intent of the operation still exists.",
+      "The operation is the removal handoff row.",
+    ],
+    recheck: { columnsByQuery: [["operation_id", "status", "finished_at", "before_ledger", "after_ledger", "before_ledger_digest", "after_ledger_digest"]], match: "The operation with the same operation_id, status, and finished_at, the same ledgers and receipt digests, and ledgers whose SHA-256 still equals the digest checked and stored in the receipt columns." },
+    humanMeaning: "An old finished change keeps a short summary with fingerprints of its ledgers instead of the full lists.",
+  },
+  {
+    id: "STORE-RULE-005",
+    title: "Detached plan snapshots and atomic write intents of a terminal operation",
+    prdBullet: "detached plan snapshots and atomic write intents in `installation_migration_records` of a terminal operation after the retention window",
+    action: "delete-row",
+    activation: { state: "active" },
+    condition: [
+      "The row is a `detached-plan`, `detached-original-plan`, or `atomic-write-intent` record.",
+      "The operation ID in its record ID names an installation_operations row on the same checkout.",
+      "That operation has status `completed` or `rolled-back`. A `failed` operation is never terminal here.",
+      "The operation's finished_at is set and is earlier than the clean time minus terminalOperationRetentionDays.",
+      "The operation is not the removal handoff row.",
+    ],
+    candidates: [{
+      table: "installation_migration_records",
+      sql: `SELECT r.checkout_id, r.kind, r.record_id, o.operation_id, o.status AS operation_status, o.finished_at AS operation_finished_at,
+               CASE WHEN ${removalHandoff("o")} THEN '${REMOVAL_HANDOFF_REASON}' END AS skip_reason
+        FROM installation_migration_records r
+        JOIN installation_operations o ON o.checkout_id = r.checkout_id
+        WHERE o.status IN ${TERMINAL_SQL}
+          AND o.finished_at IS NOT NULL AND o.finished_at < :terminalCutoff
+          AND (
+            (r.kind = 'snapshot' AND (r.record_id = 'detached:' || o.operation_id OR r.record_id = 'detached-original:' || o.operation_id))
+            OR (r.kind = 'backup' AND substr(r.record_id, 1, length('atomic:' || o.operation_id || ':')) = 'atomic:' || o.operation_id || ':')
+          )
+        ORDER BY r.checkout_id, r.kind, r.record_id`,
+      key: ["checkout_id", "kind", "record_id"],
+    }],
+    proofs: [],
+    settings: ["terminalOperationRetentionDays"],
+    effect: "Delete the record row. In one clean, this rule runs before STORE-RULE-003 and STORE-RULE-004, so they can trim the same operation once its plan and write intents are gone.",
+    skipWhen: [
+      "The named operation is pending or failed, or no operation row exists. A plan with no operation is kept and reported.",
+      "The operation is the removal handoff row.",
+    ],
+    recheck: { columnsByQuery: [["checkout_id", "kind", "record_id", "operation_id", "operation_status", "operation_finished_at"]], match: "The record with the same checkout_id, kind, and record_id, whose operation still has the checked terminal status and finished_at." },
+    humanMeaning: "Saved plans and write notes for a change that finished more than the retention window ago are removed. This frees most of the space on a Store with a large Skill adoption.",
+  },
+  {
+    id: "STORE-RULE-006",
+    title: "Quiescence barrier whose lock is gone",
+    prdBullet: "a quiescence row in `installation_migration_records` that a crash left before it was bound to a snapshot",
+    action: "delete-row",
+    activation: { state: "inactive", until: "FOLLOW-UP-LATER-QUIESCENCE-CRASH-BARRIER", reason: "Every normal `make-docs setup` leaves a bound `legacy` barrier after it releases its lock (cli.ts executeStoreCheckpoint9Migration). That barrier is the post-migration freeze that migration.ts assertLegacyOperationNotQuiesced enforces, so a lock that is gone does not prove the barrier is stale." },
+    condition: [
+      "The row is in installation_migration_records with kind `quiescence`.",
+      "Its checkout has no installation_operations row with status `pending` or `failed`. A crash while recovery takes its lock again can leave a pending operation with no lock.",
+      "Its checkout has no `legacy-import` record. An imported barrier names a legacy lock token that never appears in installation_locks, so it stays as import evidence.",
+      "Its record_json has no snapshotId (JSON null or absent): the barrier was left by a crash before it was bound to a migration snapshot. A bound barrier is the post-migration freeze and always stays.",
+      "The lock-token-absent proof passes for its record_json.",
+      "The owner approves the later phase that turns this rule on.",
+    ],
+    candidates: [{
+      table: "installation_migration_records",
+      sql: `SELECT q.checkout_id, q.kind, q.record_id, q.record_json,
+               CASE
+                 WHEN EXISTS (SELECT 1 FROM installation_operations o WHERE o.checkout_id = q.checkout_id AND o.status IN ${RECOVERABLE_SQL})
+                   THEN 'This checkout has an unfinished operation, so the barrier may still be recovery evidence.'
+                 WHEN EXISTS (SELECT 1 FROM installation_migration_records i WHERE i.checkout_id = q.checkout_id AND i.kind = 'legacy-import')
+                   THEN 'This checkout has a legacy import, so the barrier may be imported evidence.'
+               END AS skip_reason
+        FROM installation_migration_records q
+        WHERE q.kind = 'quiescence'
+          AND ${jsonField("q.record_json", "$.snapshotId")} IS NULL
+        ORDER BY q.checkout_id, q.record_id`,
+      key: ["checkout_id", "kind", "record_id"],
+    }],
+    proofs: ["lock-token-absent"],
+    settings: [],
+    effect: "Delete the record row.",
+    skipWhen: [
+      "The rule is inactive.",
+      "Its checkout has a pending or failed operation.",
+      "Its checkout has a legacy-import record.",
+      "The record JSON is unreadable or has no lockTokenDigest.",
+    ],
+    recheck: { columnsByQuery: [["checkout_id", "kind", "record_id", "record_json"]], match: "The quiescence record with the same key and the exact record_json whose lockTokenDigest the proof checked, and still no lock with that token, no pending or failed operation, and no legacy import on its checkout." },
+    humanMeaning: "A migration barrier that a crash left before the migration was bound to a snapshot can be removed once a later phase turns this rule on. The normal barrier that every setup leaves stays.",
+  },
+  {
+    id: "STORE-RULE-007",
+    title: "Checkpoint journal row with a migration receipt",
+    prdBullet: "a `store_checkpoint_journal` row with a matching `store_migration_receipts` row",
+    action: "delete-row",
+    activation: { state: "active" },
+    condition: [
+      "The row is in store_checkpoint_journal.",
+      "A store_migration_receipts row has the same receipt_id.",
+    ],
+    candidates: [{
+      table: "store_checkpoint_journal",
+      sql: `SELECT j.receipt_id
+        FROM store_checkpoint_journal j
+        JOIN store_migration_receipts r ON r.receipt_id = j.receipt_id
+        ORDER BY j.receipt_id`,
+      key: ["receipt_id"],
+    }],
+    proofs: [],
+    settings: [],
+    effect: "Delete the journal row.",
+    skipWhen: [],
+    recheck: { columnsByQuery: [["receipt_id"]], match: "The journal row with the same receipt_id, while a store_migration_receipts row with that receipt_id still exists." },
+    humanMeaning: "An old copy of a migration receipt is removed once the newer receipt table holds the same receipt.",
+  },
+  {
+    id: "STORE-RULE-008",
+    title: "Backlog review cache rows for old versions",
+    prdBullet: "`backlog_review_cache` rows for old snapshot, rule catalog, or Skill versions",
+    action: "delete-row",
+    activation: { state: "active" },
+    condition: [
+      "The row is in backlog_review_cache.",
+      "Its snapshot_schema_version, rule_catalog_version, or skill_version is lower than the current version in this CLI. A higher version is kept, because a newer CLI may use it.",
+    ],
+    candidates: [{
+      table: "backlog_review_cache",
+      sql: `SELECT checkout_id, record_path, record_digest, snapshot_schema_version, rule_catalog_version, skill_version
+        FROM backlog_review_cache
+        WHERE snapshot_schema_version < :snapshotSchemaVersion
+           OR rule_catalog_version < :ruleCatalogVersion
+           OR skill_version < :skillVersion
+        ORDER BY checkout_id, record_path`,
+      key: ["checkout_id", "record_path", "record_digest", "snapshot_schema_version", "rule_catalog_version", "skill_version"],
+    }],
+    proofs: [],
+    settings: [],
+    effect: "Delete the cache row.",
+    skipWhen: [],
+    recheck: { columnsByQuery: [["checkout_id", "record_path", "record_digest", "snapshot_schema_version", "rule_catalog_version", "skill_version"]], match: "The cache row with the same full primary key, which holds the checked versions." },
+    humanMeaning: "Backlog review results saved by an older Make Docs version are removed. The next review rebuilds them.",
+  },
+  {
+    id: "STORE-RULE-009",
+    title: "Harness receipt history beyond the kept count",
+    prdBullet: "harness receipt history beyond the kept count",
+    action: "delete-row",
+    activation: { state: "active" },
+    condition: [
+      "The row is a harness receipt or observation history row: in tool_operations with status `completed` and operation `setup.system.receipt` or `setup.system.receipt-observation`, or in installation_migration_records as a `harness-receipt` (UUID record ID) or `harness-receipt-observation` record with project scope.",
+      "Its JSON is valid and has a text `harnessId` and a text `connectionMethod`. A row without them is never grouped or removed. Rows are grouped by harnessId and connectionMethod, and by checkout for project receipts.",
+      "More than harnessReceiptHistoryKeptCount newer rows exist in its group, ordered by verifiedAt, then by row ID. The current receipt's own rows (its history copy, which every setup writes beside the pointer, and its observations) are not ranked, so the current receipt plus the kept count of older receipts stay (PRD 38 R-MAINT-3).",
+      "Its receipt operationId is not the operationId of a current receipt pointer.",
+      "Its receipt operationId is not the `ownershipReceipt.operationId` of a pending `setup.system.harness` row. Machine setup reads that receipt to resume a drift repair.",
+    ],
+    candidates: [
+      {
+        table: "tool_operations",
+        sql: `WITH history AS (
+            SELECT operation_id AS row_id, metadata_json,
+                   ${jsonField("metadata_json", "$.harnessId")} AS harness_id,
+                   ${jsonField("metadata_json", "$.connectionMethod")} AS method,
+                   ${jsonField("metadata_json", "$.operationId")} AS receipt_operation_id,
+                   coalesce(${jsonField("metadata_json", "$.verifiedAt")}, finished_at) AS ordered_at
+              FROM tool_operations h
+             WHERE status = 'completed'
+               AND operation IN ('setup.system.receipt', 'setup.system.receipt-observation')
+               AND ${jsonTypeOf("metadata_json", "$.harnessId")} = 'text'
+               AND ${jsonTypeOf("metadata_json", "$.connectionMethod")} = 'text'
+               -- The current receipt's own history copy and observations take no kept slot.
+               AND NOT EXISTS (
+                 SELECT 1 FROM tool_operations c
+                  WHERE c.status = 'completed' AND c.operation = 'setup.system.receipt-current'
+                    AND ${jsonField("c.metadata_json", "$.operationId")} = ${jsonField("h.metadata_json", "$.operationId")}
+                    AND ${jsonField("c.metadata_json", "$.harnessId")} = ${jsonField("h.metadata_json", "$.harnessId")}
+                    AND ${jsonField("c.metadata_json", "$.connectionMethod")} = ${jsonField("h.metadata_json", "$.connectionMethod")}
+               )
+          ), ranked AS (
+            SELECT history.*, ROW_NUMBER() OVER (PARTITION BY harness_id, method ORDER BY ordered_at DESC, row_id DESC) AS position
+              FROM history
+          )
+          SELECT row_id AS operation_id, receipt_operation_id, metadata_json,
+                 CASE WHEN EXISTS (
+                   SELECT 1 FROM tool_operations p
+                    WHERE p.status = 'pending' AND p.operation = 'setup.system.harness' AND NOT json_valid(p.metadata_json)
+                 ) THEN 'A pending machine setup has unreadable metadata, so the receipt it needs cannot be known.' END AS skip_reason
+            FROM ranked
+           WHERE position > :harnessReceiptKeptCount
+             AND receipt_operation_id IS NOT NULL
+             AND receipt_operation_id NOT IN (
+               SELECT ${jsonField("metadata_json", "$.operationId")}
+                 FROM tool_operations
+                WHERE status = 'completed' AND operation = 'setup.system.receipt-current'
+                  AND ${jsonField("metadata_json", "$.operationId")} IS NOT NULL
+             )
+             AND receipt_operation_id NOT IN (
+               SELECT ${jsonField("metadata_json", "$.ownershipReceipt.operationId")}
+                 FROM tool_operations
+                WHERE status = 'pending' AND operation = 'setup.system.harness'
+                  AND ${jsonField("metadata_json", "$.ownershipReceipt.operationId")} IS NOT NULL
+             )
+           ORDER BY row_id`,
+        key: ["operation_id"],
+      },
+      {
+        table: "installation_migration_records",
+        sql: `WITH history AS (
+            SELECT checkout_id, kind, record_id, record_json,
+                   ${jsonField("record_json", "$.harnessId")} AS harness_id,
+                   ${jsonField("record_json", "$.connectionMethod")} AS method,
+                   ${jsonField("record_json", "$.operationId")} AS receipt_operation_id,
+                   ${jsonField("record_json", "$.verifiedAt")} AS ordered_at
+              FROM installation_migration_records h
+             WHERE kind = 'receipt'
+               AND (record_id GLOB '${UUID_GLOB}' OR substr(record_id, 1, 28) = 'harness-receipt-observation:')
+               AND ${jsonField("record_json", "$.scope")} = 'project'
+               AND ${jsonTypeOf("record_json", "$.harnessId")} = 'text'
+               AND ${jsonTypeOf("record_json", "$.connectionMethod")} = 'text'
+               -- The current receipt's own history copy and observations take no kept slot.
+               AND NOT EXISTS (
+                 SELECT 1 FROM installation_migration_records c
+                  WHERE c.checkout_id = h.checkout_id AND c.kind = 'receipt'
+                    AND substr(c.record_id, 1, 24) = 'harness-receipt-current:'
+                    AND ${jsonField("c.record_json", "$.operationId")} = ${jsonField("h.record_json", "$.operationId")}
+                    AND ${jsonField("c.record_json", "$.harnessId")} = ${jsonField("h.record_json", "$.harnessId")}
+                    AND ${jsonField("c.record_json", "$.connectionMethod")} = ${jsonField("h.record_json", "$.connectionMethod")}
+               )
+          ), ranked AS (
+            SELECT history.*, ROW_NUMBER() OVER (PARTITION BY checkout_id, harness_id, method ORDER BY ordered_at DESC, record_id DESC) AS position
+              FROM history
+          )
+          SELECT checkout_id, kind, record_id, receipt_operation_id, record_json
+            FROM ranked
+           WHERE position > :harnessReceiptKeptCount
+             AND receipt_operation_id IS NOT NULL
+             AND receipt_operation_id NOT IN (
+               SELECT ${jsonField("c.record_json", "$.operationId")}
+                 FROM installation_migration_records c
+                WHERE c.kind = 'receipt' AND c.checkout_id = ranked.checkout_id
+                  AND substr(c.record_id, 1, 24) = 'harness-receipt-current:'
+                  AND ${jsonField("c.record_json", "$.operationId")} IS NOT NULL
+             )
+           ORDER BY checkout_id, record_id`,
+        key: ["checkout_id", "kind", "record_id"],
+      },
+    ],
+    proofs: [],
+    settings: ["harnessReceiptHistoryKeptCount"],
+    effect: "Delete the history row. The current receipt pointer, the receipt that a pending machine setup names, and the newest history rows stay.",
+    skipWhen: [
+      "The JSON is unreadable or has no operationId. The row is kept and reported.",
+      "A pending machine setup has unreadable metadata.",
+    ],
+    recheck: {
+      columnsByQuery: [
+        ["operation_id", "receipt_operation_id", "metadata_json"],
+        ["checkout_id", "kind", "record_id", "receipt_operation_id", "record_json"],
+      ],
+      match: "The history row with the same key (operation_id for machine rows; checkout_id, kind, and record_id for project rows), the same receipt operationId, and the exact metadata_json or record_json that the check read, still past the kept count and still not named by a current pointer or a pending machine setup.",
+    },
+    humanMeaning: "Old harness setup receipts beyond the kept count are removed. The current receipt, any receipt an unfinished setup needs, and the newest ones stay.",
+  },
+]);
+
+/* ------------------------------------------------------------------------ */
+/* Decision items (t5)                                                      */
+/* ------------------------------------------------------------------------ */
+
+export interface StoreDecisionItem {
+  id: StoreDecisionItemId;
+  title: string;
+  /** The start of the PRD 38 R-MAINT-4 phrase that this item states. */
+  prdPhrase: string;
+  condition: readonly string[];
+  candidates: readonly StoreRuleCandidateQuery[];
+  proofs: readonly StoreMaintenanceProofId[];
+  settings: readonly StoreMaintenanceSettingId[];
+  /** The plain reason that `setup store check` shows. `{...}` marks a value from the row. */
+  reasonText: string;
+  nextAction: string;
+}
+
+export const STORE_DECISION_ITEMS: readonly StoreDecisionItem[] = Object.freeze<StoreDecisionItem[]>([
+  {
+    id: "STORE-DECISION-001",
+    title: "Checkout folder is missing",
+    prdPhrase: "a checkout whose folder is missing",
+    condition: [
+      "The row is in installation_checkouts.",
+      "The checkout-folder-missing proof passes for its root_path.",
+    ],
+    candidates: [{
+      table: "installation_checkouts",
+      sql: `SELECT c.checkout_id, c.project_id, c.root_path,
+               (SELECT count(*) FROM installation_operations o WHERE o.checkout_id = c.checkout_id AND o.status IN ${RECOVERABLE_SQL}) AS pending_operations,
+               (SELECT count(*) FROM backlog_review_cache b WHERE b.checkout_id = c.checkout_id) AS cache_rows
+          FROM installation_checkouts c
+         ORDER BY c.root_path`,
+      key: ["checkout_id"],
+    }],
+    proofs: ["checkout-folder-missing"],
+    settings: [],
+    reasonText: "The folder {root_path} for project {project_id} no longer exists. Make Docs keeps its Store rows, including {pending_operations} unfinished changes and {cache_rows} cached review results, because the folder may have moved or may be on a drive that is not connected.",
+    nextAction: "If the project moved, run `make-docs setup` in the new folder to move the checkout. If the folder is gone for good, a later reviewed removal can clear its rows.",
+  },
+  {
+    id: "STORE-DECISION-002",
+    title: "Lifecycle run left open",
+    prdPhrase: "a lifecycle run left open past the review age",
+    condition: [
+      "The row is in runs with status `active` or `paused`.",
+      "Its updated_at is earlier than the check time minus lifecycleRunReviewAgeDays.",
+    ],
+    candidates: [{
+      table: "runs",
+      sql: `SELECT project_id, run_id, status, lifecycle_stage, updated_at
+          FROM runs
+         WHERE status IN ('active', 'paused') AND updated_at < :runReviewCutoff
+         ORDER BY updated_at, project_id, run_id`,
+      key: ["project_id", "run_id"],
+    }],
+    proofs: [],
+    settings: ["lifecycleRunReviewAgeDays"],
+    reasonText: "Lifecycle run {run_id} in project {project_id} has been {status} at stage {lifecycle_stage} since {updated_at}. Make Docs never closes a run for you.",
+    nextAction: "Resume, complete, or abandon the run with `make-docs lifecycle`.",
+  },
+  {
+    id: "STORE-DECISION-003",
+    title: "Legacy recovery is pending",
+    prdPhrase: "a pending `legacy.recovery` operation",
+    condition: [
+      "The row is in installation_operations with status `pending` and operation `legacy.recovery`.",
+    ],
+    candidates: [{
+      table: "installation_operations",
+      sql: `SELECT o.operation_id, o.checkout_id, c.root_path, o.created_at
+          FROM installation_operations o
+          JOIN installation_checkouts c ON c.checkout_id = o.checkout_id
+         WHERE o.status = 'pending' AND o.operation = 'legacy.recovery'
+         ORDER BY o.created_at, o.operation_id`,
+      key: ["operation_id"],
+    }],
+    proofs: [],
+    settings: [],
+    reasonText: "An old install in {root_path} was imported on {created_at}, and its recovery never finished. While it is pending, tool update, tool uninstall, and Store removal stay blocked. No Make Docs command can finish or clear it yet: generic recovery refuses to replay it, because it needs its verified migration snapshot.",
+    nextAction: "Keep the operation row, its legacy-import record, and the checkout's snapshot, backup, receipt, and quiescence records. Do not edit the Store. Ask the Make Docs maintainers for a reviewed recovery.",
+  },
+  {
+    id: "STORE-DECISION-004",
+    title: "Work claim expired long ago",
+    prdPhrase: "a work claim that expired more than 7 days ago",
+    condition: [
+      "The row is in work_claims.",
+      "Its expires_at is earlier than the check time minus workClaimExpiredReviewDays.",
+    ],
+    candidates: [{
+      table: "work_claims",
+      // The claim ID stays out: only its holder sees it (PRD 52, W29 R0 P4 T13).
+      sql: `SELECT c.unit_store_id, c.project_id, c.claimant, c.expires_at,
+               coalesce(u.coordinate, c.unit_store_id) AS coordinate,
+               CASE WHEN u.kind = 'quick-item' THEN 'task ' || u.coordinate ELSE coalesce(u.coordinate, c.unit_store_id) END AS label
+          FROM work_claims c
+          LEFT JOIN work_units u ON u.store_id = c.unit_store_id
+         WHERE c.expires_at < :claimReviewCutoff
+         ORDER BY c.expires_at, c.project_id, c.unit_store_id`,
+      key: ["unit_store_id"],
+    }],
+    proofs: [],
+    settings: ["workClaimExpiredReviewDays"],
+    reasonText: "The claim of {claimant} on {label} in project {project_id} ended at {expires_at}. Make Docs never removes a claim for you: the unit waits until someone takes it over after a handle check, or releases it.",
+    nextAction: "Check the claimant's task. Then take the unit over with `make-docs work claim`, or release the claim with `make-docs work release`.",
+  },
+  {
+    id: "STORE-DECISION-005",
+    title: "Factory backup record whose folder is missing",
+    prdPhrase: "a factory backup record whose checkout folder is missing",
+    condition: [
+      "The row is in factory_backups.",
+      "The checkout-folder-missing proof passes for the checkout folder that its backup_path names, split by splitFactoryBackupPath.",
+    ],
+    candidates: [{
+      table: "factory_backups",
+      // `backup` and `root_path` are empty here. `derive` fills both from backup_path, which SQL cannot split safely.
+      sql: `SELECT project_id, assignment_id, '' AS backup, '' AS root_path, backup_path, original_path
+          FROM factory_backups
+         ORDER BY project_id, backup_path`,
+      key: ["project_id", "backup"],
+      // The reason shows the backup by its path inside the project, and root_path is only the input of the folder
+      // proof. Both come from the shared split, at the last backup folder marker that the record's assignment ID
+      // follows, so the checkout folder's own path and the backed-up file's own path can hold the marker. The
+      // absolute backup path leaves the row here.
+      derive: (row) => {
+        const split = splitFactoryBackupPath(String(row.backup_path), String(row.assignment_id), typeof row.original_path === "string" ? row.original_path : null);
+        return split ? { project_id: row.project_id, assignment_id: row.assignment_id, backup: split.projectPath, root_path: split.root } : null;
+      },
+    }],
+    proofs: ["checkout-folder-missing"],
+    settings: [],
+    reasonText: "The factory backup record for {backup} in project {project_id} names a file in a checkout folder that is missing, or that cannot be checked from this computer. Make Docs removes a backup record only together with its file, so the record stays.",
+    nextAction: "If the folder moved, run `make-docs setup` in the new folder, and then `make-docs factory restore` there. If the folder does not come back, leave the record: it changes nothing else. The reviewed removal of its workflow, `make-docs factory workflow clean`, drops it.",
+  },
+]);
+
+/* ------------------------------------------------------------------------ */
+/* Crash leftovers that block the machine today                             */
+/* ------------------------------------------------------------------------ */
+
+export interface StoreBlockingLeftover {
+  id: `STORE-LEFTOVER-${string}`;
+  title: string;
+  /** What it blocks today, with the code that blocks. */
+  blocks: string;
+  /** The rule, decision item, or existing command that clears or reports it. */
+  route: StoreFixedRuleId | StoreDecisionItemId | `existing:${string}`;
+}
+
+export const STORE_BLOCKING_LEFTOVERS: readonly StoreBlockingLeftover[] = Object.freeze<StoreBlockingLeftover[]>([
+  {
+    id: "STORE-LEFTOVER-001",
+    title: "A dead-owner installation lock with no pending operation",
+    blocks: "Tool update, tool uninstall, and Store removal (tool-operations.ts checks any installation_locks row), and the next writer on that checkout (acquireInstallationLock reports recovery-required).",
+    route: "STORE-RULE-001",
+  },
+  {
+    id: "STORE-LEFTOVER-002",
+    title: "A pending tool.update or tool.uninstall with a dead owner",
+    blocks: "Every later tool operation, every installation lock on the machine (acquireInstallationLock checks pending tool_operations), and Store removal. STORE-RULE-002 is inactive until the owner approves it, so check reports this row and what the package-manager-idle check finds, and clean skips it.",
+    route: "STORE-RULE-002",
+  },
+  {
+    id: "STORE-LEFTOVER-003",
+    title: "A pending legacy.recovery operation",
+    blocks: "Tool update, tool uninstall, and Store removal (tool-operations.ts checks any pending installation operation). No command clears it yet.",
+    route: "STORE-DECISION-003",
+  },
+  {
+    id: "STORE-LEFTOVER-004",
+    title: "A pending installation operation on a checkout whose folder is gone",
+    blocks: "Tool update, tool uninstall, and Store removal. No resume is possible, because the folder is gone.",
+    route: "STORE-DECISION-001",
+  },
+  {
+    id: "STORE-LEFTOVER-005",
+    title: "A dead-owner installation lock that guards a pending operation",
+    blocks: "The same as STORE-LEFTOVER-001. The pending operation still holds recovery evidence, so no fixed rule removes the lock.",
+    route: "existing:make-docs project state recover",
+  },
+  {
+    id: "STORE-LEFTOVER-006",
+    title: "A pending setup.system.harness operation",
+    blocks: "Every later tool operation and every installation lock on the machine, because both check any pending tool_operations row.",
+    route: "existing:make-docs setup system",
+  },
+  {
+    id: "STORE-LEFTOVER-007",
+    title: "A pending detached operation with no lock on a folder that still exists, such as an unverified manual layout",
+    blocks: "Tool update, tool uninstall, and Store removal (tool-operations.ts checks any pending installation operation). No lock or dead process is involved, so no fixed rule applies.",
+    route: "existing:make-docs project layout verify",
+  },
+]);
+
+/* ------------------------------------------------------------------------ */
+/* Follow-ups that later phases own                                         */
+/* ------------------------------------------------------------------------ */
+
+export const STORE_FOLLOW_UP_IDS = [
+  "FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED",
+  "FOLLOW-UP-P2-OPERATION-RECEIPT-COLUMNS",
+  "FOLLOW-UP-P2-PRUNED-DETACHED-PLAN",
+  "FOLLOW-UP-P3-DELETE-PROJECT-ROWS",
+  "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE",
+  "FOLLOW-UP-P4-RULE-ACTIVATION",
+  "FOLLOW-UP-LATER-OPERATION-BACKUP-FILES",
+  "FOLLOW-UP-LATER-QUIESCENCE-CRASH-BARRIER",
+] as const;
+export type StoreFollowUpId = (typeof STORE_FOLLOW_UP_IDS)[number];
+
+export interface StoreFollowUp {
+  id: StoreFollowUpId;
+  phase: "W32 R0 P2" | "W32 R0 P3" | "W32 R0 P4" | "later phase";
+  need: string;
+  /** The rules that stay inactive or narrow until this is done. */
+  unblocks: readonly StoreFixedRuleId[];
+  /**
+   * `done` once the phase that owns it has landed it. `built-pending-approval`:
+   * the helper exists and is tested, and the rule it unblocks waits for the owner.
+   * `built-kept-off`: the helper exists and is tested, and the owner decided to
+   * keep the rule it unblocks off. The owner can revisit that decision.
+   */
+  state: "open" | "built-pending-approval" | "built-kept-off" | "done";
+  /** What landed, for a done follow-up. */
+  resolution?: string;
+}
+
+export const STORE_FOLLOW_UPS: readonly StoreFollowUp[] = Object.freeze<StoreFollowUp[]>([
+  {
+    id: "FOLLOW-UP-P2-FAILED-RECOVERY-CLOSED",
+    phase: "W32 R0 P2",
+    need: "Define when a `failed` installation operation's recovery is closed. Until then, no rule touches a failed operation's rows, and a failed operation guards its lock and quiescence barrier like a pending one.",
+    unblocks: [],
+    state: "done",
+    resolution: "STORE_FAILED_RECOVERY_CLOSED: recovery is closed only when `project state recover` commits the operation as `completed` or `rolled-back`. While it is `failed`, no rule touches its rows.",
+  },
+  {
+    id: "FOLLOW-UP-P2-OPERATION-RECEIPT-COLUMNS",
+    phase: "W32 R0 P2",
+    need: "Recommendation for the owner: add bounded receipt columns to installation_operations in schema v7 (STORE_PLANNED_OPERATION_RECEIPT_COLUMNS), filled when an operation reaches a terminal state and backfilled once by the v7 migration. Readers of a terminal operation's ledgers must accept NULL ledgers when the receipt columns are filled.",
+    unblocks: ["STORE-RULE-004"],
+    state: "done",
+    resolution: "Schema v7 adds the four columns. commitOperation fills them in its transaction, and the migration backfilled every completed and rolled-back row. The only readers of a terminal operation's full ledgers are the removal handoff (rule 004 skips that row) and the detached plan check (rule 004 skips an operation with a plan), so no reader needs a NULL ledger today.",
+  },
+  {
+    id: "FOLLOW-UP-P2-PRUNED-DETACHED-PLAN",
+    phase: "W32 R0 P2",
+    need: "Make a missing detached plan on a completed or rolled-back operation read as `pruned`, not as damage, in installation-state.ts detachedSnapshot and its callers (readDetachedInstallationOperation, the recovery read, and layout-state.ts applyProjectLayout).",
+    unblocks: ["STORE-RULE-005"],
+    state: "done",
+    resolution: "detachedSnapshot returns no plan for a completed or rolled-back operation without one. readDetachedInstallationOperation reports `planPruned` when asked, `project layout apply <op>` reports `already-complete`, and `project state recover <op> --dry-run` reports the operation's terminal status.",
+  },
+  {
+    id: "FOLLOW-UP-P3-DELETE-PROJECT-ROWS",
+    phase: "W32 R0 P3",
+    need: "state-rows.ts deleteProjectRows deletes playbook_runs and counts projects from the legacy table, against PRD 38 R-LIFE-2 and R-REGISTER-4. Rewrite it on project_register when pruneProjectFromStore is rewritten.",
+    unblocks: [],
+    state: "done",
+    resolution: "deleteProjectRows removes only run_evidence, runs, and work_evidence, and the project_register row once no checkout of the project is bound. It keeps playbook_runs and the legacy projects table, and counts the remaining projects from project_register. pruneProjectFromStore still has no caller.",
+  },
+  {
+    id: "FOLLOW-UP-P4-PACKAGE-MANAGER-IDLE",
+    phase: "W32 R0 P4",
+    need: "Build the package-manager-idle proof from the recorded `manager` and `command`, with `unknown` on any doubt. Then the owner decides whether STORE-RULE-002 turns on.",
+    unblocks: ["STORE-RULE-002"],
+    state: "built-kept-off",
+    resolution: "Built in W32 R0 P4: maintenance.ts packageManagerIdleProof reads the full process list of this host (POSIX `ps -A -ww -o pid=,args=`) and examines every word of every line. Any process that names the recorded manager (also as a path or a `.js`, `.cjs`, `.sh`, or `.rb` file) or the make-docs package counts as running. Any doubt gives `unknown`: another platform, an unreadable or empty list, an unreadable command line of a possible manager, an unknown manager, or no command. It never uses `binaryPath`. On 2026-11-23 (W32 R0 P5) the owner kept STORE-RULE-002 off; it stays inactive until the owner turns it on.",
+  },
+  {
+    id: "FOLLOW-UP-P4-RULE-ACTIVATION",
+    phase: "W32 R0 P4",
+    need: "Implement the write contract for STORE-RULE-004 and STORE-RULE-005 and turn them on. Their readers landed in W32 R0 P2.",
+    unblocks: [],
+    state: "done",
+    resolution: "W32 R0 P4 turned both rules on. maintenance.ts runs every change of a clean as a compare-and-change in one BEGIN IMMEDIATE transaction. STORE-RULE-004 also checks the receipt columns and each ledger digest. STORE-RULE-005 runs before STORE-RULE-003 and STORE-RULE-004.",
+  },
+  {
+    id: "FOLLOW-UP-LATER-OPERATION-BACKUP-FILES",
+    phase: "later phase",
+    need: "Design a reviewed rule that removes the backup files under `.make-docs/backup/operations/<operation>/` of an old completed or rolled-back operation together with the `payload` links in its steps, in one change. STORE-RULE-003 keeps both, so each backup file keeps its owner.",
+    unblocks: [],
+    state: "open",
+  },
+  {
+    id: "FOLLOW-UP-LATER-QUIESCENCE-CRASH-BARRIER",
+    phase: "later phase",
+    need: "With owner approval, turn STORE-RULE-006 on for one case only: a `legacy` barrier left by a crash before it was bound to a snapshot (`snapshotId` null), whose lock is gone, on a checkout with no pending or failed operation and no legacy import. A bound barrier is the post-migration freeze and is never removed by this rule.",
+    unblocks: ["STORE-RULE-006"],
+    state: "open",
+  },
+]);
+
+/* ------------------------------------------------------------------------ */
+/* Parameters and digest                                                    */
+/* ------------------------------------------------------------------------ */
+
+export interface StoreMaintenanceVersions {
+  snapshotSchemaVersion: number;
+  ruleCatalogVersion: number;
+  skillVersion: number;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Named SQL parameters for every candidate query, from the clean or check time. */
+export function storeMaintenanceSqlParameters(
+  now: Date,
+  versions: StoreMaintenanceVersions,
+  settings: { [K in StoreMaintenanceSettingId]: { value: number } } = STORE_MAINTENANCE_SETTINGS,
+): Record<string, string | number> {
+  return {
+    terminalCutoff: new Date(now.getTime() - settings.terminalOperationRetentionDays.value * DAY_MS).toISOString(),
+    runReviewCutoff: new Date(now.getTime() - settings.lifecycleRunReviewAgeDays.value * DAY_MS).toISOString(),
+    claimReviewCutoff: new Date(now.getTime() - settings.workClaimExpiredReviewDays.value * DAY_MS).toISOString(),
+    harnessReceiptKeptCount: settings.harnessReceiptHistoryKeptCount.value,
+    snapshotSchemaVersion: versions.snapshotSchemaVersion,
+    ruleCatalogVersion: versions.ruleCatalogVersion,
+    skillVersion: versions.skillVersion,
+  };
+}
+
+/** Bind only the parameters that a query names. node:sqlite refuses unknown names. */
+export function storeMaintenanceParametersFor(sql: string, parameters: Record<string, string | number>): Record<string, string | number> {
+  const names = new Set([...sql.matchAll(/:([A-Za-z]+)/g)].map((match) => match[1]!));
+  return Object.fromEntries(Object.entries(parameters).filter(([name]) => names.has(name)));
+}
+
+export function storeTableCatalogDigest(): string {
+  const body = JSON.stringify(
+    {
+      id: STORE_TABLE_CATALOG_ID,
+      version: STORE_TABLE_CATALOG_VERSION,
+      physicalSchema: STORE_TABLE_CATALOG_PHYSICAL_SCHEMA_VERSION,
+      tables: STORE_TABLE_CATALOG,
+      nonTableRows: STORE_NON_TABLE_RMIN_ROWS,
+      kinds: STORE_MIGRATION_RECORD_KIND_CATALOG,
+      proofs: STORE_MAINTENANCE_PROOFS,
+      rules: STORE_FIXED_RULES,
+      decisions: STORE_DECISION_ITEMS,
+      leftovers: STORE_BLOCKING_LEFTOVERS,
+      writeContract: STORE_RULE_WRITE_CONTRACT,
+      followUps: STORE_FOLLOW_UPS,
+      plannedReceiptColumns: STORE_PLANNED_OPERATION_RECEIPT_COLUMNS,
+      failureColumns: STORE_OPERATION_FAILURE_COLUMNS,
+      failedRecoveryClosed: STORE_FAILED_RECOVERY_CLOSED,
+      settings: STORE_MAINTENANCE_SETTINGS,
+    },
+    (_key, value) => (value instanceof RegExp ? value.source : value),
+  );
+  return `sha256:${createHash("sha256").update(body).digest("hex")}`;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Drift check (t3)                                                         */
+/* ------------------------------------------------------------------------ */
+
+export interface StorePhysicalSchema {
+  /** Each physical table and its columns, in schema order. */
+  tables: Readonly<Record<string, readonly string[]>>;
+  /** The kinds that the installation_migration_records CHECK allows. */
+  migrationRecordKinds: readonly string[];
+}
+
+export interface StoreRMinRow {
+  /** The first cell: the durable record or field group. */
+  label: string;
+  /** The second cell: the record class. */
+  classCell: string;
+}
+
+interface StoreCatalogDriftInput {
+  tables: readonly Pick<StoreTableCatalogEntry, "table" | "schemaStatus" | "columns" | "rMinRows">[];
+  nonTableRows: readonly StoreRMinRowClaim[];
+  kinds: readonly string[];
+}
+
+/**
+ * PRD 38 R-MIN rows that more than one table may claim, with the only tables
+ * that may share each one. R-MIN-2 lets a physical schema group fields
+ * differently; this list names each grouping on purpose. Two rows are
+ * shared: the work store records row by units, dependencies, and links
+ * (W29 R0 P2), and the factory machine tools row by tools and their
+ * capability proofs (W30 R0 P2).
+ * Any other row claimed by two catalog entries is drift.
+ */
+export const STORE_SHARED_RMIN_ROWS: Readonly<Record<string, readonly StoreTableName[]>> = Object.freeze({
+  [WORK_STORE_RMIN_ROWS.units]: ["work_units", "work_dependencies", "work_links"],
+  [FACTORY_STORE_RMIN_ROWS.tools]: ["factory_machine_tools", "factory_capability_proofs"],
+});
+
+/** Read table names, columns, and record kinds. Reads only `sqlite_master` and `PRAGMA table_info`. */
+export function readPhysicalStoreSchema(db: {
+  prepare(sql: string): { all(...args: unknown[]): unknown[] };
+}): StorePhysicalSchema {
+  const rows = db.prepare(
+    "SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+  ).all() as Array<{ name: string; sql: string }>;
+  const tables: Record<string, string[]> = {};
+  let migrationRecordKinds: string[] = [];
+  for (const row of rows) {
+    const columns = db.prepare(`PRAGMA table_info(${JSON.stringify(row.name)})`).all() as Array<{ name: string }>;
+    tables[row.name] = columns.map((column) => column.name);
+    if (row.name === "installation_migration_records") {
+      const match = /kind\s+IN\s*\(([^)]*)\)/i.exec(row.sql);
+      migrationRecordKinds = match ? [...match[1]!.matchAll(/'([^']*)'/g)].map((kind) => kind[1]!) : [];
+    }
+  }
+  return { tables, migrationRecordKinds };
+}
+
+/** Parse the PRD 38 R-MIN durable field register table. */
+export function parseStoreRMinRows(prd38: string): StoreRMinRow[] {
+  const start = prd38.indexOf("| Durable record or field group |");
+  const end = prd38.indexOf("- R-MIN-3 (MUST)", start);
+  if (start < 0 || end < 0) return [];
+  return prd38
+    .slice(start, end)
+    .split("\n")
+    .filter((line) => line.startsWith("| "))
+    .slice(2)
+    .map((line) => {
+      const cells = line.slice(2, -2).split(" | ");
+      return { label: cells[0] ?? "", classCell: cells[1] ?? "" };
+    });
+}
+
+/**
+ * Compare the catalog with the physical schema and the PRD 38 R-MIN rows.
+ * Returns one plain sentence for each drift. An empty list means no drift.
+ */
+export function storeCatalogDrift(
+  physical: StorePhysicalSchema,
+  rMinRows: readonly StoreRMinRow[],
+  catalog: StoreCatalogDriftInput = {
+    tables: STORE_TABLE_CATALOG,
+    nonTableRows: STORE_NON_TABLE_RMIN_ROWS,
+    kinds: STORE_MIGRATION_RECORD_KINDS,
+  },
+): string[] {
+  const drift: string[] = [];
+  for (const rule of STORE_FIXED_RULES) {
+    rule.candidates.forEach((query, index) => {
+      if (query.derive) drift.push(`Fixed rule ${rule.id} candidate ${index} has a derive step. Only a decision item may have one.`);
+    });
+  }
+  const catalogTables = new Map(catalog.tables.map((entry) => [entry.table as string, entry]));
+  for (const [table, columns] of Object.entries(physical.tables)) {
+    const entry = catalogTables.get(table);
+    if (!entry) {
+      drift.push(`Table ${table} is in the schema but not in the catalog.`);
+      continue;
+    }
+    if (entry.schemaStatus !== "physical") drift.push(`Table ${table} is in the schema but the catalog marks it planned.`);
+    if (JSON.stringify(columns) !== JSON.stringify(entry.columns)) {
+      drift.push(`Table ${table} columns differ: schema has ${columns.join(", ")}; catalog has ${entry.columns.join(", ")}.`);
+    }
+  }
+  for (const entry of catalog.tables) {
+    if (entry.schemaStatus === "physical" && !(entry.table in physical.tables)) {
+      drift.push(`Table ${entry.table} is in the catalog but not in the schema.`);
+    }
+  }
+  const physicalKinds = [...physical.migrationRecordKinds].sort();
+  const catalogKinds = [...catalog.kinds].sort();
+  if (JSON.stringify(physicalKinds) !== JSON.stringify(catalogKinds)) {
+    drift.push(`Record kinds differ: schema allows ${physicalKinds.join(", ")}; catalog has ${catalogKinds.join(", ")}.`);
+  }
+  const claims = [
+    ...catalog.tables.flatMap((entry) => entry.rMinRows.map((claim) => ({
+      rMinRow: claim.row,
+      owner: entry.table as string,
+      classCell: claim.classCell,
+    }))),
+    ...catalog.nonTableRows.map((claim) => ({ rMinRow: claim.row, owner: "outside the tables", classCell: claim.classCell })),
+  ];
+  for (const claim of claims) {
+    const matches = rMinRows.filter((row) => row.label.startsWith(claim.rMinRow));
+    if (matches.length !== 1) {
+      drift.push(`R-MIN row "${claim.rMinRow}" (${claim.owner}) matches ${matches.length} PRD 38 rows.`);
+      continue;
+    }
+    if (matches[0]!.classCell !== claim.classCell) {
+      drift.push(`R-MIN row "${claim.rMinRow}" class differs: PRD 38 says "${matches[0]!.classCell}"; catalog says "${claim.classCell}".`);
+    }
+  }
+  for (const row of rMinRows) {
+    const owners = claims.filter((claim) => row.label.startsWith(claim.rMinRow));
+    if (owners.length === 0) drift.push(`R-MIN row "${row.label.slice(0, 60)}" has no catalog entry.`);
+    // A row may govern several tables only when STORE_SHARED_RMIN_ROWS names it,
+    // every owner is one of its named tables, and they all give it one class.
+    const sharedTables = Object.entries(STORE_SHARED_RMIN_ROWS).find(([label]) => row.label.startsWith(label))?.[1];
+    const sharedByTables = owners.length > 1 && sharedTables !== undefined &&
+      owners.every((owner) => (sharedTables as readonly string[]).includes(owner.owner) && owner.classCell === owners[0]!.classCell);
+    if (owners.length > 1 && !sharedByTables) drift.push(`R-MIN row "${row.label.slice(0, 60)}" has ${owners.length} catalog entries.`);
+  }
+  return drift;
+}

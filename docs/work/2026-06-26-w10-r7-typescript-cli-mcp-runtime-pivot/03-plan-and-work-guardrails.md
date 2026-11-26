@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 03: Plan and Work Guardrails
 
 ## Purpose
@@ -6,10 +10,10 @@ Prevent active future work from consuming superseded Rust/PATH-order and optiona
 
 ## Tasks
 
-- [x] t1: Add W10 R7 supersession notes to active plans with runtime ownership assumptions.
-- [x] t2: Add W10 R7 supersession notes to active work backlogs with runtime ownership assumptions.
-- [x] t3: Keep completed work references historical unless they are still instructing future implementation.
-- [x] t4: Point future implementation to W10 R8.
+- [x] T1: Add W10 R7 supersession notes to active plans with runtime ownership assumptions.
+- [x] T2: Add W10 R7 supersession notes to active work backlogs with runtime ownership assumptions.
+- [x] T3: Keep completed work references historical unless they are still instructing future implementation.
+- [x] T4: Point future implementation to W10 R8.
 
 ## Implementation Notes
 

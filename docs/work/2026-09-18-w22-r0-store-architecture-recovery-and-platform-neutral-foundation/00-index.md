@@ -25,7 +25,7 @@ The repaired CLI completed plain setup in the Make Docs project. The North Atlan
 
 P8 corrected target-scoped router ownership and the reviewed reinstall handoff. The final exact candidate passed the source and installed-package workflow on Ubuntu, macOS, and Windows. The approved live North Atlantic BuildOS setup completed with stable identities, no pending recovery, and no project file change.
 
-Videos Matter then proved that authentic schema-1 whole-file routers were still rejected because they do not contain V2 managed-block markers. Stage 4 repaired this bounded defect. The exact `2.0.2` candidate passed the three-platform installed workflow. The approved live Videos Matter correction preserved content and identities, left a clean Store, and made the immediate repeat report zero changes. Tasks t20 through t28 and A66 through A70 pass. P8 and D-038 are closed.
+Videos Matter then proved that authentic schema-1 whole-file routers were still rejected because they do not contain V2 managed-block markers. Stage 4 repaired this bounded defect. The exact `2.0.2` candidate passed the three-platform installed workflow. The approved live Videos Matter correction preserved content and identities, left a clean Store, and made the immediate repeat report zero changes. Tasks T20 through T28 and A66 through A70 pass. P8 and D-038 are closed.
 
 ## Human Experience Trace
 
@@ -87,7 +87,7 @@ W22 R0 is complete in the accepted P1–P9 scope. Each phase has all tasks check
 ### 2026-11-20 — W22 R0 P9
 
 - Kind: `revision-phase`
-- Affected scope: New P9 t1–t4 and A71–A73, revising completed P7.
+- Affected scope: New P9 T1–T4 and A71–A73, revising completed P7.
 - Previous scope: P6 and P7 made Store session admission retry Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. Admission did not retry the Windows codes when it creates or opens the session directory, or when it creates the session file.
 - Replacement scope: P9 retries the transient Windows codes at those three steps, until the same admission deadline. Other platforms and a lasting error still fail.
 - Rationale: The PR #65 Windows installed-package job failed twice on this race, recorded as D-059. It extends one P7 result and passes no revision Wave test.
@@ -98,7 +98,7 @@ W22 R0 is complete in the accepted P1–P9 scope. Each phase has all tasks check
 ### 2026-11-20 — W22 R0 P9
 
 - Kind: `edit`
-- Affected scope: P9 t5 and A74.
+- Affected scope: P9 T5 and A74.
 - Previous scope: P9 retried transient Windows codes only inside the three session steps. A safety read between the steps wraps its system error, so a transient `EPERM` there still failed at once. A failed session file write also left its pending file on disk, because cleanup knew the file's identity only after the write.
 - Replacement scope: The admission loop retries a wrapped transient Windows access code until the deadline. A failed attempt removes its own pending file, matched by the identity captured when the file was created. New fault tests cover the verification read and the write.
 - Rationale: CodeRabbit review of PR #66 (one Minor, one Major) and the platform contract `tsc` failure. Both complete P9's own A71 promise inside its unmerged PR, so they are recorded as an edit of P9.

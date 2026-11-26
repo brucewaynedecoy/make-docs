@@ -1247,6 +1247,349 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 **Evidence**: [W22 R0 P9 evidence](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry).
 
+### D-060 Project Config Cannot Be Rebuilt From the Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. Logged on 2026-11-21 during the work store and factory grill. Outside the W29 R0 and W30 R0 scope. | Decide a recovery path for a deleted `.make-docs/config.yaml` in a later design. |
+
+**Issue**: The Store keeps only the project ID, the last applied selections, and content digests. It keeps no copy of `.make-docs/config.yaml`. [PRD 24](24-project-configuration-and-convention-overlay.md) makes config the only desired-setting authority, and [PRD 38](38-global-store-and-project-state.md) R-MIR-1 forbids writing desired state from applied state. When a person deletes the file, a later write on a known checkout writes back only the `projectId` and harness intent. Personas, labels, `prd_authority`, generated-prose settings, resource projection intent, and comments are lost. On a new machine, the project ID is also lost. Git is the only backup.
+
+**Why it matters**: A person can believe that Make Docs restores any deleted `.make-docs/` file from the Store. For config, that is not true. An uncommitted config change has no recovery path.
+
+**Recommendation**: Keep the repository as the config authority. Report a missing config plainly in status and setup, and point to git as the recovery path. Consider a later, explicit recovery aid that never overrides committed intent.
+
+**To close**: An accepted design decides whether a recovery aid exists and how it keeps the repository as the config authority, or records that git is the accepted recovery path and status says so.
+
+### D-061 Quick Items Live Only in the Work Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | Quick items live only in the work store, and `run work add` adds them. `make-docs://project/<project>/tasks/` and `make-docs://project/<project>/backlog/...` print a named project's quick items and backlog. | Build the add operation and the project URI reads in W29 R0 P4, the project name record in P2, and the agent form and config check in P5. |
+
+**Issue**: A quick item has no design, plan, or PRD, and no `docs/work/` file. The W29 R0 operations had no way to add one, and no way to read one without a work command. A first draft of the project URIs did not name the project. It took the project from the current folder, which no current Make Docs URI does, and which cannot work for a Store and MCP server that many agents use for many projects.
+
+**Why it matters**: Without an add operation, the front desk of the factory cannot turn a request into a quick item. Without a URI that names the project, a person or an agent cannot read one project's work from a shared server.
+
+**Recommendation**: Keep quick items in the work store only. Add `run work add`. Add the `make-docs://project/<project>/` URI family with `tasks` and `backlog` families. Name the project by a short project name or its project ID.
+
+**To close**: PRD 52 and PRD 38 state the rules, and the W29 R0 backlog holds the tasks.
+
+**Resolution**: Closed on 2026-11-22 during W29 R0 P1 at the owner's direction. [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-3, R-WORK-QUEUE-18, and R-WORK-URI-1 to R-WORK-URI-7 hold the URI and quick item rules. [PRD 38](38-global-store-and-project-state.md) R-ID-8 holds the project name. [PRD 17](17-system-asset-materialization-and-local-bootstrap.md) R-RESOURCE-STATE-2 keeps system-resource reads Store-free. Without a Store, a project URI read returns the typed Store outcome and points to the `docs/work/` files.
+
+### D-062 The Store Needs a Table, Event, and Data Maintenance Review
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner chose on 2026-11-22 to finish the whole Store review before W29 R0 P2, and kept a Store write guard in its scope. [PRD 38](38-global-store-and-project-state.md) R-REGISTER, R-MAINT, and R-WRITE-GUARD and [PRD 39](39-cli-command-model-and-operation-registry.md) R-STORE-CMD hold the rules. On 2026-11-23 the owner kept rule 002 off and kept `setup store check` and `clean` off the native command rules. | W32 R0 built all five phases by 2026-11-23 ([evidence](../work/2026-11-22-w32-r0-store-review-and-maintenance/evidence.md#p5-real-store-proof-and-acceptance)). On a copy of the real Store, setup converted schema 6 to 7 with a verified backup, `project list` showed all 4 projects and the missing folder, the guard refused `sqlite3` writes and reported a dropped trigger as `store-unsafe`, and clean (with the clock 31 days ahead) trimmed 38 rows and shrank the file from 37.9 MB to 1.2 MB (`PERF-005`; the vacuum stays). Check and clean now say how many rows wait for the 30-day window (38 on the copy; the first can go on 2026-12-14), and `uninstall --remove-store` keeps and names the Store backups. Sizes are as the CLI prints them: "MB" is MiB (1,048,576 bytes). The owner's Guided Progress Review passed on 2026-11-23 (option A), and W32 R0 is completed. Remaining: a real `setup store clean` of the owner's Store after about 2026-12-23 needs separate owner approval. On 2026-11-23 the owner named another choice: update Make Docs on a second machine where an older Store has run for longer, and test clean there; rule 002 stays off unless the owner turns it on; and three tracked follow-ups (raw JSON for text-mode refusals, raw row keys in check and clean, and the CLI "MB" label for MiB). W29 R0 P2 can start. |
+
+**Issue**: On the maintainer machine on 2026-11-22, the Store table `projects` had 0 rows, but `installation_checkouts` had 3 rows for the 3 projects that use Make Docs. `projects` is a legacy discovery mirror. `packages/cli/src/store/README.md` says the CLI apply flow fills it through `mirrorProjectManifest`, but no current code calls that function except `rebuildProjectRegistry`. `pruneProjectFromStore` in `packages/cli/src/store/lifecycle.ts` reports `remainingProjects` from that empty table, and it does not touch `installation_checkouts`. No current command lists the projects that the Store knows. One checkout row also still names the old path of a moved project. `make-docs project state status` in the moved checkout reports `ownership-unverified` and points to a checkout move review, so the move itself is detected. The owner also sees rows that look like bad or stale data that nothing needs to keep.
+
+**Why it matters**: A person who opens the Store sees no projects and can think that setup failed. A future cleanup or removal step that trusts `remainingProjects` can act on a false count. Project names under PRD 38 R-ID-8 need one trusted register to resolve `make-docs://project/<project>/`. Rows that nothing reads or removes make the Store larger and harder to trust, and W29 and W30 add more tables.
+
+**Recommendation**: Review the whole Store in one design:
+
+- For each table and column: its purpose, its writer, its readers, and whether anything still uses it. Retire or merge what nothing needs, and match every kept field to its PRD 38 R-MIN row.
+- For each event that creates, updates, or removes rows, such as setup, adoption, a checkout move, a prune, an operation run, and a migration: which rows it touches, and a test for it.
+- Make one project register the source for every reader, and add a read-only command that lists the projects, their checkouts, and stale paths. Correct the Store README.
+- Add a maintenance job with two classes of rows. It removes or trashes rows that are clearly bad by a fixed rule, such as an expired claim, an orphan row, or a row for a project with no checkout, after a Store backup and with a report, and with no human review. It lists unclear rows for a person to decide.
+
+**To close**: An accepted design covers every table, column, and row event. Tests prove that setup, a checkout move, and a prune keep the project register right. The maintenance job has a dry run, a backup, and a report, and a person can list the projects.
+
+### D-063 Task IDs Use a Lower-Case `t`
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The owner decided on 2026-11-22 that task IDs use an upper-case `T`, like `T3`. Make Docs reads `t` and `T` the same, and it always writes `T`. Active backlogs under `docs/work/` are rewritten once. Archives and history records stay as written. A Make Docs doctor check finds and fixes lower-case task IDs in any Make Docs project. | W31 R0 completed on 2026-11-22: shipped files write `T`, every reader accepts both cases, `make-docs project doctor` exists, and the one-time fix changed 3,288 task IDs in 268 active backlog files. Remaining: run the doctor on the W22 R2 backlog after W22 R2 closes, then close this entry. |
+
+**Issue**: Task IDs were meant to match the other coordinate parts, but every template, contract, and parser uses a lower-case `t`. `packages/cli/src/operations/work/backlog/snapshot.ts` and `packages/cli/src/operations/work/index.ts` read only `t1`, so a task written as `T1` is not read as a task ID. About 275 backlog files use `t`. No Make Docs doctor command exists today.
+
+**Why it matters**: Coordinates are the human names of work. Mixed case makes them harder to read, search, and type, and it makes the URI form `backlog/W29/R0/P1/T3` differ from the files.
+
+**Recommendation**: Accept both cases on input everywhere. Write `T` in templates, contracts, routers, generated text, and the W29 contract. Add a doctor command with a reviewed audit and fix, and use it for the one-time rewrite of this repository's active backlogs.
+
+**To close**: W31 R0 ships, the doctor check finds no lower-case task ID in this repository's active backlogs, including the W22 R2 backlog after its later run, and old files with `t` still parse. [PRD 14](14-lifecycle-workflow-and-coverage-passes.md) R-COORD-22 and [PRD 39](39-cli-command-model-and-operation-registry.md) R-DOCTOR hold the rules.
+
+### D-064 First-Party Skills Ship Python Scripts
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | Closed on 2026-11-23 by W34 R0 P5. All seven Python files are removed from `packages/skills/`, with the tracked `.pyc` file. Their logic lives in four CLI operations: `make-docs check decomposition`, `project relations list`, `project markdown validate`, and `project markdown repair`, with the MCP tools `check_decomposition`, `project_relations_list`, `project_markdown_validate`, and `project_markdown_repair` ([PRD 39](39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK). `probe_environment.py` is gone: the agent lists its own session tools. The three Skills use the MCP tool, then the CLI, then a manual review with the same rule IDs, and a test fails when the two sides differ ([PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) R-SKILL-RUNTIME-7). The two hand-written `backlog-review` scripts are now built from CLI source, with a byte-match test ([PRD 51](51-backlog-review-and-reporting.md) R-BACKLOG-SKILL-21). The Skill registry, the closeout check, and the Skill text name no removed file. A guard test fails any Python file or hand-written script in a first-party Skill, and an update removes each unchanged installed Python copy and keeps a changed one ([PRD 08](08-skills-catalog-and-distribution.md) R-SKILL-BUNDLE-7, R-SKILL-SETUP-8). The hold on new Python ends; the guard test keeps the rule. History: logged on 2026-11-22 at the owner's request; made high priority on 2026-11-23; the owner chose design OD-1, OD-2, and OD-3 option A and plan PD-1 option A on 2026-11-23. | None that blocks this entry. The installed `backlog-review` copy in this repository's `.agents/skills/` still holds the two older hand-written scripts until the owner refreshes it with `make-docs update` after the release (W34 R0 P3 T7 and A15). They behave the same as the generated scripts. Evidence: [W34 R0 evidence](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#p5-acceptance). |
+
+**Issue**: Three first-party Skills ship seven Python files, added on 2026-04-15: `packages/skills/decompose-codebase/scripts/validate_output.py`, `probe_environment.py`, and `test_validate_output.py`; `packages/skills/archive-docs/scripts/trace_relationships.py` and its test; and `packages/skills/cleanup-docs/scripts/check_markdown_style.py` and its test. The Skills tell agents to run them, and the CLI closeout check runs `test_validate_output.py` (`packages/cli/src/operations/closeout/index.ts`). No decision records why they are Python. [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) puts operational logic in the TypeScript CLI, and the [twins guide](../assets/project/developing-deterministic-agentic-twins.md) puts deterministic logic in the CLI and its agent form in written instructions. D-019 handled a different script, the path-hygiene checker, which the CLI now covers.
+
+**Why it matters**: The owner's rule is to build logic in the CLI unless it must be Python or must work without the CLI. These scripts are not truly portable either: they need Python installed. Logic in two languages can drift, and a reader change must now be made twice, as W31 R0 P1 showed.
+
+**Recommendation**: For each script, either move its logic into a CLI operation with the Skill text as its agent form, and remove the Python file, or record why it must stay. Do this in its own Wave after W31 R0 and W32 R0.
+
+**To close**: Each of the seven files is removed or has a recorded reason to stay, the Skills and the closeout check no longer depend on a removed file, and no logic exists in both a script and the CLI.
+
+### D-065 The CLI Command Tree and MCP Tool Names Are Inconsistent
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open — serious | The owner chose on 2026-11-22 to retire `run` as a root, give each capability its own top-level group, derive every MCP name from the CLI path, and keep old names working for two minor releases. [Command tree design](../designs/2026-11-22-command-tree-and-tool-names.md). Logged on 2026-11-22. The owner rates it as a very serious problem. No new `run work` or `run factory` command is built until a command tree review is accepted: W29 R0 P4 and W30 R0 P3 wait for it. Commands already being built in W31 R0 (`project doctor`) and W32 R0 (`project list`, `setup store`) go ahead and may be renamed by the review. | W33 R0 completed on 2026-11-23: the eleven groups replace `run`, every MCP name is its CLI path with underscores, 32 old CLI paths and 31 old MCP names are hidden aliases, shipped text uses the new names, a test fails a name that breaks the rule, and every registry command answers `--help` (R-TOP-4). The owner reviewed the help on 2026-11-23 and accepted it with five changes, which are made ([W33 R0 P5 evidence](../work/2026-11-22-w33-r0-command-tree-and-tool-names/evidence.md#help-review-a13)). The rename ships in 2.1.0. W29 R0 P4 and W30 R0 P3 can build on the new tree. Remaining: the aliases return `command-renamed` in 2.3.0; remove them in 2.4.0, then close this entry. |
+
+**Issue**: Waves named their commands one at a time, and nobody reviewed the whole tree.
+
+- One capability, backlog review, is split across three groups: `make-docs run work backlog snapshot` and `run work backlog-cache lookup` and `write` (W23 R0), and `make-docs run backlog review open` and `refresh` (W25 R0). The Skill and the app see one capability; the CLI shows two.
+- `run work` already holds six unrelated commands: `item resolve`, `evidence record`, and `evidence read` (W18 R11), and the three backlog commands above. W29 R0 plans nine more (`status`, `sync`, `next`, `claim`, `release`, `report`, `close`, `export`, `add`), and W30 R0 plans ten `run factory` commands.
+- MCP tool names follow no one rule since W26 R1 hand-picked them: some keep the group (`lifecycle_start`, `work_item_resolve`), some drop it (`evidence_record` for `work.evidence.record`, `personas` for `project.persona.list`), and some change the verb (`backlog_cache_read` for `lookup`, `prd_validate` for `authority validate`). [PRD 51](51-backlog-review-and-reporting.md) R-BACKLOG-APP-1 still names `make_docs_backlog_review_open`, but the server exposes `backlog_review_open`.
+- `run` is a vague word for the most used commands. The plain-language question of whether `work` should be a top-level command was never decided against [PRD 39](39-cli-command-model-and-operation-registry.md) R-TOP-1.
+- [PRD 39](39-cli-command-model-and-operation-registry.md) R-RUN-1 lists the W29 work commands but leaves out `add`, which R-RUN-4 names.
+
+**Why it matters**: People and agents cannot guess a command or tool name from the capability. Each new Wave copies whichever pattern it saw last, so W29 and W30 would add about twenty more commands to the inconsistent tree, and every rename later breaks scripts, Skills, routers, and MCP clients.
+
+**Recommendation**: One design reviews the whole CLI tree and MCP name scheme against capabilities: the top-level set, where work, backlog review, factory, doctor, and Store maintenance live, one MCP naming rule, and aliases with a removal window for current names. W29 and W30 then build their commands on the accepted tree.
+
+**To close**: An accepted design and PRD 39 and PRD 25 changes define the tree and the naming rule; the registry, CLI, MCP tools, Skills, and routers follow it; current names have aliases or a recorded removal; and a test fails when a new operation breaks the naming rule.
+
+### D-066 The Work Store Has No Field for a Progress Note
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23: a short note field in the unreleased schema v8 `work_units` table. | Built in W29 R0 P4: the `note` and `note_at` columns, their R-MIN field, register entries, and parity test; `work report --note` keeps the latest one-line note of at most 256 characters and its time. |
+
+**Issue**: [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-8 says `work report` records a short progress note, and the P1 report request has a `note` field. The schema v8 work tables of W29 R0 P2 and the PRD 38 R-MIN work rows have no column for a note, so W29 R0 P4 has nowhere to keep one.
+
+**Why it matters**: A report that accepts a note and drops it would tell a person or an agent that progress was recorded when it was not. The factory in W30 R0 uses reports as its progress record.
+
+**Recommendation**: Add one bounded note field (for example the latest note, 256 characters, with its time) to `work_units` in the unreleased v8 migration, with its R-MIN row and parity register entry, since no real Store is at v8 yet.
+
+**To close**: The owner chooses, PRD 52 and PRD 38 state the rule, and `work report` stores or refuses the note to match.
+
+**Resolution**: Closed on 2026-11-23 in W29 R0 P4 at the owner's choice of option A. [PRD 52](52-work-store-and-work-queue.md) R-WORK-QUEUE-8 and the [PRD 38](38-global-store-and-project-state.md) work store records row state the note. Schema v8 is unreleased, and no real Store is at v8, so the columns join the v8 migration.
+
+### D-067 Skill Check Output Can Mislead on a Marker Mention or a Non-Decomposition Project
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Logged on 2026-11-23 by the W34 R0 P5 Human Experience Review and its independent review. Part A: on 2026-11-23 the owner chose to skip only files that hold a real managed block. `holdsManagedBlock` in `packages/cli/src/operations/project/markdown-style.ts` now skips a file only when one of its lines is a begin or end marker on its own, as `make-docs setup` writes it; a file that only names the marker in prose or inline code is checked, with a test. Part B is still open. | Part B: a later Wave or quick item adds the plain note to `check decomposition` output, with a test. Evidence: [W34 R0 P5 Human Experience Review](../work/2026-11-23-w34-r0-skill-scripts-into-the-cli/evidence.md#human-experience-review-a21). |
+
+**Issue**: Two outputs of the W34 R0 Skill check commands ([PRD 39](39-cli-command-model-and-operation-registry.md) R-SKILL-CHECK) can mislead a person.
+
+- Part A: `project markdown validate` and `project markdown repair` skip any file whose text contains the managed-block marker anywhere (`text.includes(MANAGED_BLOCK_MARKER)` in `readScope`, `packages/cli/src/operations/project/markdown-style.ts`). A file that only names the marker in prose or a code span is skipped too. In this repository that includes PRD 39, the W34 R0 evidence report, and one W19 R0 plan file. The skip line then says that each such file "holds a make-docs managed block" (`SKIP_REASONS`), which is not true for them. Their style findings are not checked or repaired.
+- Part B: `make-docs check decomposition` on a project that is not a decompose-codebase output, such as this repository, reports every gap from the decomposition rules (629 findings here) and gives no hint that the project may not be a decomposition output. The leaf help says that the check is for a decompose-codebase result, but the plain output does not.
+
+**Why it matters**: A person reads the skip reason and the totals as facts. A wrong reason hides files from the style check without a true cause, and a long list of findings on the wrong kind of project looks like a broken project.
+
+**Recommendation**: For Part A, either match only a real managed block (a marker line with its end marker, outside code) or keep the whole-file skip and change the reason to say that the file names the marker. W34 R0 P1 chose the whole-file skip as the safer option, so a finer match needs the owner's choice. For Part B, add one plain line, such as a note when the project has no decomposition plan, without changing the findings or the exit code.
+
+**To close**: The owner has chosen the Part A rule; the skip reason states the true cause, and a file that only names the marker is checked or skipped under that rule with a test; and `check decomposition` plain output says when the project may not be a decomposition output, with a test.
+
+### D-068 `work next` Without a Usable Store Does Not Read the Files
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23: keep the typed Store outcome and the pointer to the files. | Built in W29 R0 P4; [PRD 52](52-work-store-and-work-queue.md) R-WORK-STORE-2 now states it. Evidence: [W29 R0 P4 owner decisions](../work/2026-11-21-w29-r0-work-store/evidence.md#p4-owner-decisions-2026-11-23). |
+
+**Issue**: [PRD 52](52-work-store-and-work-queue.md) R-WORK-STORE-2 says that without a usable Store "every work operation reads the files directly and behaves as it did before the work store existed". Before the work store, there was no `work next`. Today `work next` without a usable Store returns the existing typed Store outcome (`store-unavailable` and the other codes), and its next step says that the `docs/work/` files are the authority and names `make-docs backlog snapshot`, which reads them without the Store. It does not read or rank the files itself. A checkout that is not bound to a usable Store gets the same typed outcome, with the reason that `work status` gives.
+
+**Why it matters**: An agent without a Store gets no ready list from `work next`. The PRD text can be read as a promise of one.
+
+**Recommendation**: Option A (built): keep the typed outcome and the pointer, and change R-WORK-STORE-2 to say that the queue commands (`next`, `claim`, `release`, `report`, `close`, `export`, `add`) return the typed Store outcome and point to the files, while `work status`, `backlog snapshot`, and project URI reads report the file authority. Option B: make `work next` read and rank the `docs/work/` files without a Store, through the P1 rules, with no claims. Option A is smaller and matches the agent form in `make-docs://system/reference/work-store.md`, where an agent reads the files.
+
+**To close**: The owner chooses; R-WORK-STORE-2 states the rule; the code and a test match it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. R-WORK-STORE-2 says that the queue commands that need the Store return the typed Store outcome, that the read-only `work next` also points to `docs/work/` and `make-docs backlog snapshot`, and that file-reading commands read the files. The W29 R0 P4 second pass tests cover `work next` with an absent Store and with a checkout that is not bound.
+
+### D-069 A Work Write Command With No Store Gives the Wrong Code and Leaves a Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option B on 2026-11-23, fixed inside W29. | Built in W29 R0 P6. Evidence: [W29 R0 P6 without Store access](../work/2026-11-21-w29-r0-work-store/evidence.md#without-store-access-a26-t4). |
+
+**Issue**: With no Store at all, `make-docs work sync`, `claim`, `report`, `close`, and `release` fail in three ways at once:
+
+1. Wrong code. Each returns `work-store-refused` with the reason "This checkout is not bound to the Store, so it has no sync ledger." [PRD 52](52-work-store-and-work-queue.md) R-WORK-STORE-2 says the queue commands that need the Store "return the existing typed Store outcome with its code". For the same state, `work next` and `work evidence read` return `store-unavailable`, a `store-*` code.
+2. A false claim. The message says "Make Docs refused this work store write, and nothing changed."
+3. A side effect. The shared Store session creates a new, empty Store before the refusal. After it, `work status` reports "not bound" instead of "this computer has no Make Docs Store".
+
+The read commands (`work status`, `work next`, `backlog snapshot`, `work evidence read`) make no Store. The write commands from before W29 (`work evidence record`, `lifecycle start`) also create a Store when none exists, but they then do their work and do not refuse.
+
+**Why it matters**: An agent that handles Store problems by their `store-*` code (as the project router tells it to: stop only that operation, report it, and continue Store-free work) does not see this refusal as a Store problem. It gets a setup next step for a checkout binding instead. The "nothing changed" line is not true, and the empty Store changes what the next command reports.
+
+**Recommendation**: Option A: keep the behavior. This needs a PRD 52 R-WORK-STORE-2 change that allows `work-store-refused` and a created Store for a write without a Store, and a fix of the "nothing changed" words. Option B (recommended, inside W29): each work write command checks for an absent or unusable Store before the shared Store session opens, returns the typed Store outcome with its `store-*` code and the pointer to the `docs/work/` files, and creates nothing. B matches R-WORK-STORE-2 as written and needs no PRD change.
+
+**To close**: The owner chooses. For B: the five write commands return the `store-*` code with no Store, make no Store, and a test proves both on the CLI and MCP. For A: PRD 52 states the behavior, with a Requirement History entry, and the refusal text says that a Store was made.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option B. The shared Store session of every registry write operation now checks for the Store database before its write admission opens. With no Store, it returns `store-unavailable`, the same code and words that `work next` gives for that state ("This computer has no Make Docs Store. Nothing changed, and Make Docs created no Store."), with "Run make-docs setup to create the Store" and, for the work queue commands, the pointer to the `docs/work/` files. It creates no folder, database, WAL, SHM, or lease file. This covers 26 registry write commands on the CLI: the seven work queue writes (`work sync`, `claim`, `release`, `report`, `close`, `export`, `add`), `work evidence record`, `backlog cache write`, `resource ensure`, `project surface ensure`, the eight `lifecycle` writes, `project layout prepare`, `apply`, and `verify`, `project state recover`, and `project doctor fix`. In released 2.0.9, only `lifecycle start` and `work evidence record` worked with no Store, creating one as a side effect; the others created a stray empty Store and then failed. Now all of them refuse the same way. Over MCP, these tools already refuse earlier with `store-denied`, because there is no connection key, so MCP behavior did not change. No PRD text changed: PRD 52 R-WORK-STORE-2 already asks for the typed outcome, and PRD 38 R-DB-4 and R-TEST-12 let only setup create a Store. Setup is not a registry operation and still creates the Store. Read commands keep their own refusal words. A Store that exists while this checkout is not bound still gives `work-store-refused`; that state is not part of this decision. Tests: `packages/cli/tests/w29-r0-p6-package-parity.test.ts`.
+
+### D-070 Setup Of a Clone With a Saved Project ID and a New Store Hides `--adopt`
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | Routed to the setup and adoption area (the W22 R2 portable checkout adoption backlog owns setup and adoption). Not built in W29. | Found in W29 R0 P6. Evidence: [W29 R0 P6 follow-ups](../work/2026-11-21-w29-r0-work-store/evidence.md#follow-ups). Related: D-050. |
+
+**Issue**: A person who clones a project that has a saved `projectId`, on a computer with no Store, and runs setup non-interactively needs four commands, and the first two do not name the one that works:
+
+1. `make-docs setup --adopt --yes` refuses: "This checkout cannot be adopted yet. The Store is absent. Checkout move needs a usable Store." It gives no next step.
+2. `make-docs setup --yes` makes the Store and stops: "The reviewed plan does not permit migration (ambiguous-ownership)." Next: "Run make-docs setup again to review and recover the project change."
+3. `make-docs setup --yes` again stops: "This checkout has a project ID but no installed record in this Store." Only now does the next step name `make-docs setup --adopt --yes`.
+4. `make-docs setup --adopt --yes` completes.
+
+Steps 2 and 3 exit 0 although setup is blocked. A second worktree of the same project also needs `make-docs project checkout apply --review <digest>` before `setup --adopt --yes`.
+
+**Why it matters**: The first command a person would try for an existing project refuses with no way forward, and the next two send the person around a loop. An agent that follows each next step needs four runs.
+
+**Recommendation**: `setup --adopt` creates the Store when it is absent and then adopts the checkout in one command. At least, the first refusal and the `ambiguous-ownership` stop name `make-docs setup --adopt --yes` as the next step.
+
+**To close**: The setup and adoption owner chooses the fix. A test on a clone with a saved project ID and no Store shows that one command, or at most two with the first naming the second, completes the adoption.
+
+### D-071 Factory Round Count After the Limit Carries Forward
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-41 and the factory contract state it. | W30 R0 P3 T13 builds and tests the rule. |
+
+**Question**: When a factory assignment reaches its correction round limit and stops, how does a new try of the same job start?
+
+**Why it matters**: The owner approved a round count that the CLI enforces and that survives a takeover. A new assignment that starts at 0 would let a foreman reset the limit by stopping and starting again.
+
+**Recommendation**: Option A (stated now): a new assignment for the same job (unit, role, and part label) starts at the count of the one before it, and only the person can reset the count, through a `once` grant for the action `reset-correction-rounds`, which `factory assignment start` spends. Option B: a new assignment starts at 0, and the run Skill must ask the person first, with no CLI check. Option A keeps the limit a real limit and reuses the grant rules, so no new command is needed.
+
+**To close**: The owner confirms; PRD 53 R-FACTORY-41 and the contract match the choice; W30 R0 P3 T13 tests it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. A new try of the same job (unit, role, and part label) keeps the round count. Only a `once` grant for `reset-correction-rounds` resets it, and `factory assignment start` spends that grant. PRD 53 R-FACTORY-41, its Requirement History, and the factory contract state the choice. The CLI check is built in W30 R0 P3 T13.
+
+### D-072 Factory Grants Stay Outside the Resolved Plan Digest
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-24 and R-FACTORY-55 and the factory contract state it. | W30 R0 P3 T17, T18, and T20 build and test the rule. |
+
+**Question**: Are grants part of the resolved plan and its digest?
+
+**Why it matters**: A change in the plan digest drifts the workflow and needs a new test task. Grants change often: a `once` grant is spent on first use, and a person can add one in answer to an escalation.
+
+**Recommendation**: Option A (stated now): grants stay in the Store beside the plan, are shown with it, and are never part of its digest. A grant changes what the foreman may do without asking, not the wiring. Option B: standing grants are part of the plan, and `once` and `run` grants stay outside. Option A avoids a new revision and a new test task for each grant.
+
+**To close**: The owner confirms; PRD 53 R-FACTORY-24 and R-FACTORY-55 and the contract match the choice; W30 R0 P3 T18 tests it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. Grants stay in the Store, outside the resolved plan and its digest. `factory workflow show` lists them beside the plan, and no `.make-docs/factory/` copy ever holds a grant. PRD 53 R-FACTORY-24 and R-FACTORY-55, their Requirement History, and the factory contract state the choice. The CLI checks are built in W30 R0 P3 T17, T18, and T20.
+
+### D-073 Scope of `factory status`
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23, with one group for each running factory. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-27, R-FACTORY-51, and R-FACTORY-65 state it. | W30 R0 P3 T8 and T29 build it. W30 R0 P2 adds the checkout ID to the assignment record. |
+
+**Question**: Does `make-docs factory status` show one project or every project on this machine?
+
+**Why it matters**: On 2026-11-23 the owner chose option A for factory project scope: writes name their project, and reads may keep the current folder default and show which project they read. `factory status` is the person's main view. One Store serves every project on a machine, so status could show all of them. But readiness comes from each project's config file and type file, which live in a checkout.
+
+**Recommendation**: Option A: one project. Status works like the other reads. It shows the named project, or the project of the current folder, with the machine tool states that affect that project's workflows. Option B: every project on this machine, grouped and named by project. A person sees all factory work at once, but a project with no bound checkout, or more than one, can show only its saved records, and its readiness stays unknown. Option A is recommended. It matches the other reads and needs no checkout choice for each project. Option B can be added later as a separate option without breaking option A, and that later option would be new behavior.
+
+**To close**: The owner chooses. PRD 53 R-FACTORY-65, the project scope table, the factory contract, and the design state the choice. W30 R0 P3 T29 builds it.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A, with one change. Several factories can run in one project at once, each in its own worktree. So `factory status` shows one project, named or taken from the current folder, with one group for each running factory: grouped by checkout, then by lifecycle run. Each checkout group shows its own readiness from that checkout's config file and type file. `--run <run-id>` shows one run. Each assignment records the checkout ID of the checkout that `assignment start` named, not a worker's working copy. A view of every project on this machine may come later as a separate option, as new behavior. PRD 53 R-FACTORY-27, R-FACTORY-51, and R-FACTORY-65, the factory contract, and the design state the choice. W30 R0 P3 T8 and T29 build it.
+
+### D-074 Factory URI Paths
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-66 and [PRD 52](52-work-store-and-work-queue.md) R-WORK-URI-1 state the paths. | W30 R0 P3 T30 builds them. |
+
+**Question**: Which paths does the `make-docs://project/<project>/factory/` family use?
+
+**Why it matters**: A URI is a stable identity. Once a path ships, agents and tests rely on it, and it cannot change. The owner chose on 2026-11-23 that factory URIs live under the project URI and name the project in full, resolved only through `project_register`. The exact paths are still open.
+
+**Recommendation**: Option A (recommended): `factory/` lists the workflows with their latest and `ready` revision numbers; `factory/workflows/<name>` shows the latest resolved plan revision; `factory/workflows/<name>/revisions/` lists the kept revisions; `factory/workflows/<name>/revisions/<n>` shows one revision; and `factory/assignments/` lists the open assignments. Machine records get no URI. Option B: the same paths, but a named revision uses `factory/workflows/<name>@<digest>`, and one job also gets `factory/assignments/<unit>/<role>/<part>`. Option A is recommended. A revision number is short and fits the list shape. The `@` form would be new URI syntax, and a digest is 64 characters long. A one-job path needs a unit in one path part, and a role or part name could look like a coordinate part. The `assignments/` list covers the need. In both options, a factory URI read shows only saved records and not the live readiness state, because a project URI names no checkout.
+
+**To close**: The owner approves a path set. PRD 53 R-FACTORY-66, PRD 52 R-WORK-URI-1, the factory contract, and the design state the approved paths as current. W30 R0 P3 T30 builds them.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. The paths are `factory/`, `factory/workflows/<name>` (the latest saved plan), `factory/workflows/<name>/revisions/`, `factory/workflows/<name>/revisions/<n>`, and `factory/assignments/` (the open jobs, each with its lifecycle run ID). No path shows one job, no path uses an `@<digest>` form, and machine records have no URI. A read shows saved records only and ends with a note to run `factory status` in a checkout for the live readiness state. PRD 53 R-FACTORY-66, PRD 52 R-WORK-URI-1, the factory contract, and the design state the paths. W30 R0 P3 T30 builds them.
+
+### D-075 Factory MCP Tools That Name Another Project
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-23. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-67 states it. | W30 R0 P3 T31 builds it. |
+
+**Question**: How does the PRD 25 R-ACCESS-6 check admit a factory MCP tool call, for a read or a write, that names a project other than the project of the folder where the agent works?
+
+**Why it matters**: On 2026-11-23 the owner chose option B for the extra scoping ideas. The W29 rule, where the Store read grant of the agent's folder allows every project URI, covers factory URI reads only. Factory MCP tools keep the R-ACCESS-6 check of machine and project grants and target scope. Every project write names its project (PRD 53 R-FACTORY-63), and a read can name one too (R-FACTORY-65). A foreman often works in one folder and serves another project. Some reads also reach outside the agent's folder: for example, `factory_status` reads the config file and type file of other checkouts. R-ACCESS-6 does not yet say which project's grant a named-project call needs.
+
+**Recommendation**: Option A: the named project is the target. R-ACCESS-6 checks a current Store grant for the project that the call names, a read grant for a read and a write grant for a write. Without one, the call is refused as `store-denied`, names that project, and names the step that grants it. Option B: a factory MCP tool may name only the project of the folder where the agent works. A call for another project is refused, and the person uses the CLI or an MCP connection in that project. Option A is recommended. It keeps one policy, it matches "target scope" in R-ACCESS-6, and a foreman can still serve a project from another folder after the person grants it. Both options are new behavior.
+
+**To close**: The owner chooses. PRD 53 R-FACTORY-67, PRD 25 R-ACCESS-6 when its text changes, the factory contract, and W30 R0 P3 T31 state the choice.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option A. A factory MCP tool call, read or write, is checked under R-ACCESS-6 against the grant of the project that it acts on, also when that project is not the project of the agent's folder. A read needs that project's Store read grant, and a write needs its Store write grant. Without it, the call is refused as `store-denied`, and the message says how to grant the access. PRD 53 R-FACTORY-67, its Integrations line, the factory contract, and the design state the choice. PRD 25 R-ACCESS-6 already checks project grants and target scope, so its text does not change. W30 R0 P3 T31 builds the check. This is new behavior.
+
+### D-076 Native Command Rule for the Assignment Command
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option C on 2026-11-23: rename the command to `factory assignment save` (MCP `factory_assignment_save`). | W30 R0 P3 applies the rename. |
+
+**Question**: Should a native command rule (a harness permission rule for a CLI command) be able to approve the command that moves a factory assignment, records a check, or records a grant use?
+
+**Why it matters**: The harness access contract refuses the word `update` anywhere in a command rule, so that no rule can ever approve `make-docs update`, the self-update command. The command was planned with the end word `update`. While it was a command rule candidate, setup refused every project. W30 R0 P3 first removed it from the command rule candidates, so an agent that uses native command rules could not record an assignment move through the CLI.
+
+**Options**: Option A kept that safe default and used MCP for assignment moves. Option B refused `update` only as the first word of a command rule, which changed the harness access contract. Option C renamed the command to `factory assignment save`, with an approved end word.
+
+**Resolution**: Closed on 2026-11-23 at the owner's choice of option C. The command is `factory.assignment.save`, `make-docs factory assignment save`, and the MCP tool `factory_assignment_save` (23 characters), with the same behavior. It had never been released, so it has no former-name alias. It is a native command rule candidate again, and setup admits it. The harness access contract does not change. PRD 53, PRD 39, PRD 38, the factory design, the factory contract, the W30 R0 plan, and the backlog state the name. This is new behavior: the name.
+
+### D-077 Names of the Backup and Grant-Use Follow-Up Commands
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-24: keep `factory file-backup save` (MCP `factory_file_backup_save`) and `factory grant-use record` (MCP `factory_grant_use_record`). | None. The W30 R0 follow-up build already uses the names. |
+
+**Question**: Which CLI paths and MCP names do the backup command and the claim-level grant-use command get?
+
+**Why it matters**: On 2026-11-23 the owner approved a backup command named `factory backup save` (MCP `factory_backup_save`), and a grant-use command with `factory grant use` as an example. Neither name passes the existing rules. The harness access contract refuses the word `backup` anywhere in a native command rule, as it refuses `update` (D-076), so setup would refuse every project while `factory backup save` is a command rule candidate. PRD 39 R-NAME-2 needs an approved end word, and `use` is not one.
+
+**Options**: For the backup command, option A is `factory file-backup save` (MCP `factory_file_backup_save`, 24 characters). The word `file-backup` is one hyphenated word under R-NAME-2, it is not the refused word, and it keeps the word that the PRDs use for the record. Option B is `factory file save` (MCP `factory_file_save`), with no trace of the refused word. For the grant-use command, the build uses `factory grant-use record` (MCP `factory_grant_use_record`, 24 characters), with the approved end word `record`. The other way is to add `use` to the approved end words and use `factory grant use`.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option A. The commands are `factory file-backup save` and `factory grant-use record`. The build followed the D-076 precedent, option C: it picked names that the rules admit, and the harness access contract and the approved end words do not change. Neither name had been released, so neither has a former-name alias. PRD 53 R-FACTORY-70 and R-FACTORY-71, PRD 39 R-RUN-1, the factory contract, and both factory Skills state the names. This is new behavior: the names.
+
+### D-078 Backup Records Whose Checkout Folder Is Gone for Good
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option B on 2026-11-24: the reviewed removal may drop a backup record whose files are not found on this computer now. | None. The build drops such a record only in `factory workflow clean` with a review digest. |
+
+**Question**: What happens to a factory backup record when the checkout folder that holds its file never comes back?
+
+**Why it matters**: On 2026-11-24 the owner decided that a backup record goes only together with its file, and that a record stays and is reported when its checkout is not available ([PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-74). That rule has one hard case. When the folder is gone for good, the record can never go. It then stops `factory workflow clean` for that workflow with `backup-file-out-of-reach`, and the scoped cleanup of a pruned project keeps that workflow's rows. Nothing is lost and nothing is wrong, but those rows stay in the Store with no way out.
+
+**Options**: Option A keeps the build as it is. The record stays, each cleanup reports it, and the workflow cannot be removed until the folder is back and bound. Option B adds an explicit choice to the reviewed removal: the review lists each record whose folder is gone, and the person can approve dropping those records with the rest of the workflow. The review digest covers that choice, so nothing is dropped silently.
+
+**Recommendation**: Option B. It keeps the owner's rule for every normal case and gives a reviewed way out for the one case that has none.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option B. This is new behavior. `factory workflow clean` with a review digest drops a backup record when its files are not found on this computer now (removed, renamed, or on a drive that is not connected): no reachable checkout of the project holds its path, and nothing is at the path. The review lists each such record by name, marked "record dropped, files not reachable", and the review digest covers each one. The title of this entry says "gone for good", but the software cannot know that. If a file still exists, for example in a renamed folder or on a drive that is not connected, it stays where it is, and no later cleanup finds it. The review says so. The owner accepted this on 2026-11-24 (option A on the round 4 question): a record can be dropped while its files stay in a renamed folder or on a drive that is not connected, the output says so in plain words, and no new refusal rule is added. A record whose file is still on the computer, in a folder that is not a bound checkout, still stops the removal with `backup-file-out-of-reach`. Routine cleanup does not change: it keeps such a record and reports it. The scoped cleanup of a pruned project does not change either: it is not a reviewed removal, so it keeps each workflow that has a backup record. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-73 and R-FACTORY-74 and the factory contract state the rule.
+
+### D-079 Reach of the Workflow Removal Into Other Checkouts
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-24: the reviewed removal reaches the backup files in the project's other bound checkouts too. | None. The build already did this. |
+
+**Question**: Does `factory workflow clean` delete the workflow's backup files in other bound checkouts of the same project, or only in the checkout that the call names?
+
+**Why it matters**: The owner's rule of 2026-11-24 says that routine cleanup keeps a record whose file is in another checkout. The removal is different: it must delete every backup record of the workflow, or the assignments and the binding cannot go. With one named checkout only, a workflow with backups in two checkouts could never be removed, because each call would find the other checkout's records out of reach.
+
+**Options**: Option A, as built: the reviewed removal reaches every bound checkout of the named project whose folder is on this machine. The review counts those backups before the person approves. Routine cleanup still reaches only its own checkout. Option B limits the removal to the named checkout, and adds a first step that removes one checkout's backups of the workflow, so the person runs it once in each checkout.
+
+**Recommendation**: Option A. The person reviews and approves the removal, the files are in folders that Make Docs owns, and one command finishes the job.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option A. The build already reached every bound checkout of the named project whose folder is on this machine, with the same link check and the same locked-folder check in each one. The review now names each checkout that holds a backup file of the workflow, with the count of files there. Routine cleanup still reaches only its own checkout. [PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-73 and R-FACTORY-74 and the factory contract state the rule.
+
+### D-080 A Checkout Folder That Is a Symbolic Link
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The owner chose option A on 2026-11-24: allow it. Factory cleanup and the reviewed workflow removal may follow a symbolic link at the checkout folder itself. A link below the checkout folder stays refused. | None. The build already works this way, and a test proves both parts. |
+
+**Question**: May factory cleanup and `factory workflow clean` delete backup files when the checkout folder that the person named is a symbolic link?
+
+**Why it matters**: Make Docs deletes no backup file through a symbolic link ([PRD 53](53-factory-setup-and-orchestration.md) R-FACTORY-74). The round 3 check asked whether that rule also covers the checkout folder itself. Some people keep a project in one place and reach it through a link.
+
+**Options**: Option A allows a link at the checkout folder, because the person registered that folder as a checkout with `make-docs setup`, and refuses every link below it. Option B refuses a checkout folder that is a link.
+
+**Resolution**: Closed on 2026-11-24 at the owner's choice of option A. A checkout folder can be a symbolic link: the person registered it, so Make Docs follows it to the real folder. Below the checkout folder, each part of a backup path is still read without following a link, and a link there is refused with `backup-path-unsafe` in the removal and kept as `unsafe-path` in cleanup. The build did this before the decision, so no code changed. The factory contract states the rule.
+
 ## Open Questions
 
 ### Q-001 What Is the Long-Term Skills Delivery Contract?
@@ -1804,6 +2147,20 @@ All 24 registry operations project to MCP tools. A pending registration must not
 
 **To close**: An accepted design decides whether each optional mode exists, its configuration, its restore and history behavior, and how the default in-repository mode is preserved.
 
+### Q-026 Should the Plan Stage Become Optional in the Default Lifecycle Arc?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. The owner raised this on 2026-11-21. W29 R0 and W30 R0 keep the plan stage. | Decide in a separate design or lifecycle change. |
+
+**Question**: Should the default lifecycle arc allow a design to flow directly into PRD and work generation without a plan, for small or single-owner changes?
+
+**Why it matters**: The plan carries the coordinate decision, the phase order, the Human Experience promise map, and the PRD decision matrix. Skipping it can lose those records. Requiring it for every small change adds effort with little value.
+
+**Recommendation**: Keep the plan in the default arc. Define the conditions under which a plan is optional and where its required records go instead.
+
+**To close**: An accepted lifecycle change states when a plan is optional and where the coordinate decision and promise map live without one, or records that the plan stays required.
+
 ## Rebuild Risks
 
 ### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
@@ -1926,7 +2283,7 @@ The following pre-W19 R1 discussion is retained as non-normative historical cont
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | Skill refactor is now scoped by [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md): deterministic logic must move into modular TypeScript CLI/shared-core operations first, and `closeout-commit`, `closeout-phase`, `work-on-wave`, and `work-on-phase` skills must be rewritten in the same implementation window before standalone helper scripts are removed or downgraded. W16 R3 implements the lifecycle-critical operation boundary, rewrites those four skills to call `make-docs operations`, removes the replaced lifecycle helper scripts from selected-skill registry assets, and adds selected-skill install/audit/backup/uninstall/smoke-pack validation. W10 R8 Phase 2 modularizes the closeout, work, and lifecycle operation domains while preserving the `make-docs operations ...` compatibility facade. W10 R8 Phase 3 ships the first read-first TypeScript MCP surface through `make-docs mcp` with direct operation-domain parity tests. W10 R8 Phase 4 proves the packed package can run through npm, pnpm, and Bun package runners before the existing selected-skill install/audit/backup/uninstall smoke assertions continue. The risk remains open for remaining helper scripts, purpose metadata, MCP write/permission expansion, plugin/shared-agentics parity, and broader skill delivery decisions. | Keep the W16 R3 evidence as the lifecycle-helper mitigation, the W10 R8 Phase 2 domain split as modularization evidence, the W10 R8 Phase 3 read-first MCP tools as the initial TypeScript MCP parity evidence, and the W10 R8 Phase 4 package-runner smoke as release-boundary evidence; close this only after remaining first-party skill helper dependencies, package/template validation, purpose metadata, MCP write/permission expansion, plugin/shared-agentics parity, and delivery-model work prove selected skills no longer rely on standalone scripts for make-docs-owned deterministic behavior. |
+| Open | Skill refactor is now scoped by [25-typescript-runtime-cli-mcp-operation-boundaries.md](./25-typescript-runtime-cli-mcp-operation-boundaries.md): deterministic logic must move into modular TypeScript CLI/shared-core operations first, and `closeout-commit`, `closeout-phase`, `work-on-wave`, and `work-on-phase` skills must be rewritten in the same implementation window before standalone helper scripts are removed or downgraded. W16 R3 implements the lifecycle-critical operation boundary, rewrites those four skills to call `make-docs operations`, removes the replaced lifecycle helper scripts from selected-skill registry assets, and adds selected-skill install/audit/backup/uninstall/smoke-pack validation. W10 R8 Phase 2 modularizes the closeout, work, and lifecycle operation domains while preserving the `make-docs operations ...` compatibility facade. W10 R8 Phase 3 ships the first read-first TypeScript MCP surface through `make-docs mcp` with direct operation-domain parity tests. W10 R8 Phase 4 proves the packed package can run through npm, pnpm, and Bun package runners before the existing selected-skill install/audit/backup/uninstall smoke assertions continue. The risk remains open for remaining helper scripts, purpose metadata, MCP write/permission expansion, plugin/shared-agentics parity, and broader skill delivery decisions. | Keep the W16 R3 evidence as the lifecycle-helper mitigation, the W10 R8 Phase 2 domain split as modularization evidence, the W10 R8 Phase 3 read-first MCP tools as the initial TypeScript MCP parity evidence, and the W10 R8 Phase 4 package-runner smoke as release-boundary evidence; close this only after remaining first-party skill helper dependencies, package/template validation, purpose metadata, MCP write/permission expansion, plugin/shared-agentics parity, and delivery-model work prove selected skills no longer rely on standalone scripts for make-docs-owned deterministic behavior. W34 R0 retired the remaining first-party helper scripts (D-064, closed on 2026-11-23). Its P5 closes the helper-script part of this risk: no first-party Skill ships Python or a hand-written script, the `backlog-review` scripts are generated from CLI source, and a guard test and `npm run smoke:pack` refuse Python in the Skill source, the registry, the packed CLI, and the installed Skill paths. The rest of the close bar is not met: purpose metadata, MCP write and permission expansion, plugin and shared-agentics parity, and delivery-model work stay open, so this risk stays open. |
 
 **Issue**: W16 R3 removed the lifecycle-helper break window for closeout and work skills, but first-party skill delivery still includes narrower helper scripts and unresolved purpose/delivery metadata.
 

@@ -9,7 +9,7 @@ description: Archive, deprecate, inspect archival impact, or scan for stale docs
 
 Before intent routing or relationship tracing, first attempt to spawn a worker agent to run this skill. If you are already the spawned worker for this skill invocation, do not spawn another worker; execute the workflow directly.
 
-Use the active harness's native delegation mechanism when available: Codex `spawn_agent`, Claude Code `Task`, or any other exposed agent-spawn/subagent capability. Do not inspect the reference workflow, trace docs, or load broad repo context in the primary agent before this attempt.
+Use the harness's agent-spawn or subagent tool when the session lists one. Do not inspect the reference workflow, trace docs, or load broad repo context in the primary agent before this attempt.
 
 When spawning succeeds, the primary agent becomes coordinator only. Hand the worker a minimal, self-contained prompt containing:
 
@@ -19,7 +19,7 @@ When spawning succeeds, the primary agent becomes coordinator only. Hand the wor
 - the inferred mode if it is obvious from the request, or instructions to resolve mode ambiguity
 - the required output contract: mode, candidate or changed files, approvals needed, validation run, blockers, and concise summary
 
-Resolve the reference and script paths relative to that installed entry file. Do not substitute a maintainer source-tree path. The worker must read this skill and its referenced resources in its own context, prefer `jdocmunch` and `jcodemunch` first, reindex if stale, and only fall back to direct file reads after reindexing does not work. The worker owns relationship tracing, approval-gate preparation, link impact analysis, and any approved archive/deprecation edits.
+Resolve the reference paths relative to that installed entry file. Do not substitute a maintainer source-tree path. The worker must read this skill and its referenced resources in its own context. When its session has a document index tool or a code index tool, it uses that tool first, reindexes if the index is stale, and only falls back to direct file reads after reindexing does not work. The worker owns relationship tracing, approval-gate preparation, link impact analysis, and any approved archive/deprecation edits.
 
 When spawning is unsupported or the spawn attempt fails, state that delegation is unavailable or failed, include the short reason, and continue by executing this skill directly.
 
@@ -46,9 +46,23 @@ If more than one mode could apply, explain the ambiguity and ask before taking a
 - Operate on project artifacts under `docs/` and approved archive content under `.make-docs/archive/`.
 - Treat [`references/archive-workflow.md`](./references/archive-workflow.md) as the shared authority for tracing, replacement detection, staleness signals, deprecation rules, impact reporting, and archive path mapping.
 - Use `.make-docs/archive/` for approved history and archives. Follow its configured root router when present; its absence does not block authorized content work. Create no empty child directories.
-- Use [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) when the doc tree is large enough that manual tracing would be noisy or error-prone.
+- Trace relationships as [Relationship Tracing](#relationship-tracing) says.
 - Never archive without explicit user approval.
 - When the mode is mutating (`archive` or `deprecate`), confirm the final target set before writing anything.
+
+## Relationship Tracing
+
+Use the first way that works:
+
+1. MCP tool: when the session has the Make Docs `project_relations_list` tool, call it. Give `path` for one artifact.
+2. CLI: otherwise run `make-docs project relations list --path <artifact>`. Leave out `--path` to list the relations of every artifact.
+3. Manual review: otherwise follow the tracing steps in [`references/archive-workflow.md`](./references/archive-workflow.md) by hand.
+
+Each relation names one kind ID: `relations.markdown-link`, `relations.related-front-matter`, `relations.history-coordinate`, or `relations.same-slug`. A `relations.same-slug` relation is a guess, not a link. Show it as a candidate for the person to confirm.
+
+The tool and the command name each `docs/assets/` folder that they skip because it is not a configured Persona. Tell the person about each skipped folder.
+
+A manual result says that it is a manual review and uses the proof state `agent-reviewed`. It does not say that a Make Docs check ran. Do not install the CLI or any other tool without the person's consent. Tracing only reads. It never approves a move.
 
 ## Mode: `archive`
 
@@ -88,7 +102,7 @@ Use this mode when the user wants advisory analysis without moving or editing fi
    - supersession
    - no active references
 4. For history records, prefer `coordinate` frontmatter for W/R/P matching; fall back to W/R/P filename parsing for older moved records when frontmatter is absent.
-5. Use [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) when needed for relationship scans.
+5. Trace relationships as [Relationship Tracing](#relationship-tracing) says. Without `--path`, the CLI command and the MCP tool list the relations of every artifact.
 6. Present a grouped staleness report with the signal and rationale for each candidate.
 7. Do not archive anything in this mode. If the user wants to proceed, switch to `archive`.
 
@@ -134,7 +148,7 @@ This mode is strictly read-only. If the user wants to proceed afterward, switch 
 ## Additional Resources
 
 - [`references/archive-workflow.md`](./references/archive-workflow.md) — tracing rules, staleness signals, deprecation rules, impact-report contract, and archive target mapping
-- [`scripts/trace_relationships.py`](./scripts/trace_relationships.py) — optional helper for large relationship scans
+- The `project_relations_list` MCP tool and the `make-docs project relations list` command — the Make Docs relationship trace, with the same kind IDs as the reference
 - [`agents/openai.yaml`](./agents/openai.yaml) — harness metadata for environments that consume packaged agent config
 
 ## Current Layout and Audience Discovery

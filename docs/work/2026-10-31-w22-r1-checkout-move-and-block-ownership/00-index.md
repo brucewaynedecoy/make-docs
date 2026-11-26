@@ -86,7 +86,7 @@ Agent Human Experience Review is required for applicable promises. It is separat
 
 - Execute phases in order only after the implementation gate opens.
 - Each phase contains Source PRD Docs. Acceptance cases A1 through A32 are unique across this backlog.
-- Task ordinals restart at t1 in each phase and continue across that phase's stages.
+- Task ordinals restart at T1 in each phase and continue across that phase's stages.
 - Extend evidence.md only with actual review or execution results. Do not mark an A case passed from its planned text.
 - Retain new acceptance captures in evidence/a<number>/ only when needed. Existing evidence can be linked.
 - Future fixtures use MAKE_DOCS_HOME or existing explicit platform test adapters, task-scoped temporary-root variables, and disposable Stores. Use temporary plain project copies. Do not change HOME, home, or CODEX_HOME. They must not touch the owner's Store, machine settings, or Make Kit checkout. New branches or worktrees need separate explicit user permission.

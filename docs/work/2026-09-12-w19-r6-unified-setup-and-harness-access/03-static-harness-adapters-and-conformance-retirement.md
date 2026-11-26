@@ -72,12 +72,12 @@ PRDs 20, 43, and 44 are retirement inputs. They are not P3 product owners.
 
 | Promise | P3 tasks | Required evidence | Human review | Current state |
 | --- | --- | --- | --- | --- |
-| Find known harnesses without tuple questions. | t6-t9, t14 | Static detection tests and installed transcript. | User sees no obsolete fact prompt. | `satisfied`: automated and installed setup checks show no tuple questions. |
-| Show only safe product-owned methods and effects. | t7-t12, t14 | Plan, apply, verify, blocked, and review tests. | User can explain each effect. | `satisfied`: setup shows declared methods and keeps the failed Claude permission-rule method blocked. |
-| Use MCP with caller identity in Codex and Claude Code. | t8, t12, t15 | Disposable read and write runs. | User sees the selected method work. | `satisfied`: Codex and Claude Code MCP read and write calls pass. |
-| Keep Codex rules narrow. | t8, t12, t15 | Allowed and rejected sandbox runs. | User sees the access limit. | `satisfied`: the no-rule control fails, the narrow read and write pass, and execpolicy rejects wider direct token lists. |
-| Preserve config through apply, repeat, drift, and recovery. | t7, t10-t11, t14 | YAML, native file, receipt, and failure tests. | User sees no lost content or repeat loop. | `satisfied`: preservation checks, the setup matrix, and three no-write repeats pass. |
-| Keep resource reads Store-free. | t9, t13, t15 | Store-absent, locked, unreadable, and unsafe runs. | User reads a resource with no Store setup. | `satisfied`: installed resource reads and unsafe-Store cases pass without a Store session. |
+| Find known harnesses without tuple questions. | T6-T9, T14 | Static detection tests and installed transcript. | User sees no obsolete fact prompt. | `satisfied`: automated and installed setup checks show no tuple questions. |
+| Show only safe product-owned methods and effects. | T7-T12, T14 | Plan, apply, verify, blocked, and review tests. | User can explain each effect. | `satisfied`: setup shows declared methods and keeps the failed Claude permission-rule method blocked. |
+| Use MCP with caller identity in Codex and Claude Code. | T8, T12, T15 | Disposable read and write runs. | User sees the selected method work. | `satisfied`: Codex and Claude Code MCP read and write calls pass. |
+| Keep Codex rules narrow. | T8, T12, T15 | Allowed and rejected sandbox runs. | User sees the access limit. | `satisfied`: the no-rule control fails, the narrow read and write pass, and execpolicy rejects wider direct token lists. |
+| Preserve config through apply, repeat, drift, and recovery. | T7, T10-T11, T14 | YAML, native file, receipt, and failure tests. | User sees no lost content or repeat loop. | `satisfied`: preservation checks, the setup matrix, and three no-write repeats pass. |
+| Keep resource reads Store-free. | T9, T13, T15 | Store-absent, locked, unreadable, and unsafe runs. | User reads a resource with no Store setup. | `satisfied`: installed resource reads and unsafe-Store cases pass without a Store session. |
 
 ## Stage 1 — Reset Authority and Trace Dependencies
 
@@ -112,11 +112,11 @@ The active-set scan classified `docs/prd/` requirements, active risk decisions, 
 
 ### Tasks
 
-- [x] t1: Inventory all current and historical references to PRDs 20, 43, and 44.
-- [x] t2: Remove PRDs 20, 43, and 44 from the active set. Update PRD 00.
-- [x] t3: Move valid current rules to PRDs 07, 10, 16, 24, 25, 28, 30, 36, 38, 39, 48, and 50 as needed.
-- [x] t4: Update D-033 with the invalid authority, release effect, correction, and close proof.
-- [x] t5: Update active guides and package docs. Preserve historical meaning. Run PRD, path, and link checks.
+- [x] T1: Inventory all current and historical references to PRDs 20, 43, and 44.
+- [x] T2: Remove PRDs 20, 43, and 44 from the active set. Update PRD 00.
+- [x] T3: Move valid current rules to PRDs 07, 10, 16, 24, 25, 28, 30, 36, 38, 39, 48, and 50 as needed.
+- [x] T4: Update D-033 with the invalid authority, release effect, correction, and close proof.
+- [x] T5: Update active guides and package docs. Preserve historical meaning. Run PRD, path, and link checks.
 
 ### Acceptance criteria
 
@@ -134,14 +134,14 @@ The active-set scan classified `docs/prd/` requirements, active risk decisions, 
 
 ### Tasks
 
-- [x] t6: Record a hunk-level `keep`, `rework`, or `remove` decision for the P2 diff.
-- [x] t7: Keep and repair the unified setup service, method flags, JSON output, dry-run parity, YAML writer, project intent, receipts, and recovery.
-- [x] t8: Replace tuple-gated support in `setup-system.ts` and `harness-access/contract.ts` with static Codex and Claude Code adapters.
-- [x] t9: Remove provider, model, runtime, scenario, registry, result-promotion, and lab-bootstrap data from production setup.
-- [x] t10: Trace `packages/cli/src/conformance/**`, conformance scripts, commands, tests, fixtures, package copy steps, and `conformance/**`. Remove only items with no current owner.
-- [x] t11: Replace synthetic tuple tests with direct adapter, setup, config, repeat, recovery, and Store-free-read tests.
-- [x] t12: Prove MCP caller identity, bounded Codex rules, safe Claude Code behavior, and rejected broad access.
-- [x] t13: Re-run the W19 R3 Store session, contention, receipt, checkout-writer, pending-operation, and retry checks.
+- [x] T6: Record a hunk-level `keep`, `rework`, or `remove` decision for the P2 diff.
+- [x] T7: Keep and repair the unified setup service, method flags, JSON output, dry-run parity, YAML writer, project intent, receipts, and recovery.
+- [x] T8: Replace tuple-gated support in `setup-system.ts` and `harness-access/contract.ts` with static Codex and Claude Code adapters.
+- [x] T9: Remove provider, model, runtime, scenario, registry, result-promotion, and lab-bootstrap data from production setup.
+- [x] T10: Trace `packages/cli/src/conformance/**`, conformance scripts, commands, tests, fixtures, package copy steps, and `conformance/**`. Remove only items with no current owner.
+- [x] T11: Replace synthetic tuple tests with direct adapter, setup, config, repeat, recovery, and Store-free-read tests.
+- [x] T12: Prove MCP caller identity, bounded Codex rules, safe Claude Code behavior, and rejected broad access.
+- [x] T13: Re-run the W19 R3 Store session, contention, receipt, checkout-writer, pending-operation, and retry checks.
 
 ### Acceptance criteria
 
@@ -160,13 +160,13 @@ The active-set scan classified `docs/prd/` requirements, active risk decisions, 
 
 ### Tasks
 
-- [x] t14: Pack the candidate. Prove that it contains no registry, lab result, transcript, scenario, or bootstrap asset. Installed package smoke passed.
-- [x] t15: Run Codex MCP, Codex narrow rules, Claude Code MCP, Claude Code safe permission checks, and direct resource reads in disposable homes. Codex and Claude Code MCP read and write calls pass. The no-rule Codex control cannot reach the external Store. The Codex rule path reads project state and creates the archive surface with terminal commands only. The no-rule Claude control cannot run the Make Docs Store command. Claude permission rules stay blocked because Claude did not keep the full allowed command. Codex execpolicy proves the direct token boundary.
-- [x] t16: Run fresh, current, partial, no-method, unsupported, drifted, blocked, failed, recovered, and repeat setup cases.
-- [x] t17: Run the full CLI, Store, package, MCP, PRD, path, link, and diff checks. The coordinator-verified checks pass. After the authority and status cleanup, the path-hygiene validator passed against all 34 existing changed files with zero failing findings, zero I/O errors, and zero changed files.
-- [x] t18: Use the existing promise trace and evidence as the review input. Do not require a separate packet or an owner-authored report.
-- [x] t19: Prepare and record the agent-owned six-promise review. Record the evidence, observation, conclusion, reviewer, limit, and disposition. No explicit human acceptance gate applies.
-- [x] t20: Update `evidence.md`. All ten hard close rules pass. Close P3, D-033, and W19 R6.
+- [x] T14: Pack the candidate. Prove that it contains no registry, lab result, transcript, scenario, or bootstrap asset. Installed package smoke passed.
+- [x] T15: Run Codex MCP, Codex narrow rules, Claude Code MCP, Claude Code safe permission checks, and direct resource reads in disposable homes. Codex and Claude Code MCP read and write calls pass. The no-rule Codex control cannot reach the external Store. The Codex rule path reads project state and creates the archive surface with terminal commands only. The no-rule Claude control cannot run the Make Docs Store command. Claude permission rules stay blocked because Claude did not keep the full allowed command. Codex execpolicy proves the direct token boundary.
+- [x] T16: Run fresh, current, partial, no-method, unsupported, drifted, blocked, failed, recovered, and repeat setup cases.
+- [x] T17: Run the full CLI, Store, package, MCP, PRD, path, link, and diff checks. The coordinator-verified checks pass. After the authority and status cleanup, the path-hygiene validator passed against all 34 existing changed files with zero failing findings, zero I/O errors, and zero changed files.
+- [x] T18: Use the existing promise trace and evidence as the review input. Do not require a separate packet or an owner-authored report.
+- [x] T19: Prepare and record the agent-owned six-promise review. Record the evidence, observation, conclusion, reviewer, limit, and disposition. No explicit human acceptance gate applies.
+- [x] T20: Update `evidence.md`. All ten hard close rules pass. Close P3, D-033, and W19 R6.
 
 ### Acceptance criteria
 

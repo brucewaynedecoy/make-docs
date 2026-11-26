@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Phase 04: Validation and Closeout
 
 ## Purpose
@@ -20,10 +24,10 @@ This phase proves the classifier and disposition flows preserve current lifecycl
 
 ### Tasks
 
-- [x] t1: Run `npm test -w packages/cli`.
-- [x] t2: Run targeted audit, backup, uninstall, install, and managed-block tests.
-- [x] t3: Run `npm run validate:defaults -w packages/cli`.
-- [x] t4: Run `npm run smoke:pack`.
+- [x] T1: Run `npm test -w packages/cli`.
+- [x] T2: Run targeted audit, backup, uninstall, install, and managed-block tests.
+- [x] T3: Run `npm run validate:defaults -w packages/cli`.
+- [x] T4: Run `npm run smoke:pack`.
 
 ### Acceptance criteria
 
@@ -39,9 +43,9 @@ This phase proves the classifier and disposition flows preserve current lifecycl
 
 ### Tasks
 
-- [x] t5: Run package dry-run checks when package contents change.
-- [x] t6: Run dogfood/template parity checks once the template/package/dogfood design defines exact parity rules.
-- [x] t7: Verify the classifier taxonomy is runtime-agnostic enough for future Rust parity.
+- [x] T5: Run package dry-run checks when package contents change.
+- [x] T6: Run dogfood/template parity checks once the template/package/dogfood design defines exact parity rules.
+- [x] T7: Verify the classifier taxonomy is runtime-agnostic enough for future Rust parity.
 
 ### Acceptance criteria
 
@@ -51,18 +55,18 @@ This phase proves the classifier and disposition flows preserve current lifecycl
 
 ### Dependencies
 
-- t1
-- t2
-- t3
+- T1
+- T2
+- T3
 
 ## Stage 3 - Close docs and commit
 
 ### Tasks
 
-- [x] t8: Update implementation docs, PRD notes, or risk-register entries only where the implemented behavior changes the accepted contract.
-- [x] t9: Run `git diff --check`.
-- [x] t10: Read `docs/assets/references/commit-message-convention.md` and draft the commit message from the actual diff.
-- [x] t11: Create a local commit and do not push.
+- [x] T8: Update implementation docs, PRD notes, or risk-register entries only where the implemented behavior changes the accepted contract.
+- [x] T9: Run `git diff --check`.
+- [x] T10: Read `docs/assets/references/commit-message-convention.md` and draft the commit message from the actual diff.
+- [x] T11: Create a local commit and do not push.
 
 ### Acceptance criteria
 
@@ -72,9 +76,9 @@ This phase proves the classifier and disposition flows preserve current lifecycl
 
 ### Dependencies
 
-- t5
-- t6
-- t7
+- T5
+- T6
+- T7
 
 ## Closeout Notes
 

@@ -1,0 +1,172 @@
+---
+title: "Phase 1: Factory Contract and Workflow Types"
+kind: "work"
+status: "completed"
+coordinate: "W30 R0 P1"
+source:
+  type: "plan"
+  path: "docs/plans/2026-11-21-w30-r0-factory/01-factory-contract-and-workflow-types.md"
+---
+
+# Phase 1: Factory Contract and Workflow Types
+
+## Purpose
+
+Write the shared factory rules once, as system resources, so both Skills and the CLI follow the same rules. Later phases build on these resources.
+
+## Overview
+
+This phase adds four upstream resources in `packages/docs/template/`:
+
+- `make-docs://system/contract/factory-contract.md`;
+- `make-docs://system/reference/factory/workflows/build-then-review.md`;
+- `make-docs://system/reference/factory/workflows/lead-and-specialists.md`;
+- `make-docs://system/reference/factory/workflows/staged-backlog.md`.
+
+They use the existing contract and reference types. After review, they are projected into the package and then into this repository's dogfood copy.
+
+## Human Experience Outcome
+
+- Impact and governing promise: `direct`. Escalation messages say what happened, what is needed, and what happens next (R-FACTORY-37, R-FACTORY-38).
+- Intended human outcome: an agent that follows the contract sends only floor events and added events, each as a self-contained request.
+- Human-facing surface: the factory contract and the three workflow type references.
+- Implementation work: Stages 1 and 2.
+- Evidence source: resource parity checks, the PRD authority validator, and a reviewer map from each design decision to one resource section.
+- Executor: the implementing agent.
+- Accepted obligation: none.
+
+The governing requirements are [PRD 53](../../prd/53-factory-setup-and-orchestration.md) R-FACTORY-1, R-FACTORY-6 to R-FACTORY-10, R-FACTORY-12, R-FACTORY-17 to R-FACTORY-21, R-FACTORY-37 to R-FACTORY-46, and R-FACTORY-52, with the [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
+
+## Current Testing Decisions
+
+| Testing type | Current decision | Decision record or `not-needed-now` reason |
+| --- | --- | --- |
+| Automated Implementation Testing | selected | Resource identity, package, provider inventory, and dogfood byte parity checks; the PRD authority and path-hygiene validators. |
+| Performance Testing | not-needed-now | This phase changes text only. No performance candidate applies. |
+| Guided Progress Review | not-needed-now | P5 reviews the real escalation messages that follow these rules. |
+| Unassisted Goal Testing | not-needed-now | No current decision needs an unassisted human run. |
+
+There are no performance candidates.
+
+## Source PRD Docs
+
+- [53 Factory Setup and Orchestration](../../prd/53-factory-setup-and-orchestration.md)
+- [06 Template Contracts and Generated Assets](../../prd/06-template-contracts-and-generated-assets.md)
+
+## Source Obligations, Scenarios, And Findings
+
+- None.
+
+## Stage 1 - Factory Contract
+
+### Tasks
+
+- [x] T1: Author `factory-contract.md` upstream with the four standard roles and the fields of a custom role (R-FACTORY-6, R-FACTORY-7, R-FACTORY-8).
+- [x] T2: Add the capability catalog. List each capability and how setup proves it (R-FACTORY-9, R-FACTORY-10).
+- [x] T3: Add the readiness states `draft`, `wired`, `ready`, and `drifted`, and what moves a workflow between them (R-FACTORY-12).
+- [x] T4: Add the escalation floor, the message rules, and acceptance at the end of the given scope (R-FACTORY-37, R-FACTORY-38, R-FACTORY-39).
+- [x] T5: Add the working rules, the limits and their defaults, and the backup rule outside git (R-FACTORY-20, R-FACTORY-40 to R-FACTORY-46).
+- [x] T6: Add a rule catalog that maps each rule to its CLI check, where one exists, and to its contract text (R-FACTORY-52).
+- [x] T7: Describe every example tool by capability only.
+
+### Acceptance criteria
+
+- A1: The contract states the four roles, the capability catalog, the four readiness states, the five floor events, the acceptance rule, the working rules, the limits, and the backup rule.
+- A2: Each capability in the catalog names how setup proves it.
+- A3: No example, default, or required step in the contract names a particular app, harness, provider, multiplexer, scheduler, or messaging tool.
+- A4: The rule catalog has one row per rule, and each row names its CLI check or states that the rule is contract-only.
+
+### Dependencies
+
+- Accepted design and PRD 53.
+
+## Stage 2 - Workflow Types and Projection
+
+### Tasks
+
+- [x] T8: Author `build-then-review.md`, `lead-and-specialists.md`, and `staged-backlog.md` upstream. Each names its roles, the capabilities each role needs, its steps, its limits, its integration owner rule for parallel work, and what it returns (R-FACTORY-17, R-FACTORY-18, R-FACTORY-20, R-FACTORY-42).
+- [x] T9: Define the repo path and fields for a project-owned workflow type, and the rule that it never replaces a shipped type silently (R-FACTORY-19).
+- [x] T10: Add the optional preflight step to the workflow type fields (R-FACTORY-21).
+- [x] T11: Project the four resources into the package, then reseed them into this repository's `.make-docs/`.
+- [x] T12: Map each design decision to one contract or workflow type section, and record the map for the reviewer.
+
+### Acceptance criteria
+
+- A5: Each workflow type works for software, personal, and business work, and says so with one example of each, described by capability.
+- A6: Package, provider inventory, and dogfood bytes match for all four resources.
+- A7: A reviewer can map every decision in the design to one contract or workflow type section.
+- A8: No new resource type, Playbook shape, or Protocol shape exists after the change.
+
+### Dependencies
+
+- Stage 1.
+
+### Closeout Notes
+
+- Four testing decisions: Automated Implementation Testing `selected` and done: `packages/cli/tests/w30-r0-p1-factory-resources.test.ts` (7 tests) checks byte parity, catalog entries, offline list and read with and without local projection, the contract content, the state moves, the claim timing, the rule catalog checks, the workflow type sections, examples, and step order, and the product-name and task ID guards. The PRD authority and path-hygiene validators pass. Performance Testing `not-needed-now`: text only. Guided Progress Review `not-needed-now`: P5 reviews the real escalation messages. Unassisted Goal Testing `not-needed-now`.
+- Performance evidence: none needed. No measurement was taken.
+- Human Experience Review: done by the implementing agent on the contract text. Each escalation message must say what happened, what is needed, whether it is required or optional, what it blocks, and what happens next, and the contract gives one example. The real messages are reviewed in P5.
+- Independent review: ten findings, all fixed. They covered the state moves, the smallest setup, the rule catalog checks and missing rows, claim timing, the name clash, two owner choices, the upgrade effect of projection, the step order in two workflow types, one word in a rule row, and a too-wide tool-name test. The [evidence report](evidence.md#independent-review-fixes) lists each fix.
+- Optional experience handoff: none.
+- Explicit human acceptance gate: none in this phase. The owner reviews the new choices listed in the evidence report.
+- Evidence report: [P1 Factory Contract and Workflow Types](evidence.md#p1-factory-contract-and-workflow-types), with the design decision map for T12 and A7.
+- Phase / capability status: `completed`. The owner accepted W30 R0 on 2026-11-24. The first build was on `4daaf18f`. A1 to A8 have evidence. The factory and work queue commands named in the resources are built since then, in W29 R0 and in P3.
+- Waits for: nothing. P1 could start any time.
+- Next: P2 waits for all of [W29 R0](../2026-11-21-w29-r0-work-store/00-index.md).
+
+## Change History
+
+### 2026-11-23 — W30 R0 P1
+
+- Kind: `edit`
+- Affected scope: the factory contract and the three workflow type references, after P1 was done.
+- Previous scope: the P1 contract had no status move table, no correction round count, no proof version or result, no grant scope, no never-log list, no reason codes, and no resolved plan. The type references stated no version.
+- Replacement scope: the contract adds the proof fields and re-proof rule, known losses in the setup summary, digest-based readiness, a `### How the CLI Finds the State` section (three live sources, tool states, and a restored `ready` digest that needs no new test task), job keys with a part label, grant-only saves during a run, the private claim ID on assignment calls, the `## Grants`, `## Resolved Plan`, `### Status Moves`, `### Correction Rounds`, `### Status History`, `## Never-Log List`, and `## Reason Codes` sections, and new Rule Catalog rows. Each type reference states `Type version: 1`. The upstream files changed first in `packages/docs/template/`, and the dogfood copies match them byte for byte. The P1 resource test still passes. All of this is new behavior. Later phases build the checks.
+- Rationale: the owner approved five factory changes on 2026-11-23: status moves and rounds, proof validity, the never-log list and reason codes, scoped grants, and the resolved workflow plan.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-10, -12, -14, -24 to -28, -41, -52, and new R-FACTORY-53 to R-FACTORY-61; PRD 38 R-MIN rows; PRD 24 R-CONFIG-WORK-2; PRD 04 terms.
+- Owner approval: the owner's review on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md)
+
+### 2026-11-23 — W30 R0 P1 Project Scope
+
+- Kind: `edit`
+- Affected scope: the factory contract, after P1 was done.
+- Previous scope: the contract did not say how a factory command finds its project or what a result names, and it had no factory URIs.
+- Replacement scope: the contract adds a `## Project Scope` section with the machine and project command table, `### Name the Project`, `### Results Name the Project`, and `### Factory URIs` (proposed paths, pending owner approval). It adds the refusal codes `project-missing`, `project-not-found`, `project-mismatch`, and `project-checkout-unclear`, and eight Rule Catalog rows. The upstream file changed first in `packages/docs/template/`, and the dogfood copy matches it byte for byte. The type references do not change. This is new behavior. P3 and P5 build the checks and the Skill text.
+- Rationale: the owner chose option A for project scope on 2026-11-23.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-52 and new R-FACTORY-62 to R-FACTORY-68.
+- Owner approval: the owner's decision on 2026-11-23 (option A).
+- Source: [Factory design](../../designs/2026-11-21-factory.md#project-scope)
+
+### 2026-11-23 — W30 R0 P1 Owner Answers
+
+- Kind: `edit`
+- Affected scope: the factory contract, after P1 was done.
+- Previous scope: the contract left the `factory status` scope and the factory URI paths open, applied the folder grant rule to factory MCP tools, called the printouts gitignored with no rule on how, did not say where the integration owner role and the channel kind live, did not count a move from `unknown` to `needs-correction`, and gave custom roles no context field.
+- Replacement scope: status shows one project with one group for each running factory, and an assignment records its checkout ID. The approved URI paths are listed, each read ends with a note to run `factory status`, and the folder grant rule covers URI reads only. A `.gitignore` with `*` inside each factory folder keeps it out of git, and Make Docs never edits the root `.gitignore`. The integration owner role and the channel kind live only in config. A move from `unknown` to `needs-correction` counts a round. Custom roles gain a `context` field, and a role other than builder or reviewer must list its context kinds. Four Rule Catalog rows are added. The upstream file changed first in `packages/docs/template/`, and the dogfood copy matches it byte for byte. This is new behavior.
+- Rationale: the owner answered seven open W30 choices on 2026-11-23.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -25, -27, -41, -46, -51, -55, -60, and -65 to -67.
+- Owner approval: the owner's answers on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md#context)
+
+### 2026-11-23 — W30 R0 P1 Last Owner Decisions
+
+- Kind: `edit`
+- Affected scope: the factory contract, after P1 was done.
+- Previous scope: every move from `unknown` to `needs-correction` added a round, every role other than builder or reviewer had to list its context kinds, and factory MCP calls for another project were not decided.
+- Replacement scope: a move from `unknown` to `needs-correction` adds no round when the status before `unknown` was already `needs-correction`. Only a custom role must list its context kinds, and the refusal message says so. A factory MCP call is admitted by the grant of the project that it acts on, and is refused as `store-denied` without it. Three Rule Catalog rows change. The upstream file changed first in `packages/docs/template/`, and the dogfood copy matches it byte for byte. This is new behavior.
+- Rationale: the owner chose option A for all three open items on 2026-11-23.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-7, -41, -60, and -67.
+- Owner approval: the owner's decisions on 2026-11-23.
+- Source: [Factory design](../../designs/2026-11-21-factory.md#context)
+
+### 2026-11-24 — W30 R0 P1 Rule Catalog Check Column
+
+- Kind: `edit`
+- Affected scope: the factory contract's Rule Catalog, one paragraph of its Readiness section, and one sentence of the `staged-backlog` workflow type, after P1 was done.
+- Previous scope: 57 rows of the Check column said "Planned in" for checks that are built, with a note that the P3 rows are built. Three more rows said "Contract-only" for checks that the CLI makes: `only-ready-takes-work`, `no-silent-replace`, and `one-human-channel`. For a lost tool, the CLI gave two fix steps in one line. Step 2 of `staged-backlog` called `make-docs work next` planned.
+- Replacement scope: a built check says "Built in" with its phase and task. The opening paragraph of the catalog explains the three row forms and says that no row is planned now. The note is removed. The `claim-held` row names `factory.assignment.save`. The three rows now say "Built in", so 60 of the 90 rows are built and 30 are contract-only. The `claim-opens-run` row says exactly what `factory.assignment.start` checks. The Readiness section says that status gives one fix step for each drift reason, and that only `factory workflow show` gives the second way for a lost tool; that part is a change of output, by owner decision. The word "planned" is removed from the `staged-backlog` step. The upstream files changed first in `packages/docs/template/`, and the dogfood copies match them byte for byte. No rule changed. The word "Built in" is new wording that the P6 builder chose, and the owner kept it on 2026-11-24.
+- Rationale: [P6](06-proofs-and-acceptance.md) T14, one stale word found in the same check, the review of 2026-11-24, and the owner's decision of 2026-11-24 on the fix line.
+- PRD decision: `update-existing` — PRD 53 R-FACTORY-33, for the one fix step only.
+- Owner approval: none needed for T14, which the owner's P3 review follow-up scheduled. The owner's decisions on 2026-11-24 for the word and for the one fix step.
+- Source: [W30 R0 evidence](evidence.md#rule-catalog-t14)

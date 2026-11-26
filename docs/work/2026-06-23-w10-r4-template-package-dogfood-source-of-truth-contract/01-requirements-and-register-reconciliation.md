@@ -1,3 +1,7 @@
+---
+status: "completed"
+---
+
 # Requirements and Register Reconciliation
 
 ## Purpose
@@ -13,10 +17,10 @@ Keep implementation work grounded in PRD 19 and the active risk register before 
 
 ### Tasks
 
-- [x] t1: Map PRD 19 requirements to source, docs, tests, and validation surfaces.
-- [x] t2: Identify which existing risk-register items will be narrowed by implementation evidence.
-- [x] t3: Confirm no new PRD or risk-register item is required before coding.
-- [x] t4: Record the W10 R3 link-rewrite hardening requirements as deferred future migration work unless W10 R4 directly depends on moved user Markdown trees.
+- [x] T1: Map PRD 19 requirements to source, docs, tests, and validation surfaces.
+- [x] T2: Identify which existing risk-register items will be narrowed by implementation evidence.
+- [x] T3: Confirm no new PRD or risk-register item is required before coding.
+- [x] T4: Record the W10 R3 link-rewrite hardening requirements as deferred future migration work unless W10 R4 directly depends on moved user Markdown trees.
 
 ### Acceptance Criteria
 

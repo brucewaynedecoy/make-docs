@@ -2,27 +2,27 @@
 
 ## Purpose
 
-Use this playbook when `jdocmunch` and `jcodemunch` are available. These MCP servers are the preferred path because they reduce token use, speed up repo inspection, and make parallel decomposition safer.
+Use this playbook when the session has index tools. An index tool reduces token use, speeds up repo inspection, and makes parallel decomposition safer. Make Docs does not require a particular tool.
 
-## Preferred Servers
+## Preferred Tools
 
-- `jdocmunch` for documentation indexing and section retrieval
-- `jcodemunch` for code indexing, symbol discovery, references, and dependency analysis
+- A document index tool, for documentation indexing and section retrieval.
+- A code index tool, for code indexing, symbol discovery, references, and dependency analysis.
 
 ## Session Rule
 
-Configured MCP servers do not prove that the current session can access them. Confirm live session access first, then index.
+A tool in a config file does not prove that the current session can use it. Use only the tools that the session lists, then index.
 
 ## Recommended Sequence
 
-1. Confirm live session access.
-2. Index repository docs with `jdocmunch`.
-3. Index the codebase with `jcodemunch`.
+1. List the tools that this session gives you.
+2. Index the repository docs with the document index tool.
+3. Index the codebase with the code index tool.
 4. Use indexed search and retrieval for planning or execution.
 
 ## Documentation Workflow
 
-When `jdocmunch` is available:
+When the session has a document index tool:
 
 - index the repo root or the docs subtree
 - search sections before reading full docs
@@ -30,7 +30,7 @@ When `jdocmunch` is available:
 
 ## Code Workflow
 
-When `jcodemunch` is available:
+When the session has a code index tool:
 
 - resolve the repo and inspect the outline or tree first
 - use symbol search, file outlines, references, and dependency graphs before broad raw reads
@@ -38,9 +38,9 @@ When `jcodemunch` is available:
 
 ## Parallel Agent Rule
 
-MCP indexes are session-scoped for this workflow. If execution uses spawned agents or parallel workers, each agent must:
+Indexes are session-scoped for this workflow. If execution uses spawned agents or parallel workers, each agent must:
 
-1. confirm live MCP access in its own session
+1. list the tools that its own session gives it
 2. create its own indexes
 3. proceed with its assigned scope only after indexing
 
@@ -48,12 +48,14 @@ Do not assume the coordinator's indexes are visible to spawned agents.
 
 ## Fallback Workflow
 
-If one or both servers are unavailable:
+If the session has no document index tool or no code index tool:
 
-1. Recommend the missing servers to the user.
-2. Ask whether to proceed without them.
-3. Fall back to local repo exploration with fast tools such as `rg`, `find`, manifest inspection, and targeted file reads.
+1. Tell the user which kind of tool is missing.
+2. Ask whether to proceed without it.
+3. Fall back to local repo exploration: local search, file listing, manifest inspection, and targeted file reads.
 4. Keep the same output contract and doc templates.
+
+Do not install a tool without the person's consent.
 
 ## When To Re-index
 

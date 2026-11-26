@@ -69,10 +69,10 @@ Performance fields: base action is correctness repair; applicability is not-need
 
 ### Tasks
 
-- [x] t1: Recheck the named current PRD owners and the user-approved scope. Read docs/assets/project/developing-deterministic-agentic-twins.md before any business logic work.
-- [x] t2: Update only the named owning sections for block-only move proof, config identity, evidence-v1 to evidence-v2 transition, setup discovery, and shared Store-only preview/apply. Adopt proposed project.checkout-move.preview and project.checkout-move.apply in PRD 39 before code.
-- [x] t3: Preserve authentic schema-1 whole-file adoption rules and unrelated requirements. Add bounded non-normative history only for material accepted contract changes. Keep the current PRD index and D-049 links accurate without closing D-049.
-- [x] t4: Run the Store-free current-authority validator and changed-doc link/trace checks. Record the reconciled PRD sections and resolve defects before opening code tasks.
+- [x] T1: Recheck the named current PRD owners and the user-approved scope. Read docs/assets/project/developing-deterministic-agentic-twins.md before any business logic work.
+- [x] T2: Update only the named owning sections for block-only move proof, config identity, evidence-v1 to evidence-v2 transition, setup discovery, and shared Store-only preview/apply. Adopt proposed project.checkout-move.preview and project.checkout-move.apply in PRD 39 before code.
+- [x] T3: Preserve authentic schema-1 whole-file adoption rules and unrelated requirements. Add bounded non-normative history only for material accepted contract changes. Keep the current PRD index and D-049 links accurate without closing D-049.
+- [x] T4: Run the Store-free current-authority validator and changed-doc link/trace checks. Record the reconciled PRD sections and resolve defects before opening code tasks.
 
 ### Acceptance criteria
 
@@ -88,15 +88,15 @@ Performance fields: base action is correctness repair; applicability is not-need
 
 ### Closeout Notes
 
-Stage 1 t1–t4 are complete. The named existing PRDs were updated, both independent gap reviews closed their findings, and the post-review Store-free CLI authority check passed with 35 PRDs, 635 Markdown sources, 1206 links, and zero diagnostics. A1–A3 are satisfied only as documentation acceptance; see [PRD review evidence](evidence.md#final-prd-documentation-stage-result). No product pass, code permission, Store repair, or human acceptance is inferred. t5 and later remain unchecked.
+Stage 1 T1–T4 are complete. The named existing PRDs were updated, both independent gap reviews closed their findings, and the post-review Store-free CLI authority check passed with 35 PRDs, 635 Markdown sources, 1206 links, and zero diagnostics. A1–A3 are satisfied only as documentation acceptance; see [PRD review evidence](evidence.md#final-prd-documentation-stage-result). No product pass, code permission, Store repair, or human acceptance is inferred. T5 and later remain unchecked.
 
 ## Stage 2 - Write Focused Red Ownership Cases
 
 ### Tasks
 
-- [x] t5: Add failing focused cases for unchanged valid blocks with edited prefix/suffix in both root files. Assert the existing 2.0.5 move digest rejects them while the saved block proof remains valid.
-- [x] t6: Add grouped negative cases for changed blocks, strict missing/duplicate/reversed markers, changed fully owned files, invalid config identity, and historical paths that no longer prove current ownership.
-- [x] t7: Add versioned-proof cases for valid v1 per-block evidence, missing independent saved proof, unknown evidence versions, and authentic schema-1 whole-file adoption. Add an evidence-v2 old-reader check: after the fixed tool saves v2 evidence, move a disposable copy again and attempt that further relocation with released 2.0.5. Assert refusal without losing rows or history. Do not claim that the immutable old binary refuses ordinary reads or writes at an already-bound path, or that downgrade is supported.
+- [x] T5: Add failing focused cases for unchanged valid blocks with edited prefix/suffix in both root files. Assert the existing 2.0.5 move digest rejects them while the saved block proof remains valid.
+- [x] T6: Add grouped negative cases for changed blocks, strict missing/duplicate/reversed markers, changed fully owned files, invalid config identity, and historical paths that no longer prove current ownership.
+- [x] T7: Add versioned-proof cases for valid v1 per-block evidence, missing independent saved proof, unknown evidence versions, and authentic schema-1 whole-file adoption. Add an evidence-v2 old-reader check: after the fixed tool saves v2 evidence, move a disposable copy again and attempt that further relocation with released 2.0.5. Assert refusal without losing rows or history. Do not claim that the immutable old binary refuses ordinary reads or writes at an already-bound path, or that downgrade is supported.
 
 ### Acceptance criteria
 
@@ -116,9 +116,9 @@ The focused v1 bridge case failed against the original verifier. It reported tha
 
 ### Tasks
 
-- [x] t8: Reuse strict parseManagedBlock and saved ownership/provenance readers in one shared move verifier. Hash only valid managed-block bodies; compare fully owned files with their trusted full-file facts. Preserve all project-owned bytes.
-- [x] t9: Add evidence-version 2 inside existing verification_json with a retained version 1 reader. Upgrade only a selected record after independent proof. Keep ledger claims unchanged. Exclude config comments/unrelated settings and stale historical paths from permanent move identity.
-- [x] t10: Run focused tests and review the verifier at its call sites. Preserve exact pending-recovery snapshots, safe file-kind/parent/path checks, and unknown-version refusal. Record the proof contract for P2 and the limits for P3.
+- [x] T8: Reuse strict parseManagedBlock and saved ownership/provenance readers in one shared move verifier. Hash only valid managed-block bodies; compare fully owned files with their trusted full-file facts. Preserve all project-owned bytes.
+- [x] T9: Add evidence-version 2 inside existing verification_json with a retained version 1 reader. Upgrade only a selected record after independent proof. Keep ledger claims unchanged. Exclude config comments/unrelated settings and stale historical paths from permanent move identity.
+- [x] T10: Run focused tests and review the verifier at its call sites. Preserve exact pending-recovery snapshots, safe file-kind/parent/path checks, and unknown-version refusal. Record the proof contract for P2 and the limits for P3.
 
 ### Acceptance criteria
 

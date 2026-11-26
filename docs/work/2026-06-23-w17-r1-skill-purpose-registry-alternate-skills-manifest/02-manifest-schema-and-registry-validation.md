@@ -1,12 +1,16 @@
+---
+status: "completed"
+---
+
 # P2 Manifest Schema and Registry Validation
 
 ## Tasks
 
-- [x] t1: Extend `packages/cli/skill-registry.schema.json` for `schemaVersion`, `manifestId`, `displayName`, `purposes`, `sourcePolicy`, supported harnesses, and provenance fields.
-- [x] t2: Update `packages/cli/skill-registry.json` to the first-party manifest shape while preserving existing skill names.
-- [x] t3: Update `packages/cli/src/skill-registry.ts` so built-in and alternate manifests use one validator.
-- [x] t4: Reject duplicate purpose ids, collisions with first-party ids, skill entries that reference missing purposes, and missing source policy metadata.
-- [x] t5: Add tests for accepted first-party manifests and malformed manifest fixtures.
+- [x] T1: Extend `packages/cli/skill-registry.schema.json` for `schemaVersion`, `manifestId`, `displayName`, `purposes`, `sourcePolicy`, supported harnesses, and provenance fields.
+- [x] T2: Update `packages/cli/skill-registry.json` to the first-party manifest shape while preserving existing skill names.
+- [x] T3: Update `packages/cli/src/skill-registry.ts` so built-in and alternate manifests use one validator.
+- [x] T4: Reject duplicate purpose ids, collisions with first-party ids, skill entries that reference missing purposes, and missing source policy metadata.
+- [x] T5: Add tests for accepted first-party manifests and malformed manifest fixtures.
 
 ## Acceptance Criteria
 

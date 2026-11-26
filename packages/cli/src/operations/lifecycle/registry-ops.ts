@@ -117,7 +117,7 @@ const evidenceInput = z.object({
     .regex(/^[a-z][a-z0-9-]*$/, "must be lowercase and hyphenated"),
   projectPath: z.string().min(1).max(2048).optional(),
   externalReference: z.string().min(1).max(2048).optional(),
-  digest: z.string().regex(/^sha256:[a-f0-9]{64}$/).optional(),
+  digest: z.string().regex(/^sha256:[a-f0-9]{64}$/, "must have the form sha256:<64 lower-case hex characters>").optional(),
 }).strict().superRefine((value, context) => {
   if ((value.projectPath === undefined) === (value.externalReference === undefined)) {
     context.addIssue({
@@ -204,6 +204,7 @@ export function buildLifecycleOperations(
               checkpoint: resolved.checkpoint,
               metadata: resolved.metadata,
               committedAt: context.now(),
+              projectRoot: identity.repoRoot,
             }),
           ),
         );
@@ -321,6 +322,7 @@ export function buildLifecycleOperations(
               reference: reference.value,
               digest: resolved.digest,
               committedAt: context.now(),
+              projectRoot: identity.repoRoot,
             });
           }),
         );
@@ -425,6 +427,7 @@ function transitionHandler(
         expectedVersion: input.expectedVersion,
         ...change,
         committedAt: context.now(),
+        projectRoot: identity.repoRoot,
       });
     }),
   );
