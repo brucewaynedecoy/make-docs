@@ -182,16 +182,18 @@ Every scenario uses one small practice project named `garden`. It has git and on
 
    The wizard asks about your agent tools. For Part 1, you can pick none for each tool. For Parts 2 and 3, pick the method that your agent tool uses. Setup creates the practice Store: its plan says `Create a fresh schema-9 Store.` To skip the wizard, `make-docs setup --help` lists the flags that turn off each agent tool.
 
-3. Give the project a name. Open `.make-docs/config.yaml` and add the key `projectName: garden`. If the file is wrapped in `{ }`, put a comma before the new key. After the edit, the file looks like this, with your own ID:
+3. Check the project name. Setup gives a new project its name. It takes the name from the folder name, so it writes `projectName: garden` into `.make-docs/config.yaml`. Its plan says `Project name: garden, from the checkout folder name.` Open the file. It looks like this, with your own ID, and with your own tool choices in place of `...`:
 
    ```yaml
    {
-     harnessIntegrations: [],
+     projectName: garden,
+     harnessIntegrations: [ ... ],
      resourceProjection: [],
      projectId: 661a5b74-8ed5-4590-b2be-91f832f2366d
-     ,projectName: garden
    }
    ```
+
+   You can change the name in that file at any time. If setup says that the name `garden` belongs to another project in this Store, an earlier practice project still holds it. Setup then writes no name and still finishes. With the practice Store, delete the `$HOME/make-docs-practice` folder and start again from Way 1. With your real Store, choose another name, add `projectName: <name>` to the file, and use that name where this guide says `garden`.
 
 4. Add the practice backlog:
 

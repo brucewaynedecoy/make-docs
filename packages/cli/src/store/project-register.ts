@@ -4,6 +4,7 @@ import { parseDocument } from "yaml";
 import { OperationError } from "../operations/types";
 import { assertManagedPathHasNoSymlinks } from "../utils";
 import type { StoreDatabase } from "./database";
+import { storedRootMatches } from "./root-path-match";
 
 /**
  * The project register (W32 R0 P3; PRD 38 R-REGISTER-1 to R-REGISTER-4,
@@ -101,8 +102,11 @@ export interface ProjectNameProposal {
  * The project name that setup proposes when the config has none (PRD 38
  * R-ID-8, W29 R0 P5 T8): the checkout folder name in the R-ID-8 form. A linked
  * git worktree proposes the folder name of its main checkout, because a
- * worktree folder often has a generated name. Setup only shows the proposal.
- * The person adds `projectName` to the config, and can choose another name.
+ * worktree folder often has a generated name. For a new project, setup writes
+ * the proposal into the config that it creates (see
+ * {@link decideProjectNameForNewConfig}). For a config that exists, setup only
+ * shows the proposal. The person adds `projectName`, and can choose another
+ * name.
  */
 export function proposeProjectName(projectRoot: string): ProjectNameProposal | null {
   const root = path.resolve(projectRoot);
@@ -117,7 +121,8 @@ export function proposeProjectName(projectRoot: string): ProjectNameProposal | n
       if (gitDir && at > 0) {
         const main = gitDir.slice(0, at);
         const name = projectNameFromFolderName(path.basename(main));
-        if (name) return { name, folder: main, source: "main-checkout-folder" };
+        // R-ID-8: a worktree folder often has a generated name, so it is never the fallback.
+        return name ? { name, folder: main, source: "main-checkout-folder" } : null;
       }
     }
   } catch {
@@ -146,6 +151,95 @@ export function describeProjectNameForSetup(projectRoot: string): { name: string
     proposal,
     text: `Project name: none. Proposed: ${proposal.name}, from ${from}. To use it, add projectName: ${proposal.name} to .make-docs/config.yaml. You can choose another name: lower-case letters, digits, and hyphens, starting with a letter.`,
   };
+}
+
+/** Another project in the Store that holds a project name. */
+export interface ProjectNameHolder {
+  projectId: string;
+  checkouts: string[];
+}
+
+/**
+ * What setup does about `projectName` when it creates the config of a new
+ * project (PRD 38 R-ID-8, owner decision 2026-11-25).
+ * - `write`: setup writes the proposed name into the new config.
+ * - `skip`: setup writes no name. The folder name gives no usable name, or
+ *   another project in the Store holds the proposed name. Setup still finishes.
+ */
+export type NewProjectNameDecision =
+  | { state: "write"; name: string; proposal: ProjectNameProposal }
+  | { state: "skip"; reason: "no-usable-name"; name: null; proposal: null }
+  | { state: "skip"; reason: "name-taken"; name: string; proposal: ProjectNameProposal; holder: ProjectNameHolder };
+
+const CHOOSE_NAME_FORM = "lower-case letters, digits, and hyphens, starting with a letter";
+
+/**
+ * Decide the name for the config of a new project. `findHolder` reads the
+ * Store register and returns the other project that holds the name, or null.
+ * It returns null when no Store can be read, so the name is written and a
+ * later Store write handles a conflict.
+ */
+export function decideProjectNameForNewConfig(
+  projectRoot: string,
+  findHolder: (name: string) => ProjectNameHolder | null,
+): NewProjectNameDecision {
+  const proposal = proposeProjectName(projectRoot);
+  if (!proposal) return { state: "skip", reason: "no-usable-name", name: null, proposal: null };
+  const holder = findHolder(proposal.name);
+  return holder
+    ? { state: "skip", reason: "name-taken", name: proposal.name, proposal, holder }
+    : { state: "write", name: proposal.name, proposal };
+}
+
+/** What the person does when setup wrote no name for a new project. */
+export function newProjectNameNextAction(decision: NewProjectNameDecision): string | null {
+  if (decision.state === "write") return null;
+  return decision.reason === "name-taken"
+    ? `Choose another name and add projectName to .make-docs/config.yaml: ${CHOOSE_NAME_FORM}.`
+    : `Choose a name and add projectName to .make-docs/config.yaml: ${CHOOSE_NAME_FORM}.`;
+}
+
+/** The words that the setup plan shows about `projectName` for a new project. */
+export function describeNewProjectNameForSetup(decision: NewProjectNameDecision): string {
+  if (decision.state === "write") {
+    const from = decision.proposal.source === "main-checkout-folder" ? "the folder name of this worktree's main checkout" : "the checkout folder name";
+    return `Project name: ${decision.name}, from ${from}. Setup writes projectName: ${decision.name} to .make-docs/config.yaml. You can change it in that file: ${CHOOSE_NAME_FORM}.`;
+  }
+  if (decision.reason === "name-taken") {
+    const where = decision.holder.checkouts.length ? ` Its checkout: ${decision.holder.checkouts.join(", ")}.` : "";
+    return `Project name: none. Setup writes no name, because the name "${decision.name}" belongs to another project in this Store: project ${decision.holder.projectId}.${where} ${newProjectNameNextAction(decision)}`;
+  }
+  return `Project name: none. Setup writes no name, because the folder name gives no usable name. ${newProjectNameNextAction(decision)}`;
+}
+
+/** Put `projectName` into the config content that setup creates for a new project. The content stays valid YAML. */
+export function addProjectNameToNewConfig(content: string, name: string): string {
+  const problem = projectNameProblem(name);
+  if (problem) throw new Error(problem);
+  const doc = parseDocument(content, { uniqueKeys: true });
+  if (doc.errors.length) throw new Error("The planned project config content is invalid.");
+  if (doc.contents !== null && doc.get("projectName") !== undefined) return content;
+  if (doc.contents === null) doc.contents = doc.createNode({}) as NonNullable<typeof doc.contents>;
+  doc.set("projectName", name);
+  return doc.toString();
+}
+
+/**
+ * The other project that holds `name` in the register, or null (R-ID-8).
+ * A project with a checkout at `projectRoot` is this project, not another one.
+ * Reads only.
+ */
+export function findOtherProjectWithName(db: StoreDatabase, name: string, projectRoot: string): ProjectNameHolder | null {
+  const rows = db.prepare(
+    `SELECT project_id FROM project_register WHERE project_name=?
+     UNION SELECT project_id FROM project_register WHERE project_id=?
+     UNION SELECT project_id FROM installation_checkouts WHERE project_id=?`,
+  ).all(name, name, name) as Array<{ project_id: string }>;
+  for (const row of rows) {
+    const checkouts = checkoutPaths(db, row.project_id);
+    if (!checkouts.some((stored) => storedRootMatches(stored, projectRoot))) return { projectId: row.project_id, checkouts };
+  }
+  return null;
 }
 
 /**

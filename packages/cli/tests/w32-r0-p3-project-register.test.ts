@@ -288,7 +288,8 @@ describe("W32 R0 P3 row events (A11)", () => {
     expect(rows.installation_ledgers).toEqual({ created: 1 });
     expect(rows.project_register).toEqual({ created: 1 });
     const projectId = (readInstallationStatus(root, store) as { projectId: string }).projectId;
-    expect(register(store)).toEqual([{ project_id: projectId, project_name: null }]);
+    // Setup writes the folder name as the name of a new project (R-ID-8), and the commit records it.
+    expect(register(store)).toEqual([{ project_id: projectId, project_name: "fresh" }]);
 
     // A later setup records the config name on the same row (R-ID-8).
     const configPath = path.join(root, ".make-docs/config.yaml");
@@ -748,8 +749,8 @@ describe("W32 R0 P3 project list (A14)", () => {
     expect(mcp).toMatchObject({ operation: "project.register.list" });
     expect(mcp.result).toEqual(cliValue);
     expect(rowEvents(before, storeRows(store))).toEqual({});
-    expect(cliValue.projects.map((entry: { name: string | null }) => entry.name)).toEqual(["old-notes", null]);
-    expect(cliValue.projects[0].checkouts[0]).toMatchObject({ rootPath: gone, folder: "missing", folderNote: "The folder is missing. It was moved or deleted." });
+    expect(cliValue.projects.map((entry: { name: string | null }) => entry.name)).toEqual(["named", "old-notes"]);
+    expect(cliValue.projects[1].checkouts[0]).toMatchObject({ rootPath: gone, folder: "missing", folderNote: "The folder is missing. It was moved or deleted." });
     const text = spawnText(["project", "list", "--target-root", named], store);
     expect(text).toContain("old-notes\n  Project ID: gone-project");
     expect(text).toContain(`    ${gone}\n      The folder is missing. It was moved or deleted.`);

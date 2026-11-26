@@ -1350,6 +1350,8 @@ function assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, so
   const configPath = path.join(legacyTargetDir, ".make-docs/config.yaml");
   const config = parseYamlDocument(readFileSync(configPath, "utf8"));
   config.delete("projectId");
+  // The legacy fixture has no identity or name from the source installation.
+  config.delete("projectName");
   writeFileSync(configPath, config.toString(), "utf8");
 
   const historicalDesignPath = path.join(
@@ -1369,6 +1371,9 @@ function assertPackedHumanExperienceLegacyUpdate(packageRoot, packedMakeDocs, so
   );
 
   assertMissing(legacyManifestPath, "Packed CLI update did not transfer the legacy manifest to the Store.");
+  if (parseYamlDocument(readFileSync(configPath, "utf8")).has("projectName")) {
+    throw new Error("Packed CLI update gave the legacy installation a project name.");
+  }
   const currentManagedRouter = readFileSync(path.join(packageRoot, "template/AGENTS.md"));
   const expectedRouterBytes = Buffer.concat([userRouterPrefix, currentManagedRouter, userRouterSuffix]);
   const updatedRouterBytes = readFileSync(rootRouterPath);
