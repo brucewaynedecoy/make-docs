@@ -184,6 +184,19 @@ describe("setup writes the name of a new project", () => {
     expect(readConfig(worktree).projectName).toBe("aurora-main");
   });
 
+  it("writes no name for a linked git worktree when the main checkout folder name is not usable", async () => {
+    const { root, store } = workspace();
+    const main = folder(root, "1234");
+    const worktree = folder(root, "wt-1234abcd");
+    const gitDir = folder(main, ".git", "worktrees", "wt-1234abcd");
+    writeFileSync(path.join(worktree, ".git"), `gitdir: ${gitDir}\n`);
+
+    const result = await setup(store, worktree, "--yes");
+    expect(result.status).toBe("complete");
+    expect(result.project).toMatchObject({ name: null, nameWrite: { state: "skipped", name: null, reason: "no-usable-name" } });
+    expect(readConfig(worktree).projectName).toBeUndefined();
+  });
+
   it("says in the terminal text that setup writes the name, and then that it wrote it", async () => {
     const { root, store } = workspace();
     const garden = folder(root, "garden");

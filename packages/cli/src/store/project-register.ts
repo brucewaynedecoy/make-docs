@@ -121,7 +121,8 @@ export function proposeProjectName(projectRoot: string): ProjectNameProposal | n
       if (gitDir && at > 0) {
         const main = gitDir.slice(0, at);
         const name = projectNameFromFolderName(path.basename(main));
-        if (name) return { name, folder: main, source: "main-checkout-folder" };
+        // R-ID-8: a worktree folder often has a generated name, so it is never the fallback.
+        return name ? { name, folder: main, source: "main-checkout-folder" } : null;
       }
     }
   } catch {
