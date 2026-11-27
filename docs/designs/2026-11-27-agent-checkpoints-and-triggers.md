@@ -7,14 +7,14 @@ follow_on:
   route: "change-plan"
   next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
   why: "PRD 52 owns the work queue and sync, PRD 39 owns command names, PRD 25 owns the MCP server, PRD 28 owns agent tool setup, and PRD 15 owns the router blocks. This design adds one command and several triggers that change those owners."
-  coordinate_handoff: "Recommended W35 R0 as new work. The owner said 'the next Wave' on 2026-11-27, and W34 is the highest Wave in docs/work/, docs/plans/, and the register. W29 R0 promised sync at the start of each work command, and it delivered that. No Wave promised that agents run those commands. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence about hooks. The owner chose option B of OD-10: Phase 2 also builds a hook for each agent tool that has proof of support."
+  coordinate_handoff: "Recommended W35 R0 as new work. The owner said 'the next Wave' on 2026-11-27, and W34 is the highest Wave in docs/work/, docs/plans/, and the register. W29 R0 promised sync at the start of each work command, and it delivered that. No Wave promised that agents run those commands. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence about hooks. The owner chose option B of OD-10: Phase 2 also builds a hook for each agent tool that has proof of support. In a third round on 2026-11-27 the owner decided OD-11 to OD-15: a machine preference with the default No decides whether project setup installs the git hooks with no hook input, the PRD 30 and PRD 07 words that follow are approved, each of the three agent tools that setup supports gets a hook method, a further agent tool goes on the roadmap, and the version is 2.1.1."
 ---
 
 # Agent Checkpoints and Triggers
 
 ## Purpose
 
-Make agents keep the work store current, and read work from it, without a person who reminds them. This design adds one checkpoint command that does all that is due. It then adds several small triggers that call that one command at the points where it makes sense. Each trigger works for a different set of agent tools. Phase 1 lowers the problem. Phase 2 closes it for agents that commit. An agent that never commits is reached only by text, by a Make Docs command that it already runs, or by an agent tool hook that the plan proves.
+Make agents keep the work store current, and read work from it, without a person who reminds them. This design adds one checkpoint command that does all that is due. It then adds several small triggers that call that one command at the points where it makes sense. Each trigger works for a different set of agent tools. Phase 1 lowers the problem. Phase 2 closes it for agents that commit. An agent that never commits is reached only by text, by a Make Docs command that it already runs, or by the hook of its agent tool (OD-13).
 
 The design covers the next Wave in two phases. It also names a small event list that later stages can build on, as owner decisions 1 and 3 set. The long-term ideas are in the [checkpoint events and Store-first roadmap](../assets/project/2026-11-27-checkpoint-events-and-store-first-roadmap.md).
 
@@ -115,6 +115,7 @@ Experience promises:
 - When work files changed and the store does not have them yet, the next Make Docs command says so in one line with the exact command to run.
 - A git action never fails because of Make Docs. How much time a hook may add is a performance candidate below: the plan measures it and decides between a foreground run and a run that starts and returns. When no sync change and no conflict waits, the hooks print nothing. Ready work and an ended claim do not make a hook print.
 - Setup shows each hook that it would install, where it goes, and what it runs, before it writes. `setup remove` takes out only what Make Docs put in.
+- Make Docs installs the git hooks with no question only after the person turned on the machine preference for that. The preference is off until the person turns it on. A hook that belongs to one agent tool always needs an explicit input (OD-11).
 - Without a Store, nothing new happens and nothing fails. The routers still say the true thing: the files are the authority.
 
 Complexity kept out of the human path:
@@ -146,12 +147,17 @@ Evidence required:
 
 ### Owner decisions
 
-The owner decided these four points on 2026-11-27. Nothing else in this design is decided.
+The owner decided these four points on 2026-11-27. In a third round on the same day the owner decided points 5 to 9. The section "Owner decisions with their options" gives each one in full, with the choices OD-2 to OD-10. Nothing else in this design is decided.
 
 1. The next Wave implements the immediate ideas. Phase 1 is the checkpoint command, the CLI reminder, "sync on read", the router rule, and the MCP server instructions. Phase 2 is git hooks and the hooks of each agent tool. The event list with adapters is the design idea that holds it together.
 2. The note at the point of use must hold when no work store is installed or available. The owner's example wording: "When the work store is present, it's the authority. Read it with this command."
 3. The long-term ideas are captured in a roadmap document.
-4. Git hooks are wanted. `make-docs setup` offers the git hooks for each project, and the person opts in. A machine preference can make "yes" the default answer for each new project. Make Docs sets no machine-wide git hooks path. The owner chose this on 2026-11-27 as option A of OD-1.
+4. Git hooks are wanted. `make-docs setup` offers the git hooks for each project, and the person opts in. A machine preference can make "yes" the default answer for each new project. Make Docs sets no machine-wide git hooks path. The owner chose this on 2026-11-27 as option A of OD-1. Point 5 refined the sentence about the machine preference on the same day.
+5. A machine preference says whether Make Docs installs the git hooks automatically for each project. Its default is "No". The person sets it at the machine step of setup. With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. With the preference off, `make-docs setup --yes` installs no hook. A hook that belongs to one agent tool always needs an explicit input, and the preference never installs one. OD-11 gives the full decision.
+6. The owner approved the PRD words that follow from point 5: the new sentence of PRD 30 R-ADMIT-1, and one sentence each for PRD 07 R-SETUP-CLI-10, PRD 30 R-SELECT-1, and the PRD 30 Acceptance Criteria (OD-12).
+7. The agent tools that get a hook method in this Wave are the three that setup supports today: Codex, Claude Code, and GitHub Copilot CLI. The owner states that each of them supports hooks (OD-13).
+8. A further agent tool that the owner named, which setup does not support today, goes on the roadmap. This Wave does not add it (OD-14).
+9. The version that carries this Wave is 2.1.1, a patch release (OD-15).
 
 Two things follow from decisions 1 and 3, and they are not open. This Wave fixes the event names and the single command, and builds only the Phase 1 and Phase 2 adapters. The person-editable event registry in config belongs to the roadmap, not to this Wave.
 
@@ -283,11 +289,25 @@ Hook rules:
 - A hook never writes a project file, so a commit never leaves the work tree changed (OD-5).
 - The hook after a branch change does not import. It only reports (OD-9, option A).
 - A hook lives with existing hooks. Make Docs adds a marked block to a hook file that is a shell script, and keeps every other byte. It refuses, with a clear reason and no change, when the hook file is not a shell script, when another tool owns the hooks, or when `core.hooksPath` points to another folder.
-- Setup shows each hook path and the exact block before it writes, and the person selects it explicitly.
+- Setup shows each hook path and the exact block before it writes. The person selects the hooks by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set (OD-11).
 - The Store records the exact block that Make Docs wrote. Setup reports drift when the block changed. `setup remove` removes only a block that still matches, and keeps a changed block with a report.
 - Every worktree of one clone shares the hook files. Removal in one worktree must not break the others. See "Who owns a shared hook block" below.
 
-The scope of the offer is owner decision OD-1: `make-docs setup` offers the hooks for each project, the person opts in, and a machine preference can make "yes" the default answer for each new project.
+The scope of the offer is owner decision OD-1, as OD-11 refined it on the same day. `make-docs setup` handles the git hooks for each project, and Make Docs sets no machine-wide git hooks path.
+
+##### When setup installs the git hooks
+
+The owner decided this on 2026-11-27 (OD-11).
+
+- A machine preference says whether Make Docs installs the git hooks automatically for each project. Its default is "No". Turning it on is the person's explicit choice.
+- The person sets the preference at the machine step of setup. That step exists today: `make-docs setup system` opens it directly, and project setup opens the same flow inline ([PRD 07](../prd/07-cli-command-surface-and-lifecycle.md) R-SETUP-CLI-4, `packages/cli/src/setup-system.ts`). So the person meets the question when Make Docs is first set up on the computer, and again each time the person changes the machine setup. Today that step asks one connection method for each agent tool and no other question. The plan adds the preference question there. The value lives in global config, with the other machine settings of [PRD 38](../prd/38-global-store-and-project-state.md) R-STORE-2.
+- With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`.
+- With the preference off, `make-docs setup --yes` installs no hook. An interactive project setup still offers the git hooks, with "no" selected first. An explicit hook input still installs them.
+- A hook that belongs to one agent tool always needs an explicit input, in every mode. The preference never installs one.
+
+The owner's reason: git hooks are part of a different lifecycle than agent tool hooks. Agent tools are a lifecycle on top of the normal development and documentation lifecycle. So the hooks of an agent tool get an extra measure of caution.
+
+In every case setup still shows each hook path and the exact block, the refusals of the hook rules above still hold, and `setup remove` still takes the block out.
 
 ##### Risk: one project store, many branches
 
@@ -308,13 +328,15 @@ This is a design rule and a recommendation, not an owner decision. The clone own
 
 #### Agent tool hooks
 
-Each first-party adapter gains a hook method where its agent tool supports hooks. The method fires `session-start`, `turn-end`, or both, and runs the checkpoint.
+Each of the three first-party adapters gains a hook method: Codex, Claude Code, and GitHub Copilot CLI. The owner decided this on 2026-11-27 (OD-13). The method fires `session-start`, `turn-end`, or both, and runs the checkpoint.
 
-- A hook method is added only with real capability evidence for that agent tool, as PRD 28 requires. The plan gathers this evidence for Codex, Claude Code, and GitHub Copilot CLI. This design claims no hook support for any of them.
-- An agent tool with no proven hook support gets no hook method. The git hooks, the router rule, the MCP instructions, and the CLI reminder still cover it. The generic MCP client profile gets no hook method.
+- The owner states, from the owner's own check, that each of the three agent tools supports hooks. For GitHub Copilot CLI, the owner states that the hook support is the vendor's hook support for that harness, in preview. This is the owner's statement. The first draft of this design claimed no hook support for any of them, and this design still records no result of its own.
+- The plan still records real capability evidence for each of the three, as PRD 28 and PRD 30 R-ADMIT-1 require. The evidence no longer decides whether a tool gets a hook method. It records the real hook contract that the builder needs: the events, the configuration file and its place, the input that the hook receives, how the hook result is used, and the install and removal steps. It has one real run for each tool, and it states the honest support status, for example "preview".
+- If the builder cannot find a real, usable hook contract for a tool, the work stops and asks the owner. No tool is dropped silently.
+- The generic MCP client profile gets no hook method. A further agent tool that the owner named is a roadmap item (OD-14).
 - Each method follows the adapter contract: one owned native entry, planning, apply, verification, repair, and removal (PRD 28 R-HARNESS-1), and a receipt that records its history (PRD 28 R-HARNESS-17).
-- The person selects the hook method explicitly in setup. It is off by default.
-- PRD 28 says today that Make Docs has no hook product. This design asks to change that sentence to admit these bounded hooks: the git hooks of owner decision 4, and the agent tool hooks. The owner approved that change on 2026-11-27, with a clarification that OD-10 records. The change admits git hooks and agent tool hooks (owner decision OD-10, option B). PRD 30 keeps the admission boundary for anything further.
+- The person selects the hook method by an explicit input in setup, in every mode. It is off by default. The machine preference for git hooks never installs it (OD-11).
+- PRD 28 says today that Make Docs has no hook product. This design asks to change that sentence to admit these bounded hooks: the git hooks of owner decision 4, and the agent tool hooks. The owner approved that change on 2026-11-27, with a clarification that OD-10 records. The change admits git hooks and agent tool hooks (owner decision OD-10, option B). PRD 30 keeps the admission boundary for anything further, and the owner approved the PRD 30 words that the git hooks need (OD-12).
 
 ### Later stages
 
@@ -324,26 +346,27 @@ This Wave does not build these. The [roadmap](../assets/project/2026-11-27-check
 - The planned server watches the folders and syncs by itself.
 - Designs, plans, and archives move into the Store, and files become optional.
 - A gateway service in the path of model traffic that fires events for any agent tool.
+- A setup adapter and a hook method for a further agent tool that the owner named on 2026-11-27 (OD-14).
 
 The event names and the single checkpoint command in this design are what those stages build on.
 
 ### Order
 
-Phase 1 depends on nothing outside W29 R0, which is released, unless the owner takes OD-6 option B. That option needs a Store schema change first. Phase 2 depends on the Phase 1 checkpoint command. Phase 2 git hooks need OD-5 and OD-9 settled, and the ownership rule for a shared hook block proved. OD-1 is settled. Phase 2 agent tool hooks need the capability evidence first.
+Phase 1 depends on nothing outside W29 R0, which is released, unless the owner takes OD-6 option B. That option needs a Store schema change first. Phase 2 depends on the Phase 1 checkpoint command. Phase 2 git hooks need OD-5 and OD-9 settled, and the ownership rule for a shared hook block proved. OD-1 and OD-11 are settled. Phase 2 agent tool hooks need the hook contract record of each tool first (OD-13).
 
 Phase 1 has no trigger that is free of agent memory. The router rule, the `docs/work/` note, and the MCP instructions are text that the agent must read and obey. The CLI reminder and the read command lines need a Make Docs command that the agent already runs. An agent that reads no router and runs no Make Docs command is not reached in Phase 1. The first trigger that needs no agent memory is the git hook of Phase 2. So Phase 1 alone lowers the problem, and Phase 2 is what closes it for agents that commit.
 
 ### New ideas in this design
 
-These parts do not come from existing docs or from the owner's decisions. The owner should know they are new:
+These parts did not come from existing docs or from the owner's first decisions. The owner should know they are new. The owner has now decided some of them, and those are no longer only new ideas: the rule that a trigger run imports only (OD-5), the rule that the hook after a branch change only reports (OD-9), the exact check for the reminder (OD-6), the request to change the PRD 28 sentence (approved), the machine preference and what `setup --yes` does with it (OD-11), and the PRD 30 and PRD 07 words (OD-12). The rest of the list is still new and not decided by the owner:
 
 - The six event names and the `--event` input.
 - The split into a direct run and a trigger run, with `--event` as the sign of a trigger run.
-- The rule that a trigger run imports only and never writes a project file (OD-5).
-- The rule that the hook after a branch change only reports (OD-9).
+- The rule that a trigger run imports only and never writes a project file (OD-5). Decided by the owner.
+- The rule that the hook after a branch change only reports (OD-9). Decided by the owner.
 - The meaning of "nothing is due".
 - The result of the checkpoint for a caller with read access only, and its exit code 0.
-- The reminder on each command with Store read access, and both ways to find a change (OD-6).
+- The reminder on each command with Store read access, and both ways to find a change (OD-6). The owner decided the way: the exact check.
 - The reminder line on standard error, and as a field of the result object in MCP results.
 - The mark on each `work next` unit whose file waits for import, and the line that says that the list is not complete.
 - The fixed sentence in a project URI read that says it does not know whether files wait for sync.
@@ -355,13 +378,14 @@ These parts do not come from existing docs or from the owner's decisions. The ow
 - The rule that the hook after a branch change acts only on a branch change, and not on a file checkout.
 - The list of claims that ended or end soon in the checkpoint output.
 - The exact wording of the router lines and the MCP instructions.
-- The request to change the PRD 28 sentence that says Make Docs has no hook product.
+- The request to change the PRD 28 sentence that says Make Docs has no hook product. Approved by the owner.
+- The form of the machine preference: default "No", set at the machine step of setup, and the explicit selection for the git hooks when it is on. The orchestrator proposed it, and the owner chose it (OD-11). Decided by the owner.
 
 ### Owner decisions with their options
 
-Each decision has at most two options and one recommendation. The owner decided OD-1, and on 2026-11-27 also chose option A of OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9. The owner also chose option B of OD-10 on 2026-11-27. No decision is open. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
+Each decision has at most two options and one recommendation. The owner decided OD-1, and on 2026-11-27 also chose option A of OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9. The owner also chose option B of OD-10 on 2026-11-27. In a third round on 2026-11-27 the owner decided OD-11 to OD-15. They have no options list, because the owner gave the answer directly. No decision is open. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
 
-**OD-1: What is the scope of the git hooks?** Decided on 2026-11-27: the owner chose option A.
+**OD-1: What is the scope of the git hooks?** Decided on 2026-11-27: the owner chose option A. OD-11 refined it on the same day. Where the two differ, OD-11 holds. Option A said that the preference makes "yes" the default answer. OD-11 says that the preference, when it is on, is the selection itself.
 
 - A (chosen): `make-docs setup` offers the git hooks for each project, and the person opts in. A machine preference can make "yes" the default answer for each new project. Make Docs sets no machine-wide git hooks path.
 - B: a machine install that sets a machine-wide git hooks path, so that every repository on the computer runs the Make Docs hooks.
@@ -442,7 +466,38 @@ Why A: a commit and a merge are deliberate changes of work. A branch change is o
 
 Facts: owner decision 1 put "the hooks of each agent tool" in Phase 2. The owner's clarification of the PRD 28 approval says that the owner was reluctant to include hooks that belong to one agent tool. The two statements do not agree in full, so the orchestrator asks. Git hooks reach each agent that commits, with any agent tool. An agent tool hook reaches an agent that never commits, for example at the end of a turn. This design claims no hook support for any agent tool.
 
-Why the owner chose B: when the PRD 28 sentence was written, hooks that belong to one agent tool were the only option that the owner had considered. The owner was reluctant because that outcome did not give Make Docs the flexibility and the universal reach that the owner wanted. Git hooks give that, so agent tool hooks can now be added beside them. Phase 2 builds a hook only for an agent tool that has proof of support. The orchestrator recommended A, and the owner chose B.
+Why the owner chose B: when the PRD 28 sentence was written, hooks that belong to one agent tool were the only option that the owner had considered. The owner was reluctant because that outcome did not give Make Docs the flexibility and the universal reach that the owner wanted. Git hooks give that, so agent tool hooks can now be added beside them. Phase 2 builds a hook only for an agent tool that has proof of support. The orchestrator recommended A, and the owner chose B. OD-13 later answered the question of proof for the three agent tools that setup supports.
+
+**OD-11: When does setup install the git hooks with no hook input?** Decided on 2026-11-27. The plan asked this as its owner gate OG-5, with two options. The owner chose a form that is neither of the two exactly. The orchestrator proposed it, and the owner chose it.
+
+- A machine preference says whether Make Docs installs the git hooks automatically for each project. The person sets it when Make Docs is first installed on the computer, or when the machine installation itself is changed. Its default is "No".
+- With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. Turning the preference on is the person's explicit choice.
+- With the preference off, `make-docs setup --yes` installs no hook. An interactive project setup still offers the git hooks, with "no" selected first. An explicit hook input still installs them.
+- Hooks that belong to one agent tool always need an explicit input, in every mode. The preference never installs them.
+
+The owner's reason: git hooks are part of a different lifecycle than agent tool hooks. Agent tools are a lifecycle on top of the normal development and documentation lifecycle, so their hooks get an extra measure of caution.
+
+Facts: the machine step of setup exists today. `make-docs setup system` opens it directly, and project setup opens the same flow inline (PRD 07 R-SETUP-CLI-4). It asks one connection method for each agent tool today, and it asks no machine preference. Global config holds machine settings (PRD 38 R-STORE-2). The plan names the task that adds the question. OD-11 supersedes the text of OD-1 option A where they differ. OD-1 stays as the owner decided it on 2026-11-27, and OD-11 refined it on the same day.
+
+**OD-12: Which PRD words follow from OD-11?** Decided on 2026-11-27. The plan asked for the PRD 30 R-ADMIT-1 words as its owner gate OG-10. The owner approved the PRD 30 changes that are needed, and chose OD-11.
+
+- PRD 30 R-ADMIT-1 becomes: "R-ADMIT-1 (MUST): a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract or, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status." The owner approved this sentence.
+- PRD 07 R-SETUP-CLI-10 gains: "For the git hooks, the machine preference is the explicit selection when it is on."
+- PRD 30 R-SELECT-1 gains: "The git hooks are installed only by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set."
+- The PRD 30 Acceptance Criteria line becomes: "Default setup, sync, and Skills selection create no plugin, extension, workflow-bundle, or generated package output, and no hook other than the git hooks that R-SELECT-1 admits."
+
+The last three sentences follow from OD-11. The orchestrator shows them to the owner on 2026-11-27. This design edits no PRD. The plan lands each sentence in the phase that builds the git hooks.
+
+**OD-13: Which agent tools get a hook method in this Wave?** Decided on 2026-11-27. The plan asked the owner to confirm the proof as its owner gate OG-7, and the owner answered early.
+
+- The three agent tools that setup supports today get a hook method: Codex, Claude Code, and GitHub Copilot CLI.
+- The owner states that each of them supports hooks, from the owner's own check. For GitHub Copilot CLI, the owner states that the hook support is the vendor's hook support for that harness, in preview.
+- The capability evidence stays, with a changed purpose. It no longer decides whether a tool gets a hook method. It records the real hook contract that the builder needs, with one real run for each tool, and the honest support status, as PRD 28 and PRD 30 R-ADMIT-1 require.
+- If the builder cannot find a real, usable hook contract for a tool, the work stops and asks the owner. It does not drop the tool silently.
+
+**OD-14: Does this Wave add a further agent tool?** Decided on 2026-11-27: no. The owner named another agent tool that setup does not support today. It goes on the [roadmap](../assets/project/2026-11-27-checkpoint-events-and-store-first-roadmap.md) as its own item: a setup adapter under PRD 28 first, and then a hook method.
+
+**OD-15: Which version carries this Wave?** Decided on 2026-11-27: 2.1.1, a patch release. The plan asked this as its owner gate OG-8 and recommended 2.2.0. The owner's reason: this Wave is a patch for something that was deferred in order to ship 2.1.0 quickly.
 
 
 ## Alternatives Considered
@@ -464,12 +519,16 @@ Why the owner chose B: when the PRD 28 sentence was written, hooks that belong t
   - [PRD 52](../prd/52-work-store-and-work-queue.md): the checkpoint operation and its rules, the reminder, the `work next` marks and its "list is not complete" line, R-WORK-SYNC-8, R-WORK-SYNC-9, and R-WORK-URI-3. R-WORK-SYNC-9 says that each sync after the first writes and removes files, and an import-only trigger run changes that. R-WORK-URI-3 gains the new sentence of a project URI read.
   - [PRD 39](../prd/39-cli-command-model-and-operation-registry.md): the name catalog entry, R-TOP-1, R-RUN-1, and the reminder output rule.
   - [PRD 25](../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md): MCP server instructions, the new tool, and the twin.
-  - [PRD 28](../prd/28-shared-agentics-installation-and-harness-exposure.md): the hook method of each adapter and the sentence about hooks. The owner approved the change of that sentence on 2026-11-27. It admits git hooks and agent tool hooks (OD-10, option B). [PRD 30](../prd/30-plugin-substrate-and-workflow-bundles.md) if the admission boundary moves.
+  - [PRD 28](../prd/28-shared-agentics-installation-and-harness-exposure.md): the hook method of each adapter and the sentence about hooks. The owner approved the change of that sentence on 2026-11-27. It admits git hooks and agent tool hooks (OD-10, option B). The hook method is for each of the three adapters (OD-13).
+  - [PRD 30](../prd/30-plugin-substrate-and-workflow-bundles.md): R-ADMIT-1, R-SELECT-1, and the Acceptance Criteria line about default setup, each with the words of OD-12. No other PRD 30 requirement changes.
   - [PRD 15](../prd/15-agent-instruction-ownership-and-managed-blocks.md) and [PRD 06](../prd/06-template-contracts-and-generated-assets.md): the new router lines and the work store reference.
-  - [PRD 07](../prd/07-cli-command-surface-and-lifecycle.md): the git hook offer in setup, and its removal in `setup remove`.
+  - [PRD 07](../prd/07-cli-command-surface-and-lifecycle.md): the git hook offer in setup, the machine preference question at the machine step, and removal in `setup remove`. R-SETUP-CLI-10 gains the sentence of OD-12.
   - [PRD 38](../prd/38-global-store-and-project-state.md): the hook ownership record and the machine preference, and the two "last check" fields if the owner takes OD-6 option B.
   - [PRD 24](../prd/24-project-configuration-and-convention-overlay.md) only if the plan puts a hook setting in project config.
 - A managed router block changes in every installed project on the next update. Projects with a changed block go through the normal conflict review of PRD 15.
+- With the machine preference on, `make-docs setup --yes` installs the git hooks with no hook input. A script that runs `setup --yes` gets hooks only on a computer where the person turned the preference on. With the preference off, which is the default, the result of such a script does not change (OD-11).
+- Each of the three agent tools that setup supports gets a hook method. The support status of each one is recorded as the real run shows it, for example "preview". Risk: a hook contract in preview can change, and the hook method must then change with it (OD-13).
+- The Wave ships as version 2.1.1, a patch release (OD-15).
 - Make Docs writes into `.git/hooks` for the first time. This is a new kind of owned file, outside the project tree for worktrees. The ownership and removal rules must be proved before release.
 - The reminder check adds cost to each command that shows it: about 250 ms with OD-6 option A at 463 work files, by `PERF-004-R1`. The plan measures it.
 - Either option of OD-6 opens the owner's decision "Fast path: not now" of 2026-11-23 again.
@@ -493,4 +552,4 @@ Why the owner chose B: when the PRD 28 sentence was written, hooks that belong t
 - Route: `change-plan`
 - Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md). Read `make-docs://system/prompt/designs-to-plan-change.prompt.md` with `make-docs resource read`.
 - Why: the active PRD set owns the work queue, the command names, the MCP server, setup, and the router blocks. This design adds one operation and several triggers that change those owners. It adds no new PRD subject.
-- Coordinate Handoff: Recommended W35 R0 as new work, by the outcome test. The related completed coordinate is W29 R0, which promised sync at the start of each work command and delivered it. No Wave promised that agents run those commands, or any hook. The owner said "the next Wave" on 2026-11-27, and W34 is the highest Wave in `docs/work/`, `docs/plans/`, and the register. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence that says Make Docs has no hook product. The owner chose option B of OD-10: Phase 2 also builds a hook for each agent tool that has proof of support.
+- Coordinate Handoff: Recommended W35 R0 as new work, by the outcome test. The related completed coordinate is W29 R0, which promised sync at the start of each work command and delivered it. No Wave promised that agents run those commands, or any hook. The owner said "the next Wave" on 2026-11-27, and W34 is the highest Wave in `docs/work/`, `docs/plans/`, and the register. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence that says Make Docs has no hook product. The owner chose option B of OD-10: Phase 2 also builds a hook for each agent tool that has proof of support. In a third round on 2026-11-27 the owner decided OD-11 to OD-15: the machine preference with the default "No" and what `setup --yes` does with it, the PRD 30 and PRD 07 words, a hook method for each of the three agent tools that setup supports, a further agent tool on the roadmap, and version 2.1.1. The plan and the work backlog record the same answers at their gates OG-5, OG-7, OG-8, and OG-10.

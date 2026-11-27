@@ -135,21 +135,20 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ## Stage 4 - Version and digest
 
-The owner can answer OG-8 at any time from the start of this phase. The gate stops only this stage, so it stops the first commit of the Wave and not the work before it.
+The owner answered owner gate OG-8 on 2026-11-27: the version is 2.1.1, a patch release. The owner's reason: this Wave is a patch for something that was deferred in order to ship 2.1.0 quickly. So no gate stops this stage.
 
 ### Tasks
 
-- [ ] T17: After the owner names the version at owner gate OG-8, set that version in `packages/cli/package.json` and in the CLI workspace entries of `package-lock.json`. Version 2.1.0 is released, so its digest file `.github/release-candidates/v2.1.0.sha256` must not change.
-- [ ] T18: Record the package digest for the phase commit under [standing rule 10](00-index.md#standing-rules). This creates `.github/release-candidates/v<version>.sha256` for the new version. Do this after the reviewer passes the phase and after the last change of package bytes.
+- [ ] T17: Set version 2.1.1 in `packages/cli/package.json` and in the CLI workspace entries of `package-lock.json`. The owner chose this version on 2026-11-27 (owner gate OG-8, answered). Version 2.1.0 is released, so its digest file `.github/release-candidates/v2.1.0.sha256` must not change.
+- [ ] T18: Record the package digest for the phase commit under [standing rule 10](00-index.md#standing-rules). This creates `.github/release-candidates/v2.1.1.sha256`. Do this after the reviewer passes the phase and after the last change of package bytes.
 
 ### Acceptance criteria
 
-- A15: The evidence records the owner's answer at OG-8 and its date. `packages/cli/package.json` and `package-lock.json` hold that version. The digest file of that version holds one lowercase hex line that equals the SHA-256 of the tarball packed from the phase commit. `v2.1.0.sha256` is unchanged.
+- A15: The evidence records the owner's answer to OG-8, version 2.1.1, and its date, 2026-11-27. `packages/cli/package.json` and `package-lock.json` hold version 2.1.1. The digest file `.github/release-candidates/v2.1.1.sha256` holds one lowercase hex line that equals the SHA-256 of the tarball packed from the phase commit. `v2.1.0.sha256` is unchanged.
 
 ### Dependencies
 
 - Stage 3.
-- Owner gate OG-8: the owner names the version that carries this Wave.
 
 ### Closeout Notes
 

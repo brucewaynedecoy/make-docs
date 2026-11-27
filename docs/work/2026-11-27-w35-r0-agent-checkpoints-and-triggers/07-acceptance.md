@@ -16,7 +16,7 @@ Prove the Wave on the installed package, update the guides, and bring the result
 
 ## Overview
 
-This phase runs every Wave test on the packed package, records the agent sessions that the [design](../../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks for, updates the user and maintainer guides, and completes a Human Experience Review of each promise in the [index](00-index.md#human-experience-trace). Then it checks the final package digest and brings the acceptance gate to the owner. The owner chose the version in [P1](01-checkpoint-command.md), at owner gate OG-8. It adds no behavior. A finding returns to the phase that owns the code.
+This phase runs every Wave test on the packed package, records the agent sessions that the [design](../../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks for, updates the user and maintainer guides, and completes a Human Experience Review of each promise in the [index](00-index.md#human-experience-trace). Then it checks the final package digest and brings the acceptance gate to the owner. The owner chose version 2.1.1 on 2026-11-27 (owner gate OG-8, answered), and [P1](01-checkpoint-command.md) set it. It adds no behavior. A finding returns to the phase that owns the code.
 
 The [standing rules](00-index.md#standing-rules) of the index hold in this phase.
 
@@ -61,9 +61,9 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 ### Tasks
 
-- [ ] T1: Pack the CLI and install the package in a temporary folder. With a temporary `MAKE_DOCS_HOME` at a fixed, checked path, run the six checkpoint cases and compare each result with the source tests. Check that the tarball holds no Python file. Compute the SHA-256 digest of the tarball and compare it with `.github/release-candidates/v<version>.sha256`.
+- [ ] T1: Pack the CLI and install the package in a temporary folder. With a temporary `MAKE_DOCS_HOME` at a fixed, checked path, run the six checkpoint cases and compare each result with the source tests. Check that the tarball holds no Python file. Compute the SHA-256 digest of the tarball and compare it with `.github/release-candidates/v2.1.1.sha256`.
 - [ ] T2: With the installed package of T1 and the same temporary Store, run the Phase 1 triggers: one command with the reminder, `work next` with a marked unit, a fresh setup that writes the router lines, and the MCP instructions for the `all` profile.
-- [ ] T3: With the installed package of T1 and the same temporary Store, run the Phase 2 triggers: the git hook setup, a commit that the hook imports, the removal, and each built hook method.
+- [ ] T3: With the installed package of T1 and the same temporary Store, run the Phase 2 triggers: the git hook setup with the machine preference off and on, a commit that the hook imports, the removal, and each built hook method.
 - [ ] T4: Run `npm run smoke:pack` and the full test suite on the maintainer machine. Then record the last workflow run of the pull request under [standing rule 12](00-index.md#standing-rules). That run gives the full suite on Linux only, and the fixed test list, with the hook tests that P4 T8 and P5 T14 added, on Linux, macOS, and Windows. The full suite does not run on macOS or Windows in the workflow, and the record says so. Record known failures.
 - [ ] T5: Record the agent sessions that the design asks for. [Standing rule 11](00-index.md#standing-rules) says who starts each session. For each first-party agent tool, a session starts cold in a practice project, changes a work file, and reaches the checkpoint with no prompt from the person. The record names who started the session and which trigger did it: the router rule, the MCP instructions, the reminder, a git hook, or an agent tool hook. A tool with no session is a recorded limit with the reason "no proof gathered", not a pass.
 - [ ] T6: Check each PRD that the [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#existing-prds-to-update) names against the code, and run `make-docs check prd` and `make-docs check performance-evidence`. Record the state of `PERF-006` and `PERF-007`.
@@ -101,14 +101,14 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 ### Tasks
 
 - [ ] T10: Update the [risk register](../../prd/03-open-questions-and-risk-register.md). Close what the Wave settled, with the evidence. Keep the risk of one project store with many branches open, because the Wave does not remove it.
-- [ ] T11: Make the final digest check. The owner chose the version at OG-8 in P1, and each phase commit recorded the digest under standing rule 10. Pack the final tarball from the last commit of the Wave, and check that its SHA-256 digest equals the one line in `.github/release-candidates/v<version>.sha256`. Check that the step "Match the reviewed candidate digest" passes in the last workflow run of the pull request. Change no digest file of a released version.
+- [ ] T11: Make the final digest check. The owner chose version 2.1.1 on 2026-11-27 (OG-8, answered), and each phase commit recorded the digest under standing rule 10. Pack the final tarball from the last commit of the Wave, and check that its SHA-256 digest equals the one line in `.github/release-candidates/v2.1.1.sha256`. Check that the step "Match the reviewed candidate digest" passes in the last workflow run of the pull request. Change no digest file of a released version.
 - [ ] T12: Add the P7 section to `evidence.md`, write the history record for this phase, and check that each earlier phase has one.
 - [ ] T13: Bring owner gate OG-9 to the owner with one recommendation. The gate blocks the Wave closeout and any release, and case A79 holds that stop, so no gate bullet stands under this stage. The choice: the owner reads the Human Experience Review and the evidence report and accepts the Wave, or names what must change. After acceptance, set the index status to complete. The release steps of `RELEASING.md` belong to the owner: the draft GitHub Release, its publication, and the npm stage approval. Run no release or publish action without separate owner authority.
 
 ### Acceptance criteria
 
 - A76: The register shows each closed and each open item of the Wave, with its evidence.
-- A77: The digest file of the version that the owner chose at OG-8 holds the digest of the final tarball, the package candidate check passes in the pull request run, and no digest file of a released version changed.
+- A77: The digest file `.github/release-candidates/v2.1.1.sha256` holds the digest of the final tarball, the package candidate check passes in the pull request run, and no digest file of a released version changed.
 - A78: `evidence.md` has a P7 section, and each of the seven phases has a history record under `.make-docs/archive/history/`.
 - A79: The owner answered OG-9, and the evidence records the answer and its date.
 

@@ -9,7 +9,7 @@ status: "draft"
 
 This document holds the long-term ideas for how Make Docs keeps stored data current as it grows. The owner asked for it on 2026-11-27. It is seed material, not a contract and not a commitment. Nothing here is decided or scheduled. Each item becomes authority only when it lands in a design, a plan, a PRD, and a work backlog. Record risks and open questions for these items in the [register](../../prd/03-open-questions-and-risk-register.md) when work on an item starts.
 
-The near-term work is in the design [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md). That design adds one checkpoint command and the first triggers. It also fixes a small list of event names. Every item below builds on those two things. That design is a draft with open owner decisions, so the details below can change with it.
+The near-term work is in the design [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md). That design adds one checkpoint command and the first triggers. It also fixes a small list of event names. Every item below builds on those two things. That design is a draft. The owner settled each of its decisions on 2026-11-27, and the details below can still change with it.
 
 ## The Starting Point
 
@@ -17,9 +17,9 @@ After the near-term design ships, Make Docs has:
 
 - one checkpoint command that does all that is due for a project, and that is safe to repeat;
 - six event names: `session-start`, `files-changed`, `turn-end`, `commit`, `branch-change`, and `phase-closed`;
-- a first set of adapters that fire those events: the CLI reminder, the router rules, the MCP server instructions, git hooks, and the hooks of each agent tool that supports them;
+- a first set of adapters that fire those events: the CLI reminder, the router rules, the MCP server instructions, git hooks, and a hook method for each of the three agent tools that setup supports today (owner decision of 2026-11-27);
 - two kinds of run: a direct run that a person or agent types, which runs the full sync, and a trigger run that a hook starts with an event name, which imports only and writes no project file;
-- git hooks that `make-docs setup` offers for each project as an opt-in choice, with a machine preference that can make "yes" the default answer for each new project, and with no machine-wide git hooks path (owner decision of 2026-11-27); and
+- git hooks that `make-docs setup` handles for each project, with no machine-wide git hooks path. A machine preference with the default "No" says whether project setup installs them with no hook input. With the preference off, interactive setup offers them with "no" selected first, and an explicit hook input installs them. A hook that belongs to one agent tool always needs an explicit input (owner decisions of 2026-11-27); and
 - a fixed map in code: every event runs the checkpoint.
 
 The person-editable registry of item 1 is not part of that design. The owner placed it in this roadmap on 2026-11-27.
@@ -63,7 +63,7 @@ Main risks:
 - People edit the registry and then cannot tell why something ran. Status output must show which event ran which command.
 - The agent form must keep up. Each event rule needs its written form, as the [twins guide](developing-deterministic-agentic-twins.md) asks.
 
-Rough order: first of the four. The other items are easier and safer with it.
+Rough order: first of the five. The other items are easier and safer with it.
 
 ### 2. The server watches the folders and syncs by itself
 
@@ -158,6 +158,32 @@ Main risks: the privacy, sign-in, and failure costs above. A second risk is scop
 
 Rough order: last. It is a separate project. Start it only when measured gaps in items 1 and 2 show that the cheaper adapters are not enough.
 
+### 5. A setup adapter and a hook method for a further agent tool
+
+The idea: Make Docs supports one more agent tool. The owner named that tool on 2026-11-27. Setup does not support it today, so the near-term design does not add it, and the owner placed it here. It first gets a full setup adapter, and then a hook method that fires `session-start`, `turn-end`, or both, and runs the checkpoint.
+
+What it depends on:
+
+- A full setup adapter for that agent tool under [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) first: its connection methods, its owned native entries, planning, apply, verification, repair, removal, and receipts. The adapter list changes only through the admission rule of [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md).
+- Real capability evidence for that tool: the hook events, the configuration file and its place, the input that the hook receives, how the hook result is used, and the install and removal steps, with one real run and an honest support status.
+- The near-term design, with its checkpoint command, its event names, and the hook method contract that it builds for the three agent tools that setup supports today.
+- The owner's rule of 2026-11-27 for hooks that belong to one agent tool: they always need an explicit input.
+
+What it unlocks:
+
+- The checkpoint reaches agents in that tool with no person who reminds them, also when they never commit.
+- The same Store access, Skills, and MCP connection for that tool as for the other supported tools.
+- A second proof that a new agent tool is one more adapter, with no change to the command or the rules.
+
+Main risks:
+
+- A new adapter is more than a hook. It needs the whole adapter contract, tests, guides, and a support claim that direct proof backs.
+- The tool's hook support and configuration form can change. A hook contract in preview is the same risk.
+- Each added tool adds a session to every proof that must run inside an agent tool.
+- Shared text must stay tool-agnostic. The tool is named only where setup supports it.
+
+Rough order: after the near-term design. It does not depend on items 1 to 4. With item 1, its hook method is one more adapter on the event list.
+
 ## Rough Order
 
 | Order | Item | Why here |
@@ -167,6 +193,7 @@ Rough order: last. It is a separate project. Start it only when measured gaps in
 | 2 | The server watches and syncs. | It needs the server. It makes apps and dashboards current. |
 | 3 | Files become optional. | It needs strong read commands and current data first. It carries the most data risk. |
 | 4 | The gateway. | It is a separate project. It is worth its cost only if measured gaps remain. |
+| Any time after 0 | A setup adapter and a hook method for a further agent tool. | It needs only the near-term design and its own adapter. The owner placed it here on 2026-11-27. |
 
 Items 2 and 3 can change places. The merge of another project's data can start at any point after item 1. Its data then gets the same events with no new triggers.
 

@@ -16,7 +16,7 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 
 ## Overview
 
-`make-docs setup` offers four git hooks for each project, and a person selects them explicitly. Make Docs writes into the git hooks folder for the first time, so the phase also builds the ownership record, the drift report, and exact removal. Git hooks, the marked block, the refusal when another tool owns the hooks, the clone-owned record, and the machine preference are new.
+`make-docs setup` handles four git hooks for each project, and a person selects them explicitly: by a hook input, by an answer in interactive setup, or by the machine preference that the person set. The owner decided the form of that preference on 2026-11-27 (owner gate OG-5, answered, design OD-11). Make Docs writes into the git hooks folder for the first time, so the phase also builds the ownership record, the drift report, and exact removal. Git hooks, the marked block, the refusal when another tool owns the hooks, the clone-owned record, and the machine preference are new.
 
 | Hook | When git runs it | Checkpoint call | Imports |
 | --- | --- | --- | --- |
@@ -32,9 +32,9 @@ The [standing rules](00-index.md#standing-rules) of the index hold in this phase
 - Impact and governing promise or preserved boundary: `direct`. A person does not need to tell an agent to sync. A git action never fails because of Make Docs. Setup shows each hook before it writes, and `setup remove` takes out only what Make Docs put in.
 - Intended human outcome: after a commit, the work store has the file changes, or the person sees one line that says what waits and which command settles it. The person saw each hook path and the exact block before setup wrote, and gets the hook files back as they were on removal.
 - Human-facing surface or indirect effect: the setup hook review, the line that a hook prints, the repeat setup status, and the `setup remove` plan and report.
-- Implementation work: the setup offer, the machine preference, the block writer, the refusals, the Store record, drift detection, removal, and tests on each platform.
+- Implementation work: the setup offer, the machine preference and its question at the machine step, the block writer, the refusals, the Store record, drift detection, removal, and tests on each platform.
 - Evidence source or testing type selected under current authority: the two-checkout, two-worktree, and `git pull --rebase` tests, quiet-exit tests, setup and removal tests beside a hook of another tool, and a Guided Progress Review of the hook review.
-- Executor: the implementing agent runs the tests. The orchestrator starts the workflow run under [standing rule 12](00-index.md#standing-rules). The owner reviews the hook review and the removal report, and answers the gates.
+- Executor: the implementing agent runs the tests. The orchestrator starts the workflow run under [standing rule 12](00-index.md#standing-rules). The owner reviews the hook review, the machine preference question, and the removal report, and answers the open gates.
 - Accepted obligation or deferral route: none.
 
 Authority: [Human Experience Contract](../../../.make-docs/system/contracts/human-experience-contract.md).
@@ -45,15 +45,15 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 | --- | --- | --- |
 | Automated Implementation Testing | selected | Hook, setup, drift, and removal tests. They run on Linux, macOS, and Windows only when T14 adds their files to the fixed test list of the platform workflow. |
 | Performance Testing | not-needed-now | `PERF-007` in [P4](04-git-hook-proofs.md) measured the hook run. If the built block differs from the measured one, the phase reruns only the affected check within the remaining budget. |
-| Guided Progress Review | selected | The owner sees the setup hook review, the line that a hook prints, and the removal report. |
+| Guided Progress Review | selected | The owner sees the setup hook review, the machine preference question, the line that a hook prints, and the removal report. |
 | Unassisted Goal Testing | not-needed-now | No current decision needs an unassisted human run. |
 
 ## Source PRD Docs
 
-- [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md): R-SETUP-CLI-1 to R-SETUP-CLI-14, R-CLI-SETUP-1 to R-CLI-SETUP-6. This phase adds R-SETUP-CLI-15 and later.
+- [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md): R-SETUP-CLI-1 to R-SETUP-CLI-14, R-CLI-SETUP-1 to R-CLI-SETUP-6. This phase adds R-SETUP-CLI-15 and later, and one sentence to R-SETUP-CLI-10.
 - [28 Shared Agentics Installation and Harness Exposure](../../prd/28-shared-agentics-installation-and-harness-exposure.md): `Optional Agentics Boundary`, `Non-Requirements`
-- [30 Plugin Substrate and Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md): R-BOUND-1, R-BOUND-2, R-ADMIT-1, R-ADMIT-4, R-SELECT-1, R-SELECT-4, R-LEGACY-1, R-LEGACY-2. This phase changes only R-ADMIT-1. It changes R-SELECT-1 and the Acceptance Criteria line about default setup only under OG-5 option B.
-- [38 Global Store and Project State](../../prd/38-global-store-and-project-state.md): R-DB-7, R-HARNESS-STATE-1, R-HARNESS-STATE-2, R-MIN. This phase adds R-HOOK-STATE.
+- [30 Plugin Substrate and Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md): R-BOUND-1, R-BOUND-2, R-ADMIT-1, R-ADMIT-4, R-SELECT-1, R-SELECT-4, R-LEGACY-1, R-LEGACY-2. This phase changes R-ADMIT-1, R-SELECT-1, and the Acceptance Criteria line about default setup, with the words that the owner approved on 2026-11-27. It changes no other PRD 30 requirement.
+- [38 Global Store and Project State](../../prd/38-global-store-and-project-state.md): R-STORE-2, R-DB-7, R-HARNESS-STATE-1, R-HARNESS-STATE-2, R-MIN. This phase adds R-HOOK-STATE.
 - [52 Work Store and Work Queue](../../prd/52-work-store-and-work-queue.md): R-WORK-STORE-11, R-WORK-SYNC-2, R-WORK-SYNC-4, and the R-WORK-CHECKPOINT requirements that P1 adds
 - [39 CLI Command Model and Operation Registry](../../prd/39-cli-command-model-and-operation-registry.md): R-NAME-6
 
@@ -89,21 +89,33 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 Merge risk: W22 R2 is active and adds the adoption path to the setup flow and to PRD 07. This stage adds the git hook offer to the same flow, and Stage 4 adds PRD 07 requirements. Merge by hand, then rerun the setup tests and record the digest again under standing rule 10. This Wave edits no W22 R2 file. This note is not a dependency, so it stands here and not under `### Dependencies`. See the [index](00-index.md#wave-sequence).
 
-Names: the name of the hook input flag and the key of the machine preference are not set. The builder proposes both names under the name rules of [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md), and the phase review shows them to the owner in the phase report. This needs no new gate.
+The owner's answer to OG-5: a machine preference says whether Make Docs installs the git hooks automatically for each project. Its default is "No". The person sets it when Make Docs is first installed on the computer, or when the machine installation itself is changed. With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. With the preference off, `make-docs setup --yes` installs no hook, an interactive project setup still offers the git hooks with "no" selected first, and an explicit hook input still installs them. A hook that belongs to one agent tool always needs an explicit input, in every mode, and the preference never installs one. The owner's reason: git hooks are part of a different lifecycle than agent tool hooks, and agent tools are a lifecycle on top of the normal development and documentation lifecycle, so their hooks get an extra measure of caution.
+
+The machine step: the person sets the preference at the machine step of setup. `make-docs setup system` opens that step directly, and project setup opens the same flow inline ([PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) R-SETUP-CLI-4, `runSystemSetupCommand` and `promptForSystemSetupMethods` in `packages/cli/src/setup-system.ts`). That step asks one connection method for each agent tool today, and no machine preference. Its non-interactive form has no input for one. So T7 adds the question and the input. Add no new command.
+
+Recommendations: the owner's words do not cover each detail. The [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#owner-decisions) lists the recommendations R1 to R7 under OG-5. The tasks below build them as written, and each task marks them with their number. They are not owner decisions. The phase report shows them to the owner, and the owner can change any of them.
+
+Names: the name of the hook input flag, the name of the input that sets the machine preference, and the key of the machine preference are not set. The builder proposes these names under the name rules of [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md), and the phase review shows them to the owner in the phase report. This needs no new gate.
 
 ### Tasks
 
-- [ ] T5: Add the offer to interactive `make-docs setup`. Setup shows each hook path, the exact block, and what the block runs, before it writes. The person selects the hooks explicitly. The offer is for one project. A known gap from P4 appears in this review.
-- [ ] T6: Add one machine preference to global config. When it is on, "yes" is the default answer of the offer for each new project. When it is absent or off, the default answer is "no". The person still sees the review and confirms it in both cases.
-- [ ] T7: Add a way to set and to clear the machine preference in machine setup. Setting and clearing change only that one value of global config. Clearing returns the default answer to "no" and changes no hook that a project already has.
-- [ ] T8: Add the non-interactive path as the owner chose at OG-5. `--dry-run` prints the exact hook plan. Conflicting hook input fails before any write. What a run with no hook input does is part of the owner's choice at OG-5: under option A it installs no hook and says so in one line, and under option B the machine preference answers.
+- [ ] T5: Add the offer to interactive `make-docs setup`. Setup shows each hook path, the exact block, and what the block runs, before it writes. The person selects the hooks explicitly. The offer is for one project. With the machine preference absent or off, "no" is selected first. With the preference on, "yes" is selected first, and the person still sees the review and confirms it (R4). An explicit hook input installs the hooks in both cases. A known gap from P4 appears in this review.
+- [ ] T6: Add one machine preference to global config: whether Make Docs installs the git hooks automatically for each project. Its default is "No", and an absent value means "No". The preference concerns the git hooks only. It never installs a hook that belongs to one agent tool. Make these rules hold, each with a test. An update of Make Docs never turns the preference on and never installs a hook by itself in a project that has none (R1). Turning the preference on writes one value of global config and installs no hook in any project by itself, and turning it off removes no hook that a project already has (R2).
+- [ ] T7: Add the preference question to the machine step of setup: `make-docs setup system`, and the same flow that project setup opens inline. The question has "No" selected first when global config holds no answer. The machine step asks it when global config holds no answer yet, and `make-docs setup system` shows it again with the current value selected first (R6). Add an explicit input that sets the preference in a non-interactive machine setup. `--yes` alone never changes the preference (R6). The machine review shows the change under `This computer`. Turning the preference on or off changes only that one value of global config.
+- [ ] T8: Add the non-interactive path as the owner decided at OG-5. With the preference on, `make-docs setup --yes` with no hook input installs the four git hooks, and its plan output names them. With the preference off, it installs no hook and says so in one line. An explicit hook input installs the hooks with the preference on or off. An explicit "no hooks" input for one run holds over the preference (R5). With the preference on, a project setup run installs the hooks also in a project that was set up before and has none (R3). When setup must refuse the git hooks under T1, it installs no hook, says why in one line, and the rest of the run goes on (R7). A bare non-interactive setup, with no `--yes`, installs no hook. `--dry-run` prints the exact hook plan. Conflicting hook input fails before any write.
 - [ ] T9: Build removal. `setup remove` removes only a block that still matches the recorded bytes, and keeps a changed block with a report. It removes a hook file that Make Docs created only when the file holds nothing else. In a clone with linked worktrees it removes the block only when no other bound checkout of that clone remains. Until then it reports that the block stays, and why.
 - [ ] T10: If owner gate OG-6 opened, apply the owner's choice for each platform with a gap, and add a test for it. If the gate did not open, say so in the evidence report and close this task as `superseded`, not as `cancelled`, because a cancelled unit keeps each unit that depends on it waiting.
 
 ### Acceptance criteria
 
 - A52: The setup review shows each of the four hook paths and the exact block before any write, and a run with no selection writes no hook.
-- A53: With the machine preference on, the offer's default answer is "yes" in a new project, and the non-interactive behavior matches the owner's choice at OG-5. After the person clears the preference, the default answer is "no" again, global config holds no other change, and the hooks of a project that already has them stay.
+- A53: The interactive offer has "no" selected first when the machine preference is absent or off, and "yes" selected first when it is on. The person confirms in both cases. After the person turns the preference off, "no" is selected first again, global config holds no other change, and the hooks of a project that already has them stay.
+- A53a: The machine step (`make-docs setup system`, and the same flow inline in project setup) asks the preference question with "No" selected first. With no answer, global config holds no preference, and that means "No". `--yes` alone leaves the preference as it was.
+- A53b: With the preference on, `make-docs setup --yes` with no hook input installs the four git hooks, and the plan output names each hook path.
+- A53c: With the preference off or absent, `make-docs setup --yes` with no hook input installs no hook and says so in one line.
+- A53d: An explicit hook input installs the hooks with the preference on, off, or absent, in interactive and in non-interactive setup. An explicit "no hooks" input installs none with the preference on.
+- A53e: With the preference on, setup with no hook input for an agent tool installs no hook of any agent tool, in interactive and in non-interactive setup.
+- A53f: After an update of Make Docs, the preference holds the same value as before, and a project that had no hook has none. After the person turns the preference on, no project has a new hook until its next project setup run.
 - A54: After setup and then `setup remove` beside a hook of another tool, each hook file is byte-identical to its state before setup.
 - A55: `setup remove` in one worktree keeps the block while another bound checkout of the clone remains, and says so. It removes the block when none remains.
 - A56: If OG-6 opened, a test shows that setup on each platform with a gap does what the owner chose. If OG-6 did not open, the evidence report says so.
@@ -111,7 +123,6 @@ Names: the name of the hook input flag and the key of the machine preference are
 ### Dependencies
 
 - Stage 1.
-- Owner gate OG-5: the owner chooses what non-interactive setup does with the machine preference.
 - Owner gate OG-6, when it opened: the owner chooses whether setup offers the hooks on a platform with a gap.
 
 ## Stage 3 - End-to-end proofs
@@ -141,21 +152,23 @@ Names: the name of the hook input flag and the key of the machine preference are
 - [ ] T15: Update the work store reference in `packages/docs/template/`: what the hooks do, what an agent does when a hook prints its line, and that an agent installs no hook by hand. Copy the file byte for byte to the installed copy. Extend the name test so that it checks the hook block for the current checkpoint command.
 - [ ] T16: Update the two PRDs that own the hook boundary, with a `W35 R0 P5` Requirement History entry in each:
   - [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md): the sentence "Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product" and the matching Non-Requirements line. Make Docs still has no general hook product. It has two bounded kinds of hook: the git hooks that setup offers for each project, and a hook method of a first-party adapter with real capability evidence. The owner approved this change on 2026-11-27.
-  - [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) R-ADMIT-1 only, with the exact words that the owner approved at owner gate OG-10. Git is not an agent tool, so a git hook cannot meet "a real harness capability contract" as the requirement reads today. Write nothing in R-ADMIT-1 before the owner answers.
-  - Change no other PRD 30 requirement. R-BOUND-1 forbids a hook registry, and this Wave builds none. R-BOUND-2 allows a hook that passed R-ADMIT. R-ADMIT-4 forbids a simulated hook, and a git hook is real. So these three stay as they are. Change R-SELECT-1 and the Acceptance Criteria line "Default setup, sync, and Skills selection create no plugin, hook, extension, workflow-bundle, or generated package output" only if the owner chose option B at OG-5, and then with the words of that option.
-- [ ] T17: Update [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) with a `W35 R0 P5` Requirement History entry: new R-SETUP-CLI-15 and later for the offer, the review, the machine preference, the refusals, and removal. Change R-SETUP-CLI-10 only if the owner chose option B at OG-5, and then with the words of that option.
+  - [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md), with these exact words. The owner answered owner gate OG-10 on 2026-11-27.
+    - R-ADMIT-1 becomes: "R-ADMIT-1 (MUST): a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract or, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status." The owner approved this sentence. Git is not an agent tool, so a git hook cannot meet "a real harness capability contract" as the requirement reads today.
+    - R-SELECT-1 gains: "The git hooks are installed only by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set." Follows from D1; shown to the owner on 2026-11-27.
+    - The Acceptance Criteria line "Default setup, sync, and Skills selection create no plugin, hook, extension, workflow-bundle, or generated package output" becomes: "Default setup, sync, and Skills selection create no plugin, extension, workflow-bundle, or generated package output, and no hook other than the git hooks that R-SELECT-1 admits." Follows from D1; shown to the owner on 2026-11-27.
+  - D1 is the owner's answer to OG-5, which the design records as OD-11. Change no other PRD 30 requirement. R-BOUND-1 forbids a hook registry, and this Wave builds none. R-BOUND-2 allows a hook that passed R-ADMIT. R-ADMIT-4 forbids a simulated hook, and a git hook is real. So these three stay as they are.
+- [ ] T17: Update [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) with a `W35 R0 P5` Requirement History entry: new R-SETUP-CLI-15 and later for the offer, the review, the machine preference with its question at the machine step, the refusals, and removal. R-SETUP-CLI-10 gains this exact sentence: "For the git hooks, the machine preference is the explicit selection when it is on." Follows from D1; shown to the owner on 2026-11-27. State each of the recommendations R1 to R7 that the owner kept as a requirement.
 - [ ] T18: Update [PRD 38](../../prd/38-global-store-and-project-state.md) and [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md), with a `W35 R0 P5` Requirement History entry in each. PRD 38 gains new R-HOOK-STATE requirements for the clone-owned record, the R-MIN field register row, and the global config preference. PRD 39 R-NAME-6 says that the hook block is shipped text.
 - [ ] T19: Add the P5 section to `evidence.md`, with the hook review and the removal report as a person sees them.
 
 ### Acceptance criteria
 
-- A61: `make-docs check prd`, the shipped-text test, and the byte-match test pass. PRD 28 and PRD 30 agree about hooks. PRD 30 R-ADMIT-1 holds the exact words that the owner approved at OG-10, the evidence records that answer and its date, and no other PRD 30 line changed unless the owner chose option B at OG-5.
-- A62: The owner reviews the setup hook review, the line that a hook prints, and the removal report. Each one says what happens, where, and what the person can do next.
+- A61: `make-docs check prd`, the shipped-text test, and the byte-match test pass. PRD 28 and PRD 30 agree about hooks. PRD 30 R-ADMIT-1, R-SELECT-1, and the Acceptance Criteria line about default setup, and PRD 07 R-SETUP-CLI-10, hold the exact words of T16 and T17. The evidence records the owner's answers to OG-5 and OG-10 and their date, 2026-11-27. No other PRD 30 line changed.
+- A62: The owner reviews the setup hook review, the machine preference question, the line that a hook prints, and the removal report. The phase report lists the recommendations R1 to R7 and the proposed names. Each one says what happens, where, and what the person can do next.
 
 ### Dependencies
 
 - Stage 3.
-- Owner gate OG-10: the owner approves the exact new words of PRD 30 R-ADMIT-1.
 
 ### Closeout Notes
 

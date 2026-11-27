@@ -17,7 +17,7 @@ source:
 
 ## Purpose
 
-Plan the [agent checkpoints and triggers design](../../designs/2026-11-27-agent-checkpoints-and-triggers.md). Agents must keep the work store current, and read work from it, with no person who reminds them. The Wave adds one command, `make-docs project checkpoint`, that does all that is due. It then adds triggers that lead to that one command: a reminder line on Make Docs commands, lines in the read commands, router rules, MCP server instructions, git hooks, and a hook for each agent tool that has proof of support.
+Plan the [agent checkpoints and triggers design](../../designs/2026-11-27-agent-checkpoints-and-triggers.md). Agents must keep the work store current, and read work from it, with no person who reminds them. The Wave adds one command, `make-docs project checkpoint`, that does all that is due. It then adds triggers that lead to that one command: a reminder line on Make Docs commands, lines in the read commands, router rules, MCP server instructions, git hooks, and a hook for each of the three agent tools that setup supports today.
 
 This plan and its work backlog are review material. They do not authorize CLI, MCP, template, Skill, registry, installation, commit, push, or release changes. Implementation needs separate owner authority. The Wave must not touch the W22 R2 plan, backlog, design, branches, or worktrees, and it must not read or write the real Store.
 
@@ -32,10 +32,11 @@ Completion requires:
 - `work next` and `work status` that name the checkpoint first, mark each out-of-date unit, and say when the list is not complete;
 - one fixed sentence in each project URI read;
 - one rule in the root routers, one conditional note in the `docs/work/` routers, and MCP server instructions, written in `packages/docs/template/` first and then copied byte for byte;
-- four git hooks that setup offers for each project, with a marked block, a refusal when another tool owns the hooks, a Store record of the exact block, drift reports, and exact removal;
-- real capability evidence for each agent tool that setup supports, and a hook method only for a tool with proof;
+- four git hooks for each project, which setup installs by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set, with a marked block, a refusal when another tool owns the hooks, a Store record of the exact block, drift reports, and exact removal;
+- a machine preference with the default "No", which the person sets at the machine step of setup (`make-docs setup system`, or the same flow inline in project setup);
+- a hook method for each of the three agent tools that setup supports (Codex, Claude Code, and GitHub Copilot CLI), with the real hook contract of each one recorded from a real run, and its honest support status;
 - PRDs 03, 04, 06, 07, 15, 25, 28, 30, 38, 39, and 52 describing the result;
-- a package version that the owner chose, with a digest file that each phase commit keeps current;
+- package version 2.1.1, which the owner chose on 2026-11-27, with the digest file `.github/release-candidates/v2.1.1.sha256` that each phase commit keeps current;
 - package parity, a user guide update, a Human Experience Review, and the owner acceptance gate.
 
 ## Standing Rules
@@ -51,11 +52,11 @@ These rules hold in every phase. The backlog repeats them.
 7. Say when a behavior is new. Record no owner decision that the owner did not make. An item that needs an owner choice is an owner gate in the backlog.
 8. Each phase ends with an independent review before its commit. The commit form is `feat: [W35 R0 P<n>] Agent Checkpoints and Triggers - <Phase name>`.
 9. Do not touch `docs/work/2026-11-13-w22-r2-portable-checkout-adoption/**`, `docs/plans/2026-11-13-w22-r2-portable-checkout-adoption/`, or `docs/designs/2026-11-13-portable-checkout-adoption.md`.
-10. Record the package digest again in every phase commit that changes package bytes. The pull request check "Match the reviewed candidate digest" compares the packed tarball with `.github/release-candidates/v<version>.sha256` on each pull request. The steps: `npm run prepack -w packages/cli`, then `npm pack --json --ignore-scripts` in `packages/cli`, then the SHA-256 of the tarball as one lowercase hex line in the digest file of the current version, in the same commit. Never change the digest file of a released version.
-11. A proof that must run inside an agent tool has one rule for who runs it. The orchestrator starts a session in each first-party agent tool that its environment can start, and records which tool ran which proof. For a tool that the environment cannot start, the owner runs the listed steps. If the owner does not, the record says "no proof gathered", and that tool gets no hook method.
+10. Record the package digest again in every phase commit that changes package bytes. The pull request check "Match the reviewed candidate digest" compares the packed tarball with `.github/release-candidates/v<version>.sha256` on each pull request. The owner chose version 2.1.1 on 2026-11-27, so the digest file of this Wave is `.github/release-candidates/v2.1.1.sha256`. The steps: `npm run prepack -w packages/cli`, then `npm pack --json --ignore-scripts` in `packages/cli`, then the SHA-256 of the tarball as one lowercase hex line in that digest file, in the same commit. Never change the digest file of a released version.
+11. A proof that must run inside an agent tool has one rule for who runs it. The orchestrator starts a session in each first-party agent tool that its environment can start, and records which tool ran which proof. For a tool that the environment cannot start, the owner runs the listed steps. The owner decided on 2026-11-27 that each of the three agent tools gets a hook method. So a missing run never drops a tool. When no run exists for the hook contract of a tool in P6, the task stops and asks the owner. For the access runs of P4 and the sessions of P7, a tool with no run is a recorded limit with the words "no proof gathered".
 12. A three-platform result comes only from `.github/workflows/platform-safety.yml`, for the test files in its fixed list, in a pull request run or a manual run. The orchestrator starts the run through the pull request after the reviewed phase commit is pushed. The order is: the phase commit, the push, the pull request run, then one evidence commit of the form `docs: [W35 R0 P<n>] Agent Checkpoints and Triggers - <Phase name> Evidence`. A case that needs the three-platform result passes with that evidence commit, and the task that adds the test files closes before the phase commit.
 
-Rules 10, 11, and 12 are new in this plan. The backlog gives each one in full.
+Rules 10, 11, and 12 are new in this plan. The backlog gives each one in full. The owner decisions of 2026-11-27 changed rules 10 and 11. See Change History.
 
 ## Human Experience Propagation
 
@@ -67,7 +68,7 @@ The source design has `direct` impact. Authority: [Human Experience Contract](..
 | One command, the checkpoint, tells the person or agent all that is due: what it synced, each conflict with its settle command, each claim that ended, and the next ready work. | PRD 52, [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) | `make-docs project checkpoint`, its help, its plain and `--json` output, `project_checkpoint` | [P1](01-checkpoint-command.md) | Installed runs for six cases, CLI and MCP parity tests, Guided Progress Review of the plain output | None |
 | When work files changed and the store does not have them yet, the next Make Docs command says so in one line with the exact command. | PRD 52, PRD 39 | The reminder line, and the first lines of `work next` and `work status` | [P2](02-reminder-and-read-commands.md) | Reminder tests, `PERF-006`, Guided Progress Review of the line | None |
 | A git action never fails because of Make Docs. The hooks print nothing when no sync change and no conflict waits. | PRD 07, [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | The four hook blocks | P4, P5 | Exit code and silence tests on each platform, `PERF-007` | None |
-| Setup shows each hook that it would install, where it goes, and what it runs, before it writes. `setup remove` takes out only what Make Docs put in. | PRD 07, [PRD 38](../../prd/38-global-store-and-project-state.md) | The setup hook review and the `setup remove` plan | P5 | Setup and removal tests with a hook of another tool, Guided Progress Review of the hook review | None |
+| Setup shows each hook that it would install, where it goes, and what it runs, before it writes. `setup remove` takes out only what Make Docs put in. | PRD 07, [PRD 38](../../prd/38-global-store-and-project-state.md) | The setup hook review, the machine preference question, and the `setup remove` plan | P5 | Setup and removal tests with a hook of another tool, the machine preference tests, Guided Progress Review of the hook review | None |
 | Without a Store, nothing new happens and nothing fails. The routers still say the true thing: the files are the authority. | PRD 52, [PRD 15](../../prd/15-agent-instruction-ownership-and-managed-blocks.md) | The checkpoint result, the routers, and the hooks with no Store | P1, [P3](03-routers-and-mcp-instructions.md), P5 | No-Store tests for each surface, Human Experience Review of the router lines | None |
 
 The person does not need to know the event list, the adapters, the ledger, or the digests. No promise needs an accepted obligation.
@@ -89,7 +90,7 @@ Authority: [Performance Evidence Governance Contract](../../../.make-docs/system
 - Classification: `new-wave`
 - Evidence: Step 1 of the wave-model decision procedure decides. The owner said "the next Wave" on 2026-11-27, and the design handoff recommends W35 R0. A scan of `docs/plans/`, `docs/work/`, `.make-docs/archive/plans/`, and `.make-docs/archive/work/` on 2026-11-27 found W34 as the highest Wave, so the next Wave is W35. The outcome test agrees. The related completed coordinate is W29 R0. Its plan promised sync at the start of each work command, and release 2.1.0 delivered that. No Wave promised that agents reach those commands with no person, and no Wave promised any hook. The checkpoint operation, the reminder, and the hooks are new capabilities, so this is new work and not a revision of W29 R0.
 - Could an unfinished Wave absorb the outcome? Three backlogs are not complete: W22 R1 (checkout move), W22 R2 (portable checkout adoption), and W34 R0 (one task that waits for a release). None of them promised work store sync or hooks, so none can absorb this outcome, and no owner question is needed under the procedure.
-- Significant deviation test and owner gates: this plan amends no committed plan or backlog, so the test does not apply, and the plan needs no Change History entry.
+- Significant deviation test and owner gates: at its first commit this plan amended no committed plan or backlog, so the test did not apply. The edit of 2026-11-27 records owner answers to the plan's own gates. It stays inside the stated scope, so it is not a significant deviation. It has a Change History entry at the end of this file.
 
 ## Lifecycle Departure
 
@@ -101,13 +102,14 @@ Reason: the name catalog test and the shipped-text test fail a current PRD line 
 
 | Input | Format | Location | Confidence |
 | --- | --- | --- | --- |
-| Agent checkpoints and triggers design | Markdown | [2026-11-27-agent-checkpoints-and-triggers.md](../../designs/2026-11-27-agent-checkpoints-and-triggers.md) | High. Every owner decision is settled: OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9 option A, OD-10 option B, and the PRD 28 sentence change. |
-| Roadmap | Markdown | [2026-11-27-checkpoint-events-and-store-first-roadmap.md](../../assets/project/2026-11-27-checkpoint-events-and-store-first-roadmap.md) | Context only. This plan takes no scope from it. |
+| Agent checkpoints and triggers design | Markdown | [2026-11-27-agent-checkpoints-and-triggers.md](../../designs/2026-11-27-agent-checkpoints-and-triggers.md) | High. Every owner decision is settled: OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9 option A, OD-10 option B, the PRD 28 sentence change, and OD-11 to OD-15 of the third round on 2026-11-27. |
+| Roadmap | Markdown | [2026-11-27-checkpoint-events-and-store-first-roadmap.md](../../assets/project/2026-11-27-checkpoint-events-and-store-first-roadmap.md) | Context only. This plan takes no scope from it. It holds the further agent tool that the owner placed there on 2026-11-27 (design OD-14). |
 | Work queue code | TypeScript | `packages/cli/src/operations/work/work-queue/`, `packages/cli/src/operations/work/work-store/sync.ts` | High. Read at `86dc7dba`. |
 | Operation registry and access | TypeScript | `packages/cli/src/operations/registry.ts`, `packages/cli/src/operations/access.ts` | High. |
 | Name catalog | TypeScript | `packages/cli/src/operations/name-catalog.ts` | High. |
 | MCP server | TypeScript | `packages/cli/src/mcp/server.ts`, `packages/cli/src/mcp/tools.ts` | High. |
 | Agent tool adapters | TypeScript | `packages/cli/src/harness-access/registry.ts` | High. Three first-party adapters and one generic MCP client profile. |
+| Machine setup step | TypeScript | `packages/cli/src/setup-system.ts`, `packages/cli/src/store/global-config.ts`, and the help of `make-docs setup system` in `packages/cli/src/cli.ts` | High. Read at `365b240b`. |
 | Routers and work store reference | Markdown | `packages/docs/template/AGENTS.md`, `packages/docs/template/docs/work/AGENTS.md`, `packages/docs/template/.make-docs/system/references/work-store.md` | High. |
 | Performance baseline | Markdown | [`PERF-004-R1`](../../work/2026-11-21-w29-r0-work-store/06-package-parity-and-acceptance.md#result-record) | High for one machine and this repository. |
 | Platform workflow | YAML | `.github/workflows/platform-safety.yml` | High. Its three-platform jobs run a fixed list of 14 test files on Linux, macOS, and Windows. The full CLI test suite runs on Linux only. The workflow starts only on a pull request or a manual start, and it also compares the package digest with the recorded one. |
@@ -126,16 +128,18 @@ These facts are not in the design. The plan uses them.
 - PRD 39 R-RUN-1 lists the commands of the `work`, `backlog`, `lifecycle`, `factory`, and `check` groups. It lists no `project` command. So `project checkpoint` needs a PRD 39 command section with a registry table, as the R-SKILL-CHECK and R-DOCTOR commands have, and R-RUN-1 changes only if the name catalog test asks for it.
 - The name catalog type `NameCatalogPlanner` lists the Waves that may hold a planned entry. It needs `W35 R0`.
 - [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) also has lines about hooks. The owner approved only the change to the PRD 28 sentence. So the plan read each PRD 30 line to find which one must change:
-  - R-ADMIT-1 must change. It asks for "a real harness capability contract". Git is not an agent tool, so a git hook cannot meet those words. The exact new words are owner gate OG-10.
+  - R-ADMIT-1 must change. It asks for "a real harness capability contract". Git is not an agent tool, so a git hook cannot meet those words. The exact new words were owner gate OG-10. The owner approved them on 2026-11-27.
   - R-BOUND-1 forbids a "hook registry". This Wave builds none, so it needs no change.
   - R-BOUND-2 forbids a hook "unless that exact integration has passed R-ADMIT". With R-ADMIT-1 changed, both kinds of hook can pass, so it needs no change.
-  - R-ADMIT-4 says that Make Docs does not "simulate hooks" for an unsupported harness API. A git hook is real, and P6 builds no hook for a tool with no proof, so it needs no change.
+  - R-ADMIT-4 says that Make Docs does not "simulate hooks" for an unsupported harness API. A git hook is real, and P6 builds a hook method only on the real hook contract of a tool, so it needs no change.
   - R-ADMIT-5 says that each addition to the adapter list "must pass R-ADMIT before setup can show it". It names no owner review. P6 meets it with the capability evidence.
-  - R-SELECT-1 says that bare setup installs no hook. It needs no change under OG-5 option A, and it changes only under option B.
-  - The Acceptance Criteria line "Default setup, sync, and Skills selection create no plugin, hook, extension, workflow-bundle, or generated package output" says the same. It also changes only under OG-5 option B.
+  - R-SELECT-1 says that bare setup installs no hook. The owner's answer to OG-5 on 2026-11-27 lets the machine preference install the git hooks, so R-SELECT-1 gains one sentence.
+  - The Acceptance Criteria line "Default setup, sync, and Skills selection create no plugin, hook, extension, workflow-bundle, or generated package output" says the same. It changes for the same reason. The section Owner Decisions gives the exact words under OG-10.
 - The workflow `.github/workflows/platform-safety.yml` runs the full CLI test suite on Linux only. A new test runs on macOS and Windows only when its file is in the fixed list of the jobs `platform-contract` and `installed-package`. P4 and P5 each add their hook test files to both lists.
-- The same workflow compares the package digest with `.github/release-candidates/v<version>.sha256` on each pull request. Package bytes change from P1 on, and version 2.1.0 is released. So the version must be chosen before the first P1 commit, and each phase commit must record the digest again. See standing rule 10 and owner gate OG-8.
-- The machine preference of OD-1 leaves one case open. The design says that the preference makes "yes" the default answer for each new project. It does not say what a non-interactive `setup --yes` does. PRD 30 R-SELECT-1 and its Acceptance Criteria line say that bare or default setup installs no hook. [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) R-SETUP-CLI-10 says "`--yes` is approval only", but it speaks of the connection methods of agent tools and names no git hook. Owner gate OG-5 asks.
+- The same workflow compares the package digest with `.github/release-candidates/v<version>.sha256` on each pull request. Package bytes change from P1 on, and version 2.1.0 is released. So the version must be chosen before the first P1 commit, and each phase commit must record the digest again. See standing rule 10. The owner chose version 2.1.1 on 2026-11-27 (owner gate OG-8).
+- The machine preference of OD-1 left one case open. The design said that the preference makes "yes" the default answer for each new project. It did not say what a non-interactive `setup --yes` does. PRD 30 R-SELECT-1 and its Acceptance Criteria line say that bare or default setup installs no hook. [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) R-SETUP-CLI-10 says "`--yes` is approval only", but it speaks of the connection methods of agent tools and names no git hook. Owner gate OG-5 asked, and the owner answered on 2026-11-27 (design OD-11).
+- The machine step of setup exists today. PRD 07 R-SETUP-CLI-4 says: "`setup system` opens the machine portion directly. Project setup may open the same flow inline." The code is `runSystemSetupCommand` and `promptForSystemSetupMethods` in `packages/cli/src/setup-system.ts`, and interactive project setup calls the second one after the person selects the agent tools. So the first setup on a computer and each later change of the machine setup pass through this one flow. Installing the npm package asks no question, and no other step sets up the machine.
+- That step can ask a question today, but only one kind: it asks one connection method for each selected agent tool (`selectMethods`). It asks no machine preference. Its non-interactive form takes only method inputs and the inputs that skip an agent tool, as the help of `make-docs setup system` lists them. Global config (`config.json` in the Store, `packages/cli/src/store/global-config.ts`, PRD 38 R-STORE-2) holds `selfUpdate`, `marketplaceAutoRegistration`, and the agent tool intent. No setup step asks for either of the first two today. So the preference question and its non-interactive input are new work, and P5 T6 and T7 hold it. No new command is needed.
 - Git does not copy hooks on clone, so a committed project setting cannot say that a clone has hooks. The plan puts no hook setting in project config. The Store record is the state for a clone, and the machine preference lives in global config. So [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md) does not change.
 - `syncWorkFiles` and `previewWorkSync` already take the options `projection` and `holdWrites`, and the first sync of a checkout already only imports. P1 checks whether the import-only trigger run can reuse one of these paths.
 - The work rule catalog `make-docs.work-store-rules.v1` ends at `WORK-RULE-054`. The checkpoint rules start at `WORK-RULE-055`.
@@ -153,13 +157,14 @@ These parts are not in the design or in current docs. The owner should know they
 - The profile IDs `PERF-006` and `PERF-007`, and their budgets in the backlog.
 - The rule that the four operations with no project access show no reminder.
 - No hook setting in project config.
-- The owner gates OG-1 to OG-10 below.
+- The owner gates OG-1 to OG-10 below. The owner answered OG-5, OG-7, OG-8, and OG-10 on 2026-11-27.
 - Standing rules 10, 11, and 12, with the evidence commit that follows the pull request run.
 - The rule that a gate bullet stands in the stage that the gate blocks, and never in the stage whose tasks find or bring the gate. The work store reads a gate bullet as open, and an open gate blocks every task of its stage.
 - The rule that a task that is not needed closes as `superseded` and never as `cancelled`, because a cancelled unit keeps each unit that depends on it waiting.
 - The builder proposes the name of the hook input flag and of the machine preference key in P5, and the owner sees both in the phase report.
 - The rule that the reminder check runs after the operation, so the six commands that sync first show no line after a good sync.
-- The default answer "no" of the hook offer when the machine preference is off. The plan reads it from the design's words "the person opts in".
+- The default answer "no" of the hook offer when the machine preference is off. The plan first read it from the design's words "the person opts in". The owner decided it on 2026-11-27, so it is no longer only new.
+- The recommendations R1 to R7 under OG-5 below, for details of the machine preference that the owner's words do not cover.
 - A proof phase (P4) that ends before the git hook build (P5) starts.
 
 ## Product Authority Decision
@@ -178,12 +183,13 @@ These parts are not in the design or in current docs. The owner should know they
 | The root router line and the `docs/work/` router note | `update-existing` | [PRD 15](../../prd/15-agent-instruction-ownership-and-managed-blocks.md) | PRD 15 owns the managed router blocks. |
 | The Checkpoint section of the work store reference | `update-existing` | [PRD 06](../../prd/06-template-contracts-and-generated-assets.md) | R-WORK-RESOURCE-1 owns the content of the agent twin. |
 | The sentence about hooks, and the hook method of an adapter | `update-existing` | [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | The owner approved the sentence change on 2026-11-27. PRD 28 owns the adapter contract. |
-| The admission rule for a hook that no agent tool runs | `update-existing` | [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) | Only R-ADMIT-1 must change, because a git hook cannot meet "a real harness capability contract". The owner approves the exact words at OG-10. R-SELECT-1 and the Acceptance Criteria line about default setup change only under OG-5 option B. |
+| The admission rule for a hook that no agent tool runs | `update-existing` | [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) | R-ADMIT-1 changes, because a git hook cannot meet "a real harness capability contract". R-SELECT-1 and the Acceptance Criteria line about default setup change, because the machine preference can install the git hooks. The owner approved the words on 2026-11-27 (OG-5 and OG-10). |
 | The git hook offer in setup, its review, and its removal | `update-existing` | [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) | PRD 07 owns the setup flow and `setup remove`. |
+| The machine preference as the explicit selection for the git hooks in `setup --yes` | `update-existing` | PRD 07 | R-SETUP-CLI-10 owns what `--yes` approves. It gains one sentence, with the owner's answer to OG-5. |
 | The hook ownership record and the machine preference | `update-existing` | [PRD 38](../../prd/38-global-store-and-project-state.md) | PRD 38 owns Store records, the field register, and global config. |
 | A hook setting in project config | `none` | [PRD 24](../../prd/24-project-configuration-and-convention-overlay.md) | Git does not copy hooks on clone, so the plan adds no project config key. |
 | Glossary terms: checkpoint, direct run, trigger run, event | `update-existing` | [PRD 04](../../prd/04-glossary.md) | "Checkpoint" has a second meaning in `lifecycle checkpoint`. |
-| Risks: one store and many branches; `git pull --rebase`; the reminder cost and the fast path; a trigger run as a first sync; agent tools with no hook proof | `update-existing` | [Risk register](../../prd/03-open-questions-and-risk-register.md) | The design asks the plan to record them. |
+| Risks: one store and many branches; `git pull --rebase`; the reminder cost and the fast path; a trigger run as a first sync; the support status of each agent tool hook, such as "preview" | `update-existing` | [Risk register](../../prd/03-open-questions-and-risk-register.md) | The design asks the plan to record them. |
 | A new product PRD | `none` | None | PRDs 07, 15, 25, 28, 38, 39, and 52 own every part. The design adds no new PRD subject. |
 
 ## Existing PRDs To Update
@@ -200,9 +206,9 @@ These parts are not in the design or in current docs. The owner should know they
 | [PRD 06](../../prd/06-template-contracts-and-generated-assets.md) | R-WORK-RESOURCE-1 | The work store reference has a Checkpoint section with shared rule IDs. | P1 | The other work resources. |
 | [PRD 04](../../prd/04-glossary.md) | `## Terms` | Checkpoint (project), checkpoint (lifecycle), direct run, trigger run, and event. | P1 | Other terms. |
 | [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | `### Optional Agentics Boundary` (the sentence about hooks); `## Non-Requirements` | Make Docs has no general hook product. It has two bounded kinds of hook: the git hooks that setup offers for each project, and a hook method of a first-party adapter with real capability evidence. | P5 | The adapter list and the admission rule for anything further. |
-| PRD 28 | New R-HARNESS-23 | The hook method of an adapter: its events, its owned native entry, explicit selection, off by default, and the adapter contract of R-HARNESS-1 and R-HARNESS-17. A tool with no proof has no hook method. | [P6](06-agent-tool-hooks.md) | R-HARNESS-1 to R-HARNESS-22. |
-| [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) | R-ADMIT-1 only. R-SELECT-1 and the Acceptance Criteria line about default setup only under OG-5 option B. | R-ADMIT-1 keeps "a real harness capability contract" and admits, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform. The exact words wait for owner gate OG-10. | P5 | R-BOUND-1, R-BOUND-2, R-ADMIT-4, R-ADMIT-5, and the admission boundary for anything further. |
-| [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) | New R-SETUP-CLI-15 and later; `setup remove` | Setup offers the four git hooks for each project, shows each hook path and the exact block, and needs an explicit selection. The machine preference sets the default answer. `setup remove` removes only a block that still matches. R-SETUP-CLI-10 changes only under OG-5 option B. | P5 | The other setup steps and review rules. |
+| PRD 28 | New R-HARNESS-23 | The hook method of an adapter: its events, its owned native entry, explicit selection in every mode, off by default, and the adapter contract of R-HARNESS-1 and R-HARNESS-17. Each of the three first-party adapters has one, with its support status. The machine preference for git hooks never installs it. | [P6](06-agent-tool-hooks.md) | R-HARNESS-1 to R-HARNESS-22. |
+| [PRD 30](../../prd/30-plugin-substrate-and-workflow-bundles.md) | R-ADMIT-1, R-SELECT-1, and the Acceptance Criteria line about default setup. | R-ADMIT-1 keeps "a real harness capability contract" and admits, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform. R-SELECT-1 and the Acceptance Criteria line admit the git hooks that the machine preference installs. The section Owner Decisions gives the exact words under OG-10. The owner approved them on 2026-11-27. | P5 | R-BOUND-1, R-BOUND-2, R-ADMIT-4, R-ADMIT-5, and the admission boundary for anything further. |
+| [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) | New R-SETUP-CLI-15 and later; `setup remove` | Setup handles the four git hooks for each project, shows each hook path and the exact block, and needs an explicit selection: a hook input, an answer in interactive setup, or the machine preference that the person set. The machine step asks the preference question, with the default "No". `setup remove` removes only a block that still matches. R-SETUP-CLI-10 gains the sentence that the section Owner Decisions gives under OG-10. | P5 | The other setup steps and review rules. |
 | [PRD 38](../../prd/38-global-store-and-project-state.md) | New R-HOOK-STATE; the R-MIN field register; the global config row | The clone owns the hook block. The Store records the exact block for the clone's shared git folder. Global config holds the machine preference. A schema change needs the owner's answer at gate OG-3 first. | P5 | Schema authority and every other record. |
 | [Risk register](../../prd/03-open-questions-and-risk-register.md) | New R-039 and later; one new Q item | See the next section. | P1, P2, P4, P6, [P7](07-acceptance.md) | Other entries. |
 
@@ -225,9 +231,9 @@ Each entry lands in the phase that builds the behavior. Each one uses the `2026-
 | PRD 15 | W35 R0 P3 | New R-WORK-ROUTER | The root router said nothing about the work store. The `docs/work/` router did not say when to prefer the CLI or when to sync. | The router rule and the conditional note. | Owner decision 2 and OD-3 option A. | Design |
 | PRD 06 | W35 R0 P1 | R-WORK-RESOURCE-1 | The agent twin had no checkpoint rules. | The twin has a Checkpoint section with shared rule IDs. | Twins guide. | Design |
 | PRD 28 | W35 R0 P5 | `### Optional Agentics Boundary`; `## Non-Requirements` | "Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product." | The same sentence, with the two bounded kinds of hook admitted. | Owner approval of 2026-11-27 and OD-10 option B. | Design |
-| PRD 28 | W35 R0 P6 | New R-HARNESS-23 | No adapter had a hook method. | A hook method for each adapter with capability evidence. | OD-10 option B. | Design |
-| PRD 30 | W35 R0 P5 | R-ADMIT-1. R-SELECT-1 and the Acceptance Criteria line about default setup only under OG-5 option B. | An optional integration needed "a real harness capability contract". | The words that the owner approves at OG-10. | Git is not an agent tool, so a git hook could not pass the rule as written. | Design, and owner gate OG-10 |
-| PRD 07 | W35 R0 P5 | New R-SETUP-CLI-15 and later; `setup remove` | Setup installed no git hook. | The git hook offer, review, and exact removal. | Owner decision 4 and OD-1 option A. | Design |
+| PRD 28 | W35 R0 P6 | New R-HARNESS-23 | No adapter had a hook method. | A hook method for each of the three first-party adapters, with its recorded hook contract and support status. | OD-10 option B and OD-13. | Design |
+| PRD 30 | W35 R0 P5 | R-ADMIT-1; R-SELECT-1; the Acceptance Criteria line about default setup | An optional integration needed "a real harness capability contract". Bare and default setup installed no hook. | The words that the owner approved on 2026-11-27. See OG-10 in Owner Decisions. | Git is not an agent tool, so a git hook could not pass the rule as written. The machine preference is an explicit selection that the person made. | Design OD-11 and OD-12 |
+| PRD 07 | W35 R0 P5 | New R-SETUP-CLI-15 and later; R-SETUP-CLI-10; `setup remove` | Setup installed no git hook. `--yes` was approval only. | The git hook offer, the machine preference question, review, and exact removal. R-SETUP-CLI-10 gains: "For the git hooks, the machine preference is the explicit selection when it is on." | Owner decision 4, OD-1 option A, and OD-11. | Design |
 | PRD 38 | W35 R0 P5 | New R-HOOK-STATE; R-MIN; global config | The Store had no record of a hook block, and global config had no hook preference. | The clone-owned hook record and the machine preference. | The design's rule "Who owns a shared hook block". | Design |
 
 ## Affected Links, Risks, Plans, And Work
@@ -235,7 +241,7 @@ Each entry lands in the phase that builds the behavior. Each one uses the `2026-
 | Surface | Artifact | Required maintenance | Authority role |
 | --- | --- | --- | --- |
 | Links and index | [PRD index](../../prd/00-index.md) | None. No new PRD. | Navigation only |
-| Risks and decisions | `docs/prd/03-open-questions-and-risk-register.md` | P1 adds a risk for one project store with many branches and worktrees, and for a trigger run as the first sync of a checkout. P2 adds a question for the reminder cost and the "Fast path: not now" decision of 2026-11-23, which OD-6 opens again. P4 adds a risk for `git pull --rebase` and for each platform gap. P6 records each agent tool that gets no hook, with its reason. P7 closes what the Wave settled. | Living register |
+| Risks and decisions | `docs/prd/03-open-questions-and-risk-register.md` | P1 adds a risk for one project store with many branches and worktrees, and for a trigger run as the first sync of a checkout. P2 adds a question for the reminder cost and the "Fast path: not now" decision of 2026-11-23, which OD-6 opens again. P4 adds a risk for `git pull --rebase` and for each platform gap. P6 records the support status and the limits of each agent tool hook, and each owner answer to a stop. P7 closes what the Wave settled. | Living register |
 | Plans | This plan | None in other plans. | Sequencing |
 | Work | `docs/work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/` | New backlog with `00-index.md` and seven phase files. `evidence.md` starts in P1 with the first retained evidence. | Implementation queue |
 | Guides | `docs/assets/user/workflows-trying-the-work-store-and-factory.md`, `docs/assets/user/cli-setting-up-projects-and-harness-access.md`, `docs/assets/maintainer/cli-maintaining-setup-and-harness-access.md`, `docs/assets/maintainer/cli-mcp-operation-parity-and-permissions.md` | P7 updates them after the behavior exists. | Reader guidance |
@@ -249,25 +255,25 @@ Each entry lands in the phase that builds the behavior. Each one uses the `2026-
 | [02-reminder-and-read-commands.md](02-reminder-and-read-commands.md) | Add the reminder line, the `work next` and `work status` lines and marks, the project URI sentence, and `PERF-006`. |
 | [03-routers-and-mcp-instructions.md](03-routers-and-mcp-instructions.md) | Add the router rule, the `docs/work/` note, the rest of the work store reference, and the MCP server instructions, template first. |
 | [04-git-hook-proofs.md](04-git-hook-proofs.md) | Prove the git hook facts on each platform, find how a hook reaches `make-docs`, check the clone-owned record, and run `PERF-007`. |
-| [05-git-hooks-in-setup.md](05-git-hooks-in-setup.md) | Build the git hook offer, the machine preference, the marked block, the refusals, the Store record, drift, and exact removal. |
-| [06-agent-tool-hooks.md](06-agent-tool-hooks.md) | Gather capability evidence for each agent tool, then build a hook method only for a tool with proof. |
+| [05-git-hooks-in-setup.md](05-git-hooks-in-setup.md) | Build the git hook offer, the machine preference and its question at the machine step, the marked block, the refusals, the Store record, drift, and exact removal. |
+| [06-agent-tool-hooks.md](06-agent-tool-hooks.md) | Record the real hook contract of each of the three agent tools, then build a hook method for each one. |
 | [07-acceptance.md](07-acceptance.md) | Prove the package, check the final digest, update the guides, review the human experience, and pass the owner acceptance gate. |
 
 The owner set two phases at design level. This plan splits them into seven build phases, and the reasons are these:
 
 - Design Phase 1 becomes P1, P2, and P3. Each one is a change set that one reviewer can check: one operation, one output change that touches 47 commands and needs a measurement, and one set of shipped text that changes every installed project on its next update. P2 and P3 both need the command name from P1 in the name catalog first.
-- Design Phase 2 becomes P4, P5, and P6. P4 holds every item that the design marks "the plan proves", "the plan finds out", or "the plan measures" for git hooks. Its results can change the build: a Store schema change stops for the owner (OG-3), the run mode needs the owner (OG-4), and a platform gap changes the hook review. So P4 ends and is reviewed before P5 builds. P6 is its own phase after the git hooks, as the owner's choice of OD-10 option B allows, so that it can stop with no harm when no agent tool has proof.
+- Design Phase 2 becomes P4, P5, and P6. P4 holds every item that the design marks "the plan proves", "the plan finds out", or "the plan measures" for git hooks. Its results can change the build: a Store schema change stops for the owner (OG-3), the run mode needs the owner (OG-4), and a platform gap changes the hook review. So P4 ends and is reviewed before P5 builds. P6 is its own phase after the git hooks, as the owner's choice of OD-10 option B allows. It records the hook contract of each tool before it builds, so that a stop for one tool does not hold the git hooks.
 - P7 is the acceptance phase, as in the model Wave.
 
 ## Dependencies
 
-- P1 depends on nothing outside W29 R0, which is released in 2.1.0. Its last stage, and so the first commit of the Wave, waits for owner gate OG-8.
+- P1 depends on nothing outside W29 R0, which is released in 2.1.0. Owner gate OG-8 is answered: the version is 2.1.1. So no gate holds the first commit of the Wave.
 - P2 depends on P1, because the reminder names the checkpoint command. Its last stage waits for owner gate OG-2 (only if it opens).
 - P3 Stage 1 depends on P1 and can run beside P2. P3 Stage 2 also depends on P2 Stage 2, because the MCP instructions use the result text of the read commands.
 - P4 depends on P1. It can run beside P2 and P3. No owner gate blocks P4. P4 finds whether OG-3 opens and brings OG-4 to the owner, and both gates block P5.
-- P5 depends on P4, on the P4 three-platform result, and on owner gates OG-3 (only if it opens), OG-4, OG-5, OG-6 (only if it opens), and OG-10.
-- P6 depends on P1 for the command and on P5 for the PRD 28 sentence. Its Stage 1 evidence can start beside P4. Its Stage 2 waits for owner gate OG-7.
-- P7 depends on P1 to P6. If P6 stops with no hook method, P7 still runs. Owner gate OG-9 blocks no stage of P7. The last P7 task brings it, and it blocks the Wave closeout.
+- P5 depends on P4, on the P4 three-platform result, and on owner gates OG-3 (only if it opens), OG-4, and OG-6 (only if it opens). OG-5 and OG-10 are answered.
+- P6 depends on P1 for the command and on P5 for the PRD 28 sentence. Its Stage 1 evidence can start beside P4. Owner gate OG-7 is answered, so its Stage 2 waits only for Stage 1 and for P5.
+- P7 depends on P1 to P6. If P6 stops to ask the owner about one tool, P7 runs after the owner answers and P6 closes. Owner gate OG-9 blocks no stage of P7. The last P7 task brings it, and it blocks the Wave closeout.
 
 ## Wave Order
 
@@ -301,12 +307,12 @@ Use disjoint write scopes when implementation is authorized.
 
 | Worker role | Responsibility | Primary write scope | Dependencies | Deliverable |
 | --- | --- | --- | --- | --- |
-| Operation owner | The checkpoint operation, catalog entry, parity, rule IDs, tests, the Checkpoint section of the reference, and the package version | New module under `packages/cli/src/operations/project/` or `packages/cli/src/operations/work/`, `registry.ts`, `name-catalog.ts`, `work-store/catalog.ts`, their tests, the work store reference in the template, `packages/cli/package.json`, `package-lock.json`, PRDs 04, 06, 25, 39, and 52 | OG-8 for the commit | P1 |
+| Operation owner | The checkpoint operation, catalog entry, parity, rule IDs, tests, the Checkpoint section of the reference, and the package version | New module under `packages/cli/src/operations/project/` or `packages/cli/src/operations/work/`, `registry.ts`, `name-catalog.ts`, `work-store/catalog.ts`, their tests, the work store reference in the template, `packages/cli/package.json`, `package-lock.json`, PRDs 04, 06, 25, 39, and 52 | None | P1 |
 | Reminder owner | The reminder check, the read command lines and marks, the URI sentence, and `PERF-006` | The operation runner and render layer, `packages/cli/src/operations/work/work-queue/`, `packages/cli/src/mcp/tools.ts`, their tests, PRDs 25, 39, and 52 | P1 | P2 |
 | Shipped text owner | Router lines, the `docs/work/` note, the reference, MCP server instructions, and the dogfood copies | `packages/docs/template/`, this repository's `AGENTS.md`, `CLAUDE.md`, `docs/work/AGENTS.md`, `docs/work/CLAUDE.md`, `.make-docs/system/references/work-store.md`, `packages/cli/src/mcp/server.ts`, PRDs 15 and 25 | P1 | P3 |
 | Hook proof owner | Git fact tests on each platform, the command lookup, the access runs, the record check, and `PERF-007` | New tests under `packages/cli/tests/`, the two test lists in `.github/workflows/platform-safety.yml`, the evidence report, the register | P1 | P4 |
-| Hook build owner | The setup offer, preference, block, refusals, record, drift, and removal | Setup code under `packages/cli/src/`, the Store code for the record, their tests, the two test lists in `.github/workflows/platform-safety.yml`, PRDs 07, 28, 30, 38, and 39 | P4, OG-3 to OG-6, OG-10 | P5 |
-| Adapter owner | Capability evidence and each hook method with proof | `packages/cli/src/harness-access/`, its tests, PRD 28 | P1, P5, OG-7 | P6 |
+| Hook build owner | The setup offer, preference, block, refusals, record, drift, and removal | Setup code under `packages/cli/src/`, the Store code for the record, their tests, the two test lists in `.github/workflows/platform-safety.yml`, PRDs 07, 28, 30, 38, and 39 | P4, OG-3, OG-4, and OG-6 | P5 |
+| Adapter owner | The hook contract record and the hook method of each of the three agent tools | `packages/cli/src/harness-access/`, its tests, PRD 28 | P1, P5 | P6 |
 | Validation owner | Package parity, guides, Human Experience Review, register, and the acceptance evidence | The evidence report, `docs/assets/user/`, `docs/assets/maintainer/`, PRD 03, bounded fixes returned to owners | P1 to P6 | P7 |
 
 Each phase has an independent reviewer who did not write it. The reviewer checks the phase before its commit. Each owner whose phase changes package bytes also writes the digest file under standing rule 10. The orchestrator starts the agent tool sessions and the workflow runs under standing rules 11 and 12.
@@ -333,8 +339,9 @@ Use a document index tool for project documents and a code index tool for code d
 - Prove the two-checkout test, the two-worktree test, and the `git pull --rebase` test of the design.
 - Prove that a hook exits 0 and prints nothing with no CLI, no Store, and no Make Docs install.
 - Prove setup and `setup remove` beside a hook of another tool: the other tool's bytes stay the same.
-- Prove each capability claim for an agent tool with a real run, and prove each hook method through the adapter contract.
-- Prove `npm run smoke:pack` passes. Prove that the digest file of the chosen version equals the digest of the tarball at each phase commit and at the end.
+- Prove the machine preference: the question at the machine step with the default "No", `setup --yes` with the preference on and off, the first choice of the interactive offer, an explicit hook input, and that neither the preference nor an update of Make Docs installs a hook by itself in a project that has none.
+- Record the hook contract of each of the three agent tools with a real run and its support status, and prove each hook method through the adapter contract.
+- Prove `npm run smoke:pack` passes. Prove that the digest file of version 2.1.1 equals the digest of the tarball at each phase commit and at the end.
 - Run the full test suite on the maintainer machine. Record the workflow run for the full suite on Linux and for the fixed test list on the three platforms. The full suite does not run on macOS or Windows in the workflow. Record known failures.
 - Complete a Human Experience Review for each promise above.
 
@@ -347,14 +354,29 @@ Testing decisions for each phase:
 | P3 | Required | `not-needed-now` | Selected: the router lines and the MCP instructions | `not-needed-now` |
 | P4 | Required | Selected: `PERF-007` | `not-needed-now` | `not-needed-now` |
 | P5 | Required | `not-needed-now` | Selected: the setup hook review and the removal report | `not-needed-now` |
-| P6 | Required | `not-needed-now` | Selected: the capability evidence table | `not-needed-now` |
+| P6 | Required | `not-needed-now` | Selected: the hook contract table | `not-needed-now` |
 | P7 | Required | `not-needed-now` | Selected: the Human Experience Review result | `not-needed-now` |
 
 Unassisted Goal Testing is `not-needed-now`. The triggers reach agents, not a person who must find a path unaided. The recorded agent sessions of P7 show whether an agent reaches the checkpoint with no prompt. Human Experience Review covers each surface that a person reads.
 
 ## Owner Decisions
 
-Every design decision is settled. The gates below are new. Each one is an owner gate in the backlog. Each gate has at most two options, the facts that the owner needs, and one recommendation. A recommendation is not a decision. A gate that says "only if" does not open when its condition does not happen. Each heading names the phase that finds or brings the gate, and the text names the stage that the gate blocks. A gate never blocks the stage whose tasks find or bring it. No gate is decided here. The gate IDs keep their first numbers, so OG-8 sits in P1 now, and OG-10 is new.
+Every design decision is settled. The gates below are new in this plan. Each one is an owner gate in the backlog. Each open gate has at most two options, the facts that the owner needs, and one recommendation. A recommendation is not a decision. A gate that says "only if" does not open when its condition does not happen. Each heading names the phase that finds or brings the gate, and the text names the stage that the gate blocks. A gate never blocks the stage whose tasks find or bring it. The gate IDs keep their first numbers.
+
+The owner answered four gates on 2026-11-27, in the third round of decisions of that day. An answered gate blocks nothing, and it has no gate bullet in any stage of the backlog.
+
+| Gate | State | Date | The owner's answer | Blocks |
+| --- | --- | --- | --- | --- |
+| OG-1 | Open, only if | None | None yet | P1 Stage 2, only if no existing Store admission kind fits. |
+| OG-2 | Open, only if | None | None yet | P2 Stage 4, only if `PERF-006` shows more than 1 second. |
+| OG-3 | Open, only if | None | None yet | P5 Stage 1, only if no existing Store record fits the hook block. |
+| OG-4 | Open, always | None | None yet | P5 Stage 1. |
+| OG-5 | Answered | 2026-11-27 | A machine preference with the default "No" says whether Make Docs installs the git hooks automatically for each project. With it on, project setup installs them with no hook input, also in `setup --yes`. With it off, `setup --yes` installs none, interactive setup offers them with "no" first, and an explicit hook input installs them. A hook of one agent tool always needs an explicit input. Design OD-11. | Nothing. |
+| OG-6 | Open, only if | None | None yet | P5 Stage 2, only if P4 found a platform gap. |
+| OG-7 | Answered early | 2026-11-27 | Each of the three agent tools that setup supports gets a hook method: Codex, Claude Code, and GitHub Copilot CLI. Design OD-13. | Nothing. |
+| OG-8 | Answered | 2026-11-27 | Version 2.1.1, a patch release. Design OD-15. | Nothing. |
+| OG-9 | Open, always | None | None yet | The Wave closeout and any release. |
+| OG-10 | Answered | 2026-11-27 | The owner approved the proposed sentence of PRD 30 R-ADMIT-1, and the PRD 30 changes that OG-5 needs. Design OD-12. | Nothing. |
 
 **OG-1 (P1, only if): What happens if no existing Store admission kind lets one operation hold two access levels?**
 
@@ -390,30 +412,41 @@ Why A: B is the form that the design refused, and it breaks the promise that `se
 
 Why A: the design promises that the person sees one line after the commit when something waits, and only A keeps that promise. This recommendation stands before the measurement. P4 T15 gives the owner the `PERF-007` times and confirms the recommendation or changes it, and says which. The gate blocks P5 Stage 1, and so P5. It does not block P4.
 
-**OG-5 (P5, always): With the machine preference on, does a non-interactive `setup --yes` install the git hooks?**
+**OG-5 (P5): With the machine preference on, does a non-interactive `setup --yes` install the git hooks?** Answered on 2026-11-27.
 
-The design leaves one case open. It records owner decision OD-1 option A in these words: "`make-docs setup` offers the git hooks for each project, and the person opts in. A machine preference can make "yes" the default answer for each new project. Make Docs sets no machine-wide git hooks path." The design does not say what a default answer means when no person is asked.
+The plan gave two options. The owner chose a form that is neither of the two exactly. The orchestrator proposed it, and the owner chose it. The design records it as OD-11. It supersedes the text of design OD-1 option A where they differ.
 
-Three PRD lines speak near this case:
+The owner's answer:
 
-- PRD 07 R-SETUP-CLI-10 says: "non-interactive setup requires one explicit connection method for every selected harness when machine setup is requested" and "`--yes` is approval only. It never selects `none` or another method." This requirement speaks of the connection methods of agent tools. It names no git hook, so it does not forbid option B as it reads today. Option B adds one sentence there, so that the full rule for `--yes` stays in one place.
-- PRD 30 R-SELECT-1 says: "bare setup, default sync, and Skills selection install no plugin, hook, extension, workflow bundle, or other unadmitted agentic artifact." Under option B a `setup --yes` run with no hook input installs hooks, so option B breaks these words.
-- The PRD 30 Acceptance Criteria say: "Default setup, sync, and Skills selection create no plugin, hook, extension, workflow-bundle, or generated package output." Option B breaks these words for the same reason.
+- A machine preference says whether Make Docs installs the git hooks automatically for each project. The person sets it when Make Docs is first installed on the computer, or when the machine installation itself is changed. Its default is "No".
+- With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. Turning the preference on is the person's explicit choice.
+- With the preference off, `make-docs setup --yes` installs no hook. An interactive project setup still offers the git hooks, with "no" selected first. An explicit hook input still installs them.
+- Hooks that belong to one agent tool always need an explicit input, in every mode. The preference never installs them.
 
-The default answer "no" with the machine preference off is new in this plan. The plan reads it from the design's words "the person opts in". It holds under both options.
+The owner's reason: git hooks are part of a different lifecycle than agent tool hooks. Agent tools are a lifecycle on top of the normal development and documentation lifecycle, so their hooks get an extra measure of caution.
 
-- A (recommended): the preference changes only the interactive question.
-  - Interactive setup shows the hook review with each path and the exact block. The answer "yes" is selected first when the preference is on, and "no" when it is off. The person confirms.
-  - `setup --yes` with an explicit hook input installs the hooks. `setup --yes` with no hook input installs no hook and says so in one line, with the preference on or off. So a script that runs `setup --yes` today keeps its result. Conflicting hook input fails before any write.
-  - A bare non-interactive setup, with no `--yes`, installs no hook. This option changes nothing else in what that run does.
-  - No PRD requirement changes. PRD 07 gains only the new hook requirements.
-- B: the preference also answers for a non-interactive run.
-  - Interactive setup is the same as under A.
-  - `setup --yes` with the preference on installs the hooks with no hook input, and the plan output names them. With the preference off it installs none.
-  - A bare non-interactive setup, with no `--yes`, installs no hook. This option changes nothing else in what that run does.
-  - Three PRD lines change, and the owner approves these words with the option. PRD 07 R-SETUP-CLI-10 gains: "For the git hooks, the machine preference is the explicit selection when it is on." PRD 30 R-SELECT-1 gains: "The git hooks are installed only by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set." The PRD 30 Acceptance Criteria line becomes: "Default setup, sync, and Skills selection create no plugin, extension, workflow-bundle, or generated package output, and no hook other than the git hooks that R-SELECT-1 admits."
+Where the person sets the preference: the machine step of setup. `make-docs setup system` opens it directly, and project setup opens the same flow inline (PRD 07 R-SETUP-CLI-4). Facts Found While Planning gives the code. That step asks only connection methods today, so P5 T6 and T7 add the question and its non-interactive input. This plan adds no new command.
 
-Why A: explicit selection stays true in every mode, no script gets hooks by surprise, and no approved requirement changes. The orchestrator asks the owner before P5 Stage 2 starts. The gate blocks P5 Stage 2, where T8 uses the answer.
+The two options that the plan gave, kept as history:
+
+- A (was recommended): the preference changes only the first choice of the interactive question, and `setup --yes` installs hooks only with an explicit hook input.
+- B: the preference also answers for a non-interactive run, and three PRD lines change.
+
+The owner's answer is close to option B, with the default "No", the question at the machine step, and the rule for agent tool hooks added. So the PRD changes of option B apply. OG-10 below gives the words.
+
+The owner's words do not cover the details below. Each one is a recommendation of this plan and not an owner decision. P5 builds each one as written, the phase report shows them to the owner, and the owner can change any of them.
+
+- R1: an update of Make Docs never turns the preference on, and never installs a hook by itself. This follows from the owner's words that the default is "No" and that turning the preference on is the person's explicit choice.
+- R2: turning the preference on writes one value of global config. It installs no hook in any project by itself. A project gets its hooks at its next project setup run. Turning the preference off removes no hook that a project already has.
+- R3: with the preference on, a project setup run installs the git hooks also in a project that was set up before and has none. The owner said "for each project". The earlier design text said "for each new project".
+- R4: with the preference on, an interactive project setup still shows the hook review, with "yes" selected first, and the person confirms. `setup --yes` shows the hooks in its plan output and installs them.
+- R5: an explicit "no hooks" input for one run holds over the preference, so one project can stay without hooks on a computer where the preference is on.
+- R6: the machine step asks the question when global config holds no answer yet, and `make-docs setup system` shows it again with the current value selected first. A non-interactive machine setup changes the preference only by an explicit input. `--yes` alone never changes it. An absent value means "No".
+- R7: with the preference on, when setup must refuse the git hooks (a hook file that is not a shell script, hooks that another tool owns, or a `core.hooksPath` that points to another folder), it installs no hook, says why in one line, and the rest of the setup run goes on.
+
+One rule stays from the first form of this gate: a bare non-interactive setup, with no `--yes`, installs no hook.
+
+This gate blocks nothing. P5 T6, T7, and T8 build the answer.
 
 **OG-6 (P5, only if): Does setup offer the git hooks on a platform where P4 found a gap?**
 
@@ -424,23 +457,25 @@ This gate opens only if P4 finds a platform where a hook cannot reach `make-docs
 
 Why A: a hook that does not work as the review says breaks the promise of the review. The P4 evidence shows whether the gate opens. The gate blocks P5 Stage 2, where T10 applies the answer for that platform only.
 
-**OG-7 (P6, always): Is the capability evidence table right?**
+**OG-7 (P6): Is the capability evidence table right?** Answered early on 2026-11-27.
 
-The owner already chose design OD-10 option B: the Wave builds a hook for each agent tool that has proof. This gate does not ask that again. It asks the owner to confirm the proof. P6 Stage 1 gives one table: each agent tool, who started the session, what a real run showed for `session-start` and `turn-end`, and whether a hook started there passes that tool's Store access rules. A tool with no run has the reason "no proof gathered".
+The gate asked the owner to confirm, after P6 Stage 1, which agent tools have proof of hook support. The owner answered before the evidence, and the design records it as OD-13:
 
-- A (recommended): confirm the table as written. P6 Stage 2 builds a hook method for each tool whose row shows proof, and none for the others, with the reason recorded.
-- B: name each row that the owner does not accept as proved. That row goes back to P6 Stage 1 for a new run, and its tool gets no hook method until the row is confirmed.
+- The three agent tools that setup supports today get a hook method: Codex, Claude Code, and GitHub Copilot CLI, as the setup code and docs name them.
+- The owner states that each of them supports hooks, from the owner's own check. For GitHub Copilot CLI, the owner states that the hook support is the vendor's hook support for that harness, in preview. This is the owner's statement, and this plan records no result of its own.
 
-Why A: the table holds only real runs, and OD-10 option B already says what follows from proof. P6 T3 in Stage 1 brings the gate. The gate blocks P6 Stage 2. When no row shows proof, the phase ends there with no harm.
+So the capability evidence task of P6 stays, with a changed purpose. It no longer decides whether a tool gets a hook method. It records, for each of the three tools, the real hook contract that the builder needs: the events, the configuration file and its place, the input that the hook receives, how the hook result is used, and the install and removal steps. It has one real run for each tool, and it states the honest support status, for example "preview", as PRD 28 and PRD 30 R-ADMIT-1 require. If the builder cannot find a real, usable hook contract for a tool, the task stops and asks the owner. It does not drop the tool silently.
 
-**OG-8 (P1, always): Which version carries this Wave?**
+This gate blocks nothing. The owner sees the hook contract table in the P6 phase report.
 
-Version 2.1.0 is released, and `RELEASING.md` says that a version on npm cannot be used again. The pull request check compares the package digest with `.github/release-candidates/v<version>.sha256`, and package bytes change from P1 on. So the version must be chosen before the first P1 commit. The owner can answer from the start of P1.
+**OG-8 (P1): Which version carries this Wave?** Answered on 2026-11-27: 2.1.1, a patch release.
 
-- A (recommended): 2.2.0, a minor release. The Wave adds a command, an MCP tool, and new setup behavior, and it breaks nothing.
-- B: 2.1.1, a patch release.
+Version 2.1.0 is released, and `RELEASING.md` says that a version on npm cannot be used again. The pull request check compares the package digest with `.github/release-candidates/v<version>.sha256`, and package bytes change from P1 on. So the version had to be chosen before the first P1 commit.
 
-Why A: a patch number says "fixes only", and this Wave adds new commands and new setup behavior. The gate blocks P1 Stage 4, and so the first commit of the Wave. It does not block the P1 work before that.
+- A (was recommended): 2.2.0, a minor release.
+- B (chosen): 2.1.1, a patch release.
+
+The owner's reason: this Wave is a patch for something that was deferred in order to ship 2.1.0 quickly. The design records it as OD-15. The digest file of this Wave is `.github/release-candidates/v2.1.1.sha256` (standing rule 10). This gate blocks nothing. P1 Stage 4 sets the version.
 
 **OG-9 (P7, always): Does the owner accept the Wave?**
 
@@ -449,22 +484,39 @@ The owner reads the Human Experience Review and the evidence report, and tries t
 - A: accept the Wave.
 - B: name what must change. The work returns to the phase that owns it.
 
-Recommendation: A when each acceptance case from A1 to A79 has recorded evidence or a named limit, and no finding is open. If not, B. The validating agent says which of the two holds when it brings the gate. P7 T13 brings the gate, so no P7 stage waits for it, and case A79 holds the stop. The gate blocks the Wave closeout and any release.
+Recommendation: A when each acceptance case from A1 to A79, with the cases A53a to A53f, has recorded evidence or a named limit, and no finding is open. If not, B. The validating agent says which of the two holds when it brings the gate. P7 T13 brings the gate, so no P7 stage waits for it, and case A79 holds the stop. The gate blocks the Wave closeout and any release.
 
-**OG-10 (P5, always): What are the exact new words of PRD 30 R-ADMIT-1?**
+**OG-10 (P5): What are the exact new words of PRD 30 R-ADMIT-1?** Answered on 2026-11-27.
 
-The owner approved the change to the PRD 28 sentence about hooks, with OD-1 and OD-10. The owner did not see a change to PRD 30. R-ADMIT-1 reads today: "a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status." Git is not an agent tool, so a git hook cannot meet "a real harness capability contract". PRD 30 R-BOUND-2 forbids a hook that did not pass R-ADMIT. So the approved git hooks cannot pass PRD 30 until these words change. No other PRD 30 requirement needs a change. See Facts Found While Planning.
+The owner approved the change to the PRD 28 sentence about hooks, with OD-1 and OD-10. R-ADMIT-1 reads today: "a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status." Git is not an agent tool, so a git hook cannot meet "a real harness capability contract". PRD 30 R-BOUND-2 forbids a hook that did not pass R-ADMIT. So the approved git hooks could not pass PRD 30 until these words changed.
 
-- A (recommended): approve this sentence. "R-ADMIT-1 (MUST): a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract or, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status."
-- B: the owner gives other words for R-ADMIT-1.
+The owner approved the PRD 30 changes that are needed, and chose the answer to OG-5. The design records this as OD-12. P5 lands these exact words:
 
-Why A: it keeps "a real harness capability contract", adds one clause, and admits only the git hooks that PRD 07 owns. A later host of another kind cannot pass with these words, so it needs a new owner decision. The orchestrator asks the owner before P5 Stage 4 starts. The gate blocks P5 Stage 4, where T16 writes the words. Nothing is written in PRD 30 before the owner answers.
+- PRD 30 R-ADMIT-1 becomes: "R-ADMIT-1 (MUST): a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract or, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status." The owner approved this sentence.
+- PRD 07 R-SETUP-CLI-10 gains: "For the git hooks, the machine preference is the explicit selection when it is on." Follows from D1; shown to the owner on 2026-11-27.
+- PRD 30 R-SELECT-1 gains: "The git hooks are installed only by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set." Follows from D1; shown to the owner on 2026-11-27.
+- The PRD 30 Acceptance Criteria line becomes: "Default setup, sync, and Skills selection create no plugin, extension, workflow-bundle, or generated package output, and no hook other than the git hooks that R-SELECT-1 admits." Follows from D1; shown to the owner on 2026-11-27.
+
+D1 is the owner's answer to OG-5, which the design records as OD-11. No other PRD 30 requirement changes. See Facts Found While Planning. This gate blocks nothing. P5 T16 writes the PRD 30 words, and P5 T17 writes the PRD 07 sentence.
 
 ## Intended Follow-On
 
 This handoff is advisory-default-but-overridable.
 
 - Route: `implementation-loop`
-- Next step: When the owner gives phase-start authority, ask owner gate OG-8 and start P1 in the work backlog. Each phase changes its PRDs as it builds, then passes an independent review before its commit.
+- Next step: When the owner gives phase-start authority, start P1 in the work backlog. The version is 2.1.1 (OG-8, answered). Each phase changes its PRDs as it builds, then passes an independent review before its commit.
 - Why: The work backlog exists beside this plan, and each PRD change lands in the phase that builds its behavior. See Lifecycle Departure.
 - Coordinate Handoff: Carry W35 R0 into the requirement-history entries, the phase history records, and docs/work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/.
+
+## Change History
+
+### 2026-11-27 — W35 R0
+
+- Kind: `edit`
+- Affected scope: owner gates OG-5, OG-7, OG-8, and OG-10; standing rules 10 and 11; P1 Stage 4; P5 Stage 2 and Stage 4; P6; P7.
+- Previous scope: OG-5, OG-7, OG-8, and OG-10 were open. The machine preference changed only the default answer of the offer. PRD 30 changed in R-ADMIT-1 only, with words that waited for the owner. P6 built a hook method only for an agent tool with proof, and could end after its first stage. The version was not chosen.
+- Replacement scope: the four gates are answered. A machine preference with the default "No" is the explicit selection for the git hooks when it is on, also in `setup --yes`, and the machine step of setup asks for it. PRD 30 R-ADMIT-1, R-SELECT-1, and its Acceptance Criteria line, and PRD 07 R-SETUP-CLI-10, change with fixed words. P6 records the hook contract of each of the three agent tools and builds a hook method for each one. The version is 2.1.1.
+- Rationale: the owner decided these points on 2026-11-27, after the first commit of this plan.
+- PRD decision: `update-existing` — PRD 07 R-SETUP-CLI-10, PRD 28 R-HARNESS-23, and PRD 30 R-ADMIT-1, R-SELECT-1, and its Acceptance Criteria line, each in its phase.
+- Owner approval: the owner's decisions of 2026-11-27, third round, which the design records as OD-11 to OD-15.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)

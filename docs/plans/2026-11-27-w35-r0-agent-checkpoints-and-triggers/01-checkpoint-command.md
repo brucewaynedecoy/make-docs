@@ -42,7 +42,7 @@ The path follows PRD 39 R-NAME-1 to R-NAME-4. The profile column is new in this 
 - The agent form: the work store reference in `packages/docs/template/` gains a "Checkpoint" section: when to run it, what it does, and what to do by hand with no CLI. Each checkpoint rule gets an ID from `WORK-RULE-055` on in the catalog `make-docs.work-store-rules.v1`. The dogfood copy is byte-identical.
 - PRD changes: PRD 52 (new R-WORK-CHECKPOINT, the Operations table, R-WORK-SYNC-9, R-WORK-STORE-6, R-WORK-QUEUE-11), PRD 39, PRD 25, PRD 06 R-WORK-RESOURCE-1, and PRD 04, each with a Requirement History entry where the contract changes.
 - Register: one risk for one project store with many branches and worktrees, and one for a trigger run that is the first sync of a checkout.
-- The version and the digest. Package bytes change in this phase, and the pull request check compares the package digest with `.github/release-candidates/v<version>.sha256`. Version 2.1.0 is released. So the last stage of this phase sets the version that the owner chose at owner gate OG-8 in `packages/cli/package.json` and `package-lock.json`, and records the first digest under standing rule 10. Every later phase commit that changes package bytes records the digest again.
+- The version and the digest. Package bytes change in this phase, and the pull request check compares the package digest with `.github/release-candidates/v<version>.sha256`. Version 2.1.0 is released. The owner chose version 2.1.1, a patch release, on 2026-11-27 (owner gate OG-8, answered). So the last stage of this phase sets version 2.1.1 in `packages/cli/package.json` and `package-lock.json`, and records the first digest in `.github/release-candidates/v2.1.1.sha256` under standing rule 10. Every later phase commit that changes package bytes records the digest again.
 
 ## Exclusions
 
@@ -55,7 +55,7 @@ The path follows PRD 39 R-NAME-1 to R-NAME-4. The profile column is new in this 
 
 - The name catalog test passes with the entry `current`, and PRD 39 and PRD 25 match the code.
 - The help of each of the two checkpoint commands names the other and says how they differ.
-- The package holds the version that the owner chose, and the digest file of that version matches the tarball of the phase commit.
+- The package holds version 2.1.1, and `.github/release-candidates/v2.1.1.sha256` matches the tarball of the phase commit.
 - CLI and MCP results match for a direct run and for each event name.
 - The six installed cases of the design pass: nothing due, files imported, a conflict, a claim that ended, no Store, and a folder that is not a Make Docs project.
 - A second run right after the first changes nothing and says that nothing is due.
@@ -74,4 +74,4 @@ The path follows PRD 39 R-NAME-1 to R-NAME-4. The profile column is new in this 
 
 - W29 R0, which is released.
 - Owner gate OG-1, only if no existing admission kind fits.
-- Owner gate OG-8, always. It blocks only the last stage, and so the first commit.
+- Owner gate OG-8 is answered: version 2.1.1. It blocks nothing.
