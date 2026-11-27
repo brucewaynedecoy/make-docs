@@ -179,6 +179,69 @@ export function checkOutcome(preview: WorkSyncPreview): WorkSyncOutcome {
 }
 
 /* ------------------------------------------------------------------------ */
+/* Files that wait for import (W35 R0 P2)                                   */
+/* ------------------------------------------------------------------------ */
+
+/** The checkpoint command and tool, as the read commands name them. `checkpoint.ts` holds the same command. */
+export const CHECKPOINT_STEP = "make-docs project checkpoint (MCP tool: project_checkpoint)";
+
+/** The end of the sync check line, as the sync core writes it for every caller. */
+const SYNC_CHECK_APPLY_SENTENCE = "The next work write command, or make-docs work sync, applies the changes.";
+
+/**
+ * The sync check of a read command. `work status` and `work next` name the
+ * checkpoint first, so their sync line names it too, and a person reads one
+ * answer. Only the text changes: the sync core and its check stay as they are.
+ */
+function readCommandCheckOutcome(preview: WorkSyncPreview): WorkSyncOutcome {
+  const outcome = checkOutcome(preview);
+  return { ...outcome, summary: outcome.summary.replace(SYNC_CHECK_APPLY_SENTENCE, `${CHECKPOINT_STEP} applies the changes.`) };
+}
+
+/**
+ * What a read-only sync check says about the files that the next checkpoint
+ * run would import (PRD 52 R-WORK-REMIND-2). A conflict and a file that waits
+ * for a write or a removal are not part of it.
+ */
+export interface WorkImportWait {
+  /** Work files that wait for import. */
+  files: string[];
+  /** The ones that the store holds no unit of, so no list can show their units. */
+  newFiles: string[];
+  /** True when the first sync of this checkout is not done. */
+  firstSyncWaits: boolean;
+}
+
+export function workImportWait(preview: WorkSyncPreview): WorkImportWait {
+  const waiting = preview.pending.filter((file) => file.decision === "import" && !file.recorded);
+  return {
+    files: waiting.map((file) => file.path),
+    newFiles: waiting.filter((file) => file.storeState === "none").map((file) => file.path),
+    firstSyncWaits: preview.firstImport,
+  };
+}
+
+/** The first line of a read command when work files wait for import. It names the checkpoint first. */
+export function workImportWaitLine(wait: WorkImportWait, effect: string): string | null {
+  if (wait.files.length === 0) return null;
+  return `${count(wait.files.length, "work file")} ${wait.files.length === 1 ? "waits" : "wait"} for import, so ${effect}. Run this first: ${CHECKPOINT_STEP}`;
+}
+
+/** The mark on a `work next` unit whose file waits for import. */
+export const WORK_OUT_OF_DATE_MARK = "[out of date: its file waits for import]";
+
+/** The line of `work next` when the store cannot hold every unit yet, or null when the list is complete. */
+export function workListNotCompleteLine(wait: WorkImportWait): string | null {
+  if (wait.firstSyncWaits) {
+    return `This list is not complete: this checkout has not synced yet, so the work store can lack its work files. Run: ${CHECKPOINT_STEP}`;
+  }
+  if (wait.newFiles.length > 0) {
+    return `This list is not complete: ${count(wait.newFiles.length, "new work file")} ${wait.newFiles.length === 1 ? "waits" : "wait"} for import, and the work store does not hold ${wait.newFiles.length === 1 ? "its" : "their"} units yet. Run: ${CHECKPOINT_STEP}`;
+  }
+  return null;
+}
+
+/* ------------------------------------------------------------------------ */
 /* Units by reference                                                       */
 /* ------------------------------------------------------------------------ */
 
@@ -323,6 +386,8 @@ export interface WorkStatusResult {
   tracker: { connection: string; operations: readonly string[] };
   counts: { units: number; open: number; ready: number; waiting: number; quickItems: number; claims: number } | null;
   sync: WorkSyncOutcome | null;
+  /** Work files that the next checkpoint run would import. Empty when the files are the authority. */
+  filesWaitingForImport: string[];
   lines: string[];
   summary: string;
 }
@@ -332,8 +397,15 @@ export function workStatus(root: string, env: WorkQueueEnv, authority: WorkAutho
   const lines: string[] = [authority.reason];
   let counts: WorkStatusResult["counts"] = null;
   let sync: WorkSyncOutcome | null = null;
+  let filesWaitingForImport: string[] = [];
   if (authority.mode === "store") {
-    sync = checkOutcome(previewWorkSync(root, { storeRoot: env.storeRoot, now: env.now }));
+    const preview = previewWorkSync(root, { storeRoot: env.storeRoot, now: env.now });
+    sync = readCommandCheckOutcome(preview);
+    // W35 R0 P2: when files wait for import, the checkpoint command comes first (PRD 52 R-WORK-SYNC-8).
+    const wait = workImportWait(preview);
+    filesWaitingForImport = wait.files;
+    const first = workImportWaitLine(wait, "the work store is out of date");
+    if (first) lines.unshift(first);
     const projectId = readDeclarativeProjectId(root) ?? "";
     const checkoutId = getExistingInstallationCheckoutId(root, env.storeRoot);
     counts = readWorkStore(root, (db) => {
@@ -378,6 +450,7 @@ export function workStatus(root: string, env: WorkQueueEnv, authority: WorkAutho
     tracker: { connection: WORK_LOCAL_TRACKER_CONNECTION.id, operations: WORK_LOCAL_TRACKER_CONNECTION.operations },
     counts,
     sync,
+    filesWaitingForImport,
     lines,
     summary: lines.join("\n"),
   };
@@ -414,12 +487,19 @@ function syncFirst(root: string, env: WorkQueueEnv): WorkSyncOutcome {
 /* next                                                                     */
 /* ------------------------------------------------------------------------ */
 
+/** A `work next` unit. `fileWaitsForImport` is true when its work file waits for import, so its line can be out of date. */
+export type WorkNextItem = WorkQueueItem & { fileWaitsForImport: boolean };
+
 export interface WorkNextResult {
   operation: "work.queue.next";
   level: WorkUnitKind;
   claimant: string | null;
-  ready: WorkQueueItem[];
-  waiting: WorkQueueItem[];
+  ready: WorkNextItem[];
+  waiting: WorkNextItem[];
+  /** Work files that the next checkpoint run would import. */
+  filesWaitingForImport: string[];
+  /** False when a new work file waits for import, or the first sync of this checkout is not done. */
+  listComplete: boolean;
   /** Phases with no status line that count as done because every task is checked (finding 7). */
   doneByFallback: WorkFallbackDone[];
   sync: WorkSyncOutcome;
@@ -432,23 +512,35 @@ export function workNext(
   env: WorkQueueEnv,
   query: { level: WorkUnitKind; includeQuickItems: boolean; claimant: string | null; limit: number | null },
 ): WorkNextResult {
-  const sync = checkOutcome(previewWorkSync(root, { storeRoot: env.storeRoot, now: env.now }));
+  const preview = previewWorkSync(root, { storeRoot: env.storeRoot, now: env.now });
+  const sync = readCommandCheckOutcome(preview);
+  const wait = workImportWait(preview);
+  const waitingFiles = new Set(wait.files);
+  const marked = (item: WorkQueueItem): WorkNextItem => ({ ...item, fileWaitsForImport: item.sourcePath !== null && waitingFiles.has(item.sourcePath) });
+  const mark = (item: WorkNextItem) => (item.fileWaitsForImport ? ` ${WORK_OUT_OF_DATE_MARK}` : "");
   const projectId = projectIdOf(root);
   const checkoutId = getExistingInstallationCheckoutId(root, env.storeRoot);
-  const result = readWorkStore(root, (db) => computeWorkReadiness({
+  const computed = readWorkStore(root, (db) => computeWorkReadiness({
     now: env.now,
     claimant: query.claimant,
     query: { level: query.level, includeQuickItems: query.includeQuickItems },
     ...queueState(db, projectId, checkoutId),
   }), { storeRoot: env.storeRoot });
+  const result = { ...computed, ready: computed.ready.map(marked), waiting: computed.waiting.map(marked) };
   const ready = query.limit === null ? result.ready : result.ready.slice(0, query.limit);
   const lines: string[] = [];
+  // W35 R0 P2: when files wait for import, the checkpoint command comes first,
+  // and one line says when the list cannot be complete (PRD 52 R-WORK-QUEUE-5).
+  const first = workImportWaitLine(wait, "this list can be out of date");
+  if (first) lines.push(first);
+  const notComplete = workListNotCompleteLine(wait);
+  if (notComplete) lines.push(notComplete);
   lines.push(
     result.ready.length === 0
       ? `No ${query.level} is ready.`
       : `Ready ${query.level === "quick-item" ? "quick items" : `${query.level}s`} (${result.ready.length}), in order. Read each unit's revision with --json, for --expected-version:`,
   );
-  for (const item of ready) lines.push(`  ${item.label}: ${item.title}${item.sourcePath ? ` (${item.sourcePath})` : ""}`);
+  for (const item of ready) lines.push(`  ${item.label}: ${item.title}${item.sourcePath ? ` (${item.sourcePath})` : ""}${mark(item)}`);
   if (ready.length < result.ready.length) lines.push(`  ... and ${result.ready.length - ready.length} more. Use --json for the full list.`);
   if (result.doneByFallback.length > 0) {
     const shown = result.doneByFallback.slice(0, 5).map((entry) => entry.coordinate).join(", ");
@@ -458,7 +550,7 @@ export function workNext(
   if (result.waiting.length > 0) {
     lines.push(`Waiting (${result.waiting.length}):`);
     for (const item of result.waiting) {
-      lines.push(`  ${item.label}: ${item.title}`);
+      lines.push(`  ${item.label}: ${item.title}${mark(item)}`);
       for (const reason of item.reasons) lines.push(`    - ${reason.text} Next: ${reason.nextAction}`);
     }
   }
@@ -470,6 +562,8 @@ export function workNext(
     claimant: query.claimant,
     ready,
     waiting: result.waiting,
+    filesWaitingForImport: wait.files,
+    listComplete: notComplete === null,
     doneByFallback: result.doneByFallback,
     sync,
     lines,

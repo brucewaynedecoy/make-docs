@@ -154,7 +154,9 @@ The checkpoint rules of the catalog `make-docs.work-store-rules.v1`:
 
 ### The Six Installed Cases (A14)
 
-These are the plain outputs of the built CLI, `node packages/cli/dist/index.js project checkpoint`, in real project folders with a temporary Store at a fixed path. `<temp>` stands for the temporary folder. The project was set up with `make-docs setup --target <temp>/aurora --yes --no-codex --no-claude-code --no-skills`. Each run ended with exit code 0. The fix pass ran every case again on the final code. The owner has not reviewed these outputs.
+These are the plain outputs of the built CLI, `node packages/cli/dist/index.js project checkpoint`, in real project folders with a temporary Store at a fixed path. `<temp>` stands for the temporary folder. The project was set up with `make-docs setup --target <temp>/aurora --yes --no-codex --no-claude-code --no-skills`. Each run ended with exit code 0. The fix pass ran every case again on the final code.
+
+Owner review, 2026-11-27: the owner reviewed the plain output of the six installed cases below. This answers acceptance case A14 of [P1](01-checkpoint-command.md).
 
 Case 1, nothing due. A direct run right after another direct run:
 
@@ -286,13 +288,15 @@ The failing case of review finding M1 is a test now. See "How it stays narrow" a
 - A read-only check names a file that Make Docs cannot read without its line, because the check does not keep the line. Its line says that a direct run of `make-docs project checkpoint` names the line. For a caller with read access only, it says that a caller with write access must do that run.
 - A read-only check and a trigger run do not try the write. So they name a file that sync cannot write as a file that waits for a write. The next direct run names it as not written.
 - No test starts the built CLI as an agent with a read-only access limit. See the limit under "The Operation On Its Surfaces".
-- Two runs at the same time can undo a close in the store, and the store does not fully recover. The first fix pass found this with a test that starts two built CLI processes at once. The cause: `syncWorkFiles` calls `scanWorkFiles` before `writeWorkStore`, so sync reads the work files before it takes the Store. In the test, the first run wrote a closed task to its file, and the second run imported the older file text and set the task back to open in the store. Both runs ended with exit code 0 and no conflict. A review on 2026-11-27 then proved the true effect with the built CLI. It closed a task with `make-docs work close "<unit>" --expected-version <n> --outcome cancelled` and started two `make-docs project checkpoint --json` runs at the same time. One run wrote the file, and the other imported that same file with its older text. The store showed the task as open. One more run gave a closed task with the outcome `done`. What is lost for good: the outcome `cancelled`, and the same happens with `superseded`, because a task line shows only that a task is closed. What is wrong until the next run: the unit shows as open and ready, so another agent can claim it. What recovers: the closed status, with the next run that imports the file. In the review, evidence rows and an in-progress status stayed, an older file scan with a missing file or a missing task stopped as a conflict, and notes and met gates were not checked. `make-docs work sync` in the released version 2.1.0 has the same fault, and it is older than the checkpoint. A trigger run imports, so each hook run that overlaps a run that writes a file can do this. This phase did not change the sync core. The fix is to move the file scan inside the Store write session and then to measure the sync time again. It is not built, and it waits for the owner's decision on where it goes. The [risk register](../../prd/03-open-questions-and-risk-register.md) holds the fault as R-041. No test fails on it: the test of this phase closes with the outcome `done` and also passes when the runs do not overlap.
+- Two runs at the same time can undo a close in the store, and the store does not fully recover. The first fix pass found this with a test that starts two built CLI processes at once. The cause: `syncWorkFiles` calls `scanWorkFiles` before `writeWorkStore`, so sync reads the work files before it takes the Store. In the test, the first run wrote a closed task to its file, and the second run imported the older file text and set the task back to open in the store. Both runs ended with exit code 0 and no conflict. A review on 2026-11-27 then proved the true effect with the built CLI. It closed a task with `make-docs work close "<unit>" --expected-version <n> --outcome cancelled` and started two `make-docs project checkpoint --json` runs at the same time. One run wrote the file, and the other imported that same file with its older text. The store showed the task as open. One more run gave a closed task with the outcome `done`. What is lost for good: the outcome `cancelled`, and the same happens with `superseded`, because a task line shows only that a task is closed. What is wrong until the next run: the unit shows as open and ready, so another agent can claim it. What recovers: the closed status, with the next run that imports the file. In the review, evidence rows and an in-progress status stayed, an older file scan with a missing file or a missing task stopped as a conflict, and notes and met gates were not checked. `make-docs work sync` in the released version 2.1.0 has the same fault, and it is older than the checkpoint. A trigger run imports, so each hook run that overlaps a run that writes a file can do this. This phase did not change the sync core. The fix is to move the file scan inside the Store write session and then to measure the sync time again. It is not built yet. The owner decided on 2026-11-27 to fix it in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed the fix in P4, before any hook installs: [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time), tasks T18 to T23. The [risk register](../../prd/03-open-questions-and-risk-register.md) holds the fault as R-041. No test fails on it: the test of this phase closes with the outcome `done` and also passes when the runs do not overlap.
 
 ### New Behavior That The Documents Did Not State
 
-The design, the plan, and the phase file do not state these 23 points. Each one is kept, because it is sound, and each one waits for the owner's review at the phase report. None is an owner decision.
+Owner review, 2026-11-27: the owner reviewed all 23 points of this list and keeps all 23 as built. Each point stays a build choice that the owner reviewed and kept.
 
-Two points need the owner's eyes first:
+The design, the plan, and the phase file do not state these 23 points. Each one was kept in the build, because it is sound.
+
+Two points were put first for the owner's review:
 
 1. A work file that Make Docs cannot read is not "due". So a trigger run with only such a file prints nothing, and a hook stays silent about a broken work file. A direct run names the file and its line, and its summary line gives the count. `make-docs work status` also reports it. The owner may want a hook to print in this case.
 2. PRD 52 R-WORK-QUEUE-13 gets an exception. That line says that every write needs an `expectedVersion` check. The checkpoint takes no expected version, and the line now names the checkpoint as its one exception. This changes a MUST line.
@@ -348,7 +352,7 @@ The second fix pass ran each check again on the final code. Every test and every
 - `make-docs check prd`: no diagnostics.
 - `make-docs project paths validate`: 0 findings.
 - `make-docs project markdown validate --path <file>` on each changed document: no findings on the design, the roadmap, the three plan files, the four backlog files, this report, PRD 04, PRD 06, PRD 52, and both copies of the work store reference. On PRD 03, PRD 25, and PRD 39 it reports findings only on lines that this phase did not change.
-- `make-docs backlog snapshot --target-root .`: exit code 0, and no diagnostic names W35.
+- `make-docs backlog snapshot --target-root .`: exit code 0, no diagnostic names W35, and standard error is empty. The snapshot counts 7 phases and 106 tasks for this backlog.
 
 ### Full Test Suite
 
@@ -365,9 +369,292 @@ Eleven test files hold a fixed list or count of every operation, tool, or regist
 ### Not Done
 
 - T18: the orchestrator recorded the digest file `.github/release-candidates/v2.1.1.sha256` on 2026-11-27 after the second review. The full suite then gave 3,813 passed and 2 failed, and the 2 are the known `mcp-app-contract` failures on Node 26.
-- A14: the owner has not reviewed the plain output of the six cases.
-- The owner has not reviewed the 23 points under "New Behavior That The Documents Did Not State".
+- A14: answered. The owner reviewed the plain output of the six cases on 2026-11-27.
+- The 23 points under "New Behavior That The Documents Did Not State": the owner reviewed them on 2026-11-27 and keeps all 23 as built.
 - No test starts the built CLI as an agent with a read-only access limit. See the limit under "The Operation On Its Surfaces".
-- The fix for the fault of two runs at the same time (R-041) is not built. It waits for the owner's decision on where it goes.
+- The fix for the fault of two runs at the same time (R-041) is not built. The owner decided on 2026-11-27 to fix it in this Wave, before the hooks ship, and the orchestrator placed it in [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time).
 - The limits under "Known Limits" stay.
 - The guides do not name the new command yet. [P7](07-acceptance.md) updates the guides.
+
+## P2 Reminder and Read Commands
+
+Covers A16 to A28 in [P2](02-reminder-and-read-commands.md), and the prepared part of A29. Evidence date: 2026-11-27. Branch: `docs/w35-store-authority-and-agent-reminders`, at `1a9c552c`, with the phase changes uncommitted. Node `v26.13.1`. CLI package version `2.1.1`.
+
+P2 is built and not marked complete. T1 to T15 are done. Owner gate OG-2 did not open. The owner has not reviewed the lines (A29) or the points of new behavior below. An independent review ran on 2026-11-27 and found three faults and four smaller points. A fix pass on the same day corrected them, and this section shows the state after that pass. The fix pass waits for its own review. The orchestrator records the package digest after the review, under standing rule 10.
+
+### P2 What Was Built
+
+- `packages/cli/src/operations/work/work-queue/reminder.ts` is new. It holds the reminder line, the rule for the reminder set, the check `workReminderFor`, and the one slot that keeps the CLI line.
+- `packages/cli/src/operations/registry.ts`: `invokeOperation` runs the check one time, after the handler returned and after the Store session of the command ended. The result of the call has the new field `reminder`. `listReminderOperationIds` builds the set from the registry.
+- `packages/cli/src/run/entry.ts`: the CLI entry prints the line on standard error after the command ended, one time, and only when the command ends with exit code 0.
+- `packages/cli/src/mcp/tools.ts`: a derived tool result carries the field `reminder`, which names the command and the tool. A tool with a fixed result schema carries none, and a result that is a refusal carries none.
+- `packages/cli/src/operations/work/backlog/store-snapshot.ts`: the store-mode snapshot gives its sync check to the reminder.
+- `packages/cli/src/operations/work/work-queue/queue.ts`: `work status` and `work next` name the checkpoint first, `work next` marks units and says when the list is not complete, and both results have new fields.
+- `packages/cli/src/operations/work/work-queue/project-resource.ts`: each `backlog` read by project URI carries the fixed sentence.
+- `packages/cli/src/operations/work/work-store/catalog.ts`: the rules `WORK-RULE-066` to `WORK-RULE-069`.
+- `packages/docs/template/.make-docs/system/references/work-store.md` and its byte-identical copy `.make-docs/system/references/work-store.md`: what the reminder line, the mark, the "This list is not complete" line, and the URI sentence mean, and what to do.
+- `packages/cli/src/operations/work/work-queue/queue.ts` also changes the end of the sync check line of `work status` and `work next`, where these two commands render it. The sync core still writes its own sentence for every other caller.
+- PRD 52 holds the new `### Reminder` section with R-WORK-REMIND-1 to R-WORK-REMIND-7, and changes to R-WORK-SYNC-8, R-WORK-QUEUE-5, and R-WORK-URI-3. PRD 39 holds the new R-RENDER-4 and R-RENDER-5 and the table of the reminder set. PRD 25 holds the new R-MCP-REMIND-1 and R-MCP-REMIND-2. Each PRD has a `W35 R0 P2` Requirement History entry. The [risk register](../../prd/03-open-questions-and-risk-register.md) holds the new question Q-027 and the new risk R-042. PRD 51 did not change.
+- `packages/cli/tests/w35-r0-p2-reminder.test.ts` is new, with 45 tests. `packages/cli/tests/w29-r0-p6-package-parity.test.ts` changed in one way: two expected sync check lines of `work next` now name the checkpoint. `packages/cli/tests/fixtures/work-store-contract.ts` holds the five new parity fixtures, and `packages/cli/tests/work-store-contract.test.ts` checks their shape. `packages/cli/tests/consistency.test.ts` holds Q-027 and R-042 in its fixed lists. `packages/cli/tests/w35-r0-p1-checkpoint-surfaces.test.ts` changed in one way: its two fixtures for "a rule ID that the catalog does not have" used `WORK-RULE-066`, which is a real rule now, so they use `WORK-RULE-999`.
+- The `PERF-006` profile and result are in the [phase file](02-reminder-and-read-commands.md#performance-evidence), with the [harness](evidence/p2/performance/perf-006-harness.mjs) and the [results](evidence/p2/performance/perf-006-results.json).
+
+This phase did not change the sync core, `packages/cli/src/operations/work/work-store/sync.ts`. It did not change any file in `.github/release-candidates/`.
+
+### The Reminder Set (T1, A18)
+
+A test builds the set from the registry: each active operation with Store access and project access in its declared access, without `work.queue.status`, `work.queue.next`, `work.queue.sync`, and `project.checkpoint.run`. The registry holds 76 operations now, with the checkpoint of P1. 55 declare Store access. Four of those declare no project access, and four are excluded. The set has 47 operations, and six of them sync first. How the snapshot is counted: `work.backlog.snapshot` is one of the 47 and one of the 41 that do not sync first. It runs no reminder check of its own, and it shows the reminder only with `--work-store`. So 46 operations run the check on each run: 40 that do not sync first, and the six that do. The test compares the set with the table of PRD 39 R-RENDER-5, and it fails on a missing row, a row that the registry does not have, a wrong CLI path, a wrong "Syncs first" cell, and a wrong "Shows the reminder" cell. One more test reads the source and finds that exactly the six functions `workAdd`, `workClaim`, `workClose`, `workExport`, `workRelease`, and `workReport` call `syncFirst`.
+
+### T2 Finding: The MCP Path Of Each Changed Tool (A22)
+
+`formatMcpToolResult` in `packages/cli/src/mcp/server.ts` has two paths. A tool whose operation declares `mcpResultSchema` goes through its fixed schema. Every other tool goes through the plain path: the result object is sent as JSON text in `content` and as `structuredContent`.
+
+- Two operations declare `mcpResultSchema`: `backlog.review.open` and `backlog.review.refresh`. A test lists them from the registry. Only `backlog.review.refresh` is in the reminder set. Its MCP tool result carries no reminder, and it still passes its schema. Its operation still finds the waiting file, and its CLI command prints the line. `backlog.review.open` declares no Store access, so it is not in the set.
+- The other 46 tools of the set take the plain path. Their result object gains the field `reminder`, after the field `result`, only when the reminder applies and the result is not a refusal. `backlog_snapshot` is one of the 46, and it gains the field only with `workStore: true`.
+- `work_status` and `work_next` take the plain path. They are not in the set. Their own `lines` and `summary` fields name the `project_checkpoint` tool.
+- This phase added no reminder to a tool with a fixed schema, so it needed no proof for that.
+
+### The Reminder Check (T3, A16, A17, A20, A21)
+
+How the check works, in order: it stops unless the operation is in the set and is the outermost operation of the call. For the backlog snapshot, it stops with no Store read unless the snapshot ran the sync check itself. It stops unless the target folder is a Make Docs project. For an operation with `optional` or `handler` Store admission, it runs the caller access check for a Store read and a project read, and stops when the caller does not have them. It runs the authority rule of `work status`, and stops when the work store is not in charge. Then it runs `previewWorkSync`, the read-only sync check of `work status` and `work next`, and gives the line when at least one file waits for import. Any error gives no line.
+
+- A16: a test runs the real operation runner for each of the 40 operations that do not sync first and run the check on each run, with one work file that waits for import. Each one gives the line. The same test runs the backlog snapshot, the 41st: with a handler that does nothing and with its real handler by default it gives no line, and with its real handler and the work store option it gives the line, with no reminder check of its own. The test puts a handler that does nothing in the place of each real handler, so that it needs no input and no state for 40 different commands. The ID, the declared access, the Store admission, and the runner are the real ones. Five more tests run all 47 operations in each of these states, and none gives the line: nothing waits, only a conflict waits, only a file waits for a write, the work store is not in charge, and no Store exists. The check wrote no project file in any state, and it created no Store where none was. A unit test proves that a file that waits for a removal, a recorded conflict, an import that a recorded conflict holds, and a file that Make Docs cannot read do not count. One more test proves that a changed work file under a sync hold counts: the line shows, the checkpoint imports the file, and a held file that waits for a write does not count.
+- A17: a test runs the six real commands that sync first, each on a store where one work file waited for import before the run. Each result shows that its own sync imported the file, no result has a reminder, and the store holds the new text after the run. In the same test, the check function alone gives the line before each run. So the test fails for a check that runs before the operation. A test with the built CLI shows the same for `make-docs work add`.
+- A18: each of the 29 active operations outside the set gives no line with a waiting file. The real `work status`, `work next`, `work sync`, and checkpoint print nothing on standard error. `--help` of three commands of the set prints no line. A command whose operation returns a refusal ends with exit code 1 and prints no line.
+- A20: after a direct checkpoint run, and after a trigger run, with write access, the next command shows no reminder. After a checkpoint run with read access only, the next command still shows it. After a checkpoint run that stopped one file as a conflict, the next command shows no reminder.
+- A21: a forced error inside the check leaves standard output byte-identical, standard error empty, and the exit code 0. A Store that cannot be read at check time gives no line and creates no folder.
+- Access: an agent route with no proved identity gets no check and no line for an operation with `optional` or `handler` admission. The registry refuses a `required` operation for that caller before its handler runs, so no check runs.
+- Reuse: `backlog snapshot --work-store` ran the sync check one time, and the reminder ran no second check. `PERF-006` shows the same: about 20 ms added in place of about 190 ms. The default `backlog snapshot`, with no `--work-store`, reads only the files, runs no sync check, and gets no reminder and no reminder check. A test puts a counting check in the place of the sync check and finds zero calls. So PRD 51 R-BACKLOG-SNAPSHOT-24, "By default it reads no Store state", holds. With `--work-store` in a project where the files are the authority, the snapshot runs no sync check and gives no line.
+
+Limit of A16: the 40 commands were not each run with their own real handler. The check runs in the runner after any handler, and it does not read the result of the handler. Real handlers ran for `project state status`, `project list`, `lifecycle list`, `backlog snapshot`, `backlog review refresh`, `factory status`, `factory workflow show`, the six commands that sync first, and the seven commands of `PERF-006`. These are 15 commands of the set.
+
+### The CLI Line And The MCP Field (T4, T5, A19, A22)
+
+- A19: for `project state status`, `project list`, and `lifecycle list` with `--json`, standard output is byte-identical with the reminder and with a check that finds nothing. The line is on standard error one time. The built CLI gives the same for plain output.
+- One command run prints at most one line, also when it runs two operations of the set. `setup`, `mcp`, `update`, and `uninstall` print none. The line shows only when the command ends with exit code 0. A command that throws prints its error and no reminder. A command whose operation returns a refusal prints its result, ends with exit code 1, and prints no reminder: the CLI entry reads the exit code after the command and prints the line only when the code is 0 or not set.
+- A22: with a real setup, a real connection key, and a real MCP client over an in-memory transport, the result of `project_state_status` holds the reminder in `structuredContent.reminder` and in the JSON text of `content`. The field names the command and the tool: `Work files wait for sync. Run: make-docs project checkpoint (MCP tool: project_checkpoint)`. With nothing waiting, the field is absent. The result of `factory_workflow_show` for a workflow that does not exist is a refusal, and it holds no reminder field, while `factory_status` in the same state holds it. The field `result` is the same in both cases. `backlog_review_refresh` passes its schema and holds no reminder text, although its operation found the waiting file.
+
+### The Read Commands And The Project URI Read (T6 to T8, A23 to A26)
+
+- A23: with one changed work file, the first line of `work status` and of `work next` names `make-docs project checkpoint` and the `project_checkpoint` tool. The sync check line near the end names the same command and tool, and the result names no other command for the sync. In `work next`, each unit of that file has the mark, at the levels phase, stage, and task, and units of other files have none.
+- A24: with a new work file that the store does not hold, and in a checkout whose first sync is not done, `work next` says in exactly one line that the list is not complete, and the result has `listComplete: false`.
+- A25: in each of these cases, the store records and every project file are the same before and after `work status` and `work next`.
+- A26: each `backlog` read by project URI carries the fixed sentence one time, after the sentence about sync conflicts. The source of the read names no sync function, and the read opens the Store read only. The Store records and the files do not change.
+
+Limit of A26: the sentence is on `backlog` reads only. A `tasks` read and a `factory` read carry none. The phase file says "each project URI read". See point 1 under "P2 New Behavior That The Documents Did Not State".
+
+### The Lines For The Owner (A29)
+
+These are real outputs of the built CLI, `node packages/cli/dist/index.js`, in a project folder with a temporary Store at a fixed path. The project was set up with `make-docs setup --target <temp>/aurora --yes --no-codex --no-claude-code --no-skills`. The owner has not reviewed these lines. The fix pass of 2026-11-27 ran each `work next` and `work status` case again with the final code, because their sync check line changed.
+
+The reminder line, on standard error, after `make-docs project state status --json` with one changed work file and one new work file. The exit code was 0, and standard output held only the JSON result:
+
+```text
+Work files wait for sync. Run: make-docs project checkpoint
+```
+
+`make-docs work next` in the same state. It shows the first line, the "not complete" line, and one marked unit:
+
+```text
+2 work files wait for import, so this list can be out of date. Run this first: make-docs project checkpoint (MCP tool: project_checkpoint)
+This list is not complete: 1 new work file waits for import, and the work store does not hold its units yet. Run: make-docs project checkpoint (MCP tool: project_checkpoint)
+Ready phases (2), in order. Read each unit's revision with --json, for --expected-version:
+  W1 R0 P1: Phase 1: First (docs/work/2042-06-01-w1-r0-aurora/01-first.md) [out of date: its file waits for import]
+  W1 R0 P2: Phase 2: Second (docs/work/2042-06-01-w1-r0-aurora/02-second.md)
+Sync check: 2 files to import. make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes.
+Changes nothing.
+```
+
+`make-docs work next --level task` in the same state:
+
+```text
+2 work files wait for import, so this list can be out of date. Run this first: make-docs project checkpoint (MCP tool: project_checkpoint)
+This list is not complete: 1 new work file waits for import, and the work store does not hold its units yet. Run: make-docs project checkpoint (MCP tool: project_checkpoint)
+Ready tasks (3), in order. Read each unit's revision with --json, for --expected-version:
+  W1 R0 P1 T1: Build the parser. (docs/work/2042-06-01-w1-r0-aurora/01-first.md) [out of date: its file waits for import]
+  W1 R0 P1 T2: Write the writer. (docs/work/2042-06-01-w1-r0-aurora/01-first.md) [out of date: its file waits for import]
+  W1 R0 P2 T1: Ship it. (docs/work/2042-06-01-w1-r0-aurora/02-second.md)
+Sync check: 2 files to import. make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes.
+Changes nothing.
+```
+
+`make-docs work status` in the same state:
+
+```text
+2 work files wait for import, so the work store is out of date. Run this first: make-docs project checkpoint (MCP tool: project_checkpoint)
+The work store is the authority, because this checkout is bound to a usable Store. The docs/work/ files are its repo copy.
+Repo copies are on: sync keeps the docs/work/ files and the store the same.
+9 open units: 8 ready, 1 waiting. 0 quick items. 0 live claims.
+Sync check: 2 files to import. make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes.
+Changes nothing.
+```
+
+`make-docs work next` in a checkout whose first sync is not done:
+
+```text
+3 work files wait for import, so this list can be out of date. Run this first: make-docs project checkpoint (MCP tool: project_checkpoint)
+This list is not complete: this checkout has not synced yet, so the work store can lack its work files. Run: make-docs project checkpoint (MCP tool: project_checkpoint)
+No phase is ready.
+This checkout has not synced yet. The first work write command imports every backlog and writes no file. Sync check: 3 files to import. make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes.
+Changes nothing.
+```
+
+`make-docs work add "A quick item"` in the state with two waiting files printed nothing on standard error, and its result showed that its own sync imported both files. The next `make-docs project state status` printed no reminder.
+
+The end of `make-docs resource read make-docs://project/aurora/backlog/W1/R0/`:
+
+```text
+Sync conflicts belong to one checkout, so this read does not show them. Run make-docs work next in a checkout to see them.
+This read does not know whether work files wait for sync in a checkout. Run make-docs project checkpoint in a checkout to find out.
+Changes nothing.
+```
+
+The reminder field of an MCP tool result, from `project_state_status` in a test with a real MCP client:
+
+```text
+Work files wait for sync. Run: make-docs project checkpoint (MCP tool: project_checkpoint)
+```
+
+A terminal shows these plain lines. When standard output is not a terminal, `work next` and `work status` print the full JSON result, and the lines above are its `summary` field.
+
+### Run Of PERF-006 (T9 to T11, A27)
+
+The [phase file](02-reminder-and-read-commands.md#perf-006-the-reminder-check-on-commands-with-store-read-access) is the one record of the profile and of result `PERF-006-R1`. The profile was written, with its digest, before the three counted runs. In plain lines:
+
+- The machine: the maintainer machine, macOS 27.2.1 arm64, Apple M2 Pro, 10 cores, 16 GiB, Node `v26.13.1`.
+- The method: the method of `PERF-004`. The packed candidate was installed two times in temporary folders. The second install had the check taken out: `workReminderFor` returns null in its first statement. Each of three runs used a fresh clone of this repository and a fresh temporary Store, and five rounds of each command, state, and build. So each number is the median of 15 samples.
+- The work files: 471 work files and 4,382 store units.
+- The CLI floor, `make-docs --version`: 86 ms to 87 ms.
+- A command that does not sync first: the check adds 189 ms to 196 ms. For example, `project state status` takes 124 ms with no check and 317 ms with the check. `lifecycle list`, `factory status`, `work evidence read`, and `resource ensure --dry-run` give the same picture.
+- `backlog snapshot --work-store`: the check adds about 20 ms (3,082 ms and 3,101 ms). The reminder reused the sync check of the snapshot. The command did not pay for the check two times.
+- `work add`, which syncs first: the check adds about 160 ms (412 ms and 570 ms with nothing waiting, 498 ms and 658 ms with one waiting file). The run with a waiting file also measures the command's own sync, which imports the file.
+- The largest added time: 196 ms.
+- OG-2: the gate did not open. It opens only above 1 second.
+- "Fast path: not now" of 2026-11-23: the result gives no reason to change it. The cost of the exact check is now on the 46 commands of the set that run it, and not only on the work commands. Register entry Q-027 holds the question and says to look again at about 900 work files, or when a person reports a slow command.
+- Limits: one machine, one repository, a warm file cache, one waiting file, and 7 of the 47 commands. `backlog review refresh` was not measured, because it needs the session data of a review app. The default `backlog snapshot` was not measured. After the fix pass it runs no reminder check, and the profile exclusions say so. That sentence was added to the profile after the run, so the source digest of the profile changed. The budget ledger records it. The fix pass changed the reminder check in one branch, for a backlog snapshot that ran no sync check, and `PERF-006` was not rerun. The ledger gives the reason, and the reviewer and the owner decide whether it holds.
+- One trial run of the harness, with 1 run and 1 round, ran before the counted runs and is not part of the result.
+
+`make-docs check performance-evidence` reports `PERF-006` as valid and no diagnostic for the phase file. The check as a whole still reports `failed`, because of the older `PERF-001` records and of warnings in other files. That was the same before this phase.
+
+### Rule IDs And The Agent Form (T12, A28)
+
+| Rule ID | Rule | PRD 52 requirement |
+| --- | --- | --- |
+| `WORK-RULE-066` | Files that wait for import come first: the first line of the read commands, and the reminder line. | R-WORK-SYNC-8, R-WORK-REMIND-1, R-WORK-REMIND-2 |
+| `WORK-RULE-067` | `work next` marks a unit whose file waits for import. | R-WORK-QUEUE-5 |
+| `WORK-RULE-068` | `work next` says when the list is not complete. | R-WORK-QUEUE-5 |
+| `WORK-RULE-069` | A project URI read does not know what waits for sync. | R-WORK-URI-3 |
+
+- The fix pass changed the text of `WORK-RULE-066` in the catalog and in both copies of the reference: the line shows only for exit code 0, the MCP field names the tool, a changed file on the sync hold list counts, and the backlog snapshot shows the line only with `--work-store`. No rule ID changed.
+- Each rule ID sits in its section of the work store reference: `Sync`, `Readiness`, and `Project URIs`. The twin rule ID test passes. It fails on a rule ID in the catalog only, on one in the reference only, and on a rule outside its section.
+- The template reference and the installed reference are byte-identical.
+- The reference says that without the CLI or a usable Store no reminder, no mark, and no "not complete" line appears, because no store can be behind the files.
+- Each rule has a parity fixture, `WSF-084` to `WSF-088`, of the new kind `read-wait-scenario`. A test runs each fixture through the real `work next`, `work status`, and project URI read, and compares the answer.
+
+### The Failing Cases Of The P2 Review, Run Again
+
+The fix pass ran the failing cases of the review of 2026-11-27 again with the built CLI, `node packages/cli/dist/index.js`, in a project folder with a temporary Store at a fixed path. One work file was changed and one was new, so two files waited for import.
+
+M1, a command that fails. `make-docs factory workflow show x --json` for a workflow that does not exist: the result was `refused` with the refusal `record-not-found`, the exit code was 1, and standard error was empty. Before the fix pass, standard error held the reminder line. `make-docs project state status --json` in the same state ended with exit code 0, and standard error held:
+
+```text
+Work files wait for sync. Run: make-docs project checkpoint
+```
+
+M2, the default snapshot. `make-docs backlog snapshot --target-root .` ended with exit code 0, and standard error was empty. `make-docs backlog snapshot --target-root . --work-store` in the same state ended with exit code 0, and standard error held the reminder line. A test also proves that the default snapshot runs no reminder check.
+
+For the owner, on M2: the reviewer named a second option, to keep the reminder on the default snapshot and to change PRD 51. The fix pass did not take it, because PRD 51 is the standing authority and the owner approved no change to it. That option stays possible if the owner asks for it.
+
+M3, a held file. With the folder of the backlog on `work.syncHold` and one changed work file in it, `make-docs work status` said this:
+
+```text
+1 work file waits for import, so the work store is out of date. Run this first: make-docs project checkpoint (MCP tool: project_checkpoint)
+The work store is the authority, because this checkout is bound to a usable Store. The docs/work/ files are its repo copy.
+Repo copies are on: sync keeps the docs/work/ files and the store the same.
+8 open units: 7 ready, 1 waiting. 1 quick item. 0 live claims.
+Sync check: 1 file to import. make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes.
+Sync never writes these held paths: docs/work/2042-06-01-w1-r0-aurora.
+Changes nothing.
+```
+
+`make-docs project state status` printed the reminder line on standard error. `make-docs project checkpoint` then said "Checkpoint: 1 file imported." and named the file, and the next `make-docs project state status` printed no reminder. So a hold stops only a write and a removal, and PRD 52 R-WORK-REMIND-2 now says "a held file that waits for a write or a removal". The agent form, the rule text, and the design did not hold the wrong statement.
+
+The smaller points of the review:
+
+- S1: the sync check line of `work next` and `work status` names the checkpoint. The outputs under "The Lines For The Owner" show it.
+- S2: the gate tables of the [index](00-index.md#owner-gates) and of the [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#owner-decisions) state the `PERF-006` result for OG-2.
+- S3: the MCP `reminder` field names the command and the `project_checkpoint` tool.
+- S4: the `PERF-006` profile exclusions say that the default `backlog snapshot` was not measured and runs no check.
+
+### P2 Known Limits
+
+Each of the first three limits can only miss a line. None can show a false line or change a result.
+
+- A work file with no read permission: a command of the set prints no reminder line and ends with exit code 0, and the error inside the check is dropped. The fix pass proved it with the built CLI. The next step for a person: `make-docs work status` or `make-docs project checkpoint`. Each one ends with an error that names the file.
+- `make-docs backlog review refresh` checks the folder where the command runs, and not the folder in its envelope. When the two differ, the line can be missing.
+- One CLI run that runs two outer operations keeps only the result of the last one. When the first one found a waiting file and the last one found none, the line is missing.
+- Not from this phase: `make-docs work add "x" --dry-run` takes the flag, ignores it, and writes the Store. The fix pass proved it with the built CLI and a temporary Store: the result said "Added task 1: x.", and `make-docs work next --level quick-item` then listed the item. The help of the command does not list `--dry-run`. Only `work add` was checked. This phase did not fix it. [Register entry R-042](../../prd/03-open-questions-and-risk-register.md) holds it.
+- From a subfolder of a project, such as `docs/`, a command of the set shows no reminder. See "P2 Not Done".
+
+### P2 New Behavior That The Documents Did Not State
+
+The design, the plan, and the phase file do not state these 22 points. Each one waits for the owner's review. None is an owner decision. The fix pass of 2026-11-27 changed points 3, 7, 9, and 19 and added point 22. Each of those points says so.
+
+Three points need the owner's eyes first:
+
+1. The fixed sentence is on `backlog` reads by project URI only. A `tasks` read and a `factory` read carry none. The phase file says "each project URI read" (A26). The reasons: quick items and factory records come from no work file, so no file can wait for sync for them. PRD 52 R-WORK-URI-7 says that a `tasks` read and the file of `work export --quick` come from one renderer, so the sentence would also go into that file. PRD 53 owns the `factory` reads. PRD 52 R-WORK-URI-3 states this rule now. The owner can ask for the sentence on every read.
+2. The six commands that sync first pay for the check too, about 160 ms each, after their own sync. The phase file keeps them in the set. After a good sync nothing waits, so the check finds a file only when a work file changed while the command ran. The owner can take these six out of the set to save the time.
+3. Changed by the fix pass. The backlog snapshot is counted in the reminder set and runs no reminder check of its own. The default `make-docs backlog snapshot`, with no `--work-store`, shows no reminder and reads no Store state, as before this phase and as PRD 51 R-BACKLOG-SNAPSHOT-24 says. With `--work-store` it shows the reminder from the sync check that it ran itself. With `--work-store` in a project where the files are the authority, it shows none. The first build ran the access check, the authority rule, and the sync check after the default snapshot. The review found that this broke PRD 51, and the fix pass took it out. New here: one command of the set shows the reminder only with an option. The reviewer's second option, to change PRD 51, was not taken.
+
+The other points:
+
+4. `setup` prints no reminder, also when it runs a registry operation of the set inside, such as the checkout registration. The design lists `mcp`, `update`, and `uninstall`, and not `setup`.
+5. An operation that runs inside another operation leaves the reminder to the outermost one. `backlog review refresh` runs the snapshot and the cache lookup inside it, so one check runs and not three.
+6. The reminder reuses a sync check only for a read-only command. A write command can change the state after such a check, so it always runs its own.
+7. Changed by the fix pass. The reminder shows only when the command ends with exit code 0. A command that throws shows none, because the check runs only after the handler returned. A command whose operation returns a refusal shows none, because the CLI entry reads the exit code after the command. For such a command the check still runs, and its result is not shown. In the first build such a command printed the line.
+8. In an MCP result the field is named `reminder`. It stands beside the field `result`, and it is absent when no reminder applies. The canonical operation result does not change.
+9. Changed by the fix pass. The MCP reminder field holds the CLI command and the tool name: `Work files wait for sync. Run: make-docs project checkpoint (MCP tool: project_checkpoint)`. So the MCP field and the CLI line differ in their last words. The first build held the CLI command only, and an agent with MCP only cannot run a command. The `project_checkpoint` tool is in the profiles `backlog`, `workflow`, and `all` only, and a tool of the set can be in another profile. So a caller can still read the name of a tool that its profile does not hold.
+10. The first line of `work status` and `work next` has this form: "<n> work files wait for import, so <effect>. Run this first: make-docs project checkpoint (MCP tool: project_checkpoint)". It gives the count of files. It is not the reminder line.
+11. The mark is the text `[out of date: its file waits for import]` at the end of the unit's line, in the ready list and in the waiting list. In the JSON result each unit has the field `fileWaitsForImport`.
+12. The results of `work next` have the new fields `filesWaitingForImport` and `listComplete`. The result of `work status` has the new field `filesWaitingForImport`.
+13. "A new work file" means a file that waits for import and that the store holds no unit of. A moved file whose units the store holds under another path can count as new.
+14. When the first sync of a checkout is not done, the "not complete" line gives that reason and not the count of new files.
+15. The reminder does not count an import that a recorded conflict holds. That file waits for a person.
+16. The check does not apply the import guards, as `work status` does not. So the line can show for a file that the real sync then stops as a conflict. After that sync the conflict is recorded, and the line is gone.
+17. The reminder shows on a command with `--dry-run` too, because the check reads only.
+18. The reminder also runs for a call with no CLI or MCP surface, such as a test. Such a call holds no line for the CLI.
+19. Changed by the fix pass. The sync check line of `work next` and `work status` ends with "make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes." So one result names one command. The `sync.summary` field of both results holds the same text. The sync core did not change: `work status` and `work next` replace the end of the sentence where they render it. Every other result that holds the sync check line, such as the store-mode snapshot, keeps the sentence of the sync core, "The next work write command, or make-docs work sync, applies the changes." The first sync line still says "The first work write command imports every backlog and writes no file." before it names the checkpoint.
+20. The rule for the reminder has no rule ID of its own. `WORK-RULE-066` covers the first line of the read commands and the reminder line together, because the rule catalog can name only the work commands, the resource read, and the checkpoint as the CLI form of a rule.
+21. The `PERF-006` run with no check is made by a change of the installed package in a temporary folder, not by a product setting. Make Docs has no switch that turns the reminder off.
+22. Added by the fix pass. For an MCP tool result, "a refusal" means a result with `result: "refused"` or `accepted: false`. These are the two forms for which the CLI ends a work or factory command with exit code 1. The MCP rule applies them to every tool of the set. The CLI also ends some commands with another exit code for other results, such as a `project layout` result with the status `blocked`. Such a result prints no reminder in the CLI, and its MCP tool result can still carry the field. So the CLI and MCP differ in that case.
+
+### P2 Checks
+
+The fix pass of 2026-11-27 ran each check again on the final code, and these are its results. Every test and every CLI run used a temporary Store at a fixed path under `/private/tmp`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store.
+
+- `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- `npx vitest run tests/w35-r0-p2-reminder.test.ts`: 45 tests pass.
+- The two P1 test files, the registry contract test, the consistency test, the work store contract test, the W29 package parity test, the name catalog test, and the shipped-text test, with the P2 test file: 278 tests pass in 9 files.
+- `npm test -w packages/cli -- --testTimeout=120000`, on the final code, with `TMPDIR` set to a short folder under `/private/tmp`: 3,858 tests pass, 2 fail, and 6 are skipped, in 161 test files. The 2 are `tests/mcp-app-contract.test.ts` "gives a typed chat fallback for an unproved transport" and "opens the same factory and resource over real stdio". They fail on Node 26. Known, and not from this phase. `tests/backup.test.ts` and `tests/uninstall.test.ts` pass with the short `TMPDIR`. An earlier run with a longer `TMPDIR` showed their known failures.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `make-docs check prd`: passed, no diagnostics.
+- `make-docs check performance-evidence`: `PERF-006` is `valid`, with the result outcome `pass`. No error names a W35 file. Three warnings of the kind `PERF-VAL-014` name W35 files. Two are on lines that existed before this phase. One is on the closeout line of this phase file about owner gate OG-2, which names the 1 second line of the gate. The warning asks only for a review by hand. The check as a whole reports `failed`, with 17 errors in older records, as before this phase.
+- `make-docs project paths validate`: 0 failing findings.
+- `make-docs project markdown validate --path <file>` on each changed document: no findings on PRD 52, the design, the three changed plan files, the index, the phase files of P1, P2, and P4, this report, and both copies of the work store reference. On PRD 03, PRD 25, and PRD 39 it reports findings only on lines that this phase did not change.
+- `make-docs backlog snapshot --target-root .`: exit code 0, and no diagnostic names W35.
+
+### P2 Not Done
+
+- A29: the owner has not reviewed the lines.
+- The owner has not reviewed the 22 points under "P2 New Behavior That The Documents Did Not State".
+- The fix pass of 2026-11-27 has no independent review yet.
+- `PERF-006` was not rerun after the fix pass. See the budget ledger of the [phase file](02-reminder-and-read-commands.md#budget-ledger).
+- The package digest is not recorded again. The orchestrator does that after the review, under standing rule 10. This phase changed package bytes, so the recorded digest is stale.
+- 40 of the 47 commands of the set were not measured, and 40 commands were tested through the real runner with a handler that does nothing. See the limit of A16.
+- No test starts the built CLI as an agent with a read-only access limit. The limit of P1 stays.
+- From a subfolder of a project, such as `docs/`, a command of the set shows no reminder, because the check looks at the folder that the command names and does not search parent folders. The checkpoint has the same limit, which P1 recorded.
+- The guides do not name the reminder yet. [P7](07-acceptance.md) updates the guides.
+- The fault of register entry R-041 stays. This phase did not change the sync core. The owner decided on 2026-11-27 to fix it in this Wave, before the hooks ship, and the orchestrator placed the fix in [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time).
+- The fault of register entry R-042, `make-docs work add` with `--dry-run`, is not fixed. No task holds it.
+- The limits under "P2 Known Limits" stay.

@@ -367,6 +367,13 @@ describe("W29 R0 P1 fixture matrix", () => {
           expect(fixture.expected.nothingDue, fixture.id).toBe(due === 0);
           break;
         }
+        case "read-wait-scenario": {
+          // W35 R0 P2: the checkpoint comes first exactly when a file waits, and a read never changes anything.
+          if (!fixture.expected.uriSentence) expect(fixture.expected.checkpointFirst, fixture.id).toBe(fixture.expected.filesWaiting > 0);
+          if (fixture.expected.markedPhases.length > 0) expect(fixture.expected.filesWaiting, fixture.id).toBeGreaterThan(0);
+          expect(fixture.expected.changed, fixture.id).toBe(false);
+          break;
+        }
         case "sync-scenario": {
           expect(WORK_SYNC_SCENARIOS, fixture.id).toContain(fixture.input.scenario);
           if (fixture.expected.conflictKind !== null) {

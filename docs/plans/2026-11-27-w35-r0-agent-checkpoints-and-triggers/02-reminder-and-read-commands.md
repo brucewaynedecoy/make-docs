@@ -34,9 +34,9 @@ Each command with Store read access runs one check after its own operation ends,
 - No reminder on: `--help`, `mcp`, `update`, `uninstall`, `work status`, `work next`, `work sync`, the checkpoint itself, any operation with no Store read in its declared access, and the four operations with Store access and no project access (`setup.store.check`, `setup.store.clean`, `factory.tools.save`, and `factory.tools.list`). The last group is new in this plan.
 - The check runs after the operation, on the state that the operation left. It never runs before the operation. Six operations of the set sync first, through `syncFirst` in `packages/cli/src/operations/work/work-queue/queue.ts`: the queue operations `claim`, `release`, `report`, `close`, `add`, and `export`. Such a command imports the waiting files itself, so it shows no line after a good sync. The other 41 do not sync, so they show the line.
 - The check is the exact check of OD-6 option A: the read-only sync check that `work status` and `work next` run today. It runs the authority rule first and stops with no line when the work store is not in charge. It counts only files that the next checkpoint run would import. It does not count a conflict or a file that waits for a write or a removal.
-- `work.backlog.snapshot` already runs the same sync check in store mode (`previewWorkSync` in `packages/cli/src/operations/work/backlog/store-snapshot.ts`). The reminder reuses that result there, or `PERF-006` records the cost of the second check.
+- `work.backlog.snapshot` already runs the same sync check in store mode (`previewWorkSync` in `packages/cli/src/operations/work/backlog/store-snapshot.ts`). The reminder reuses that result there, or `PERF-006` records the cost of the second check. The default snapshot, with no `--work-store`, runs no reminder check and shows no reminder, because [PRD 51](../../prd/51-backlog-review-and-reporting.md) R-BACKLOG-SNAPSHOT-24 says that it reads no Store state by default. A review found this on 2026-11-27, and the fix pass of P2 built it. So 46 of the 47 operations run the check on each run.
 - The check never opens a Store that the command may not open. For an operation with `optional` or `handler` Store admission, the check passes the same access check for a Store read first.
-- Any error in the check is dropped and never fails the command or changes its exit code.
+- Any error in the check is dropped and never fails the command or changes its exit code. The line shows only when the command ends with exit code 0, and an MCP tool result that is an error or a refusal carries no reminder field.
 - In the CLI the line goes to standard error after the normal output, so JSON on standard output does not change. At most one reminder appears for each run.
 - In an MCP result the reminder is one field of the result object, so it reaches a host through `content` and through `structuredContent`. A tool with an `mcpResultSchema` shows no reminder, unless the phase proves a way that keeps its schema valid.
 - `work next` and `work status` put the checkpoint command first in their result when the sync check finds files that wait for import. They keep "Changes nothing".
@@ -56,7 +56,7 @@ Each command with Store read access runs one check after its own operation ends,
 
 ## Acceptance
 
-- Each of the 41 commands in the set that do not sync first shows the line when a file waits for import. No command in the set shows it when none waits, when a conflict alone waits, and when the work store is not in charge.
+- Each of the 40 commands in the set that do not sync first and run the check on each run shows the line when a file waits for import. `backlog snapshot` shows it with `--work-store` and never by default. No command in the set shows it when none waits, when a conflict alone waits, and when the work store is not in charge.
 - Each of the six commands that sync first shows no line after a good sync. The test fails for a check that runs before the operation.
 - Each excluded command shows no line.
 - JSON on standard output is byte-identical with and without the reminder.

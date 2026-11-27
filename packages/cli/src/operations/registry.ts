@@ -43,6 +43,13 @@ import { projectSkillCheckOperations } from "./project/skill-check-ops";
 import { projectCheckpointOperations } from "./project/checkpoint-ops";
 import { workQueueOperations } from "./work/work-queue/operations";
 import { factoryOperations } from "./factory/operations";
+import {
+  enterReminderScope,
+  holdCliReminder,
+  isReminderOperation,
+  leaveReminderScope,
+  workReminderFor,
+} from "./work/work-queue/reminder";
 
 /**
  * The operation registry (R-REG-1): the single source of truth for which
@@ -170,6 +177,11 @@ export interface OperationAccessFact {
 export interface OperationInvocation<TOutput = JsonValue> {
   operation: string;
   value: TOutput;
+  /**
+   * W35 R0 P2 (PRD 52 R-WORK-REMIND): the reminder line, when work files wait
+   * for import after this operation ended. It is not part of `value`.
+   */
+  reminder?: string;
   provenance: {
     operation: string;
     domain: string;
@@ -620,6 +632,16 @@ function describeOperation(id: string): OperationDescriptor {
   };
 }
 
+/**
+ * The reminder set (PRD 39 R-RENDER-4): each active operation that runs in a
+ * Make Docs project and whose declared access includes a Store read, without
+ * the four operations that say or do the same themselves. Built from the
+ * registry, never from a hand list.
+ */
+export function listReminderOperationIds(): string[] {
+  return listOperations().filter((operation) => isReminderOperation(operation)).map((operation) => operation.id);
+}
+
 export function hasOperation(id: string): boolean {
   return REGISTRY.has(id);
 }
@@ -729,6 +751,8 @@ export async function invokeOperation(
     return (await handler(parsed.data, context)) as JsonValue;
   };
   let value: JsonValue;
+  // W35 R0 P2: an operation that runs inside another one leaves the reminder to the outermost one.
+  const outermost = enterReminderScope(context);
   try {
     value = definition.access.store === "none" || definition.storeAdmission === "optional" || definition.storeAdmission === "handler" || checksWriteAtStep(definition)
       ? await run()
@@ -741,10 +765,17 @@ export async function invokeOperation(
         );
   } catch (error) {
     throw scopeStoreAccessFailure(error, id, targetRoot);
+  } finally {
+    leaveReminderScope(context);
   }
+  // The reminder check runs after the operation, on the state that it left
+  // (PRD 52 R-WORK-REMIND). It never throws and never changes `value`.
+  const reminder = outermost ? await workReminderFor(definition, targetRoot, context) : null;
+  if (outermost && context.surface === "cli") holdCliReminder(reminder);
   return {
     operation: id,
     value,
+    ...(reminder ? { reminder } : {}),
     provenance: {
       operation: id,
       domain: operationDomain(id),

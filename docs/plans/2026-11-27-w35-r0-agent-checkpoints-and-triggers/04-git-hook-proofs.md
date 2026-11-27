@@ -12,11 +12,11 @@ source:
 
 ## Purpose
 
-Settle every open fact about git hooks before any hook is built. The design marks these items "the plan proves", "the plan finds out", or "the plan measures". This is the first part of the design's Phase 2. It builds no product behavior.
+Settle every open fact about git hooks before any hook is built. The design marks these items "the plan proves", "the plan finds out", or "the plan measures". This is the first part of the design's Phase 2. It builds no product behavior, with one exception: it fixes the sync core fault of [register entry R-041](../../prd/03-open-questions-and-risk-register.md), and that is the one part of this phase that builds product code. The owner decided on 2026-11-27 to fix R-041 in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed it in P4, before any hook installs.
 
 ## Outcome
 
-A recorded answer for each question below, on each platform that the project supports, a recorded answer to whether gate OG-3 opens, and the owner's answer at gate OG-4. P5 builds from these answers.
+A recorded answer for each question below, on each platform that the project supports, a recorded answer to whether gate OG-3 opens, and the owner's answer at gate OG-4. P5 builds from these answers. Two syncs at the same time no longer import an older file text, and register entry R-041 is closed.
 
 ## Scope
 
@@ -34,10 +34,11 @@ Each item is one named task in the backlog.
 - Foreground run against start-and-return. Write `PERF-007` before any measurement, reuse the `PERF-004` method, and measure a commit, a merge, a rewrite, and a branch change with a hook that runs the checkpoint each way, with no change and with one changed work file, and for a trigger run that is the first sync of a checkout. Then ask the owner at gate OG-4, with the measured times and one recommendation.
 - The two-worktree behavior of the checkpoint itself, with no hook: a direct run in one worktree, then a direct run in a worktree on another branch. Record what the store holds and what each worktree reports.
 - Register: a risk for `git pull --rebase` with its covered and open cases, and one entry for each platform gap.
+- The fix for two syncs at the same time (register entry R-041). The backlog holds it as six tasks, T18 to T23, in a new Stage 5 with the cases A47a to A47f. Move the scan of the work files inside the Store write session in the sync core. Add a test that reproduces the race of the review: close a unit with the outcome `cancelled`, start two runs at the same time, and the outcome must stay `cancelled`. Add the same test for `superseded`. Check notes and met gates, which the review did not check. Measure the sync time again with the `PERF-004` method and record the result. Update PRD 52 with a Requirement History entry, and close R-041 in the register when the fix lands. `PERF-007` runs after this fix, so that it measures the fixed sync core.
 
 ## Exclusions
 
-- No setup change, no hook install, and no Store record. P5 owns them.
+- No setup change, no hook install, and no Store record. P5 owns them. The one product code change of this phase is the sync core fix for R-041.
 - No Store schema change. A needed change stops at OG-3.
 
 ## Acceptance
@@ -48,11 +49,12 @@ Each item is one named task in the backlog.
 - The record question has one recorded answer: an existing record fits, or OG-3 is open with the reason.
 - `PERF-007` has a recorded result, and OG-4 has the owner's answer.
 - The access runs name what each agent tool allowed and who started each session.
+- Two runs at the same time keep the close outcomes `cancelled` and `superseded`, each with a test that fails on the code before the fix. Notes and met gates have a recorded result. The sync time has a new recorded result with the `PERF-004` method. PRD 52 has its Requirement History entry, and R-041 is closed.
 
 ## Testing Decisions
 
 - Automated Implementation Testing: required. The proof tests stay in the suite, so a new git version that changes a fact fails a test.
-- Performance Testing: selected, `PERF-007`, `characterize-now`, informational.
+- Performance Testing: selected, `PERF-007`, `characterize-now`, informational. The sync time is also measured again with the `PERF-004` method, after the sync core fix.
 - Guided Progress Review: `not-needed-now`. The owner gates carry the choices.
 - Unassisted Goal Testing: `not-needed-now`.
 

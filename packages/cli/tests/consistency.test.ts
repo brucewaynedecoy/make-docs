@@ -766,6 +766,7 @@ describe("risk register routing contract", () => {
       "Q-024 What is the finite P3 operation inventory and phase ownership?",
       "Q-025 Should the Store Become an Optional Durable Archive for Non-Active Documents?",
       "Q-026 Should the Plan Stage Become Optional in the Default Lifecycle Arc?",
+      "Q-027 Does the Exact Reminder Check Stay on Each Command as the Work Files Grow?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
@@ -809,6 +810,7 @@ describe("risk register routing contract", () => {
       "R-039 One Project Store Serves Every Branch and Worktree",
       "R-040 A Trigger Run Can Be the First Sync of a Checkout",
       "R-041 Two Syncs at the Same Time Can Import an Older File Text",
+      "R-042 `work add` Ignores `--dry-run` and Writes the Store",
     ]);
   });
 

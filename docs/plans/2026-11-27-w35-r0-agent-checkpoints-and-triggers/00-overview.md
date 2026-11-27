@@ -254,7 +254,7 @@ Each entry lands in the phase that builds the behavior. Each one uses the `2026-
 | [01-checkpoint-command.md](01-checkpoint-command.md) | Add `make-docs project checkpoint` with CLI and MCP parity, its two kinds of run, its agent form, and its tests. Set the version that carries the Wave. |
 | [02-reminder-and-read-commands.md](02-reminder-and-read-commands.md) | Add the reminder line, the `work next` and `work status` lines and marks, the project URI sentence, and `PERF-006`. |
 | [03-routers-and-mcp-instructions.md](03-routers-and-mcp-instructions.md) | Add the router rule, the `docs/work/` note, the rest of the work store reference, and the MCP server instructions, template first. |
-| [04-git-hook-proofs.md](04-git-hook-proofs.md) | Prove the git hook facts on each platform, find how a hook reaches `make-docs`, check the clone-owned record, and run `PERF-007`. |
+| [04-git-hook-proofs.md](04-git-hook-proofs.md) | Prove the git hook facts on each platform, find how a hook reaches `make-docs`, check the clone-owned record, and run `PERF-007`. The phase builds no product behavior, with one exception: it fixes the sync core fault of register entry R-041, before any hook installs. |
 | [05-git-hooks-in-setup.md](05-git-hooks-in-setup.md) | Build the git hook offer, the machine preference and its question at the machine step, the marked block, the refusals, the Store record, drift, and exact removal. |
 | [06-agent-tool-hooks.md](06-agent-tool-hooks.md) | Record the real hook contract of each of the three agent tools, then build a hook method for each one. |
 | [07-acceptance.md](07-acceptance.md) | Prove the package, check the final digest, update the guides, review the human experience, and pass the owner acceptance gate. |
@@ -368,7 +368,7 @@ The owner answered four gates on 2026-11-27, in the third round of decisions of 
 | Gate | State | Date | The owner's answer | Blocks |
 | --- | --- | --- | --- | --- |
 | OG-1 | Answered | 2026-11-27 | Option A: a new access rule in PRD 25 R-ACCESS-17. A write operation may check its write access inside its handler, at the step that needs it. The checkpoint stays one operation with one MCP tool. A caller with read access only, and an MCP call without the write permission (`allowWrite`), get the read steps, a line that says the sync did not run, and exit code 0. | Nothing. |
-| OG-2 | Open, only if | None | None yet | P2 Stage 4, only if `PERF-006` shows more than 1 second. |
+| OG-2 | Did not open | 2026-11-27 | None needed. `PERF-006` ran on 2026-11-27, the check adds at most 196 ms, and the gate opens only above 1 second. This is a measured result and not an owner decision. | Nothing. |
 | OG-3 | Open, only if | None | None yet | P5 Stage 1, only if no existing Store record fits the hook block. |
 | OG-4 | Open, always | None | None yet | P5 Stage 1. |
 | OG-5 | Answered | 2026-11-27 | A machine preference with the default "No" says whether Make Docs installs the git hooks automatically for each project. With it on, project setup installs them with no hook input, also in `setup --yes`. Later on 2026-11-27 the owner set its scope: it installs them automatically only in a new project (R3). With it off, `setup --yes` installs none, interactive setup offers them with "no" first, and an explicit hook input installs them. A hook of one agent tool always needs an explicit input. Design OD-11. | Nothing. |
@@ -396,6 +396,8 @@ The owner's answer, with its consequence:
 Why A was recommended: an agent must remember one command. P1 T4 in Stage 1 found that the gate opened. The gate blocked P1 Stage 2 until the owner answered. It blocks nothing now.
 
 **OG-2 (P2, only if): Does the exact check stay on each command after `PERF-006`?**
+
+Result: `PERF-006` ran on 2026-11-27. The check adds at most 196 ms over the same command with no check, so the gate did not open. This is a measured result and not an owner decision. The text below stays as the record of the gate.
 
 This gate opens only if `PERF-006` shows that the reminder check adds more than 1 second over the same command with no check, on this repository. The record of 2026-11-23 used the line "more than 1 second over the CLI floor" for a sync with no change. This gate uses the same 1 second for the time that the check adds.
 
@@ -518,6 +520,17 @@ This handoff is advisory-default-but-overridable.
 - Coordinate Handoff: Carry W35 R0 into the requirement-history entries, the phase history records, and docs/work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/.
 
 ## Change History
+
+### 2026-11-27 — W35 R0 P2
+
+- Kind: `edit`
+- Affected scope: owner gate OG-2; the phase map row of P4; [P2](02-reminder-and-read-commands.md); [P4](04-git-hook-proofs.md).
+- Previous scope: P4 built no product behavior. Register entry R-041 waited for the owner's decision on where its fix goes. The OG-2 row gave no result. In P2, each of the 41 commands that do not sync first showed the reminder, also the default `backlog snapshot`.
+- Replacement scope: P4 also fixes the sync core fault of register entry R-041: it moves the scan of the work files inside the Store write session, adds tests for two runs at the same time with the close outcomes `cancelled` and `superseded`, checks notes and met gates, measures the sync time again with the `PERF-004` method, updates PRD 52, and closes R-041. This is the one part of P4 that builds product code. The OG-2 row states the `PERF-006` result: the check adds at most 196 ms, and the gate did not open. In P2, the reminder shows only for exit code 0, the backlog snapshot shows it only with `--work-store`, and the MCP field names the tool. No gate ID, earlier task ID, or earlier acceptance case number changed.
+- Rationale: the owner decided on 2026-11-27 to fix R-041 in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed it in P4, before any hook installs. The P2 changes come from the independent review of P2 on 2026-11-27, and they record no owner decision.
+- PRD decision: `update-existing` — PRD 52 in P4, for the sync core. PRD 51 does not change.
+- Owner approval: the owner's decision of 2026-11-27 on register entry R-041. The owner also reviewed the plain output of the six installed cases of P1 and keeps all 23 points of new behavior of P1 as built, and the backlog records both.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)
 
 ### 2026-11-27 — W35 R0
 

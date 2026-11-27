@@ -68,7 +68,7 @@ These rules hold in every phase.
 | [01-checkpoint-command.md](01-checkpoint-command.md) | Add `make-docs project checkpoint` with CLI and MCP parity, its two kinds of run, its agent form, and its tests. Set the version that carries the Wave. |
 | [02-reminder-and-read-commands.md](02-reminder-and-read-commands.md) | Add the reminder line, the `work next` and `work status` lines and marks, the project URI sentence, and `PERF-006`. |
 | [03-routers-and-mcp-instructions.md](03-routers-and-mcp-instructions.md) | Add the router rule, the `docs/work/` note, the trigger text of the work store reference, and the MCP server instructions, template first. |
-| [04-git-hook-proofs.md](04-git-hook-proofs.md) | Prove the git hook facts on each platform, find how a hook reaches `make-docs`, check the clone-owned record, and run `PERF-007`. |
+| [04-git-hook-proofs.md](04-git-hook-proofs.md) | Prove the git hook facts on each platform, find how a hook reaches `make-docs`, check the clone-owned record, and run `PERF-007`. The phase builds no product behavior, with one exception: its Stage 5 fixes the sync core fault of register entry R-041 (T18), before any hook installs. |
 | [05-git-hooks-in-setup.md](05-git-hooks-in-setup.md) | Build the git hook offer, the machine preference and its question at the machine step, the marked block, the refusals, the Store record, drift, and exact removal. |
 | [06-agent-tool-hooks.md](06-agent-tool-hooks.md) | Record the real hook contract of each of the three agent tools, then build a hook method for each one. |
 | [07-acceptance.md](07-acceptance.md) | Prove the package, check the final digest, update the guides, review the human experience, and pass the owner acceptance gate. |
@@ -91,7 +91,7 @@ Open gates:
 
 | Gate | Found or brought by | Opens | The owner chooses | Recommended | Blocks |
 | --- | --- | --- | --- | --- | --- |
-| OG-2 | [P2](02-reminder-and-read-commands.md) T11, in Stage 3 | Only if `PERF-006` shows that the reminder check adds more than 1 second over the same command with no check. | A: keep the exact check on fewer commands. B: take a stored signal with a Store schema change. | A | P2 Stage 4, and so the P2 closeout. |
+| OG-2 | [P2](02-reminder-and-read-commands.md) T11, in Stage 3 | Only if `PERF-006` shows that the reminder check adds more than 1 second over the same command with no check. Result: `PERF-006` ran on 2026-11-27, the check adds at most 196 ms, and the gate did not open. This is a measured result and not an owner decision. | A: keep the exact check on fewer commands. B: take a stored signal with a Store schema change. | A | Nothing. The gate did not open. |
 | OG-3 | [P4](04-git-hook-proofs.md) T11, in Stage 2 | Only if no existing Store record can hold the clone-owned hook block. | A: approve a Store schema change. B: record the block for each checkout, a form that the design refused. | A | [P5](05-git-hooks-in-setup.md) Stage 1, and so P5. It does not block P4. |
 | OG-4 | P4 T15, in Stage 3 | Always, after `PERF-007`. | A: a hook runs the checkpoint in the foreground. B: a hook starts the checkpoint and returns. | A. P4 T15 confirms or changes this with the measured times. | P5 Stage 1, and so P5. It does not block P4. |
 | OG-6 | The P4 evidence, before P5 Stage 2 | Only if P4 found a platform gap that the hook review cannot cover. | A: do not offer the hooks on that platform. B: offer them with the gap named. | A | P5 Stage 2, where T10 applies the answer for that platform. |
@@ -121,8 +121,8 @@ The phase files repeat a merge risk as one plain paragraph under the stage headi
 - Read phases in order. P2 and P4 each depend only on P1. P3 Stage 1 depends only on P1, and P3 Stage 2 also needs P2 Stage 2, because the MCP instructions use the result text of the read commands. So P2, P3 Stage 1, and P4 can run side by side. P5 waits for P4, for the P4 platform result, and for its open gates OG-3, OG-4, and OG-6. P6 Stage 1 can start beside P4.
 - P1 T1 to T3 are the name gate. The catalog entry lands in T1, the PRD lines that name the command and the tool land in T2, and the test check lands in T3. No later phase names `make-docs project checkpoint` in shipped text before P1 turns the entry `current`.
 - Every phase file includes `## Source PRD Docs`. It lists the requirements that exist today. Each phase names the requirements that it adds in its tasks.
-- Acceptance case IDs run from A1 to A79 across this backlog. Seven cases with a letter, A53a to A53g, stand in P5 Stage 2. They hold the owner's answer to OG-5 and were added on 2026-11-27, so that no earlier case number changed. A53g holds the owner's decision on the scope of the preference. The backlog has 100 tasks.
-- Each item that the design marks "the plan proves", "the plan finds out", or "the plan measures" has its own named task, or three tasks for the git facts. P1 T4 and T5, P2 T2 and T9 to T11, and P4 T1 to T7 and T9 to T15 hold them.
+- Acceptance case IDs run from A1 to A79 across this backlog. Seven cases with a letter, A53a to A53g, stand in P5 Stage 2. They hold the owner's answer to OG-5 and were added on 2026-11-27, so that no earlier case number changed. A53g holds the owner's decision on the scope of the preference. Six more cases with a letter, A47a to A47f, stand in [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time). They hold the fix for register entry R-041 and were added on 2026-11-27, so that no earlier case number changed. P4 Stage 5 also added the tasks T18 to T23 at the end of P4. The backlog has 106 tasks.
+- Each item that the design marks "the plan proves", "the plan finds out", or "the plan measures" has its own named task, or three tasks for the git facts. P1 T4 and T5, P2 T2 and T9 to T11, and P4 T1 to T7 and T9 to T15 hold them. P4 T18 to T23 are not such items: they hold the fix for register entry R-041.
 - Performance: `PERF-006` is owned by [P2](02-reminder-and-read-commands.md) and `PERF-007` by [P4](04-git-hook-proofs.md). Each phase writes its profile before any measurement and reuses the method of [`PERF-004`](../2026-11-21-w29-r0-work-store/06-package-parity-and-acceptance.md#perf-004-automatic-sync-on-a-project-with-many-backlogs).
 - Evidence: the [evidence report](evidence.md) holds the retained evidence. P1 created it on 2026-11-27 with its first section. Each later phase adds its section.
 - Source register entries: none exist yet. P1, P2, P4, and P6 add them. No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
@@ -138,6 +138,17 @@ This handoff is advisory-default-but-overridable.
 - Coordinate Handoff: Carry W35 R0 into phase history records and commits, adding the active P number.
 
 ## Change History
+
+### 2026-11-27 — W35 R0 P2
+
+- Kind: `edit`
+- Affected scope: the owner gate table (OG-2); the phase map row of P4; the usage notes; P1 Stage 3 (A14 and the closeout notes); P2 (T1, T3 to T6, A16, A18, A22, A23, and the closeout notes); P4 (its overview, the new Stage 5 with T18 to T23 and A47a to A47f, and the dependency list of Stage 3).
+- Previous scope: P4 built no product behavior, and its last task was T17. Register entry R-041 waited for the owner's decision on where its fix goes. The OG-2 row gave no result. Case A14 waited for the owner. In P2, each of the 41 commands that do not sync first showed the reminder, also the default `backlog snapshot`, and a command whose operation returned a refusal could print it.
+- Replacement scope: P4 gains Stage 5, which fixes the sync core fault of register entry R-041: T18 moves the scan of the work files inside the Store write session, T19 to T21 add the tests, T22 measures the sync time again with the `PERF-004` method, and T23 updates PRD 52 and closes R-041. T18 is the one task of P4 that builds product code. P4 Stage 3 now waits for Stage 5, so `PERF-007` measures the fixed sync core. The OG-2 row states the `PERF-006` result. The owner reviewed the plain output of the six installed cases of P1 (A14) and keeps all 23 points of new behavior of P1 as built. In P2, the reminder shows only for exit code 0, the backlog snapshot shows it only with `--work-store`, and the MCP field names the tool. No earlier task ID or acceptance case number changed. The backlog has 106 tasks.
+- Rationale: the owner decided on 2026-11-27 to fix R-041 in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed it in P4, before any hook installs. The P2 changes come from the independent review of P2 on 2026-11-27, and they record no owner decision.
+- PRD decision: `update-existing` — PRD 52 in P4 T23, for the sync core. The P2 changes of PRD 25, PRD 39, and PRD 52 are part of the `W35 R0 P2` Requirement History entries. PRD 51 does not change.
+- Owner approval: the owner's three decisions of 2026-11-27: the review of the six installed cases of P1, all 23 points of new behavior of P1 kept as built, and the fix of R-041 in this Wave before the hooks ship.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)
 
 ### 2026-11-27 — W35 R0
 

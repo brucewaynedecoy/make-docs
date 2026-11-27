@@ -640,16 +640,16 @@ describe("W35 R0 P1 checkpoint rule IDs in both forms (T13, A11, A12)", () => {
   });
 
   it("fails when a checkpoint rule ID is in the catalog only", () => {
-    const extra = { id: "WORK-RULE-066" as const, agentForm: "make-docs://system/reference/work-store.md#checkpoint" as const };
-    expect(workRuleTwinProblems([...WORK_STORE_RULES, extra], TEMPLATE)).toEqual(["WORK-RULE-066 is in the catalog and not in the agent form."]);
+    const extra = { id: "WORK-RULE-999" as const, agentForm: "make-docs://system/reference/work-store.md#checkpoint" as const };
+    expect(workRuleTwinProblems([...WORK_STORE_RULES, extra], TEMPLATE)).toEqual(["WORK-RULE-999 is in the catalog and not in the agent form."]);
     // The same failure for a rule that the text lost.
     expect(workRuleTwinProblems(WORK_STORE_RULES, TEMPLATE.replace(" (WORK-RULE-060)", ""))).toEqual(["WORK-RULE-060 is in the catalog and not in the agent form."]);
   });
 
   it("fails when a checkpoint rule ID is in the reference only", () => {
-    const added = TEMPLATE.replace("(WORK-RULE-065)", "(WORK-RULE-065)\n- A rule that the catalog does not have. (WORK-RULE-066)");
+    const added = TEMPLATE.replace("(WORK-RULE-065)", "(WORK-RULE-065)\n- A rule that the catalog does not have. (WORK-RULE-999)");
     expect(added).not.toBe(TEMPLATE);
-    expect(workRuleTwinProblems(WORK_STORE_RULES, added)).toEqual(["WORK-RULE-066 is in the agent form and not in the catalog."]);
+    expect(workRuleTwinProblems(WORK_STORE_RULES, added)).toEqual(["WORK-RULE-999 is in the agent form and not in the catalog."]);
     expect(workRuleTwinProblems(WORK_STORE_RULES.filter((rule) => rule.id !== "WORK-RULE-058"), TEMPLATE)).toEqual(["WORK-RULE-058 is in the agent form and not in the catalog."]);
   });
 

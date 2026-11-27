@@ -2177,6 +2177,20 @@ All 24 registry operations project to MCP tools. A pending registration must not
 
 **To close**: An accepted lifecycle change states when a plan is optional and where the coordinate decision and promise map live without one, or records that the plan stays required.
 
+### Q-027 Does the Exact Reminder Check Stay on Each Command as the Work Files Grow?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. The owner chose the exact check on 2026-11-27 (design OD-6 option A). `PERF-006` showed that owner gate OG-2 did not open. | Look again at about 900 work files, or when a person reports a slow Make Docs command. |
+
+**Question**: The reminder runs the exact sync check on 46 commands of the reminder set. The 47th, `backlog snapshot`, runs no reminder check of its own and reuses its own sync check with `--work-store`. The owner's decision "Fast path: not now" of 2026-11-23 covered only the work commands that already ran that check. Does the exact check stay on each command of the reminder set when the project holds more work files?
+
+**Why it matters**: The check reads and hashes each work file, so its time grows with the count of work files. `PERF-006` measured it on this repository on 2026-11-27, with 471 work files and 4,382 store units: the check adds 189 ms to 196 ms to a command that does not sync first (for example `project state status`: 124 ms with no check and 317 ms with the check), about 160 ms to `work add`, which syncs first and then also pays for the check, and about 20 ms to `backlog snapshot --work-store`, which reuses its own check. The largest added time is 196 ms, under the 1 second line of owner gate OG-2. So a command that took about 130 ms now takes about 330 ms. At about 0.4 ms for each work file, the added time reaches 1 second near 2,400 work files. The measurement is one machine and one repository.
+
+**Recommendation**: Keep the exact check now. Measure again at about 900 work files, as the record of 2026-11-23 says. If the added time passes 1 second, bring owner gate OG-2 to the owner: keep the exact check on fewer commands, or take a stored signal with a Store schema change (design OD-6 option B).
+
+**To close**: The owner decides, after a new measurement at about 900 work files or after a report of a slow command, that the exact check stays, that the reminder set shrinks, or that a stored signal replaces the check.
+
 ## Rebuild Risks
 
 ### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
@@ -2974,7 +2988,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | The fix pass of W35 R0 P1 found this on 2026-11-27, with a test that starts two checkpoints at the same time. A review on the same day proved with the built CLI that the store does not fully recover. No owner decision exists. | The fix is not built. It waits for the owner's decision on where it goes. |
+| Open | The fix pass of W35 R0 P1 found this on 2026-11-27, with a test that starts two checkpoints at the same time. A review on the same day proved with the built CLI that the store does not fully recover. The owner decided on 2026-11-27: fix it in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed it in P4, before any hook installs. | The fix is not built yet. [W35 R0 P4](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time) Stage 5 holds it, as tasks T18 to T23 and cases A47a to A47f. T23 closes this entry when the fix lands. |
 
 **Issue**: `syncWorkFiles` in `packages/cli/src/operations/work/work-store/sync.ts` reads the work files before it takes the Store for its write. When two syncs of one checkout run at the same time, the second one waits for the Store with the file text that it read before the first one wrote. It then imports that older text. In the test, the first run wrote a closed task to its file, and the second run imported the older file and set the task back to open in the store. `make-docs work sync` in the released version 2.1.0 has the same fault, and it is older than the checkpoint. A trigger run imports, so each hook run that overlaps a run that writes a file can do this.
 
@@ -2989,13 +3003,31 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 With hooks, two runs at the same time become likely: a git hook and an agent tool hook can start a checkpoint for the same commit.
 
-**Recommendation**: Move the file scan inside the Store write session, so that the second sync sees what the first one wrote. Then measure the sync time again. This fix is not built. It waits for the owner's decision on where it goes.
+**Recommendation**: Move the file scan inside the Store write session, so that the second sync sees what the first one wrote. Then measure the sync time again. The owner chose on 2026-11-27 to fix it in this Wave, before the hooks ship. The fix is not built yet.
 
-**To close**: The sync core reads the files inside its write session and a test with two runs at the same time proves that the store keeps the newer record, or an owner decision accepts the limit.
+**To close**: The sync core reads the files inside its write session, and tests with two runs at the same time prove that the store keeps the close outcomes `cancelled` and `superseded`. The same tests check notes and met gates. The sync time is measured again with the `PERF-004` method.
 
 **What W35 R0 does**: P1 records the fault in its evidence report. It holds a test that starts two runs at the same time and proves that both end with exit code 0 and that a later run ends with nothing due. That test closes the task with the outcome `done`, so it cannot show the lost outcome, and it also passes when the two runs do not overlap. No test fails on this fault.
 
-**What W35 R0 does not remove**: P1 did not change the sync core.
+**What W35 R0 does not remove**: P1 and P2 did not change the sync core. The fault stays until P4 Stage 5 lands.
+
+### R-042 `work add` Ignores `--dry-run` and Writes the Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | A review of W35 R0 P2 found this on 2026-11-27. It is not from that phase, and that phase did not fix it. No owner decision exists. | Decide where the fix goes. No task holds it. |
+
+**Issue**: `make-docs work add "x" --dry-run` adds the quick item to the work store and ends with exit code 0. The fix pass of W35 R0 P2 proved it on 2026-11-27 with the built CLI and a temporary Store: the result said "Added task 1: x.", and `make-docs work next --level quick-item` then listed the item. The help of `make-docs work add` does not list `--dry-run`. The CLI still takes the flag for every command and gives it to the operation as its dry-run state, and `work add` does not read that state. An unknown flag such as `--no-such-flag` ends with an error, so only this flag passes with no effect. The fix pass checked `work add` only. The other work write commands were not checked.
+
+**Why it matters**: A person or an agent who adds `--dry-run` to see what a command would do gets a real write. A quick item lives only in the work store, so no file shows the change.
+
+**Recommendation**: Make each work write command either refuse `--dry-run` with a clear error or honor it and write nothing. Check the other work write commands for the same fault.
+
+**To close**: `make-docs work add` with `--dry-run` writes no Store record, or refuses the flag, and a test proves it for each work write command.
+
+**What W35 R0 does**: P2 records the fault here. It changes no code for it.
+
+**What W35 R0 does not remove**: The fault itself.
 
 ## Source Anchors
 

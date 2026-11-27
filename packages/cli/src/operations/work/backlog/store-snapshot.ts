@@ -10,7 +10,8 @@ import { WORK_FILES_NEXT_STEP, checkWorkHarness, pointToWorkFiles, runWorkStoreR
 import { checkOutcome, renderStoreWorkFile, storeWorkFilePaths, workAuthority } from "../work-queue/queue.js";
 import { WorkReadiness } from "../work-queue/readiness.js";
 import type { WorkUnitRecord } from "../work-store/schemas.js";
-import { previewWorkSync } from "../work-store/sync.js";
+import { previewWorkSync, type WorkSyncPreview } from "../work-store/sync.js";
+import { noteWorkSyncCheck } from "../work-queue/reminder.js";
 import {
   BacklogSnapshotV1Schema,
   type BacklogSnapshotV1,
@@ -69,8 +70,12 @@ export function buildStoreBacklogSnapshot(
   targetRoot: string,
   env: { storeRoot: string; now: Date },
   seams: BacklogSnapshotSeams = {},
+  onSyncCheck: (preview: WorkSyncPreview) => void = () => {},
 ): BacklogSnapshotV1 {
-  const check = checkOutcome(previewWorkSync(targetRoot, { storeRoot: env.storeRoot, now: env.now }));
+  const preview = previewWorkSync(targetRoot, { storeRoot: env.storeRoot, now: env.now });
+  // W35 R0 P2: the reminder of this command reuses this sync check, so no second check runs.
+  onSyncCheck(preview);
+  const check = checkOutcome(preview);
   const projectId = readDeclarativeProjectId(targetRoot) ?? "";
   const checkoutId = getExistingInstallationCheckoutId(targetRoot, env.storeRoot);
   const state = readWorkStore(targetRoot, (db) => ({
@@ -174,7 +179,7 @@ export async function buildBacklogSnapshotForOperation(
   try {
     return await runWorkStoreRead(
       { operation: "work.backlog.snapshot", access, root: targetRoot, context, filesStep: WORK_FILES_NEXT_STEP, session: true, harnessChecked: true },
-      () => buildStoreBacklogSnapshot(targetRoot, { storeRoot: context.storeRoot, now }, seams),
+      () => buildStoreBacklogSnapshot(targetRoot, { storeRoot: context.storeRoot, now }, seams, (preview) => noteWorkSyncCheck(context, targetRoot, preview)),
     );
   } catch (error) {
     if (!(error instanceof StoreAccessStateError)) throw error;

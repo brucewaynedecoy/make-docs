@@ -690,6 +690,43 @@ export const WORK_STORE_RULES: readonly WorkStoreRule[] = Object.freeze([
     agentForm: agent("checkpoint"),
     humanMeaning: "The result names the checkout that it synced. When the run was the first sync of that checkout, it says so, with the count of files that it imported.",
   },
+  // W35 R0 P2: the reminder and the read commands (PRD 52 R-WORK-REMIND, R-WORK-SYNC-8, R-WORK-QUEUE-5, R-WORK-URI-3).
+  {
+    id: "WORK-RULE-066",
+    title: "Files that wait for import come first",
+    area: "sync",
+    prdRequirements: ["R-WORK-SYNC-8", "R-WORK-REMIND-1", "R-WORK-REMIND-2"],
+    cliForm: ["work.queue.status", "work.queue.next"],
+    agentForm: agent("sync"),
+    humanMeaning: "When work files wait for import, work status and work next name the checkpoint first, and each other command that may read the Store in the project says so in one reminder line when it ends with exit code 0. The backlog snapshot says so only with the work store option. The line counts only files that the checkpoint would import, and a changed file on the sync hold list is one of them.",
+  },
+  {
+    id: "WORK-RULE-067",
+    title: "Work next marks a unit whose file waits for import",
+    area: "readiness",
+    prdRequirements: ["R-WORK-QUEUE-5"],
+    cliForm: ["work.queue.next"],
+    agentForm: agent("readiness"),
+    humanMeaning: "Work next marks each listed unit whose file waits for import, so nobody acts on a line that is out of date.",
+  },
+  {
+    id: "WORK-RULE-068",
+    title: "Work next says when the list is not complete",
+    area: "readiness",
+    prdRequirements: ["R-WORK-QUEUE-5"],
+    cliForm: ["work.queue.next"],
+    agentForm: agent("readiness"),
+    humanMeaning: "When a new work file waits for import, or the first sync of the checkout is not done, work next says in one line that the list is not complete and names the checkpoint.",
+  },
+  {
+    id: "WORK-RULE-069",
+    title: "A project URI read does not know what waits for sync",
+    area: "project-uris",
+    prdRequirements: ["R-WORK-URI-3"],
+    cliForm: [WORK_STORE_RESOURCE_READ_OPERATION],
+    agentForm: agent("project-uris"),
+    humanMeaning: "A backlog read by project URI runs no sync check. It says in one fixed sentence that it does not know whether work files wait for sync, and that the checkpoint in a checkout finds out.",
+  },
 ]);
 
 /**

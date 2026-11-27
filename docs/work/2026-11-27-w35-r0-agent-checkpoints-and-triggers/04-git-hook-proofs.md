@@ -16,7 +16,9 @@ Settle every open fact about git hooks before any hook is built. It depends on P
 
 ## Overview
 
-The [design](../../designs/2026-11-27-agent-checkpoints-and-triggers.md) marks a set of items "the plan proves", "the plan finds out", or "the plan measures". This phase holds each one as a named task. It builds no product behavior: it adds proof tests, records answers, runs `PERF-007`, and brings two choices to the owner. Its results can change what P5 builds, so it ends and is reviewed before P5 starts.
+The [design](../../designs/2026-11-27-agent-checkpoints-and-triggers.md) marks a set of items "the plan proves", "the plan finds out", or "the plan measures". This phase holds each one as a named task. It builds no product behavior, with one exception: Stage 5 fixes the sync core fault of [register entry R-041](../../prd/03-open-questions-and-risk-register.md), and its task T18 is the one task of this phase that builds product code. For the rest, the phase adds proof tests, records answers, runs `PERF-007`, and brings two choices to the owner. Its results can change what P5 builds, so it ends and is reviewed before P5 starts.
+
+The owner decided on 2026-11-27 to fix R-041 in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed it in P4, before any hook installs. P5 is the first phase that installs a hook in a project.
 
 The [standing rules](00-index.md#standing-rules) of the index hold in this phase. Each proof runs in temporary repositories with a temporary `MAKE_DOCS_HOME` at a fixed, checked path.
 
@@ -25,7 +27,7 @@ The [standing rules](00-index.md#standing-rules) of the index hold in this phase
 - Impact and governing promise or preserved boundary: `indirect`. A git action never fails because of Make Docs, and a person does not need to tell an agent to sync. This phase proves the facts that those promises stand on.
 - Intended human outcome: the owner reads one record that says, for each hook fact and each platform, what was seen, and gets two clear choices: the hook run mode, and a Store schema change only if one is needed.
 - Human-facing surface or indirect effect: none yet. P5 builds the surface.
-- Implementation work: proof tests, recorded findings, the `PERF-007` profile and runs, and register entries.
+- Implementation work: proof tests, recorded findings, the `PERF-007` profile and runs, and register entries. Stage 5 adds one change to the sync core, its tests, and one new measurement of the sync time.
 - Evidence source or testing type selected under current authority: proof tests on Linux, macOS, and Windows through the fixed test list of `.github/workflows/platform-safety.yml` under [standing rule 12](00-index.md#standing-rules), recorded runs, and `PERF-007`.
 - Executor: the implementing agent writes the tests and the records. The orchestrator starts the workflow run and the agent tool sessions under standing rules 11 and 12. The owner answers the gates.
 - Accepted obligation or deferral route: none.
@@ -37,7 +39,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 | Testing type | Current decision | Decision record or `not-needed-now` reason |
 | --- | --- | --- |
 | Automated Implementation Testing | selected | Git fact tests that stay in the suite, so a git version that changes a fact fails a test. |
-| Performance Testing | selected | `PERF-007`, `characterize-now`, informational. |
+| Performance Testing | selected | `PERF-007`, `characterize-now`, informational. Stage 5 T22 also measures the sync time again with the `PERF-004` method, after the change to the sync core. |
 | Guided Progress Review | not-needed-now | No human-facing surface exists in this phase. The owner gates carry the choices. |
 | Unassisted Goal Testing | not-needed-now | No current decision needs an unassisted human run. |
 
@@ -53,7 +55,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 - [07 CLI Command Surface and Lifecycle](../../prd/07-cli-command-surface-and-lifecycle.md): R-CLI-SETUP-1 to R-CLI-SETUP-6, `Lifecycle commands`
 - [38 Global Store and Project State](../../prd/38-global-store-and-project-state.md): R-DB-7, R-HARNESS-STATE-2, R-HARNESS-STATE-6, R-MIN
-- [52 Work Store and Work Queue](../../prd/52-work-store-and-work-queue.md): R-WORK-STORE-11, R-WORK-SYNC-2, R-WORK-SYNC-4, R-WORK-SYNC-9
+- [52 Work Store and Work Queue](../../prd/52-work-store-and-work-queue.md): R-WORK-STORE-11, R-WORK-SYNC-2, R-WORK-SYNC-4, R-WORK-SYNC-9. Stage 5 T23 adds a Requirement History entry for the sync core.
 - [25 TypeScript Runtime, CLI, MCP, and Operation Boundaries](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md): R-ACCESS-6, R-ACCESS-9, R-ACCESS-16
 - [30 Plugin Substrate and Workflow Bundles](../../prd/30-plugin-substrate-and-workflow-bundles.md): R-ADMIT-1, R-LEGACY-1, R-LEGACY-2
 - [48 Performance Evidence Governance](../../prd/48-performance-evidence-governance.md)
@@ -62,7 +64,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 - `O-###`: none
 - `NUAT-###`: none
-- Findings: none. T16 adds register entries.
+- Findings: [register entry R-041](../../prd/03-open-questions-and-risk-register.md), which Stage 5 fixes and T23 closes. T16 adds register entries.
 
 ## Stage 1 - Git facts on each platform
 
@@ -123,6 +125,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 - Stage 1.
 - Stage 2.
+- Stage 5.
 
 ## Stage 4 - Register and evidence
 
@@ -138,6 +141,34 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 ### Dependencies
 
 - Stage 3.
+
+## Stage 5 - The fix for two syncs at the same time
+
+This stage was added on 2026-11-27, after the owner decided to fix [register entry R-041](../../prd/03-open-questions-and-risk-register.md) in this Wave, before the hooks ship. The orchestrator placed it in this phase. The stage has the next free numbers, so no earlier task or case number changed, and its number says nothing about its place in the order: it depends only on P1, and Stage 3 waits for it, so that `PERF-007` measures the fixed sync core. No hook of P5 or P6 installs before this stage ends. T18 is the one task of this phase that builds product code. The [standing rules](00-index.md#standing-rules) hold: each test uses a temporary Store at a fixed, checked path.
+
+The fault: `syncWorkFiles` in `packages/cli/src/operations/work/work-store/sync.ts` calls `scanWorkFiles` before `writeWorkStore`, so sync reads the work files before it takes the Store. When two syncs of one checkout run at the same time, the second one imports the file text that it read before the first one wrote. The [P1 evidence](evidence.md#known-limits) holds the review's proof.
+
+### Tasks
+
+- [ ] T18: Move the scan of the work files inside the Store write session in the sync core, so that a sync reads the work files only after it holds the Store. A second sync then sees what the first one wrote. Change no other rule of sync. The read-only sync check (`previewWorkSync`) stays read-only and takes no write session. Review the agent form in the work store reference under the [twins guide](../../assets/project/developing-deterministic-agentic-twins.md), and record whether it needs a change.
+- [ ] T19: Add a test that reproduces the race of the review with the close outcome `cancelled`. Close a unit with `make-docs work close "<unit>" --expected-version <n> --outcome cancelled`, start two `make-docs project checkpoint --json` runs at the same time, and prove that the store keeps the outcome `cancelled` and never shows the unit as open. The test must fail on the code before T18. So it proves that the two runs did overlap, or it forces the order of the two runs through a test seam, and it does not pass only because the runs did not overlap.
+- [ ] T20: Add the same test for the close outcome `superseded`.
+- [ ] T21: Check notes and met gates in the same race, which the review of 2026-11-27 did not check. Add a test for each one, and record what the store holds before T18 and after T18.
+- [ ] T22: Measure the sync time again with the method of [`PERF-004`](../2026-11-21-w29-r0-work-store/06-package-parity-and-acceptance.md#perf-004-automatic-sync-on-a-project-with-many-backlogs), because the file scan now runs inside the write session. Write the record that the [performance contract](../../../.make-docs/system/contracts/performance-evidence-governance.md) needs, with a finite budget, in this phase file before any counted run. Record the result beside [`PERF-004-R1`](../2026-11-21-w29-r0-work-store/06-package-parity-and-acceptance.md#result-record), with the time that a second sync waits for the Store while the first one scans.
+- [ ] T23: Update [PRD 52](../../prd/52-work-store-and-work-queue.md) with a `W35 R0 P4` Requirement History entry: sync reads the work files inside its Store write session. Close [register entry R-041](../../prd/03-open-questions-and-risk-register.md) when the fix has landed and the tests of T19 to T21 pass. Record the result in the P4 section of `evidence.md`, and update the R-041 line under the [known limits of P1](evidence.md#known-limits).
+
+### Acceptance criteria
+
+- A47a: The sync core scans the work files inside its Store write session. The sync, checkpoint, and parity tests that existed before this stage pass. The read-only sync check opens no write session.
+- A47b: With two checkpoint runs at the same time after a close with the outcome `cancelled`, the store keeps the outcome `cancelled`, and no run shows the unit as open. The test fails on the code before T18.
+- A47c: The same holds for the outcome `superseded`.
+- A47d: The evidence report states what happens to notes and met gates in the same race, each with a test. A loss that the fix does not remove is a named gap with a register entry.
+- A47e: The sync time has a new recorded result with the `PERF-004` method, with its limits and its comparison with `PERF-004-R1`. `make-docs check performance-evidence` reports no error for the new record.
+- A47f: PRD 52 holds the `W35 R0 P4` Requirement History entry, and `make-docs check prd` passes. The risk register shows R-041 as closed, with a link to the evidence. The evidence records the twin review of T18.
+
+### Dependencies
+
+- P1.
 
 ### Closeout Notes
 

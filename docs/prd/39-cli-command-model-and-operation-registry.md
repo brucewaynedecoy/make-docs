@@ -345,6 +345,61 @@ Code anchors:
 - R-RENDER-1 (MUST): each CLI operation adapter applies a CLI-only render layer to the canonical operation result, keyed by `OperationRenderMode`. On a TTY, the default rendering is human text appropriate to the operation; lifecycle operations report what happened, the compact current state, and any exact next command. `--json` emits the full canonical operation result. When stdout is not a TTY, the default is the same full JSON, so scripts and agents receive the machine contract without a presentation-dependent transformation.
 - R-RENDER-2 (MUST): lifecycle evidence references and run metadata are summarized rather than repeated in text mode; the full bounded run record stays available via `--json` and `show --json`.
 - R-RENDER-3 (MUST): MCP tool output derives directly from the canonical operation result, while native resource responses derive directly from the canonical resource resolver; the human render layer is CLI-only.
+- R-RENDER-4 (MUST): a CLI command of the reminder set prints the reminder line of [PRD 52](52-work-store-and-work-queue.md) R-WORK-REMIND-1 on standard error, after its normal output, when work files wait for import after its operation ended. Standard output does not change, so `--json` output is byte-identical with and without the reminder. The line never changes an exit code. One command run prints at most one reminder line. The line shows only when the command ends with exit code 0. A command that ends with another exit code prints no reminder, also when its operation returned a refusal and the CLI set the exit code after that. `--help` of any command, `setup`, `mcp`, `update`, and `uninstall` print no reminder.
+- R-RENDER-5 (MUST): the reminder set comes from the registry and never from a hand list: each active operation that runs in a Make Docs project and whose declared access includes a Store read. Four operations with such access are not in the set: `work.queue.status` and `work.queue.next`, which say the same in their own result, and `work.queue.sync` and `project.checkpoint.run`, which do the sync. An operation with Store access and no project access names no project, so it is not in the set: `setup.store.check`, `setup.store.clean`, `factory.tools.save`, and `factory.tools.list`. A test builds the set from the registry and fails when the set and the table below differ. The column "Syncs first" says whether the command runs sync before its own change, so that it shows no reminder after a good sync. The column "Shows the reminder" says when the command can show it. The set has 47 operations. 46 of them run the reminder check on each run. One, `work.backlog.snapshot`, is counted in the set and runs no reminder check of its own: it shows the reminder only when it ran with `--work-store` (`workStore: true` on MCP) and ran the sync check itself, because [PRD 51](51-backlog-review-and-reporting.md) R-BACKLOG-SNAPSHOT-24 says that the default snapshot reads no Store state. The default `make-docs backlog snapshot` shows no reminder and runs no check.
+
+#### The Reminder Set
+
+| Registry identifier | Canonical CLI | Syncs first | Shows the reminder |
+| --- | --- | --- | --- |
+| `project.checkout-register.preview` | `make-docs project checkout preview` | No | On each run |
+| `project.checkout-register.apply` | `make-docs project checkout apply` | No | On each run |
+| `project.checkout-move.preview` | `make-docs project move preview` | No | On each run |
+| `project.checkout-move.apply` | `make-docs project move apply` | No | On each run |
+| `project.state.status` | `make-docs project state status` | No | On each run |
+| `project.register.list` | `make-docs project list` | No | On each run |
+| `project.state.recover` | `make-docs project state recover` | No | On each run |
+| `project.surface.ensure` | `make-docs project surface ensure` | No | On each run |
+| `project.layout.prepare` | `make-docs project layout prepare` | No | On each run |
+| `project.layout.apply` | `make-docs project layout apply` | No | On each run |
+| `project.layout.verify` | `make-docs project layout verify` | No | On each run |
+| `project.doctor.fix` | `make-docs project doctor fix` | No | On each run |
+| `work.evidence.record` | `make-docs work evidence record` | No | On each run |
+| `work.evidence.read` | `make-docs work evidence read` | No | On each run |
+| `work.backlog.snapshot` | `make-docs backlog snapshot` | No | Only with `--work-store` |
+| `work.backlog-cache.lookup` | `make-docs backlog cache lookup` | No | On each run |
+| `work.backlog-cache.write` | `make-docs backlog cache write` | No | On each run |
+| `backlog.review.refresh` | `make-docs backlog review refresh` | No | On each run |
+| `resource.ensure` | `make-docs resource ensure` | No | On each run |
+| `lifecycle.start` | `make-docs lifecycle start` | No | On each run |
+| `lifecycle.show` | `make-docs lifecycle show` | No | On each run |
+| `lifecycle.list` | `make-docs lifecycle list` | No | On each run |
+| `lifecycle.checkpoint` | `make-docs lifecycle checkpoint` | No | On each run |
+| `lifecycle.pause` | `make-docs lifecycle pause` | No | On each run |
+| `lifecycle.resume` | `make-docs lifecycle resume` | No | On each run |
+| `lifecycle.attach-evidence` | `make-docs lifecycle attach-evidence` | No | On each run |
+| `lifecycle.complete` | `make-docs lifecycle complete` | No | On each run |
+| `lifecycle.fail` | `make-docs lifecycle fail` | No | On each run |
+| `lifecycle.abandon` | `make-docs lifecycle abandon` | No | On each run |
+| `work.queue.claim` | `make-docs work claim` | Yes | On each run |
+| `work.queue.release` | `make-docs work release` | Yes | On each run |
+| `work.queue.report` | `make-docs work report` | Yes | On each run |
+| `work.queue.close` | `make-docs work close` | Yes | On each run |
+| `work.queue.export` | `make-docs work export` | Yes | On each run |
+| `work.queue.add` | `make-docs work add` | Yes | On each run |
+| `factory.status` | `make-docs factory status` | No | On each run |
+| `factory.workflow.save` | `make-docs factory workflow save` | No | On each run |
+| `factory.workflow.show` | `make-docs factory workflow show` | No | On each run |
+| `factory.workflow.list` | `make-docs factory workflow list` | No | On each run |
+| `factory.proof.save` | `make-docs factory proof save` | No | On each run |
+| `factory.assignment.start` | `make-docs factory assignment start` | No | On each run |
+| `factory.assignment.save` | `make-docs factory assignment save` | No | On each run |
+| `factory.assignment.list` | `make-docs factory assignment list` | No | On each run |
+| `factory.restore` | `make-docs factory restore` | No | On each run |
+| `factory.file-backup.save` | `make-docs factory file-backup save` | No | On each run |
+| `factory.grant-use.record` | `make-docs factory grant-use record` | No | On each run |
+| `factory.workflow.clean` | `make-docs factory workflow clean` | No | On each run |
+
 
 <a id="package-grammar-and-ship-r-gram"></a>
 ### Retired Package Grammar Boundary (R-GRAM)
@@ -870,6 +925,14 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: the catalog entry is current. R-CHECKPOINT-CMD-2 states the plain output, the quiet trigger run, the `--json` result of a quiet run, and exit code 0 for every result. R-CHECKPOINT-CMD-4 names the `step` Store admission of PRD 25 R-ACCESS-17 and where each surface gets the write permission. R-CHECKPOINT-CMD-5 requires that the help of each checkpoint command names the other and says how the two differ. This is new behavior. That `--json` prints the result of a quiet run is a point that no design or plan stated, and it waits for the owner's review at the W35 R0 P1 phase report.
 - Rationale: the operation, its command, its tool, and its parity tests exist. The owner chose option A of owner gate OG-1 on 2026-11-27.
 - Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md), [W35 R0 P1](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/01-checkpoint-command.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p1-checkpoint-command).
+
+### 2026-11-27 — W35 R0 P2
+
+- Affected requirement or section: new R-RENDER-4 and R-RENDER-5, and the new table `The Reminder Set`.
+- Previous contract: no command printed a line about the state of another capability. Standard error held only errors.
+- Replacement contract: R-RENDER-4 states the reminder output rule: one line on standard error after the normal output, at most one for each command run, with standard output and the exit code unchanged. R-RENDER-5 states how the reminder set comes from the registry, names the eight operations with Store access that are not in it, and lists the 47 operations of the set with the six that sync first. 46 of the 47 run the check on each run. `work.backlog.snapshot` shows the reminder only with `--work-store`, so that PRD 51 R-BACKLOG-SNAPSHOT-24 holds. The line shows only when the command ends with exit code 0. The rule that `setup` prints no reminder, also when it runs an operation of the set inside, is new in this phase.
+- Rationale: the reminder must reach an agent on every command that may read the Store, and it must never break JSON on standard output.
+- Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) (OD-2 and OD-6), [W35 R0 P2](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/02-reminder-and-read-commands.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p2-reminder-and-read-commands).
 
 ## Source Anchors
 

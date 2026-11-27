@@ -350,7 +350,36 @@ export interface ConfigFixture extends FixtureBase {
   expected: { valid: boolean };
 }
 
+/**
+ * W35 R0 P2: one read scenario on the shared fixture backlog of the reminder
+ * tests (one index and two phases). The W35 R0 P2 test runs each scenario
+ * through the real `work next`, `work status`, and project URI read, and the
+ * work store reference states the same answer.
+ */
+export const WORK_READ_WAIT_SCENARIOS = ["nothing-waits", "one-file-changed", "new-file", "first-sync-not-done", "backlog-uri-read"] as const;
+export type WorkReadWaitScenario = (typeof WORK_READ_WAIT_SCENARIOS)[number];
+
+export interface ReadWaitScenarioFixture extends FixtureBase {
+  kind: "read-wait-scenario";
+  input: { scenario: WorkReadWaitScenario };
+  expected: {
+    /** True when the first line of `work next` and `work status` names the checkpoint. */
+    checkpointFirst: boolean;
+    /** How many work files wait for import. */
+    filesWaiting: number;
+    /** The phases that `work next` marks, because their file waits for import. */
+    markedPhases: string[];
+    /** False when `work next` says that the list is not complete. */
+    listComplete: boolean;
+    /** True when the read is a `backlog` read by project URI, which carries the fixed sentence. */
+    uriSentence: boolean;
+    /** True when the read changed a store record or a project file. Always false. */
+    changed: boolean;
+  };
+}
+
 export type WorkStoreContractFixture =
+  | ReadWaitScenarioFixture
   | ReadinessFixture
   | SyncFixture
   | DependencyFixture
@@ -1451,5 +1480,50 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
     kind: "checkpoint-scenario",
     input: { scenario: "not-a-project" },
     expected: { authority: "not-a-project", syncRan: false, syncSkipped: "not-a-project", nothingDue: true, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 0, conflicts: 0, claims: [], next: [], changedFiles: false },
+  },
+  {
+    id: "WSF-084",
+    group: "checkpoint",
+    title: "When nothing waits for import, the read commands name no checkpoint and mark no unit",
+    rules: ["WORK-RULE-066", "WORK-RULE-067", "WORK-RULE-068"],
+    kind: "read-wait-scenario",
+    input: { scenario: "nothing-waits" },
+    expected: { checkpointFirst: false, filesWaiting: 0, markedPhases: [], listComplete: true, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-085",
+    group: "checkpoint",
+    title: "With one changed work file, the read commands name the checkpoint first, and work next marks the units of that file",
+    rules: ["WORK-RULE-066", "WORK-RULE-067"],
+    kind: "read-wait-scenario",
+    input: { scenario: "one-file-changed" },
+    expected: { checkpointFirst: true, filesWaiting: 1, markedPhases: ["W1 R0 P1"], listComplete: true, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-086",
+    group: "checkpoint",
+    title: "With a new work file that the store does not hold, work next says that the list is not complete",
+    rules: ["WORK-RULE-068"],
+    kind: "read-wait-scenario",
+    input: { scenario: "new-file" },
+    expected: { checkpointFirst: true, filesWaiting: 1, markedPhases: [], listComplete: false, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-087",
+    group: "checkpoint",
+    title: "In a checkout whose first sync is not done, work next says that the list is not complete",
+    rules: ["WORK-RULE-068"],
+    kind: "read-wait-scenario",
+    input: { scenario: "first-sync-not-done" },
+    expected: { checkpointFirst: true, filesWaiting: 3, markedPhases: [], listComplete: false, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-088",
+    group: "checkpoint",
+    title: "A backlog read by project URI runs no sync check and carries the fixed sentence",
+    rules: ["WORK-RULE-069"],
+    kind: "read-wait-scenario",
+    input: { scenario: "backlog-uri-read" },
+    expected: { checkpointFirst: false, filesWaiting: 1, markedPhases: [], listComplete: true, uriSentence: true, changed: false },
   },
 ];
