@@ -7,7 +7,7 @@ follow_on:
   route: "change-plan"
   next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
   why: "PRD 52 owns the work queue and sync, PRD 39 owns command names, PRD 25 owns the MCP server, PRD 28 owns agent tool setup, and PRD 15 owns the router blocks. This design adds one command and several triggers that change those owners."
-  coordinate_handoff: "Recommended W35 R0 as new work. The owner said 'the next Wave' on 2026-11-27, and W34 is the highest Wave in docs/work/, docs/plans/, and the register. W29 R0 promised sync at the start of each work command, and it delivered that. No Wave promised that agents run those commands. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence about hooks. OD-10 is open: whether this Wave builds agent tool hooks."
+  coordinate_handoff: "Recommended W35 R0 as new work. The owner said 'the next Wave' on 2026-11-27, and W34 is the highest Wave in docs/work/, docs/plans/, and the register. W29 R0 promised sync at the start of each work command, and it delivered that. No Wave promised that agents run those commands. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence about hooks. The owner chose option B of OD-10: Phase 2 also builds a hook for each agent tool that has proof of support."
 ---
 
 # Agent Checkpoints and Triggers
@@ -314,7 +314,7 @@ Each first-party adapter gains a hook method where its agent tool supports hooks
 - An agent tool with no proven hook support gets no hook method. The git hooks, the router rule, the MCP instructions, and the CLI reminder still cover it. The generic MCP client profile gets no hook method.
 - Each method follows the adapter contract: one owned native entry, planning, apply, verification, repair, and removal (PRD 28 R-HARNESS-1), and a receipt that records its history (PRD 28 R-HARNESS-17).
 - The person selects the hook method explicitly in setup. It is off by default.
-- PRD 28 says today that Make Docs has no hook product. This design asks to change that sentence to admit these bounded hooks: the git hooks of owner decision 4, and the agent tool hooks. The owner approved that change on 2026-11-27, with a clarification that OD-10 records. Whether the change also admits agent tool hooks is open decision OD-10. PRD 30 keeps the admission boundary for anything further.
+- PRD 28 says today that Make Docs has no hook product. This design asks to change that sentence to admit these bounded hooks: the git hooks of owner decision 4, and the agent tool hooks. The owner approved that change on 2026-11-27, with a clarification that OD-10 records. The change admits git hooks and agent tool hooks (owner decision OD-10, option B). PRD 30 keeps the admission boundary for anything further.
 
 ### Later stages
 
@@ -359,7 +359,7 @@ These parts do not come from existing docs or from the owner's decisions. The ow
 
 ### Owner decisions with their options
 
-Each decision has at most two options and one recommendation. The owner decided OD-1, and on 2026-11-27 also chose option A of OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9. One decision is open: OD-10. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
+Each decision has at most two options and one recommendation. The owner decided OD-1, and on 2026-11-27 also chose option A of OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9. The owner also chose option B of OD-10 on 2026-11-27. No decision is open. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
 
 **OD-1: What is the scope of the git hooks?** Decided on 2026-11-27: the owner chose option A.
 
@@ -435,14 +435,14 @@ Why A: a commit and a merge are deliberate changes of work. A branch change is o
 
 **Approval: the PRD 28 sentence about hooks.** Approved on 2026-11-27. The owner approved the change of the sentence "Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product." The owner added one clarification: that sentence was meant for hooks that belong to one agent tool. Git hooks were not considered when it was written. The owner said that git hooks are an excellent way to solve something that the owner was reluctant to include.
 
-**OD-10: Does this Wave build agent tool hooks?** Open.
+**OD-10: Does this Wave build agent tool hooks?** Decided on 2026-11-27: the owner chose option B.
 
-- A (recommended): no. This Wave builds the git hooks only. The PRD 28 sentence changes to admit git hooks only. Agent tool hooks move to the roadmap as one more adapter, and each one needs real capability evidence first.
-- B: yes. Phase 2 also builds a hook method for each agent tool that has capability evidence, as owner decision 1 first said.
+- A: no. This Wave builds the git hooks only. The PRD 28 sentence changes to admit git hooks only. Agent tool hooks move to the roadmap as one more adapter, and each one needs real capability evidence first.
+- B (chosen): yes. Phase 2 also builds a hook method for each agent tool that has capability evidence, as owner decision 1 first said.
 
 Facts: owner decision 1 put "the hooks of each agent tool" in Phase 2. The owner's clarification of the PRD 28 approval says that the owner was reluctant to include hooks that belong to one agent tool. The two statements do not agree in full, so the orchestrator asks. Git hooks reach each agent that commits, with any agent tool. An agent tool hook reaches an agent that never commits, for example at the end of a turn. This design claims no hook support for any agent tool.
 
-Why A: it follows the owner's clarification, it keeps the Wave small, and it keeps Make Docs free of code for one agent tool's hooks until evidence exists. Its cost: an agent that never commits is reached only by text and by the reminder.
+Why the owner chose B: when the PRD 28 sentence was written, hooks that belong to one agent tool were the only option that the owner had considered. The owner was reluctant because that outcome did not give Make Docs the flexibility and the universal reach that the owner wanted. Git hooks give that, so agent tool hooks can now be added beside them. Phase 2 builds a hook only for an agent tool that has proof of support. The orchestrator recommended A, and the owner chose B.
 
 
 ## Alternatives Considered
@@ -464,7 +464,7 @@ Why A: it follows the owner's clarification, it keeps the Wave small, and it kee
   - [PRD 52](../prd/52-work-store-and-work-queue.md): the checkpoint operation and its rules, the reminder, the `work next` marks and its "list is not complete" line, R-WORK-SYNC-8, R-WORK-SYNC-9, and R-WORK-URI-3. R-WORK-SYNC-9 says that each sync after the first writes and removes files, and an import-only trigger run changes that. R-WORK-URI-3 gains the new sentence of a project URI read.
   - [PRD 39](../prd/39-cli-command-model-and-operation-registry.md): the name catalog entry, R-TOP-1, R-RUN-1, and the reminder output rule.
   - [PRD 25](../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md): MCP server instructions, the new tool, and the twin.
-  - [PRD 28](../prd/28-shared-agentics-installation-and-harness-exposure.md): the hook method of each adapter and the sentence about hooks. The owner approved the change of that sentence on 2026-11-27. OD-10 settles whether it admits agent tool hooks. [PRD 30](../prd/30-plugin-substrate-and-workflow-bundles.md) if the admission boundary moves.
+  - [PRD 28](../prd/28-shared-agentics-installation-and-harness-exposure.md): the hook method of each adapter and the sentence about hooks. The owner approved the change of that sentence on 2026-11-27. It admits git hooks and agent tool hooks (OD-10, option B). [PRD 30](../prd/30-plugin-substrate-and-workflow-bundles.md) if the admission boundary moves.
   - [PRD 15](../prd/15-agent-instruction-ownership-and-managed-blocks.md) and [PRD 06](../prd/06-template-contracts-and-generated-assets.md): the new router lines and the work store reference.
   - [PRD 07](../prd/07-cli-command-surface-and-lifecycle.md): the git hook offer in setup, and its removal in `setup remove`.
   - [PRD 38](../prd/38-global-store-and-project-state.md): the hook ownership record and the machine preference, and the two "last check" fields if the owner takes OD-6 option B.
@@ -493,4 +493,4 @@ Why A: it follows the owner's clarification, it keeps the Wave small, and it kee
 - Route: `change-plan`
 - Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md). Read `make-docs://system/prompt/designs-to-plan-change.prompt.md` with `make-docs resource read`.
 - Why: the active PRD set owns the work queue, the command names, the MCP server, setup, and the router blocks. This design adds one operation and several triggers that change those owners. It adds no new PRD subject.
-- Coordinate Handoff: Recommended W35 R0 as new work, by the outcome test. The related completed coordinate is W29 R0, which promised sync at the start of each work command and delivered it. No Wave promised that agents run those commands, or any hook. The owner said "the next Wave" on 2026-11-27, and W34 is the highest Wave in `docs/work/`, `docs/plans/`, and the register. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence that says Make Docs has no hook product. OD-10 is open: whether this Wave builds agent tool hooks.
+- Coordinate Handoff: Recommended W35 R0 as new work, by the outcome test. The related completed coordinate is W29 R0, which promised sync at the start of each work command and delivered it. No Wave promised that agents run those commands, or any hook. The owner said "the next Wave" on 2026-11-27, and W34 is the highest Wave in `docs/work/`, `docs/plans/`, and the register. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence that says Make Docs has no hook product. The owner chose option B of OD-10: Phase 2 also builds a hook for each agent tool that has proof of support.
