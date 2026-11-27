@@ -806,6 +806,9 @@ describe("risk register routing contract", () => {
       "R-036 Compatibility Bridges Could Become Permanent Duplicate Authority",
       "R-037 Minimal Store Migration Could Lose Recovery or Opaque Evidence",
       "R-038 Platform Evidence Could Be Used to Excuse a Core Parity Gap",
+      "R-039 One Project Store Serves Every Branch and Worktree",
+      "R-040 A Trigger Run Can Be the First Sync of a Checkout",
+      "R-041 Two Syncs at the Same Time Can Import an Older File Text",
     ]);
   });
 

@@ -75,6 +75,8 @@ describe("operation domain modules", () => {
       "project.relations.list",
       "project.markdown-style.validate",
       "project.markdown-style.repair",
+      // W35 R0 P1 (PRD 39 R-CHECKPOINT-CMD).
+      "project.checkpoint.run",
       "setup.store.check",
       "setup.store.clean",
       "work.item.resolve",
@@ -161,6 +163,7 @@ describe("operation domain modules", () => {
       "project.layout.verify",
       "project.doctor.fix",
       "project.markdown-style.repair",
+      "project.checkpoint.run",
       "setup.store.clean",
       "work.evidence.record",
       "work.backlog-cache.write",

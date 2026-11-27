@@ -38,6 +38,7 @@ export const WORK_STORE_AGENT_SECTIONS = [
   "tracker-connections",
   "quick-items",
   "project-uris",
+  "checkpoint",
 ] as const;
 export type WorkStoreAgentSection = (typeof WORK_STORE_AGENT_SECTIONS)[number];
 
@@ -60,7 +61,15 @@ export type WorkStoreOperationId = (typeof WORK_STORE_OPERATIONS)[number]["id"];
  * so it does not run sync first.
  */
 export const WORK_STORE_RESOURCE_READ_OPERATION = "resource.read" as const;
-export type WorkStoreRuleOperationId = WorkStoreOperationId | typeof WORK_STORE_RESOURCE_READ_OPERATION;
+
+/**
+ * The project checkpoint (W35 R0 P1, PRD 52 R-WORK-CHECKPOINT). It is a
+ * `project` operation, not a `work` one, so it is not in
+ * `WORK_STORE_OPERATIONS`. It runs the work rules, so its rules are here.
+ */
+export const WORK_STORE_CHECKPOINT_OPERATION = "project.checkpoint.run" as const;
+export const WORK_STORE_CHECKPOINT = { id: WORK_STORE_CHECKPOINT_OPERATION, cli: "make-docs project checkpoint", mcp: "project_checkpoint", writes: true } as const;
+export type WorkStoreRuleOperationId = WorkStoreOperationId | typeof WORK_STORE_RESOURCE_READ_OPERATION | typeof WORK_STORE_CHECKPOINT_OPERATION;
 
 export type WorkStoreRuleArea =
   | "authority"
@@ -73,7 +82,8 @@ export type WorkStoreRuleArea =
   | "report-and-close"
   | "tracker-connections"
   | "quick-items"
-  | "project-uris";
+  | "project-uris"
+  | "checkpoint";
 
 export interface WorkStoreRule {
   id: `WORK-RULE-${string}`;
@@ -580,7 +590,133 @@ export const WORK_STORE_RULES: readonly WorkStoreRule[] = Object.freeze([
     agentForm: agent("repo-copy"),
     humanMeaning: "Export writes only to a new or empty folder or a new file that the caller names, never into the work folders. A complete export gives a work digest.",
   },
+  // W35 R0 P1: the project checkpoint (PRD 52 R-WORK-CHECKPOINT).
+  {
+    id: "WORK-RULE-055",
+    title: "The checkpoint does all that is due, in one order",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-1"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "One command finds who is in charge, syncs, lists the claims that ended or end soon, lists the next ready work, and gives one summary line first.",
+  },
+  {
+    id: "WORK-RULE-056",
+    title: "A direct run syncs both ways",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-2"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "A run that a person or an agent starts runs the same two-way sync as work sync, and always gives its result.",
+  },
+  {
+    id: "WORK-RULE-057",
+    title: "A trigger run only imports",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-3", "R-WORK-SYNC-9"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "A run that a hook starts names one of six events. It imports changed files, writes and removes no project file, and names each file that waits for a direct run.",
+  },
+  {
+    id: "WORK-RULE-058",
+    title: "A branch change imports nothing",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-4"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "After a branch change, the run changes no store record. It does the read steps and says how many files wait.",
+  },
+  {
+    id: "WORK-RULE-059",
+    title: "Nothing is due",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-5"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "Nothing is due when the run imported, wrote, and removed no file, no file waits, and no conflict waits. Ready work, a claim that ended, a file that cannot be read, a held file that differs, and a file that sync could not write are not due. The summary line says that the files and the store match only when that is true. A trigger run with nothing due is quiet.",
+  },
+  {
+    id: "WORK-RULE-060",
+    title: "The checkpoint never settles a conflict",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-6"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "The checkpoint names each conflict with one settle command for each choice. A person settles it.",
+  },
+  {
+    id: "WORK-RULE-061",
+    title: "Claims that ended or end soon",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-7", "R-WORK-QUEUE-19"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "The checkpoint lists each claim that ended or ends within 10 minutes, with the release or renew command. It shows no claim ID, and it renews and releases nothing.",
+  },
+  {
+    id: "WORK-RULE-062",
+    title: "The next ready work, in short",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-8"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "The checkpoint shows the first three ready phases and quick items in the order of work next, how many are ready, and the claim command for the first one.",
+  },
+  {
+    id: "WORK-RULE-063",
+    title: "A caller with read access only",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-9"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "A caller that may not write gets the read steps, a line that says the sync did not run and how many files wait, and no failure.",
+  },
+  {
+    id: "WORK-RULE-064",
+    title: "The checkpoint without a Store or a project",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-10", "R-WORK-STORE-2"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "Without a usable Store, the checkpoint says that the docs/work files are the authority and syncs nothing, and a direct run names the next command. In a folder that is not a Make Docs project it says so. Neither fails, and neither creates a Store.",
+  },
+  {
+    id: "WORK-RULE-065",
+    title: "The checkpoint names its checkout",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-11", "R-WORK-SYNC-9"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "The result names the checkout that it synced. When the run was the first sync of that checkout, it says so, with the count of files that it imported.",
+  },
 ]);
+
+/**
+ * The rule IDs that are on one side only: in the catalog and not in the agent
+ * form, or in the agent form and not in the catalog (PRD 52 R-WORK-STORE-6).
+ * A rule must also sit in its own section of the agent form. An empty list
+ * means that the two forms name the same rules.
+ */
+export function workRuleTwinProblems(rules: readonly Pick<WorkStoreRule, "id" | "agentForm">[], agentText: string): string[] {
+  const problems: string[] = [];
+  const sections = new Map<string, string>();
+  const parts = agentText.split(/^## (.+)$/m);
+  for (let index = 1; index < parts.length; index += 2) {
+    sections.set(parts[index]!.trim().toLowerCase().replace(/[^a-z0-9 -]/g, "").replace(/\s+/g, "-"), parts[index + 1]!);
+  }
+  const inText = new Set(agentText.match(/WORK-RULE-\d{3}/g) ?? []);
+  const inCatalog = new Set<string>(rules.map((rule) => rule.id));
+  for (const rule of rules) {
+    const section = rule.agentForm.split("#")[1] ?? "";
+    if (!inText.has(rule.id)) problems.push(`${rule.id} is in the catalog and not in the agent form.`);
+    else if (!(sections.get(section) ?? "").includes(rule.id)) problems.push(`${rule.id} is not in the agent form section "${section}".`);
+  }
+  for (const id of [...inText].sort()) {
+    if (!inCatalog.has(id)) problems.push(`${id} is in the agent form and not in the catalog.`);
+  }
+  return problems;
+}
 
 /** The three-way sync table (R-WORK-SYNC-1 to R-WORK-SYNC-12). */
 export interface WorkSyncTableRow {
@@ -1007,6 +1143,7 @@ export function workStoreRuleCatalogDigest(): string {
     readyOrder: WORK_READY_ORDER,
     recordedStatus: WORK_RECORDED_STATUS_MAP,
     resourceRead: WORK_STORE_RESOURCE_READ_OPERATION,
+    checkpoint: WORK_STORE_CHECKPOINT,
   });
   return `sha256:${createHash("sha256").update(body).digest("hex")}`;
 }

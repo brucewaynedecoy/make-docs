@@ -25,7 +25,8 @@ const EXPECTED_COUNTS: Record<McpServerProfile, number> = {
   // W34 R0 P1 added 2 setup, 1 workflow, and 2 quality tools (PRD 25 R-MCP-PROFILE-11).
   // W29 R0 P4 added the 9 work queue tools to workflow and backlog.
   // W30 R0 P3 added the 10 factory tools to factory, the W30 R0 follow-up added 3, and the W30 R0 Store lifecycle fixes added 1.
-  core: 9, setup: 25, workflow: 24, quality: 13, backlog: 14, factory: 14, all: 81,
+  // W35 R0 P1 added the project checkpoint tool to workflow and backlog (PRD 25 R-MCP-PROFILE-12).
+  core: 9, setup: 25, workflow: 25, quality: 13, backlog: 15, factory: 14, all: 82,
 };
 
 async function withClient<T>(

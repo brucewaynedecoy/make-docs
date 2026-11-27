@@ -115,7 +115,7 @@ Experience promises:
 - When work files changed and the store does not have them yet, the next Make Docs command says so in one line with the exact command to run.
 - A git action never fails because of Make Docs. How much time a hook may add is a performance candidate below: the plan measures it and decides between a foreground run and a run that starts and returns. When no sync change and no conflict waits, the hooks print nothing. Ready work and an ended claim do not make a hook print.
 - Setup shows each hook that it would install, where it goes, and what it runs, before it writes. `setup remove` takes out only what Make Docs put in.
-- Make Docs installs the git hooks with no question only after the person turned on the machine preference for that. The preference is off until the person turns it on. A hook that belongs to one agent tool always needs an explicit input (OD-11).
+- Make Docs installs the git hooks with no question only after the person turned on the machine preference for that, and then only in a new project. The preference is off until the person turns it on. A hook that belongs to one agent tool always needs an explicit input (OD-11).
 - Without a Store, nothing new happens and nothing fails. The routers still say the true thing: the files are the authority.
 
 Complexity kept out of the human path:
@@ -153,7 +153,7 @@ The owner decided these four points on 2026-11-27. In a third round on the same 
 2. The note at the point of use must hold when no work store is installed or available. The owner's example wording: "When the work store is present, it's the authority. Read it with this command."
 3. The long-term ideas are captured in a roadmap document.
 4. Git hooks are wanted. `make-docs setup` offers the git hooks for each project, and the person opts in. A machine preference can make "yes" the default answer for each new project. Make Docs sets no machine-wide git hooks path. The owner chose this on 2026-11-27 as option A of OD-1. Point 5 refined the sentence about the machine preference on the same day.
-5. A machine preference says whether Make Docs installs the git hooks automatically for each project. Its default is "No". The person sets it at the machine step of setup. With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. With the preference off, `make-docs setup --yes` installs no hook. A hook that belongs to one agent tool always needs an explicit input, and the preference never installs one. OD-11 gives the full decision.
+5. A machine preference says whether Make Docs installs the git hooks automatically for each project. Its default is "No". The person sets it at the machine step of setup. With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. With the preference off, `make-docs setup --yes` installs no hook. A hook that belongs to one agent tool always needs an explicit input, and the preference never installs one. Later on 2026-11-27 the owner set the scope of the preference: with the preference on, setup installs the git hooks automatically only in a new project. An older project still gets the git hooks when the person wants them, through an explicit hook input or an explicit "yes" in an interactive setup of that project. OD-11 gives the full decision.
 6. The owner approved the PRD words that follow from point 5: the new sentence of PRD 30 R-ADMIT-1, and one sentence each for PRD 07 R-SETUP-CLI-10, PRD 30 R-SELECT-1, and the PRD 30 Acceptance Criteria (OD-12).
 7. The agent tools that get a hook method in this Wave are the three that setup supports today: Codex, Claude Code, and GitHub Copilot CLI. The owner states that each of them supports hooks (OD-13).
 8. A further agent tool that the owner named, which setup does not support today, goes on the roadmap. This Wave does not add it (OD-14).
@@ -301,9 +301,12 @@ The owner decided this on 2026-11-27 (OD-11).
 
 - A machine preference says whether Make Docs installs the git hooks automatically for each project. Its default is "No". Turning it on is the person's explicit choice.
 - The person sets the preference at the machine step of setup. That step exists today: `make-docs setup system` opens it directly, and project setup opens the same flow inline ([PRD 07](../prd/07-cli-command-surface-and-lifecycle.md) R-SETUP-CLI-4, `packages/cli/src/setup-system.ts`). So the person meets the question when Make Docs is first set up on the computer, and again each time the person changes the machine setup. Today that step asks one connection method for each agent tool and no other question. The plan adds the preference question there. The value lives in global config, with the other machine settings of [PRD 38](../prd/38-global-store-and-project-state.md) R-STORE-2.
-- With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`.
+- With the preference on, project setup installs the git hooks with no hook input in a new project, also in `make-docs setup --yes`.
+- The preference installs the git hooks automatically only in a new project. The owner decided this scope on 2026-11-27, after the first form of OD-11. An older project still gets the git hooks when the person wants them: through an explicit hook input, or through an explicit "yes" in an interactive setup of that project. The preference alone installs no hook in an older project.
 - With the preference off, `make-docs setup --yes` installs no hook. An interactive project setup still offers the git hooks, with "no" selected first. An explicit hook input still installs them.
 - A hook that belongs to one agent tool always needs an explicit input, in every mode. The preference never installs one.
+
+The owner decided the meaning of "new project" on 2026-11-27: it is the same as for the project name in [PRD 38](../prd/38-global-store-and-project-state.md) R-ID-8, a fresh setup target with no config file.
 
 The owner's reason: git hooks are part of a different lifecycle than agent tool hooks. Agent tools are a lifecycle on top of the normal development and documentation lifecycle. So the hooks of an agent tool get an extra measure of caution.
 
@@ -379,7 +382,8 @@ These parts did not come from existing docs or from the owner's first decisions.
 - The list of claims that ended or end soon in the checkpoint output.
 - The exact wording of the router lines and the MCP instructions.
 - The request to change the PRD 28 sentence that says Make Docs has no hook product. Approved by the owner.
-- The form of the machine preference: default "No", set at the machine step of setup, and the explicit selection for the git hooks when it is on. The orchestrator proposed it, and the owner chose it (OD-11). Decided by the owner.
+- The form of the machine preference: default "No", set at the machine step of setup, and the explicit selection for the git hooks when it is on. The orchestrator proposed it, and the owner chose it (OD-11). Decided by the owner. The owner also decided its scope on 2026-11-27: it installs the git hooks automatically only in new projects.
+- The meaning of "new project" for that scope: the same as for the project name in PRD 38 R-ID-8, a fresh setup target with no config file. The owner decided this on 2026-11-27.
 
 ### Owner decisions with their options
 
@@ -474,6 +478,9 @@ Why the owner chose B: when the PRD 28 sentence was written, hooks that belong t
 - With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. Turning the preference on is the person's explicit choice.
 - With the preference off, `make-docs setup --yes` installs no hook. An interactive project setup still offers the git hooks, with "no" selected first. An explicit hook input still installs them.
 - Hooks that belong to one agent tool always need an explicit input, in every mode. The preference never installs them.
+- The scope of the preference, decided by the owner later on 2026-11-27: with the preference on, setup installs the git hooks automatically only in new projects. An older project still gets the git hooks when the person wants them, through an explicit hook input or through an explicit "yes" in an interactive setup of that project. This replaces recommendation R3 of the plan, which said that the preference also covers a project that was set up before. Where the first bullet says "for each project", this bullet holds.
+
+The owner decided the meaning of "new project" on 2026-11-27: it is the same as for the project name in [PRD 38](../prd/38-global-store-and-project-state.md) R-ID-8, a fresh setup target with no config file.
 
 The owner's reason: git hooks are part of a different lifecycle than agent tool hooks. Agent tools are a lifecycle on top of the normal development and documentation lifecycle, so their hooks get an extra measure of caution.
 
@@ -526,7 +533,7 @@ The last three sentences follow from OD-11. The orchestrator shows them to the o
   - [PRD 38](../prd/38-global-store-and-project-state.md): the hook ownership record and the machine preference, and the two "last check" fields if the owner takes OD-6 option B.
   - [PRD 24](../prd/24-project-configuration-and-convention-overlay.md) only if the plan puts a hook setting in project config.
 - A managed router block changes in every installed project on the next update. Projects with a changed block go through the normal conflict review of PRD 15.
-- With the machine preference on, `make-docs setup --yes` installs the git hooks with no hook input. A script that runs `setup --yes` gets hooks only on a computer where the person turned the preference on. With the preference off, which is the default, the result of such a script does not change (OD-11).
+- With the machine preference on, `make-docs setup --yes` installs the git hooks with no hook input in a new project. A script that runs `setup --yes` gets hooks only on a computer where the person turned the preference on, and only in a new project. In an older project such a script installs no hook. With the preference off, which is the default, the result of such a script does not change (OD-11).
 - Each of the three agent tools that setup supports gets a hook method. The support status of each one is recorded as the real run shows it, for example "preview". Risk: a hook contract in preview can change, and the hook method must then change with it (OD-13).
 - The Wave ships as version 2.1.1, a patch release (OD-15).
 - Make Docs writes into `.git/hooks` for the first time. This is a new kind of owned file, outside the project tree for worktrees. The ownership and removal rules must be proved before release.

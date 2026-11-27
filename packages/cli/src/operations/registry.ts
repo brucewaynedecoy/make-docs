@@ -40,6 +40,7 @@ import { assertMcpToolMetadata, type McpToolMetadata } from "./mcp-metadata";
 import { leafHelpEntry } from "./leaf-help-table";
 import { decompositionOperations } from "./decomposition/ops";
 import { projectSkillCheckOperations } from "./project/skill-check-ops";
+import { projectCheckpointOperations } from "./project/checkpoint-ops";
 import { workQueueOperations } from "./work/work-queue/operations";
 import { factoryOperations } from "./factory/operations";
 
@@ -81,6 +82,26 @@ export interface OperationCliProjection {
   command: string;
 }
 
+/**
+ * How an operation gets its Store admission (PRD 25 R-ACCESS-17).
+ *
+ * - `required`, the default: the registry checks the caller against the
+ *   declared access and opens the Store session before the handler runs.
+ * - `optional`: a read-only operation that obtains its own Store admission.
+ * - `handler` (W30 R0 P3): the registry check still runs, and the handler
+ *   opens its own Store session.
+ * - `step` (W35 R0 P1, owner decision of 2026-11-27 on gate OG-1): a write
+ *   operation whose write is one step. The registry skips exactly three
+ *   things for it, and the handler does each one itself: the refusal when the
+ *   surface did not allow writes, the caller check against the declared
+ *   access, and the outer Store session. Every other check before the handler
+ *   stays, and so does the guard that refuses a production Store operation
+ *   with no explicit route. A caller without the write access or the write
+ *   permission gets the read steps and a result that says the write step did
+ *   not run. Only an operation that declares this kind gets it.
+ */
+export type OperationStoreAdmission = "required" | "optional" | "handler" | "step";
+
 export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
   /** Stable registry identifier, e.g. `resource.list`. */
   id: string;
@@ -92,9 +113,10 @@ export interface OperationDefinition<TInput = unknown, TOutput = unknown> {
    * Optional read-only sub-operations must obtain their own Store admission.
    * `handler` (W30 R0 P3): the harness check still runs, and the handler
    * opens its own Store session with no project folder, because the call acts
-   * on this machine, not on the folder where it runs.
+   * on this machine, not on the folder where it runs. `step` (W35 R0 P1): see
+   * {@link OperationStoreAdmission}.
    */
-  storeAdmission?: "required" | "optional" | "handler";
+  storeAdmission?: OperationStoreAdmission;
   status: OperationStatus;
   /** Required for MCP-ready operations; independent of admission and access. */
   mcp?: McpToolMetadata;
@@ -129,7 +151,7 @@ export interface OperationDescriptor {
   summary: string;
   mutates: OperationMutation;
   access: OperationAccess;
-  storeAdmission?: "required" | "optional" | "handler";
+  storeAdmission?: OperationStoreAdmission;
   status: OperationStatus;
   pendingLineage?: string;
   cli: OperationCliProjection;
@@ -140,7 +162,7 @@ export interface OperationAccessFact {
   status: OperationStatus;
   cli: OperationCliProjection;
   access: OperationAccess;
-  storeAdmission?: "required" | "optional" | "handler";
+  storeAdmission?: OperationStoreAdmission;
   mcpReady: boolean;
   commandRuleCandidate: boolean;
 }
@@ -212,6 +234,8 @@ export const ADMITTED_OPERATION_IDS = [
   "project.relations.list",
   "project.markdown-style.validate",
   "project.markdown-style.repair",
+  // W35 R0 P1: the project checkpoint (PRD 39 R-CHECKPOINT-CMD).
+  "project.checkpoint.run",
   // W29 R0 P4: the work queue (PRD 52 R-WORK-QUEUE-12, PRD 39 R-RUN-4).
   "work.queue.status",
   "work.queue.sync",
@@ -301,6 +325,7 @@ const ADMITTED_CLI_PATHS: Record<(typeof ADMITTED_OPERATION_IDS)[number], [Opera
   "project.relations.list": ["project", "relations list"],
   "project.markdown-style.validate": ["project", "markdown validate"],
   "project.markdown-style.repair": ["project", "markdown repair"],
+  "project.checkpoint.run": ["project", "checkpoint"],
   "work.queue.status": ["work", "status"],
   "work.queue.sync": ["work", "sync"],
   "work.queue.next": ["work", "next"],
@@ -398,12 +423,25 @@ export function assertOperationStoreAdmission(
   definition: Pick<OperationDefinition, "id" | "mutates" | "access" | "storeAdmission">,
 ): void {
   const admission = definition.storeAdmission ?? "required";
-  if (admission !== "required" && admission !== "optional" && admission !== "handler") {
+  if (admission !== "required" && admission !== "optional" && admission !== "handler" && admission !== "step") {
     throw new Error(`Operation ${definition.id} declares unknown Store admission.`);
   }
   if (admission === "optional" && (definition.mutates !== "read" || definition.access.store !== "read")) {
     throw new Error(`Optional Store admission requires a read-only operation with Store read access: ${definition.id}.`);
   }
+  // PRD 25 R-ACCESS-17 (W35 R0 P1): only a write operation that declares its
+  // full write access may check that access at the step that needs it.
+  if (admission === "step" && (
+    definition.mutates !== "write" || definition.access.store !== "write" ||
+    definition.access.project === "none" || definition.access.hostConfig !== "none"
+  )) {
+    throw new Error(`Step Store admission requires a write operation that declares Store write access, project access, and no host configuration access: ${definition.id}.`);
+  }
+}
+
+/** True when the handler checks its write access at the step that needs it (PRD 25 R-ACCESS-17). */
+function checksWriteAtStep(definition: Pick<OperationDefinition, "storeAdmission">): boolean {
+  return definition.storeAdmission === "step";
 }
 
 function assembleRegistry(): Map<string, OperationDefinition> {
@@ -422,6 +460,7 @@ function assembleRegistry(): Map<string, OperationDefinition> {
     ...uatOperations,
     ...decompositionOperations,
     ...projectSkillCheckOperations,
+    ...projectCheckpointOperations,
     ...workQueueOperations,
     ...factoryOperations,
   ];
@@ -615,7 +654,8 @@ export async function invokeOperation(
       definition.pendingLineage!,
     );
   }
-  if (definition.mutates === "write" && !context.writesAllowed) {
+  // A `step` operation checks the write permission itself, at its write step.
+  if (definition.mutates === "write" && !context.writesAllowed && !checksWriteAtStep(definition)) {
     throw new OperationWriteDeniedError(
       `Operation \`${id}\` mutates state and requires write permission from the calling surface ` +
         "(CLI write flags or MCP allowWrite=true).",
@@ -656,29 +696,33 @@ export async function invokeOperation(
     (context.surface === "cli" || context.surface === "mcp") &&
     definition.access.store !== "none" && definition.storeAdmission !== "optional"
   ) {
+    // The route guard holds for a `step` operation too: its handler does not repeat it.
     if (context.route === "test") {
       throw new OperationError("A production Store operation needs an explicit route.");
     }
-    const authority: HarnessCommandRuleAuthority = {
-      list: listHarnessCommandRules,
-      validate: validateRegistryHarnessCommandRules,
-    };
-    try {
-      assertHarnessOperationAllowed({
-        operation: id,
-        required: definition.access,
-        targetRoot,
-        storeRoot: context.storeRoot,
-        route: context.route,
-        callerIdentityRaw: context.callerIdentityRaw,
-        callerReference: context.callerReference,
-        mcpConnectionId: context.mcpConnectionId,
-        mcpConnectionKey: context.mcpConnectionKey,
-        commandRuleAuthority: authority,
-      });
-    } catch (error) {
-      if (explainDenial && error instanceof StoreAccessStateError) throw explainDenial(error);
-      throw error;
+    // A `step` operation checks the caller's access itself: the read access first, and the write access at its write step.
+    if (!checksWriteAtStep(definition)) {
+      const authority: HarnessCommandRuleAuthority = {
+        list: listHarnessCommandRules,
+        validate: validateRegistryHarnessCommandRules,
+      };
+      try {
+        assertHarnessOperationAllowed({
+          operation: id,
+          required: definition.access,
+          targetRoot,
+          storeRoot: context.storeRoot,
+          route: context.route,
+          callerIdentityRaw: context.callerIdentityRaw,
+          callerReference: context.callerReference,
+          mcpConnectionId: context.mcpConnectionId,
+          mcpConnectionKey: context.mcpConnectionKey,
+          commandRuleAuthority: authority,
+        });
+      } catch (error) {
+        if (explainDenial && error instanceof StoreAccessStateError) throw explainDenial(error);
+        throw error;
+      }
     }
   }
   const run = async () => {
@@ -686,7 +730,7 @@ export async function invokeOperation(
   };
   let value: JsonValue;
   try {
-    value = definition.access.store === "none" || definition.storeAdmission === "optional" || definition.storeAdmission === "handler"
+    value = definition.access.store === "none" || definition.storeAdmission === "optional" || definition.storeAdmission === "handler" || checksWriteAtStep(definition)
       ? await run()
       : await context.withStoreSession(
           definition.access.store,

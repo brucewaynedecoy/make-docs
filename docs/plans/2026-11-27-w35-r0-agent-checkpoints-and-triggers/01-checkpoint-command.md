@@ -27,7 +27,7 @@ The path follows PRD 39 R-NAME-1 to R-NAME-4. The profile column is new in this 
 ## Scope
 
 - T1 to T3 are the name gate. T1 adds the catalog entry as `planned` with `plannedBy: "W35 R0"` and adds `W35 R0` to `NameCatalogPlanner`. T2 lands the PRD lines that name the command and the tool: PRD 39 R-TOP-1 and the new R-CHECKPOINT-CMD section with its registry table, and PRD 25 R-MCP-PROFILE-12. T3 adds the test check for the new table. No PRD line may name the command before the catalog holds it.
-- Named finding: how the registry admits one operation whose sync step needs more access than its read steps. The task reads `assertOperationStoreAdmission`, the `handler` admission kind, and the access check inside the `work.queue.status` handler. It records the answer before the handler is written. When no existing kind fits, the phase stops at owner gate OG-1.
+- Named finding: how the registry admits one operation whose sync step needs more access than its read steps. The task reads `assertOperationStoreAdmission`, the `handler` admission kind, and the access check inside the `work.queue.status` handler. It records the answer before the handler is written. No existing kind fitted, so owner gate OG-1 opened. The owner chose option A on 2026-11-27: PRD 25 R-ACCESS-17 gains the rule that a write operation may check its write access inside its handler, at the step that needs it. A caller with read access only, and an MCP call without the write permission (`allowWrite`), get the read steps, a line that says the sync did not run, and exit code 0. The new admission is narrow: only an operation that declares it gets it, and a test proves that the registry refuses every other operation as before.
 - Named finding: whether the import-only sync of a trigger run can reuse the first-import path or the `holdWrites` option of `syncWorkFiles`, with no second copy of the sync table.
 - The operation does the five steps of the design in order: authority, sync, claims that ended or end soon, next ready work, and one summary line. The backlog builds it in two tasks: the operation with steps 1 and 2, then steps 3 to 5.
 - A direct run has no `--event`. It runs the same two-way sync as `work sync` and always prints its result.
@@ -73,5 +73,5 @@ The path follows PRD 39 R-NAME-1 to R-NAME-4. The profile column is new in this 
 ## Dependencies
 
 - W29 R0, which is released.
-- Owner gate OG-1, only if no existing admission kind fits.
+- Owner gate OG-1 is answered: option A, on 2026-11-27. It blocks nothing.
 - Owner gate OG-8 is answered: version 2.1.1. It blocks nothing.

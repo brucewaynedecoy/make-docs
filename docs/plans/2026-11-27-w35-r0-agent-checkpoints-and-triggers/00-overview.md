@@ -157,14 +157,14 @@ These parts are not in the design or in current docs. The owner should know they
 - The profile IDs `PERF-006` and `PERF-007`, and their budgets in the backlog.
 - The rule that the four operations with no project access show no reminder.
 - No hook setting in project config.
-- The owner gates OG-1 to OG-10 below. The owner answered OG-5, OG-7, OG-8, and OG-10 on 2026-11-27.
+- The owner gates OG-1 to OG-10 below. The owner answered OG-1, OG-5, OG-7, OG-8, and OG-10 on 2026-11-27.
 - Standing rules 10, 11, and 12, with the evidence commit that follows the pull request run.
 - The rule that a gate bullet stands in the stage that the gate blocks, and never in the stage whose tasks find or bring the gate. The work store reads a gate bullet as open, and an open gate blocks every task of its stage.
 - The rule that a task that is not needed closes as `superseded` and never as `cancelled`, because a cancelled unit keeps each unit that depends on it waiting.
 - The builder proposes the name of the hook input flag and of the machine preference key in P5, and the owner sees both in the phase report.
 - The rule that the reminder check runs after the operation, so the six commands that sync first show no line after a good sync.
 - The default answer "no" of the hook offer when the machine preference is off. The plan first read it from the design's words "the person opts in". The owner decided it on 2026-11-27, so it is no longer only new.
-- The recommendations R1 to R7 under OG-5 below, for details of the machine preference that the owner's words do not cover.
+- The recommendations R1, R2, and R4 to R7 under OG-5 below, for details of the machine preference that the owner's words do not cover. R3 is no longer a recommendation: the owner decided it on 2026-11-27, with another meaning than the plan first gave it. R3a is also an owner decision of 2026-11-27.
 - A proof phase (P4) that ends before the git hook build (P5) starts.
 
 ## Product Authority Decision
@@ -179,7 +179,7 @@ These parts are not in the design or in current docs. The owner should know they
 | The command name, group, inputs, and registry table; `project` group contents | `update-existing` | [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) | PRD 39 owns R-TOP-1, the command sections, and the name catalog. |
 | The reminder output rule: standard error, one line, at most one for each run | `update-existing` | PRD 39 | PRD 39 owns the render rules (R-RENDER). |
 | MCP profile membership of the new tool; MCP server instructions; the reminder as a result field | `update-existing` | [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | PRD 25 owns R-MCP-PROFILE and the MCP surface. |
-| One operation whose sync step needs more access than its read steps | `update-existing` or `none` | PRD 25 | R-ACCESS-17 owns Store admission. `none` when an existing admission kind fits. Owner gate OG-1 when none fits. |
+| One operation whose sync step needs more access than its read steps | `update-existing` | PRD 25 | R-ACCESS-17 owns Store admission. No existing admission kind fits, so owner gate OG-1 opened. The owner chose option A on 2026-11-27, and R-ACCESS-17 gains the new rule in P1. |
 | The root router line and the `docs/work/` router note | `update-existing` | [PRD 15](../../prd/15-agent-instruction-ownership-and-managed-blocks.md) | PRD 15 owns the managed router blocks. |
 | The Checkpoint section of the work store reference | `update-existing` | [PRD 06](../../prd/06-template-contracts-and-generated-assets.md) | R-WORK-RESOURCE-1 owns the content of the agent twin. |
 | The sentence about hooks, and the hook method of an adapter | `update-existing` | [PRD 28](../../prd/28-shared-agentics-installation-and-harness-exposure.md) | The owner approved the sentence change on 2026-11-27. PRD 28 owns the adapter contract. |
@@ -200,7 +200,7 @@ These parts are not in the design or in current docs. The owner should know they
 | PRD 52 | New R-WORK-REMIND; R-WORK-SYNC-8; R-WORK-QUEUE-5; R-WORK-URI-3 | The reminder counts only files that the next checkpoint run would import, from the exact check. The read commands name the checkpoint first, mark out-of-date units, and say when the list is not complete. They still change nothing. A project URI read gains its fixed sentence. | [P2](02-reminder-and-read-commands.md) | "Changes nothing" for the read commands, and `WORK-RULE-052`. |
 | [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md) | R-TOP-1; new command section R-CHECKPOINT-CMD with a registry table; the help text of `lifecycle checkpoint` | `project` also owns the checkpoint. The section defines `make-docs project checkpoint`, `--event`, its inputs, and its access. The help of both checkpoint commands says how they differ. | P1 | The naming rules, the alias window, and every other command section. |
 | PRD 39 | New R-RENDER-4; R-NAME-6 | The reminder goes to standard error, is one line, and appears at most one time for each run. The commands that show it come from the registry. R-NAME-6 covers the MCP server instructions and the hook block as shipped text. | P2, [P3](03-routers-and-mcp-instructions.md), [P5](05-git-hooks-in-setup.md) | R-RENDER-1 to R-RENDER-3. |
-| [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | New R-MCP-PROFILE-12; R-ACCESS-17 only under OG-1 | `project_checkpoint` belongs to `backlog`, `workflow`, and `all`, with its access. | P1 | The other profiles and access rules. |
+| [PRD 25](../../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md) | New R-MCP-PROFILE-12; R-ACCESS-17 (OG-1, option A) | `project_checkpoint` belongs to `backlog`, `workflow`, and `all`, with its access. A write operation may check its write access inside its handler, at the step that needs it. | P1 | The other profiles and access rules. |
 | PRD 25 | New R-MCP-INSTR; `Current MCP Surface` | The server sends short instructions when an agent connects. A profile with no work tool sends no work rule. A result with `mcpResultSchema` carries no reminder field. | P2, P3 | R-RENDER-3 parity of MCP output and the operation result. |
 | [PRD 15](../../prd/15-agent-instruction-ownership-and-managed-blocks.md) | New `### Work Store Router Discovery` with R-WORK-ROUTER | The root router rule and the `docs/work/` conditional note, with the meaning that the design fixes. Both hold without a Store. | P3 | Managed block ownership and conflict review. |
 | [PRD 06](../../prd/06-template-contracts-and-generated-assets.md) | R-WORK-RESOURCE-1 | The work store reference has a Checkpoint section with shared rule IDs. | P1 | The other work resources. |
@@ -226,7 +226,7 @@ Each entry lands in the phase that builds the behavior. Each one uses the `2026-
 | PRD 52 | W35 R0 P2 | New R-WORK-REMIND; R-WORK-SYNC-8; R-WORK-QUEUE-5; R-WORK-URI-3 | Only `work status` and `work next` said that files wait, and they did not mark units. | A reminder on each command with Store read access, marks, the "list is not complete" line, and the URI sentence. | An agent that runs any Make Docs command learns that the store is out of date. | Design OD-2, OD-6 |
 | PRD 39 | W35 R0 P1 | R-TOP-1; new R-CHECKPOINT-CMD | `project` had no checkpoint command. | `make-docs project checkpoint` and `project_checkpoint`. | Design OD-7 option A. | Design |
 | PRD 39 | W35 R0 P2 | New R-RENDER-4 | No command printed a line about another capability's state. | The reminder output rule. | The reminder must not change JSON on standard output. | Design |
-| PRD 25 | W35 R0 P1 | New R-MCP-PROFILE-12; R-ACCESS-17 only under OG-1 | The tool did not exist. | Profile membership and access of `project_checkpoint`. | Each ready tool needs an explicit profile. | Design |
+| PRD 25 | W35 R0 P1 | New R-MCP-PROFILE-12; R-ACCESS-17 (OG-1, option A) | The tool did not exist. Each admission kind that allowed a write checked the write access before the handler. | Profile membership and access of `project_checkpoint`. The step admission of R-ACCESS-17. | Each ready tool needs an explicit profile. | Design |
 | PRD 25 | W35 R0 P3 | New R-MCP-INSTR | The server sent only a name and a version. | The server sends short work rules when a work tool is in the profile. | Text that reaches an agent with no router read. | Design |
 | PRD 15 | W35 R0 P3 | New R-WORK-ROUTER | The root router said nothing about the work store. The `docs/work/` router did not say when to prefer the CLI or when to sync. | The router rule and the conditional note. | Owner decision 2 and OD-3 option A. | Design |
 | PRD 06 | W35 R0 P1 | R-WORK-RESOURCE-1 | The agent twin had no checkpoint rules. | The twin has a Checkpoint section with shared rule IDs. | Twins guide. | Design |
@@ -339,7 +339,7 @@ Use a document index tool for project documents and a code index tool for code d
 - Prove the two-checkout test, the two-worktree test, and the `git pull --rebase` test of the design.
 - Prove that a hook exits 0 and prints nothing with no CLI, no Store, and no Make Docs install.
 - Prove setup and `setup remove` beside a hook of another tool: the other tool's bytes stay the same.
-- Prove the machine preference: the question at the machine step with the default "No", `setup --yes` with the preference on and off, the first choice of the interactive offer, an explicit hook input, and that neither the preference nor an update of Make Docs installs a hook by itself in a project that has none.
+- Prove the machine preference: the question at the machine step with the default "No", `setup --yes` with the preference on and off, the first choice of the interactive offer, an explicit hook input, that the preference installs the git hooks automatically only in a new project, that an older project gets them through an explicit hook input or an explicit "yes", and that neither the preference nor an update of Make Docs installs a hook by itself in an older project that has none.
 - Record the hook contract of each of the three agent tools with a real run and its support status, and prove each hook method through the adapter contract.
 - Prove `npm run smoke:pack` passes. Prove that the digest file of version 2.1.1 equals the digest of the tarball at each phase commit and at the end.
 - Run the full test suite on the maintainer machine. Record the workflow run for the full suite on Linux and for the fixed test list on the three platforms. The full suite does not run on macOS or Windows in the workflow. Record known failures.
@@ -363,29 +363,37 @@ Unassisted Goal Testing is `not-needed-now`. The triggers reach agents, not a pe
 
 Every design decision is settled. The gates below are new in this plan. Each one is an owner gate in the backlog. Each open gate has at most two options, the facts that the owner needs, and one recommendation. A recommendation is not a decision. A gate that says "only if" does not open when its condition does not happen. Each heading names the phase that finds or brings the gate, and the text names the stage that the gate blocks. A gate never blocks the stage whose tasks find or bring it. The gate IDs keep their first numbers.
 
-The owner answered four gates on 2026-11-27, in the third round of decisions of that day. An answered gate blocks nothing, and it has no gate bullet in any stage of the backlog.
+The owner answered four gates on 2026-11-27, in the third round of decisions of that day. The owner answered OG-1 later on 2026-11-27, after P1 Stage 1 found that it was open. An answered gate blocks nothing, and it has no gate bullet in any stage of the backlog.
 
 | Gate | State | Date | The owner's answer | Blocks |
 | --- | --- | --- | --- | --- |
-| OG-1 | Open, only if | None | None yet | P1 Stage 2, only if no existing Store admission kind fits. |
+| OG-1 | Answered | 2026-11-27 | Option A: a new access rule in PRD 25 R-ACCESS-17. A write operation may check its write access inside its handler, at the step that needs it. The checkpoint stays one operation with one MCP tool. A caller with read access only, and an MCP call without the write permission (`allowWrite`), get the read steps, a line that says the sync did not run, and exit code 0. | Nothing. |
 | OG-2 | Open, only if | None | None yet | P2 Stage 4, only if `PERF-006` shows more than 1 second. |
 | OG-3 | Open, only if | None | None yet | P5 Stage 1, only if no existing Store record fits the hook block. |
 | OG-4 | Open, always | None | None yet | P5 Stage 1. |
-| OG-5 | Answered | 2026-11-27 | A machine preference with the default "No" says whether Make Docs installs the git hooks automatically for each project. With it on, project setup installs them with no hook input, also in `setup --yes`. With it off, `setup --yes` installs none, interactive setup offers them with "no" first, and an explicit hook input installs them. A hook of one agent tool always needs an explicit input. Design OD-11. | Nothing. |
+| OG-5 | Answered | 2026-11-27 | A machine preference with the default "No" says whether Make Docs installs the git hooks automatically for each project. With it on, project setup installs them with no hook input, also in `setup --yes`. Later on 2026-11-27 the owner set its scope: it installs them automatically only in a new project (R3). With it off, `setup --yes` installs none, interactive setup offers them with "no" first, and an explicit hook input installs them. A hook of one agent tool always needs an explicit input. Design OD-11. | Nothing. |
 | OG-6 | Open, only if | None | None yet | P5 Stage 2, only if P4 found a platform gap. |
 | OG-7 | Answered early | 2026-11-27 | Each of the three agent tools that setup supports gets a hook method: Codex, Claude Code, and GitHub Copilot CLI. Design OD-13. | Nothing. |
 | OG-8 | Answered | 2026-11-27 | Version 2.1.1, a patch release. Design OD-15. | Nothing. |
 | OG-9 | Open, always | None | None yet | The Wave closeout and any release. |
 | OG-10 | Answered | 2026-11-27 | The owner approved the proposed sentence of PRD 30 R-ADMIT-1, and the PRD 30 changes that OG-5 needs. Design OD-12. | Nothing. |
 
-**OG-1 (P1, only if): What happens if no existing Store admission kind lets one operation hold two access levels?**
+**OG-1 (P1, only if): What happens if no existing Store admission kind lets one operation hold two access levels?** Answered on 2026-11-27: the owner chose option A.
 
-This gate opens only if P1 finds that neither the default admission nor the `handler` admission lets one operation sync with write access and still give a caller with read access the read steps.
+This gate opened on 2026-11-27. P1 T4 found that neither the default admission nor the `handler` admission lets one operation sync with write access and still give a caller with read access the read steps. The P1 section of the backlog's evidence report gives the facts.
 
-- A (recommended): add the rule to PRD 25 R-ACCESS-17 that a write operation may check its access inside its handler, as `work status` does for its read. The design's "one registry operation with one MCP tool" holds.
+- A (chosen; it was recommended): add the rule to PRD 25 R-ACCESS-17 that a write operation may check its access inside its handler, as `work status` does for its read. The design's "one registry operation with one MCP tool" holds.
 - B: split the checkpoint into two operations, one that writes and one that reads. The design's "one operation" does not hold, and an agent must know two names.
 
-Why A: an agent must remember one command. P1 T4 in Stage 1 finds whether the gate opens. The gate blocks P1 Stage 2, and so T6 and later.
+The owner's answer, with its consequence:
+
+- PRD 25 R-ACCESS-17 gains the rule that a write operation may check its write access inside its handler, at the step that needs it, as `work status` does for its read access.
+- The checkpoint stays one registry operation with one MCP tool.
+- A caller with read access only gets the read steps, a line that says the sync did not run, and exit code 0.
+- An MCP call without the write permission (`allowWrite`) gets that same result, and not a refusal. The orchestrator told the owner this consequence with option A, so it is part of the answer.
+- The new admission is narrow. Only an operation that declares it gets it. For every other operation the registry refuses what it refuses today, and a test proves both.
+
+Why A was recommended: an agent must remember one command. P1 T4 in Stage 1 found that the gate opened. The gate blocked P1 Stage 2 until the owner answered. It blocks nothing now.
 
 **OG-2 (P2, only if): Does the exact check stay on each command after `PERF-006`?**
 
@@ -434,12 +442,13 @@ The two options that the plan gave, kept as history:
 
 The owner's answer is close to option B, with the default "No", the question at the machine step, and the rule for agent tool hooks added. So the PRD changes of option B apply. OG-10 below gives the words.
 
-The owner's words do not cover the details below. Each one is a recommendation of this plan and not an owner decision. P5 builds each one as written, the phase report shows them to the owner, and the owner can change any of them.
+The owner's words did not cover the details below. The owner decided R3 on 2026-11-27. Each other one is a recommendation of this plan and not an owner decision. P5 builds each one as written, the phase report shows them to the owner, and the owner can change any of them.
 
 - R1: an update of Make Docs never turns the preference on, and never installs a hook by itself. This follows from the owner's words that the default is "No" and that turning the preference on is the person's explicit choice.
 - R2: turning the preference on writes one value of global config. It installs no hook in any project by itself. A project gets its hooks at its next project setup run. Turning the preference off removes no hook that a project already has.
-- R3: with the preference on, a project setup run installs the git hooks also in a project that was set up before and has none. The owner said "for each project". The earlier design text said "for each new project".
-- R4: with the preference on, an interactive project setup still shows the hook review, with "yes" selected first, and the person confirms. `setup --yes` shows the hooks in its plan output and installs them.
+- R3 (decided by the owner on 2026-11-27; this replaces the first R3): with the preference on, setup installs the git hooks automatically only in a new project. An older project still gets the git hooks when the person wants them: through an explicit hook input, or through an explicit "yes" in an interactive setup of that project. The first R3 said that the preference also covers a project that was set up before and has none. That meaning does not hold any more.
+- R3a (decided by the owner on 2026-11-27): "new project" has the same meaning as for the project name in [PRD 38](../../prd/38-global-store-and-project-state.md) R-ID-8: a fresh setup target with no config file. An older project is each other project.
+- R4: with the preference on, an interactive setup of a new project still shows the hook review, with "yes" selected first, and the person confirms. In an older project the offer has "no" selected first, as with the preference off. `setup --yes` shows the hooks in its plan output and installs them.
 - R5: an explicit "no hooks" input for one run holds over the preference, so one project can stay without hooks on a computer where the preference is on.
 - R6: the machine step asks the question when global config holds no answer yet, and `make-docs setup system` shows it again with the current value selected first. A non-interactive machine setup changes the preference only by an explicit input. `--yes` alone never changes it. An absent value means "No".
 - R7: with the preference on, when setup must refuse the git hooks (a hook file that is not a shell script, hooks that another tool owns, or a `core.hooksPath` that points to another folder), it installs no hook, says why in one line, and the rest of the setup run goes on.
@@ -519,4 +528,15 @@ This handoff is advisory-default-but-overridable.
 - Rationale: the owner decided these points on 2026-11-27, after the first commit of this plan.
 - PRD decision: `update-existing` — PRD 07 R-SETUP-CLI-10, PRD 28 R-HARNESS-23, and PRD 30 R-ADMIT-1, R-SELECT-1, and its Acceptance Criteria line, each in its phase.
 - Owner approval: the owner's decisions of 2026-11-27, third round, which the design records as OD-11 to OD-15.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)
+
+### 2026-11-27 — W35 R0 P1
+
+- Kind: `edit`
+- Affected scope: owner gate OG-1; recommendation R3 under OG-5, with the new R3a and the changed R4; the PRD 25 rows of the PRD tables; the proof list; [P5](05-git-hooks-in-setup.md).
+- Previous scope: OG-1 was open "only if". R3 was a recommendation that said that, with the preference on, a project setup run installs the git hooks also in a project that was set up before and has none. PRD 25 R-ACCESS-17 changed only under OG-1.
+- Replacement scope: OG-1 is answered with option A. PRD 25 R-ACCESS-17 gains the rule that a write operation may check its write access inside its handler, and an MCP call without the write permission gets the read result. R3 is an owner decision with another meaning: with the preference on, setup installs the git hooks automatically only in a new project, and an older project gets them through an explicit hook input or an explicit "yes" in an interactive setup. R3a is new: the owner decided the meaning of "new project" on 2026-11-27, and it is a fresh setup target with no config file, as for the project name in PRD 38 R-ID-8. No gate ID, task ID, or acceptance case number changed.
+- Rationale: the owner decided both points on 2026-11-27, after P1 Stage 1.
+- PRD decision: `update-existing` — PRD 25 R-ACCESS-17 in P1. The PRD changes of P5 keep their owners, PRD 07 and PRD 38, and take the new meaning of R3.
+- Owner approval: the owner's two decisions of 2026-11-27 on OG-1 and on the scope of the git hook preference.
 - Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)

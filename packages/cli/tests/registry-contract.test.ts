@@ -90,6 +90,8 @@ const LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS = [
   "project.markdown-style.validate",
   "project.markdown-style.repair",
 ] as const;
+/** W35 R0 P1: the project checkpoint (PRD 39 R-CHECKPOINT-CMD-1). */
+const LITERAL_W35_R0_P1_ADMITTED_IDENTIFIERS = ["project.checkpoint.run"] as const;
 const LITERAL_W25_R0_P4_ADMITTED_IDENTIFIERS = ["backlog.review.open", "backlog.review.refresh"] as const;
 /** W30 R0 P3: the factory (PRD 53 R-FACTORY-49). */
 const LITERAL_W30_R0_P3_ADMITTED_IDENTIFIERS = ["factory.status","factory.tools.save","factory.workflow.save","factory.workflow.show","factory.workflow.list","factory.proof.save","factory.assignment.start","factory.assignment.save","factory.assignment.list","factory.restore","factory.tools.list","factory.file-backup.save","factory.grant-use.record","factory.workflow.clean"] as const;
@@ -131,7 +133,7 @@ describe("operation registry contract", () => {
     for (const id of LITERAL_LEGACY_COMPATIBILITY_IDENTIFIERS) expect(hasOperation(id)).toBe(false);
     expect(LITERAL_P3_ADMITTED_IDENTIFIERS).toHaveLength(24);
     const admittedIds = [...ADMITTED_OPERATION_IDS];
-    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.doctor.") && !id.startsWith("setup.store.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && id !== "project.register.list" && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS.some(w34 => w34 === id) && !LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS.some(w29 => w29 === id) && !LITERAL_W30_R0_P3_ADMITTED_IDENTIFIERS.some(w30 => w30 === id))).toEqual(
+    expect(admittedIds.filter((id) => !id.startsWith("backlog.review.") && !id.startsWith("project.path-hygiene.") && !id.startsWith("project.doctor.") && !id.startsWith("setup.store.") && !id.startsWith("project.checkout-move.") && !id.startsWith("project.checkout-register.") && id !== "project.register.list" && !LITERAL_R2_P4_ADMITTED_IDENTIFIERS.some(r2 => r2 === id) && !LITERAL_R3_ADMITTED_IDENTIFIERS.some(r3 => r3 === id) && !LITERAL_R4_ADMITTED_IDENTIFIERS.some(r4 => r4 === id) && !LITERAL_W23_R0_P2_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W23_R0_P5_ADMITTED_IDENTIFIERS.some(w23 => w23 === id) && !LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS.some(w34 => w34 === id) && !LITERAL_W35_R0_P1_ADMITTED_IDENTIFIERS.some(w35 => w35 === id) && !LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS.some(w29 => w29 === id) && !LITERAL_W30_R0_P3_ADMITTED_IDENTIFIERS.some(w30 => w30 === id))).toEqual(
       LITERAL_P3_ADMITTED_IDENTIFIERS,
     );
     expect(admittedIds.filter((id) => id.startsWith("project.path-hygiene."))).toEqual(
@@ -167,6 +169,7 @@ describe("operation registry contract", () => {
         // W32 R0 P3: `make-docs project list` (PRD 39 R-STORE-CMD-1).
         "project.register.list",
         ...LITERAL_W34_R0_P1_ADMITTED_IDENTIFIERS,
+        ...LITERAL_W35_R0_P1_ADMITTED_IDENTIFIERS,
         ...LITERAL_W29_R0_P4_ADMITTED_IDENTIFIERS,
         ...LITERAL_W30_R0_P3_ADMITTED_IDENTIFIERS,
       ].sort(),
@@ -218,6 +221,13 @@ describe("operation registry contract", () => {
     const context = createExecutionContext({ surface: "test", writesAllowed: false });
     for (const operation of listOperations()) {
       if (operation.mutates !== "write") continue;
+      // PRD 25 R-ACCESS-17: only an operation that declares the `step` Store
+      // admission checks the write permission in its handler. The W35 R0 P1
+      // checkpoint tests prove what it returns without the permission.
+      if (operation.storeAdmission === "step") {
+        expect(operation.id).toBe("project.checkpoint.run");
+        continue;
+      }
       const attempt = invokeOperation(operation.id, {}, context);
       if (operation.status === "pending") {
         await expect(attempt, operation.id).rejects.toBeInstanceOf(OperationPendingError);

@@ -70,6 +70,9 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     const w32R0P3Ids = ["project.register.list"];
     // W34 R0 P1 admits the four Skill check operations (PRD 39 R-SKILL-CHECK-1).
     const w34R0P1Ids = ["decomposition.output.validate", "project.relations.list", "project.markdown-style.validate", "project.markdown-style.repair"];
+    // W35 R0 P1 admits the project checkpoint (PRD 39 R-CHECKPOINT-CMD-1).
+    const w35R0P1Ids = ["project.checkpoint.run"];
+    expect(admitted.filter(entry => w35R0P1Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([{ id: "project.checkpoint.run", status: "active" }]);
     // W29 R0 P4 admits the nine work queue operations (PRD 52 R-WORK-QUEUE-12).
     const w29R0P4Ids = ["status", "sync", "next", "claim", "release", "report", "close", "export", "add"].map((verb) => `work.queue.${verb}`);
     // W30 R0 P3 admits the ten factory operations (PRD 53 R-FACTORY-49).
@@ -83,7 +86,7 @@ describe("W19 R1 P3 admitted operation surfaces", () => {
     expect(admitted.filter(entry => w34R0P1Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual(
       w34R0P1Ids.map(id => ({ id, status: "active" })),
     );
-    const p3Admitted = admitted.filter((entry) => !w34R0P1Ids.includes(entry.id) && !w29R0P4Ids.includes(entry.id) && !w30R0P3Ids.includes(entry.id) && !w32R0P3Ids.includes(entry.id) && !entry.id.startsWith("backlog.review.") && !entry.id.startsWith("project.path-hygiene.") && !entry.id.startsWith("project.doctor.") && !entry.id.startsWith("setup.store.") && !entry.id.startsWith("project.checkout-move.") && !entry.id.startsWith("project.checkout-register.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id) && !w23R0P5Ids.includes(entry.id));
+    const p3Admitted = admitted.filter((entry) => !w34R0P1Ids.includes(entry.id) && !w35R0P1Ids.includes(entry.id) && !w29R0P4Ids.includes(entry.id) && !w30R0P3Ids.includes(entry.id) && !w32R0P3Ids.includes(entry.id) && !entry.id.startsWith("backlog.review.") && !entry.id.startsWith("project.path-hygiene.") && !entry.id.startsWith("project.doctor.") && !entry.id.startsWith("setup.store.") && !entry.id.startsWith("project.checkout-move.") && !entry.id.startsWith("project.checkout-register.") && !r2P4Ids.includes(entry.id) && !r3Ids.includes(entry.id) && !r4Ids.includes(entry.id) && !w23R0P2Ids.includes(entry.id) && !w23R0P5Ids.includes(entry.id));
     expect(admitted.filter(entry => r2P4Ids.includes(entry.id)).map(entry => ({ id: entry.id, status: entry.status }))).toEqual([
       { id: "performance.evidence.validate", status: "active" },
     ]);

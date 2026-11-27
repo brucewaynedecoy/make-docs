@@ -212,7 +212,9 @@ function deriveToolDescription(definition: OperationDefinition): string {
       `Pending: reserved registry identifier whose semantics land with ${definition.pendingLineage}; invocation is refused until then.`,
     );
   }
-  if (definition.mutates === "write") {
+  if (definition.storeAdmission === "step") {
+    parts.push("Mutating operation: its write step needs allowWrite=true and write access. Without them the tool still answers: it does its read steps, changes nothing, and says that the write step did not run.");
+  } else if (definition.mutates === "write") {
     parts.push("Mutating operation: requires allowWrite=true, enforced by the operation core.");
   }
   if (definition.storeAdmission === "optional") {

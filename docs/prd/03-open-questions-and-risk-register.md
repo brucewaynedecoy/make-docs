@@ -2934,6 +2934,69 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **Resolution**: P6 workflow 35483206273 passed its required source and installed-package jobs on Windows, macOS, and Linux. The comparison accepted no missing host, repeated host, different candidate, source-checkout substitute, extract-only proof, or different public contract. W22 closes with no platform exception and no reduction of the parity target.
 
+### R-039 One Project Store Serves Every Branch and Worktree
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W35 R0 P1 recorded this risk on 2026-11-27, as the [agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks. No owner decision changes the store model in this Wave. | W35 R0 P4 runs the two-worktree test and records its result. A store that holds work for each branch is a larger change, and no Wave owns it yet. |
+
+**Issue**: Work units belong to the project, and the sync ledger belongs to one checkout. A clone can have many worktrees on different branches, and they share one project store. So a checkpoint in a worktree on another branch imports that branch's work files into the one project store. The store then follows the last branch that someone synced.
+
+**Why it matters**: Every other worktree sees the store change in its next sync, as files that wait for a write, or as a conflict when its own file also changed. A person gets pending writes and conflicts that no one asked for. With hooks, an import happens after git actions, so it happens more often and with no person who chose it.
+
+**Recommendation**: Keep each difference visible, and do not hide the checkout. Do not import after a branch change.
+
+**To close**: An owner decision accepts the risk as a permanent limit, or a later Wave gives the store work for each branch.
+
+**What W35 R0 does**: The result of a checkpoint names the checkout that it synced. A trigger run with the event `branch-change` imports nothing and only reports what waits. Sync never settles a conflict, so each difference stays visible as a pending write or a conflict. W35 R0 P4 adds a two-worktree test for this. That test does not exist yet.
+
+**What W35 R0 does not remove**: The risk itself. An agent or a person who runs the checkpoint, or any work write command, in a worktree on another branch still imports that branch's work files. This was true before W35 R0, because each work write command already syncs first.
+
+### R-040 A Trigger Run Can Be the First Sync of a Checkout
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W35 R0 P1 recorded this risk on 2026-11-27, as the [agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks. | W35 R0 P4 measures the trigger run with `PERF-007`, and owner gate OG-4 decides how a hook runs the checkpoint. |
+
+**Issue**: The first sync of a checkout imports every work file of its branch. A trigger run is a checkpoint that a hook starts. When a checkout has no sync yet, the first trigger run is that first sync, at a moment that no person chose.
+
+**Why it matters**: The first sync takes longer than a later sync: `PERF-004-R1` measured 1,380 ms for this repository. It also moves every work file of that branch into the project store at one time, so other worktrees can see many pending writes or conflicts in their next sync (R-039).
+
+**Recommendation**: Say in the result when a run was the first sync of its checkout, and never write a project file in a trigger run.
+
+**To close**: `PERF-007` shows the time of a first sync in a hook, the owner answers OG-4, and the owner accepts the remaining risk or a later Wave removes it.
+
+**What W35 R0 does**: The checkpoint result names the checkout and says when the run was the first sync of that checkout. A trigger run imports only, so it writes and removes no project file. A trigger run with the event `branch-change` imports nothing, so it is never a first sync.
+
+**What W35 R0 does not remove**: A trigger run after a commit, a merge, or a rewrite can still be the first sync of a checkout. This Wave does not ask a person before that first sync.
+
+### R-041 Two Syncs at the Same Time Can Import an Older File Text
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The fix pass of W35 R0 P1 found this on 2026-11-27, with a test that starts two checkpoints at the same time. A review on the same day proved with the built CLI that the store does not fully recover. No owner decision exists. | The fix is not built. It waits for the owner's decision on where it goes. |
+
+**Issue**: `syncWorkFiles` in `packages/cli/src/operations/work/work-store/sync.ts` reads the work files before it takes the Store for its write. When two syncs of one checkout run at the same time, the second one waits for the Store with the file text that it read before the first one wrote. It then imports that older text. In the test, the first run wrote a closed task to its file, and the second run imported the older file and set the task back to open in the store. `make-docs work sync` in the released version 2.1.0 has the same fault, and it is older than the checkpoint. A trigger run imports, so each hook run that overlaps a run that writes a file can do this.
+
+**Why it matters**: The store does not fully recover. The review closed a task with `make-docs work close "<unit>" --expected-version <n> --outcome cancelled` and then started two `make-docs project checkpoint --json` runs at the same time. One run wrote the file. The other run imported that same file with its older text, and the store showed the task as open. One more run closed the task again from the file, with the outcome `done`.
+
+- Lost for good: the close outcome `cancelled`. A task line shows only that a task is closed, so the import records `done`. The same happens with `superseded`.
+- Wrong until the next run: the unit shows as open and ready. So another agent can claim work that is closed.
+- Recovers: the closed status comes back with the next run that imports the file. A close with the outcome `done` then agrees with the store again.
+- Stayed in the review: evidence rows and an in-progress status.
+- Stopped as a conflict: an older file scan with a missing file or a missing task.
+- Not checked: notes and met gates.
+
+With hooks, two runs at the same time become likely: a git hook and an agent tool hook can start a checkpoint for the same commit.
+
+**Recommendation**: Move the file scan inside the Store write session, so that the second sync sees what the first one wrote. Then measure the sync time again. This fix is not built. It waits for the owner's decision on where it goes.
+
+**To close**: The sync core reads the files inside its write session and a test with two runs at the same time proves that the store keeps the newer record, or an owner decision accepts the limit.
+
+**What W35 R0 does**: P1 records the fault in its evidence report. It holds a test that starts two runs at the same time and proves that both end with exit code 0 and that a later run ends with nothing due. That test closes the task with the outcome `done`, so it cannot show the lost outcome, and it also passes when the two runs do not overlap. No test fails on this fault.
+
+**What W35 R0 does not remove**: P1 did not change the sync core.
+
 ## Source Anchors
 
 - `docs/designs/2026-09-18-store-architecture-recovery-and-platform-neutral-foundation.md`

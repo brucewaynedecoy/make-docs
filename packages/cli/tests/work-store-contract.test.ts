@@ -15,6 +15,7 @@ import {
   WORK_SETTLE_OPTIONS,
   WORK_STORE_AGENT_RESOURCE,
   WORK_STORE_AGENT_SECTIONS,
+  WORK_STORE_CHECKPOINT_OPERATION,
   WORK_STORE_FIELD_REGISTER,
   WORK_STORE_OPERATIONS,
   WORK_STORE_RESOURCE_READ_OPERATION,
@@ -50,6 +51,7 @@ import {
 import { PACKAGE_ROOT } from "../src/utils";
 import {
   WORK_STORE_CONTRACT_FIXTURES,
+  WORK_CHECKPOINT_SCENARIOS,
   WORK_STORE_FIXTURE_GROUPS,
   WORK_REPORT_SCENARIOS,
   WORK_SYNC_SCENARIOS,
@@ -87,6 +89,8 @@ describe("W29 R0 P1 work store rule catalog", () => {
     const operationIds = new Set<string>([
       ...WORK_STORE_OPERATIONS.map((operation) => operation.id),
       WORK_STORE_RESOURCE_READ_OPERATION,
+      // W35 R0 P1: the project checkpoint runs the work rules, and its rules name it.
+      WORK_STORE_CHECKPOINT_OPERATION,
     ]);
     for (const rule of WORK_STORE_RULES) {
       expect(rule.cliForm.length, rule.id).toBeGreaterThan(0);
@@ -350,6 +354,17 @@ describe("W29 R0 P1 fixture matrix", () => {
             expect(fixture.expected.latestNote, fixture.id).toBeNull();
             expect(fixture.expected.storeOnlyEditKinds, fixture.id).toEqual([]);
           }
+          break;
+        }
+        case "checkpoint-scenario": {
+          expect(WORK_CHECKPOINT_SCENARIOS, fixture.id).toContain(fixture.input.scenario);
+          // The sync step ran, or the result says why it did not.
+          expect(fixture.expected.syncRan, fixture.id).toBe(fixture.expected.syncSkipped === null);
+          if (fixture.expected.authority !== "store") expect(fixture.expected.syncRan, fixture.id).toBe(false);
+          // A quiet run has nothing due, and a run with a change or a waiting file has something due.
+          if (fixture.expected.quiet) expect(fixture.expected.nothingDue, fixture.id).toBe(true);
+          const due = fixture.expected.imported + fixture.expected.written + fixture.expected.waiting + fixture.expected.conflicts;
+          expect(fixture.expected.nothingDue, fixture.id).toBe(due === 0);
           break;
         }
         case "sync-scenario": {
