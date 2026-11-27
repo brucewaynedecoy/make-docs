@@ -7,7 +7,7 @@ follow_on:
   route: "change-plan"
   next_prompt: "make-docs://system/prompt/designs-to-plan-change.prompt.md"
   why: "PRD 52 owns the work queue and sync, PRD 39 owns command names, PRD 25 owns the MCP server, PRD 28 owns agent tool setup, and PRD 15 owns the router blocks. This design adds one command and several triggers that change those owners."
-  coordinate_handoff: "Recommended W35 R0 as new work. The owner said 'the next Wave' on 2026-11-27, and W34 is the highest Wave in docs/work/, docs/plans/, and the register. W29 R0 promised sync at the start of each work command, and it delivered that. No Wave promised that agents run those commands. The planner checks the choice under the wave-model decision procedure. Before a plan starts, the owner settles the open decisions OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approves or refuses the change to the PRD 28 sentence about hooks."
+  coordinate_handoff: "Recommended W35 R0 as new work. The owner said 'the next Wave' on 2026-11-27, and W34 is the highest Wave in docs/work/, docs/plans/, and the register. W29 R0 promised sync at the start of each work command, and it delivered that. No Wave promised that agents run those commands. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence about hooks. OD-10 is open: whether this Wave builds agent tool hooks."
 ---
 
 # Agent Checkpoints and Triggers
@@ -203,7 +203,7 @@ Rules:
 - The result names the checkout that it synced. When the first sync of this checkout was not done before the run, the result says so. A trigger run can be that first sync. It then imports every work file of that branch (1,380 ms in `PERF-004-R1`), and no person chose that moment. The risk section names this case.
 - It adds no Store table. It reads and writes only what `work sync`, `work status`, and `work next` already use. The reminder check is separate (OD-6).
 
-The name and group are open decision OD-7.
+The name and group are owner decision OD-7: `make-docs project checkpoint`.
 
 #### The CLI reminds by itself
 
@@ -215,7 +215,7 @@ Rules:
 
 - Exactly these commands show the reminder: each registry operation that runs in a Make Docs project and whose declared access already includes a Store read. The plan lists them from the registry. A command with no Store read in its declared access shows no reminder, so the check never opens a Store that the command may not open. `--help`, `mcp`, `update`, `uninstall`, `work status`, `work next`, `work sync`, and the checkpoint itself show no reminder line. `work status` and `work next` already say the same thing in their own result.
 - The check runs the authority rule first. When the work store is not in charge, the check stops and prints nothing. Any error in the check is dropped and never fails the command.
-- How the check finds a change is open decision OD-6. The compare of file change times with the ledger time `synced_at` is not an option, because the checked facts show that it does not work. The reminder counts one thing only: work files that the next checkpoint run would import. It does not count a sync conflict, and it does not count a file that waits for a write or a removal. `work status` and the checkpoint result report those. With this rule, a checkpoint run with write access clears the reminder, because both kinds of run import. OD-6 says how each option meets this rule.
+- How the check finds a change is owner decision OD-6: the exact check. The compare of file change times with the ledger time `synced_at` is not an option, because the checked facts show that it does not work. The reminder counts one thing only: work files that the next checkpoint run would import. It does not count a sync conflict, and it does not count a file that waits for a write or a removal. `work status` and the checkpoint result report those. With this rule, a checkpoint run with write access clears the reminder, because both kinds of run import. OD-6 says how each option meets this rule.
 - The line goes to standard error in the CLI, so JSON output on standard output does not change.
 - In an MCP tool result the reminder is one field of the result object. That object is sent as text in `content` and as `structuredContent`, so a host that reads only one of the two still gets the reminder. A tool with an `mcpResultSchema` has a fixed result schema and another path in `formatMcpToolResult`. Such a tool shows no reminder in this Wave, unless the plan proves a way that keeps its schema valid.
 - At most one reminder appears for each command run.
@@ -314,7 +314,7 @@ Each first-party adapter gains a hook method where its agent tool supports hooks
 - An agent tool with no proven hook support gets no hook method. The git hooks, the router rule, the MCP instructions, and the CLI reminder still cover it. The generic MCP client profile gets no hook method.
 - Each method follows the adapter contract: one owned native entry, planning, apply, verification, repair, and removal (PRD 28 R-HARNESS-1), and a receipt that records its history (PRD 28 R-HARNESS-17).
 - The person selects the hook method explicitly in setup. It is off by default.
-- PRD 28 says today that Make Docs has no hook product. This design asks to change that sentence to admit these bounded hooks: the git hooks of owner decision 4, and the agent tool hooks. That change needs the owner's approval, and the handoff line asks for it. PRD 30 keeps the admission boundary for anything further.
+- PRD 28 says today that Make Docs has no hook product. This design asks to change that sentence to admit these bounded hooks: the git hooks of owner decision 4, and the agent tool hooks. The owner approved that change on 2026-11-27, with a clarification that OD-10 records. Whether the change also admits agent tool hooks is open decision OD-10. PRD 30 keeps the admission boundary for anything further.
 
 ### Later stages
 
@@ -357,9 +357,9 @@ These parts do not come from existing docs or from the owner's decisions. The ow
 - The exact wording of the router lines and the MCP instructions.
 - The request to change the PRD 28 sentence that says Make Docs has no hook product.
 
-### Open owner decisions
+### Owner decisions with their options
 
-Each decision has at most two options and one recommendation. OD-1 is decided. OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9 are open. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
+Each decision has at most two options and one recommendation. The owner decided OD-1, and on 2026-11-27 also chose option A of OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9. One decision is open: OD-10. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
 
 **OD-1: What is the scope of the git hooks?** Decided on 2026-11-27: the owner chose option A.
 
@@ -370,36 +370,36 @@ Facts: a machine-wide `core.hooksPath` replaces the hooks of every repository on
 
 Why A: it changes only the repositories that the person selected, it lives with other hook tools, and it follows the explicit selection rule of PRD 28. The machine preference gives the "install once" feeling without the machine-wide risk.
 
-**OD-2: Do the read commands sync first?**
+**OD-2: Do the read commands sync first?** Decided on 2026-11-27: the owner chose option A.
 
-- A (recommended): no. The read commands only detect the out-of-date state. They put the checkpoint command first in their result, mark the affected units, and say when the list is not complete. The checkpoint command does the write.
+- A (chosen): no. The read commands only detect the out-of-date state. They put the checkpoint command first in their result, mark the affected units, and say when the list is not complete. The checkpoint command does the write.
 - B: `work next` syncs first and loses "Changes nothing". `work status` stays read-only.
 
 Facts: owner decision 1 names "sync on read". Option A does not sync on read, so it departs from the owner's words. Option B does what the words say. `work next` and `work status` say "Changes nothing" in their help, in PRD 52 R-WORK-SYNC-8, and in work rule `WORK-RULE-052`. `work next` needs only Store read access, and sync needs Store write and project write access, so option B changes its access. The read commands already run the sync check and print the result.
 
 Why A: the read commands promise "Changes nothing", and other text and agents rely on that promise. With A, the promise and the access stay as they are, and an agent with read access can still run `work next`. The agent still learns in the first line that the store is out of date and which command settles it. The code shows no safer path for B.
 
-**OD-3: Where does the note at the point of use live?**
+**OD-3: Where does the note at the point of use live?** Decided on 2026-11-27: the owner chose option A.
 
-- A (recommended): one conditional line in the managed block of `docs/work/AGENTS.md` and `docs/work/CLAUDE.md`.
+- A (chosen): one conditional line in the managed block of `docs/work/AGENTS.md` and `docs/work/CLAUDE.md`.
 - B: one line at the top of each work file.
 
 Facts: the folder routers exist today and already have a work store line. A line in each work file changes user files, changes their digests, and starts a sync of every file. The parser and writer must round-trip each file byte for byte (PRD 52 R-WORK-SYNC-7), so a new line needs a format change. Old backlogs would need a rewrite. An agent that opens one work file directly, with no folder read, does not see the router.
 
 Why A: it changes no user file, and it reaches every agent tool that reads folder routers. The root router line and the MCP instructions cover the direct-open case.
 
-**OD-5: Does a trigger run write project files?**
+**OD-5: Does a trigger run write project files?** Decided on 2026-11-27: the owner chose option A.
 
-- A (recommended): no. A trigger run, which only a hook starts, imports files into the store and reports the rest. Only a direct run of the checkpoint or of `work sync` writes or removes repo copies.
+- A (chosen): no. A trigger run, which only a hook starts, imports files into the store and reports the rest. Only a direct run of the checkpoint or of `work sync` writes or removes repo copies.
 - B: every checkpoint runs full two-way sync.
 
 Facts: with option B, a hook after a commit can write a work file, so the work tree is changed right after the commit. PRD 52 R-WORK-SYNC-9 says today that each sync after the first writes and removes files under the sync table. Option A adds a second kind of sync that only imports, so that requirement changes. The first sync of a checkout already only imports. With option A, a file that waits for a write stays in that state until a direct run, and the hook prints one line for it after each commit until then.
 
 Why A: a git action never leaves a surprise in the work tree. The store still gets every file edit, which is the main goal.
 
-**OD-6: How does a command know that work files wait for sync?**
+**OD-6: How does a command know that work files wait for sync?** Decided on 2026-11-27: the owner chose option A.
 
-- A (recommended): each command that shows the reminder runs the exact check that `work status` and `work next` run today. It reads and hashes each work file. No Store schema change.
+- A (chosen): each command that shows the reminder runs the exact check that `work status` and `work next` run today. It reads and hashes each work file. No Store schema change.
 - B: the Store keeps one "last check" record for each checkout: the count of work files and the newest file change time. Each sync and each checkpoint with write access writes the record when it ends. The reminder check reads no file bytes. It compares the count and the newest file time with the record. This is a Store schema change.
 
 Facts:
@@ -415,23 +415,35 @@ Facts:
 
 Why A: it is exact, it adds no stored data, and it needs no migration. Its cost is measured and is well under the 1 second line that the 2026-11-23 decision used. The plan measures it again on the commands that show the reminder. B is the next step when this repository holds about 900 work files, or when a person reports a slow command, as the earlier decision already says.
 
-**OD-7: What is the name of the checkpoint command?**
+**OD-7: What is the name of the checkpoint command?** Decided on 2026-11-27: the owner chose option A.
 
-- A (recommended): `make-docs project checkpoint`, MCP `project_checkpoint` (18 characters), operation `project.checkpoint.run`.
+- A (chosen): `make-docs project checkpoint`, MCP `project_checkpoint` (18 characters), operation `project.checkpoint.run`.
 - B: `make-docs project sync`, MCP `project_sync` (12 characters), operation `project.sync.run`.
 
 Facts: both names follow PRD 39 R-NAME-1 to R-NAME-4, and `sync` is already an end word, in `work sync`. `make-docs lifecycle checkpoint` exists with another meaning, so option A shares a verb with it, and the help text of both must say how they differ. Option B shares no verb with it, but it is close to `work sync`, and the command does more than sync: it also lists ended claims and the next work. The command name is written into router blocks, hook files, and MCP instructions in every project. A later rename leaves an old name in those files, and the alias of R-MIG-1 lasts only two minor releases. The roadmap adds designs, plans, and archives to the Store, and they need the same command. Both options are in the `project` group for that reason.
 
 Why A: the word says what the command is, a point at which all that is due gets done, and not only a sync. The name does not need to change when other data joins the Store. Today its only steps are work steps, and it says so.
 
-**OD-9: Which git hooks import?**
+**OD-9: Which git hooks import?** Decided on 2026-11-27: the owner chose option A.
 
-- A (recommended): the hooks after a commit, a merge, and a rewrite import. The hook after a branch change only reports what waits.
+- A (chosen): the hooks after a commit, a merge, and a rewrite import. The hook after a branch change only reports what waits.
 - B: all four hooks import.
 
 Facts: units belong to the project, and the ledger belongs to one checkout. One clone can have many linked worktrees on different branches over the same project store. With option B, each branch change imports that branch's work files, so the store follows the last branch that someone touched, also when the person only looked at an old branch. Other worktrees then see pending writes or conflicts. With option A, a branch change alone never changes the store. The store still gets the files at the next commit, merge, or direct run in that checkout. With option A, the store can stay out of date after a branch change until then, and the hook says so in one line. The section "Risk: one project store, many branches" gives the full facts, also for a checkpoint that an agent runs by hand.
 
 Why A: a commit and a merge are deliberate changes of work. A branch change is often only a look. The store should not move because someone looked.
+
+**Approval: the PRD 28 sentence about hooks.** Approved on 2026-11-27. The owner approved the change of the sentence "Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product." The owner added one clarification: that sentence was meant for hooks that belong to one agent tool. Git hooks were not considered when it was written. The owner said that git hooks are an excellent way to solve something that the owner was reluctant to include.
+
+**OD-10: Does this Wave build agent tool hooks?** Open.
+
+- A (recommended): no. This Wave builds the git hooks only. The PRD 28 sentence changes to admit git hooks only. Agent tool hooks move to the roadmap as one more adapter, and each one needs real capability evidence first.
+- B: yes. Phase 2 also builds a hook method for each agent tool that has capability evidence, as owner decision 1 first said.
+
+Facts: owner decision 1 put "the hooks of each agent tool" in Phase 2. The owner's clarification of the PRD 28 approval says that the owner was reluctant to include hooks that belong to one agent tool. The two statements do not agree in full, so the orchestrator asks. Git hooks reach each agent that commits, with any agent tool. An agent tool hook reaches an agent that never commits, for example at the end of a turn. This design claims no hook support for any agent tool.
+
+Why A: it follows the owner's clarification, it keeps the Wave small, and it keeps Make Docs free of code for one agent tool's hooks until evidence exists. Its cost: an agent that never commits is reached only by text and by the reminder.
+
 
 ## Alternatives Considered
 
@@ -452,7 +464,7 @@ Why A: a commit and a merge are deliberate changes of work. A branch change is o
   - [PRD 52](../prd/52-work-store-and-work-queue.md): the checkpoint operation and its rules, the reminder, the `work next` marks and its "list is not complete" line, R-WORK-SYNC-8, R-WORK-SYNC-9, and R-WORK-URI-3. R-WORK-SYNC-9 says that each sync after the first writes and removes files, and an import-only trigger run changes that. R-WORK-URI-3 gains the new sentence of a project URI read.
   - [PRD 39](../prd/39-cli-command-model-and-operation-registry.md): the name catalog entry, R-TOP-1, R-RUN-1, and the reminder output rule.
   - [PRD 25](../prd/25-typescript-runtime-cli-mcp-operation-boundaries.md): MCP server instructions, the new tool, and the twin.
-  - [PRD 28](../prd/28-shared-agentics-installation-and-harness-exposure.md): the hook method of each adapter and the sentence about hooks. The change of that sentence needs the owner's approval. [PRD 30](../prd/30-plugin-substrate-and-workflow-bundles.md) if the admission boundary moves.
+  - [PRD 28](../prd/28-shared-agentics-installation-and-harness-exposure.md): the hook method of each adapter and the sentence about hooks. The owner approved the change of that sentence on 2026-11-27. OD-10 settles whether it admits agent tool hooks. [PRD 30](../prd/30-plugin-substrate-and-workflow-bundles.md) if the admission boundary moves.
   - [PRD 15](../prd/15-agent-instruction-ownership-and-managed-blocks.md) and [PRD 06](../prd/06-template-contracts-and-generated-assets.md): the new router lines and the work store reference.
   - [PRD 07](../prd/07-cli-command-surface-and-lifecycle.md): the git hook offer in setup, and its removal in `setup remove`.
   - [PRD 38](../prd/38-global-store-and-project-state.md): the hook ownership record and the machine preference, and the two "last check" fields if the owner takes OD-6 option B.
@@ -481,4 +493,4 @@ Why A: a commit and a merge are deliberate changes of work. A branch change is o
 - Route: `change-plan`
 - Next Prompt: [designs-to-plan-change.prompt.md](../../.make-docs/system/prompts/designs-to-plan-change.prompt.md). Read `make-docs://system/prompt/designs-to-plan-change.prompt.md` with `make-docs resource read`.
 - Why: the active PRD set owns the work queue, the command names, the MCP server, setup, and the router blocks. This design adds one operation and several triggers that change those owners. It adds no new PRD subject.
-- Coordinate Handoff: Recommended W35 R0 as new work, by the outcome test. The related completed coordinate is W29 R0, which promised sync at the start of each work command and delivered it. No Wave promised that agents run those commands, or any hook. The owner said "the next Wave" on 2026-11-27, and W34 is the highest Wave in `docs/work/`, `docs/plans/`, and the register. The planner checks the choice under the wave-model decision procedure. The owner reviews this design and settles OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9 before a plan starts. The owner also approves or refuses the change to the PRD 28 sentence that says Make Docs has no hook product. The owner settled OD-1 on 2026-11-27.
+- Coordinate Handoff: Recommended W35 R0 as new work, by the outcome test. The related completed coordinate is W29 R0, which promised sync at the start of each work command and delivered it. No Wave promised that agents run those commands, or any hook. The owner said "the next Wave" on 2026-11-27, and W34 is the highest Wave in `docs/work/`, `docs/plans/`, and the register. The planner checks the choice under the wave-model decision procedure. On 2026-11-27 the owner chose option A of OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9, and approved the change to the PRD 28 sentence that says Make Docs has no hook product. OD-10 is open: whether this Wave builds agent tool hooks.
