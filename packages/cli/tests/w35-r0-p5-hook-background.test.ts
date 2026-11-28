@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -128,46 +128,75 @@ describe.skipIf(!existsSync(CLI))("W35 R0 P5 the background start (T39; A62w, A6
 
   it("git returns at once also when a pipe reads its output, and when a tool captures its output", async () => {
     const root = project(fixture);
-    const holder = await holdStore(fixture);
     const times: Record<string, number> = {};
-    try {
-      // A pipe: `git commit ... | cat`. `cat` ends only when each writer of the pipe closed it.
-      editTask(fixture.proof, root, "Build parser 1.");
+    for (const step of ["plain", "piped", "captured"] as const) {
+      // Each call gets its own full Store wait. No later run can hide an earlier run that held a pipe.
+      editTask(fixture.proof, root, `Build parser ${step}.`);
       fixture.gitNoWait(root, ["add", "-A"]);
-      let started = Date.now();
-      const piped = spawnSync("sh", ["-c", `${shellQuote(fixture.proof.gitPath)} commit -m piped 2>&1 | cat`], { cwd: root, env: fixture.onPath, encoding: "utf8" });
-      times.piped = Date.now() - started;
-      expect(piped.status).toBe(0);
-      expect(piped.stdout).toContain("piped");
-      expect(piped.stdout).not.toContain("Checkpoint");
-      // The background run of that commit still waits for the Store, and the pipe is closed all the same.
-      await until(() => hookRunState(fixture, root).busy, "a background run that waits");
-      // A tool that captures both outputs of git through pipes, and waits until each pipe is closed.
-      editTask(fixture.proof, root, "Build parser 2.");
-      fixture.gitNoWait(root, ["add", "-A"]);
-      started = Date.now();
-      const closed = await new Promise<{ status: number | null; output: string }>((resolve, reject) => {
-        const child = spawn(fixture.proof.gitPath, ["commit", "-m", "captured"], { cwd: root, env: fixture.onPath, stdio: ["ignore", "pipe", "pipe"] });
-        let output = "";
-        child.stdout.on("data", (chunk) => { output += String(chunk); });
-        child.stderr.on("data", (chunk) => { output += String(chunk); });
-        child.on("error", reject);
-        // `close` comes only when the process ended and each pipe is closed.
-        child.on("close", (status) => resolve({ status, output }));
-      });
-      times.captured = Date.now() - started;
-      expect(closed.status).toBe(0);
-      expect(closed.output).not.toContain("Checkpoint");
-      expect(hookRunState(fixture, root).busy).toBe(true);
-    } finally {
-      await releaseStore(holder);
+      const holder = await holdStore(fixture);
+      const started = Date.now();
+      let returnedAt: number | null = null;
+      let busyAtReturn = false;
+      let result: { status: number | null; output: string } | null = null;
+      try {
+        if (step === "plain") {
+          // Files give a baseline with no output pipe between the test and git.
+          const outputFile = path.join(fixture.proof.root, "plain-output");
+          const fd = openSync(outputFile, "w");
+          try {
+            const plain = spawnSync(fixture.proof.gitPath, ["commit", "-m", step], { cwd: root, env: fixture.onPath, stdio: ["ignore", fd, fd], timeout: 30_000 });
+            result = { status: plain.status, output: readFileSync(outputFile, "utf8") };
+          } finally {
+            closeSync(fd);
+          }
+        } else if (step === "piped") {
+          // `cat` ends only when every writer of the pipe closed it.
+          const piped = spawnSync("sh", ["-c", `${shellQuote(fixture.proof.gitPath)} commit -m piped 2>&1 | cat`], { cwd: root, env: fixture.onPath, encoding: "utf8", timeout: 30_000 });
+          result = { status: piped.status, output: `${piped.stdout ?? ""}${piped.stderr ?? ""}` };
+        } else {
+          result = await new Promise<{ status: number | null; output: string }>((resolve, reject) => {
+            const child = spawn(fixture.proof.gitPath, ["commit", "-m", step], { cwd: root, env: fixture.onPath, stdio: ["ignore", "pipe", "pipe"], timeout: 30_000 });
+            let output = "";
+            child.stdout.on("data", (chunk) => { output += String(chunk); });
+            child.stderr.on("data", (chunk) => { output += String(chunk); });
+            child.on("error", reject);
+            // `close` waits for both output pipes as well as the process.
+            child.on("close", (status) => resolve({ status, output }));
+          });
+        }
+        returnedAt = Date.now();
+        times[step] = returnedAt - started;
+        busyAtReturn = hookRunState(fixture, root).busy;
+        recordHookFact(fixture.proof, "background-start-returned", { step, startedAt: new Date(started).toISOString(), returnedAt: new Date(returnedAt).toISOString(), wallMs: times[step], busyAtReturn });
+        // Keep the Store held until this run ends, so its full wait is measured even when git was slow.
+        waitForHookRuns(fixture.store);
+      } finally {
+        const run = lastHookRunSince(fixture.store, started);
+        recordHookFact(fixture.proof, "background-start-run", {
+          step, wallMs: times[step] ?? null, plainMs: times.plain ?? null,
+          extraMs: times[step] === undefined ? null : times[step]! - times.plain!,
+          busyAtReturn, startedAt: run?.startedAt ?? null, endedAt: run?.endedAt ?? null,
+          backgroundRunMs: run ? Date.parse(run.endedAt) - Date.parse(run.startedAt) : null,
+          returnedBeforeRunEndMs: run && returnedAt !== null ? Date.parse(run.endedAt) - returnedAt : null,
+          run,
+        });
+        await releaseStore(holder);
+      }
+      const run = lastHookRunSince(fixture.store, started);
+      expect(result?.status).toBe(0);
+      expect(result?.output).toContain(step);
+      expect(result?.output).not.toContain("Checkpoint");
+      expect(run).toMatchObject({ mode: "background", outcome: "ran", event: "commit", exitCode: 1 });
+      expect(Date.parse(run!.startedAt)).toBeGreaterThanOrEqual(started);
+      expect(Date.parse(run!.endedAt) - Date.parse(run!.startedAt)).toBeGreaterThanOrEqual(4900);
+      // A slow start may exceed 900 ms. Waiting for the checkpoint must still fail, on every platform.
+      expect(busyAtReturn).toBe(true);
+      expect(Date.parse(run!.endedAt) - returnedAt!).toBeGreaterThan(1000);
     }
-    expect(times.piped).toBeLessThan(START_BOUND_MS);
-    expect(times.captured).toBeLessThan(START_BOUND_MS);
-    waitForHookRuns(fixture.store);
-    expect(taskText(fixture, root)).toBe("Build parser 2.");
+    checkpoint(fixture, root);
+    expect(taskText(fixture, root)).toBe("Build parser captured.");
     recordHookFact(fixture.proof, "background-start-piped", times);
-  }, 60_000);
+  }, 120_000);
 
   it("the hooks after a merge, a rewrite, and a branch change start the background run in the same way, and a branch change imports nothing", () => {
     const root = project(fixture);
