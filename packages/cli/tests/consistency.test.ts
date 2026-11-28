@@ -814,6 +814,8 @@ describe("risk register routing contract", () => {
       "R-043 `git pull --rebase` With Local Commits Runs No Hook After a Merge",
       "R-044 A Hook Can Find the `make-docs` Command and Still Not Start It",
       "R-045 A Hook Does Nothing in a Work Tree That Is Not Bound to the Store",
+      "R-046 A Git Hook Does Nothing When Its Shell May Not Use the Store",
+      "R-047 The Time That a Git Hook Adds Grows With the Work Files, and No Rule Bounds It",
     ]);
   });
 

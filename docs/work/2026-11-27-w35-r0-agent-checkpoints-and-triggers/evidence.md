@@ -712,7 +712,7 @@ The checkpoint knows six events: `session-start`, `files-changed`, `turn-end`, `
 Without the CLI, there is no checkpoint to run. Without a usable Store, a run syncs nothing and says that the `docs/work/` files are the authority. In both cases the `docs/work/` files are the authority.
 ```
 
-The first paragraph of the `Checkpoint` section changed in one sentence. Before: "Run it when you start a session, after you change a work file, at the end of a turn, after a commit or a pull, and when you close a phase." Now: "[When to Run It](#when-to-run-it) names the moments."
+The first paragraph of the `Checkpoint` section changed in one sentence. Before: "Run it when you start a session, after you change a work file, at the end of a turn, after a commit or a pull, and when you close a phase." Now: `[When to Run It](#when-to-run-it) names the moments.`
 
 The MCP server instructions (528 bytes, 80 words). The text before the fix pass had 437 bytes and 67 words. The `all`, `backlog`, and `workflow` profiles send this same text. The `core`, `setup`, `quality`, and `factory` profiles send no instructions:
 
@@ -1256,6 +1256,16 @@ The owner answered this gate on 2026-11-28. The answer, for A46:
 - Improvement 1, chosen: a short time limit on the wait for the Store, after which the hook gives up quietly. It is the first of the two possible refinements below.
 - Improvement 2, offered and not chosen: the hook after a rewrite skips the amend case. It is not built. So an amended commit still runs two hooks, and each one runs the checkpoint.
 
+What replaced this answer, on the same day. The owner decided on 2026-11-28, after the answer above, that git hooks run in the background. The answer above stays as the record of the first answer, and the measured history below is not changed. The reason for the change, as a fact that the owner saw: an independent review measured that the cost of a foreground hook grows with the count of work files (about 1.85 seconds for each commit at 1,000 work files in the review's project), and that the wait limit does not bound the work of the run. The decisions:
+
+- OD-P5-1: git hooks run in the background. The hook starts the checkpoint and returns, and git does not wait. This replaces the foreground mode of option A.
+- OD-P5-2: a foreground fallback applies where a background process cannot survive: on a platform or in an agent tool where the started process does not keep running after the hook ends, the hook runs the checkpoint in the foreground. The owner did not exclude a foreground fallback for git hooks and sees no reason why it cannot be done. The review that setup shows says which mode applies.
+- OD-P5-3: in the background, the checkpoint has no short limit on the wait for the Store. It uses the normal wait, the Store busy timeout, 5,000 ms today, and then it syncs. The fix for the 30 second waits stays: no background run waits that long.
+- OD-P5-4: in the foreground fallback, the limit of 1,000 ms on each wait for the Store applies, as the owner chose with improvement 1.
+- OD-P5-5: a person who wants a foreground hook, or a hook whose output an agent can see, uses the hook of an agent tool (P6). So a git hook in the background mode prints nothing, in every case.
+
+[P5 Stage 6](05-git-hooks-in-setup.md#stage-6---the-foreground-run-and-the-wait-limit) builds these decisions as T39 to T45, and [The Background Mode](#the-background-mode-t39-to-t45-a62w-to-a62ae) in the P5 section holds the evidence. The built block was measured again as [`PERF-007-R2`](04-git-hook-proofs.md#result-record-of-the-requalification). Option B of the text below is not what was built: the built hook starts the checkpoint through the command itself and has a foreground fallback.
+
 The owner did not decide four details: the length of the limit, how the limit is built, what "quietly" means in detail, and whether the limit covers the whole checkpoint run or only the wait for the Store. The [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#owner-decisions) holds one recommendation for each, R8 to R11, with the facts. They are not owner decisions. [P5 Stage 6](05-git-hooks-in-setup.md#stage-6---the-foreground-run-and-the-wait-limit) builds the answer as T35 to T38, with the cases A62q to A62v, and the P5 review shows R8 to R11 to the owner. This phase built no hook code and no limit.
 
 The text from here to the end of this section is the text that the owner had for the choice, as it stood on 2026-11-27. It gives the two options of the plan and one recommendation.
@@ -1544,3 +1554,1813 @@ Every test and every CLI run used a temporary Store at a fixed path under `/priv
 - The package digest is not recorded again. This phase changed package bytes, so the recorded digest is stale.
 - The first import is slower in `PERF-004-R2` than in `PERF-004-R1` by 36 percent, and this phase did not find the cause.
 - P5 owns each point of the list under "What P5 Builds From This Phase". This phase built none of them.
+
+## P5 Git Hooks in Setup
+
+Covers A48 to A62 and A62a to A62v in [P5](05-git-hooks-in-setup.md). Evidence date: 2026-11-28. Branch: `docs/w35-store-authority-and-agent-reminders`, at `7e3436d0`, with the phase changes uncommitted. Node `v26.13.1`. git 2.47.1. macOS. CLI package version `2.1.1`.
+
+P5 is built on the maintainer machine and not marked complete. Each task that a builder on this computer can do is done. The independent review of this phase ran, and [P5 Fixes After The Independent Review](#p5-fixes-after-the-independent-review) holds what changed after it. After those fixes, the owner decided on 2026-11-28 that git hooks run in the background, and [The Background Mode](#the-background-mode-t39-to-t45-a62w-to-a62ae) holds that change. It replaces each statement of this section that a hook runs the checkpoint in the foreground. Six things wait:
+
+- A first look by the independent review at the background mode.
+- The proof of the background mode inside each agent tool, which the orchestrator runs.
+
+- A second look by the independent review at the fixes, and the package digest, which the orchestrator records after the review.
+- The platform run. The six hook test files of this phase are in both fixed lists of the platform workflow. They ran on macOS only. Linux and Windows have no result yet, so A60 waits for the phase commit, the push, the pull request run, and the evidence commit.
+- The owner. The owner has not reviewed the hook review, the machine preference question, the lines that a hook prints, the removal report, the recommendations R1, R2, and R4 to R11, the proposals of T20 to T34, or the proposed names. [The List For The Owner](#the-list-for-the-owner) holds each one.
+- No run in a real terminal. The sandbox of the builder gives no terminal. So no person saw the prompts on a screen. The tests replace the prompts and record the first choice of each one, and the review texts below come from the functions that setup calls.
+
+Every test, measurement, and CLI run used a temporary Store at a fixed path, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. Each git hook test and each hand run worked only inside a temporary git repository that the run made, with a temporary home folder, with empty files in place of the global and the system git config, with no inherited git variable, and with local bare repositories in place of a network remote. No run installed, changed, or removed a hook in this repository, in its work trees, or in any other real repository. No run started `make-docs setup` against this repository. Each machine step ran with no agent tool selected and with a temporary home folder, so it changed no settings file of any agent tool.
+
+### P5 What Was Built
+
+Product code:
+
+- `packages/cli/src/git-hooks.ts` (new): the block text of each hook, the read of the hook files with the refusals, the clone-owned record in `tool_operations`, the plan with the state of each hook, the hook review text, apply, and removal.
+- `packages/cli/src/setup-git-hooks.ts` (new): the decision of project setup about the hooks, the one line for each case with no install, and the hook part of the setup JSON result.
+- `packages/cli/src/cli.ts`: the inputs `--git-hooks`, `--no-git-hooks`, and `--git-hooks-for-new-projects <yes|no>`, their checks before any write, the help text, the hook review and the question in the project flow, the install after the project is set up, and the field `gitHooks` of the setup JSON result.
+- `packages/cli/src/setup-system.ts`: the machine preference question, its explicit input, its lines in the review under `This computer`, its write, and the field `gitHooksPreference` of the machine result.
+- `packages/cli/src/store/global-config.ts`: the preference `settings.gitHooksForNewProjects`, with one read function and one write function.
+- `packages/cli/src/uninstall.ts`: `setup remove` names what it does with each hook file before its final approval, and then removes or keeps each block.
+- `packages/cli/src/store/database.ts`, `packages/cli/src/store/installation-state.ts`, and `packages/cli/src/store/tool-operations.ts`: the wait limit of one call (`withStoreWaitLimit`). Inside that call it bounds the busy time of each Store connection and each wait for a live Store owner (`storeOwnerWaitMs`).
+- `packages/cli/src/backup-paths.ts` and `packages/cli/src/backup.ts`: the function that names the next backup folder moved to the backup paths file, with no change of its result, so that the hook code can use it. `packages/cli/src/store/json-files.ts`: the modes 0700 and 0600.
+- `packages/cli/src/operations/project/checkpoint-ops.ts` and `packages/cli/src/operations/work/work-queue/checkpoint.ts`: a trigger run with the event `commit` or `branch-change` takes the wait limit and prints the short form.
+- `packages/cli/src/operations/work/work-store/catalog.ts`: the rules `WORK-RULE-070` to `WORK-RULE-072`.
+- `packages/cli/src/store/table-catalog.ts`, `packages/cli/src/store/maintenance.ts`, and `packages/cli/src/run/setup-store.ts`: the table catalog names the new kind of row, and `setup store check` names each git hook record.
+
+Shipped text:
+
+- `packages/docs/template/.make-docs/system/references/work-store.md` and its byte-identical installed copy `.make-docs/system/references/work-store.md`: three new rules in the Checkpoint section, and one paragraph under "When to Run It".
+
+Tests:
+
+- `packages/cli/tests/git-hook-setup.ts` (new): the helper. It extends the helper of the P4 proofs, `packages/cli/tests/git-hook-proof.ts`, which now builds the PATH of each git child process from one tool folder of the test and the system folders.
+- `packages/cli/tests/w35-r0-p5-git-hook-block.test.ts` (new, 26 tests): the block text, the block writer, the refusals, and what a hook does and prints.
+- `packages/cli/tests/w35-r0-p5-setup-git-hooks.test.ts` (new, 17 tests): the machine preference, the non-interactive setup path, repeat setup, drift, the record, removal, a deleted checkout folder, a moved clone, and two projects in one repository.
+- `packages/cli/tests/w35-r0-p5-hook-wait-limit.test.ts` (new, 19 tests): the wait limit, each wait for a live Store owner inside and outside the limit, the three held lock files with a commit and a branch change, the commands that keep their waits, the held Store with a commit and with a true merge, the direct run, the first sync, the foreground run, the amended commit, and the short form.
+- `packages/cli/tests/w35-r0-p5-hook-ownership.test.ts` (new, 11 tests): a changed block that setup keeps, the backup of a replaced block, a copied clone, a moved work tree, the command order, a hook file with a second language, and the modes of the Store folder.
+- `packages/cli/tests/w35-r0-p5-test-path-guard.test.ts` (new, 4 tests): no hook test can run an installed `make-docs`.
+- `packages/cli/tests/w35-r0-p5-hook-end-to-end.test.ts` (new, 7 tests): the two-checkout test, the two-worktree test, `git pull --rebase`, and the amended commit.
+- `packages/cli/tests/w35-r0-p5-setup-offer.test.ts` (new, 6 tests): the interactive offer and the preference question, with the prompts replaced by test answers. The first report said that it proves no platform fact and left it out of the platform lists. The second independent review found that this breaks the standing rule, and the file is in both fixed lists now. It has no step that a platform cannot run: it replaces the prompts and uses the same helper as the other hook tests.
+- `packages/cli/tests/setup.ts`: each test worker now stops the repository search of git at the temporary folder of the machine. So a test target in a temporary folder can never be read as a part of a real repository.
+- Changed tests of earlier phases, each for a behavior that this phase changed on purpose: `w35-r0-p1-checkpoint-core.test.ts` and `w35-r0-p1-checkpoint-surfaces.test.ts` (the short form, and the three new rules), `w35-r0-p2-reminder.test.ts` (its rule list ends at `WORK-RULE-069`), `w35-r0-p3-routers-and-mcp-instructions.test.ts` (the name test also reads the hook block), `w35-r0-p4-hook-checkpoint.test.ts` (two tests that pinned the wait of 5 seconds now pin the limit, with an upper bound of 4,500 ms), `fixtures/work-store-contract.ts` (the new rules in two parity fixtures, with their exact lines), and `consistency.test.ts` (register entry R-046).
+- `.github/workflows/platform-safety.yml`: six test files in both fixed lists (T14).
+
+Documents: PRD 07, 28, 30, 38, 39, and 52, each with a `W35 R0 P5` Requirement History entry; the risk register (R-043 to R-045 updated, R-046 and R-047 new); this section; and the phase file.
+
+### Owner Decisions That This Phase Built
+
+These are the owner's decisions, built as decided. This phase records no other decision as made.
+
+| Decision | Date | What was built | Proof |
+| --- | --- | --- | --- |
+| The git hooks are opt-in for each project. Setup shows each hook path and the exact block before it writes. No machine-wide git hooks path. | 2026-11-27 | The hook review, and three ways to select the hooks. The code sets no git config value. | A52, A53 |
+| A machine preference, default "No", set at the machine step. | 2026-11-27 (OG-5) | `settings.gitHooksForNewProjects`, the question, and the input of `make-docs setup system`. | A53a |
+| With the preference on, setup installs the hooks with no hook input, also with `--yes`, and only in a new project. A new project is a fresh setup target with no config file. | 2026-11-27 (R3, R3a) | The same condition that decides the project name of PRD 38 R-ID-8, read at the same place, before any write. | A53b, A53g |
+| With the preference off, `setup --yes` installs no hook and says so in one line. | 2026-11-27 | One fixed line. | A53c |
+| A hook of one agent tool always needs an explicit input. | 2026-11-27 | This phase builds no agent tool hook. The preference installs none. | A53e |
+| Four hooks. Three import, and the hook after a branch change only reports. | 2026-11-27 | The four blocks. | A49, A57, A58 |
+| A hook runs the checkpoint in the foreground, with a short time limit on the wait for the Store, after which it gives up quietly. The hook after a rewrite does not skip the amend case. The owner replaced the foreground mode of this answer on the same day: see the next row. | 2026-11-28 (OG-4) | The first build: the block started no background process, and a trigger run for a commit or a branch change waited at most 1,000 ms at each wait for the Store. That limit now holds for a foreground run. An amended commit runs two hooks. | A62q to A62u |
+| Git hooks run in the background, with a foreground fallback where a background process cannot survive. In the background the checkpoint uses the normal wait for the Store and never waits 30 seconds. In the foreground fallback the limit of 1,000 ms applies. A git hook in the background mode prints nothing, in every case. | 2026-11-28 (OD-P5-1 to OD-P5-5) | See [The Owner Decisions Of 2026-11-28 On The Run Mode](#the-owner-decisions-of-2026-11-28-on-the-run-mode). | A62w to A62ae |
+| The words of PRD 30 R-ADMIT-1, PRD 30 R-SELECT-1, the PRD 30 acceptance line, PRD 07 R-SETUP-CLI-10, and the PRD 28 sentence. | 2026-11-27 (OG-10) | The exact words are in the PRDs. | A61 |
+
+### The List For The Owner
+
+Nothing in this list is an owner decision. The builder built each point as the plan or the phase file writes it, or named another form with the reason. The owner can change any of them.
+
+#### The Proposed Names
+
+Each name follows the form of the names that setup has today. The setup inputs today are lower-case words with hyphens, with `--no-<thing>` for "skip this thing" (`--no-codex`, `--no-skills`) and `--<thing> <value>` for a choice (`--codex-method <none|mcp|command-rules>`). PRD 39 R-NAME-1 to R-NAME-5 rule command paths and MCP tool names. These three names are options of existing commands, so the name catalog does not change.
+
+| What | Proposed name | Where | Reason |
+| --- | --- | --- | --- |
+| The hook input | `--git-hooks` | `make-docs setup`, `make-docs setup reconfigure` | It names the thing that setup installs. "Git" keeps it apart from a hook of an agent tool, which P6 names. |
+| The "no hooks" input for one run | `--no-git-hooks` | The same two commands | The existing `--no-<thing>` form. |
+| The input that sets the machine preference | `--git-hooks-for-new-projects <yes|no>` | `make-docs setup system` only | It says what the preference does and where it stops: new projects. It takes `yes` or `no`, so one input turns it on and off. |
+| The key of the machine preference | `settings.gitHooksForNewProjects` (a boolean) in `config.json` of the Store | Global config | The form of the keys there today (`selfUpdate`, `marketplaceAutoRegistration`). |
+| The debug switch | `MAKE_DOCS_HOOK_DEBUG` (an environment variable, any value) | One git command | The form of the variables that Make Docs reads today (`MAKE_DOCS_HOME`). A variable needs no change of a hook file. |
+| The record in the Store | The operation name `setup.git-hooks.receipt-current` | One row of `tool_operations` | The name of the P4 proof, beside `setup.system.receipt-current`. |
+
+#### The Recommendations R1, R2, And R4 To R11
+
+| Number | The recommendation | What was built | What the person sees | Proof |
+| --- | --- | --- | --- | --- |
+| R1 | An update of Make Docs never turns the preference on and never installs a hook by itself. | Only the machine step writes the preference, and only from an answer or the explicit input. Setup of a project that exists installs no hook by the preference alone. | Nothing changes after an update. A later `setup --yes` in that project says in one line that it installed no hook, and names `make-docs setup --git-hooks`. | A53f |
+| R2 | Turning the preference on writes one value and installs no hook in any project. Turning it off removes none. | The machine step writes `settings.gitHooksForNewProjects` and nothing else. | The review under `This computer` says: "This change installs no hook in any project now." or "This change removes no hook that a project already has." | A53, A53f |
+| R4 | With the preference on, an interactive setup of a new project still shows the review, with "yes" first, and the person confirms. In an older project "no" is first. `setup --yes` shows the hooks in its plan and installs them. | As written. | The hook review, then the question "Install these four Make Docs git hooks for this project?". | A53, A53b |
+| R5 | An explicit "no hooks" input for one run holds over the preference. | `--no-git-hooks`. | "Git hooks: none installed in this run (--no-git-hooks)." | A53d |
+| R6 | The machine step asks when global config holds no answer. `make-docs setup system` shows it again with the current value first. A non-interactive machine setup changes it only by an explicit input. `--yes` alone never changes it. An absent value means "No". | As written. One detail is the builder's: the inline machine step of project setup asks only when no answer exists, and `make-docs setup system` asks in each interactive run. | The question "Install the Make Docs git hooks automatically in each new project on this computer?", with "No" and "Yes". | A53a |
+| R7 | When setup must refuse the git hooks, it installs none, says why in one line, and the rest of the run goes on. | As written, with the preference on and also with the hook input. | "Git hooks: none installed. `<the reason>` Make Docs changed no hook file." The setup result is still `complete`. | A48 |
+| R8 | The limit is 1,000 ms. | `CHECKPOINT_GIT_HOOK_STORE_WAIT_MS = 1000`. It is the bound of each wait for the Store, and not of the whole hook run. | A commit while another process holds the Store, or a lock file of the Store, takes about 1.0 to 1.1 seconds longer than a normal commit with the hook. Before the fix after the review, a held lock file made it 30 seconds longer. An amended commit runs two hooks, so it takes about 2.3 seconds longer. The time of the checkpoint itself is not in the limit: see [The Cost Of A Hook With Nothing Due, For The Owner](#the-cost-of-a-hook-with-nothing-due-for-the-owner). | A62r |
+| R9 | The checkpoint takes the limit. The hook script holds no timer. No new CLI option and no new MCP input. | A trigger run with the event `commit` or `branch-change` runs its Store work inside the wait limit of one call. The Store code got one input for that. The block text holds no timer. The name catalog did not change. | Nothing new. | A62r, A62t |
+| R10 | "Quietly": nothing on standard output and standard error, and the git action exits 0. The checkpoint keeps its typed Store result and its exit code 1, and the block hides both. | As written. | Nothing at the commit. `make-docs work status` and the reminder line count the file as waiting until the next checkpoint. With `MAKE_DOCS_HOOK_DEBUG=1` the person sees the Store result. | A62l, A62s |
+| R11 | The limit covers only the wait for the Store, and each wait. | The limit bounds each wait for the Store of the call by itself: the busy time of each Store connection, each retry of an open, and each wait for a live Store owner, which is a shared session, a named lock file, or a checkout writer. [Each Place Where A Checkpoint Run Can Wait](#each-place-where-a-checkpoint-run-can-wait) lists them. It is no timer on the run, and it does not add the waits of one run together. In each measured case a run met one wait. The first build bounded only the busy time of a connection, and only for the event `commit`; the review found that, and this is the corrected form. | A first sync that has the Store runs to its end. A hook run with nothing due takes longer in a project with more work files, and no rule bounds that. | A62t |
+
+#### The Proposals From Phase 4 (T20 To T34)
+
+| Task | The proposal | What was built | The reason | What the person sees | Proof |
+| --- | --- | --- | --- | --- | --- |
+| T20 | The block adds the recorded folder of `node` to the end of PATH. | Built, with one more part. The block records two paths: the `node` program and the Make Docs command file. It starts the recorded command file with the recorded `node` program first, and it uses `make-docs` from PATH only when the recorded file or the recorded `node` program is gone. The first build looked on PATH first; the fixes after the review changed the order (RF-9). | The recorded command is the version that wrote the block, so it knows the events and the wait limit. The command file that setup runs is a script file. A shell cannot always start it by its path, on Windows or when the file is not executable. `node <file>` is how setup itself was started. | The review names both paths as paths of this computer that can go stale, and names `make-docs setup --git-hooks` to record them again. | A62a |
+| T21 | Setup sets the executable mode on a file that it creates, and names an existing file that is not executable. | As written. | Git does not run a file with no executable mode on a platform with file modes. Make Docs does not change a mode that another tool or the person set. | "This file is not executable, so git does not run it on a platform with file modes. Make Docs does not change its mode. To let git run it: chmod +x on this file." | A62b |
+| T22 | Choose the place of the block. | Right after the first line of the hook file. The block is one subshell with its input closed. | An `exec` or an `exit` of another tool cannot skip a block that stands before it. A subshell changes no variable and no folder of the other script, and it does not take the input that git gives the hook after a rewrite. | "Make Docs adds the block after the first line and keeps every other byte." | A62c |
+| T23 | A project in a subfolder of the repository. | The block holds the project folder, from the top folder of the work tree. It runs the checkpoint for each such folder that holds a Make Docs config. Two projects in one repository share the hook files. | The hook files belong to the clone, so the block cannot hold one full project path: each work tree has another one. | Nothing. | A62d |
+| T24 | `setup remove` removes the Store record with the last block, and Store care names the record. | As written. `setup store check` lists each record. | The record is a machine record. | A new part of the Store check: "Git hook records (kept; no rule removes them):". | A62e |
+| T25 | In a work tree that is not bound, the hook does nothing and says nothing. | Kept. | A line at each commit in such a work tree would be noise for a person who did not choose Make Docs there. | The review: "The hooks act only in a checkout that is bound to the Store. A new work tree of this clone is not bound until `make-docs project checkout apply` runs there." | A62f |
+| T26 | Where the output is cut. | In the checkpoint, and not in the block. A trigger run with the event `commit` or `branch-change` gives the short form. | The block prints what the checkpoint prints. A cut in shell text would count lines and could cut the wrong one. | See [Each Line That A Hook Can Print](#each-line-that-a-hook-can-print). | A62g |
+| T27 | Hidden error output, with a debug switch. | Kept. The switch is `MAKE_DOCS_HOOK_DEBUG`. | See the name table. | With the switch, the error output of the checkpoint on standard error. With no command at all: "make-docs git hook: no make-docs command at the recorded path and none on PATH." | A62h |
+| T28 | No hook manager is known by name. | Kept. | A list of product names would go stale, and Make Docs names no such product. | The review: "Make Docs knows no other hook tool by name. When another tool writes a hook file again, it can remove the Make Docs block. A later `make-docs setup` then reports the block as missing." | A62i |
+| T29 | A hook file that is a symbolic link is refused. | Kept. The hooks folder is also refused when it is a link. | A block written through a link changes a file that another tool owns. | "Another tool owns the hook file `<path>`: it is a symbolic link. Make Docs changed no hook file." | A62j |
+| T30 | What "a shell script" means. | Kept as written. One more refusal: a file that is not UTF-8 text. | The block is text, so the file must be text. | "The hook file `<path>` is not a shell script: its first line does not name sh, bash, dash, ksh, or zsh." | A62k |
+| T31 | The hook swallows a non-zero exit code. What it prints then. | Nothing, for each non-zero exit code. The block prints only the standard output of a checkpoint that ended with exit code 0. | Standing rule 5. A Store error at a commit is not something that the person at the commit can settle, and the file is not lost. | Nothing. Register entry R-046 holds the case of a shell that may not use the Store. | A62l |
+| T32 | A checkout ID whose folder is gone. | Such a checkout does not hold the blocks. Setup and `setup remove` drop it when they write the record. | The other form keeps the block for ever. | "Git hooks: 1 other checkout of this clone selected the hooks, and its recorded folder is gone:", then the recorded folder, then "It does not keep the blocks, and git lists no work tree of this clone that can be that checkout at a new folder." When git lists such a work tree, the blocks stay (RF-7). | A62m |
+| T33 | A record that a moved clone left behind. | A repair, and not a new key. Only setup with the hook input takes the record over, when no record exists for the new path, the git folder of the record is not there, and each block of the record is in the hook files, byte for byte. The plan names the record and its folder first. A plain setup and `setup remove` take nothing over. The first build took the record over in each setup and in `setup remove`; the review showed that a copy of a clone then takes the record of the original, and the fixes changed it (RF-5, RF-6). | Git gives a clone no ID, so each key is a path. The same bytes do not prove that the clone is the same, because a copy holds them too. So the person says it, with the hook input. | A plain setup at the new path says that no record of this clone covers the blocks, names the record of the old folder, and names `make-docs setup --git-hooks`. It reports no drift. With the hook input, each block is current and the record is the record of this clone. The Store check names the record of the old folder until then. | A62n |
+| T34 | The state marks. | Five marks: `rebase-merge`, `rebase-apply`, `MERGE_HEAD`, `CHERRY_PICK_HEAD`, and `BISECT_LOG`. `REVERT_HEAD` is out. The block does not read the `sequencer` folder. | `REVERT_HEAD` stops no hook run, so it was a mark that did nothing. The `sequencer` folder would stop the sync of a revert of several commits, and the design names no revert. | The review names `git reset --hard`, `git am`, and a cherry-pick with no conflict as actions that reach no checkpoint. | A62o |
+
+#### Each Line That A Hook Can Print
+
+Since the background mode of 2026-11-28, these are the lines of the foreground fallback, and a hook in the background mode prints none of them. [What A Hook Prints Now](#what-a-hook-prints-now) holds both modes.
+
+A hook prints only what the checkpoint prints on standard output, and only when the checkpoint ended with exit code 0. So these are all the lines. `<N>` is a count.
+
+| Case | The lines |
+| --- | --- |
+| Nothing is due | No line. |
+| Files were imported, and nothing waits | `Checkpoint: <N> file imported.` or `Checkpoint: <N> files imported.` |
+| Something waits: a file waits for a write or a removal, a conflict waits, a held file differs, a file was not written, or a work file cannot be read | The summary line, such as `Checkpoint: 1 file imported, 1 file waits.` or `Checkpoint: 1 conflict waits for a person.`, and then `Run make-docs project checkpoint to see and settle what waits.` |
+| After a branch change, when files wait | `Checkpoint: <N> file waits.` and then `Run make-docs project checkpoint to see and settle what waits.` |
+| The caller has read access only, and files wait | One line: `Checkpoint: <N> file waits. This caller has read access only, so a caller with write access must run make-docs project checkpoint.` |
+| No command, no Store, no Make Docs project, a checkout that is not bound, a held Store after the limit, a shell that may not use the Store, each other error | No line. |
+| With `MAKE_DOCS_HOOK_DEBUG` set, on standard error | The error output of the checkpoint, or `make-docs git hook: no make-docs command at the recorded path and none on PATH.` |
+
+The parts of the summary line are the parts of the checkpoint of P1: files imported, files that wait, conflicts that wait for a person, held files that differ, files not written, and work files that cannot be read. The short form holds no file path, no claim, and no list of ready work. [The Hand Run](#the-hand-run) holds the exact block of each hook.
+
+### The Cases By Test
+
+Each row names the test file that proves the case on the maintainer machine. "block" is `w35-r0-p5-git-hook-block.test.ts`, "setup" is `w35-r0-p5-setup-git-hooks.test.ts`, "offer" is `w35-r0-p5-setup-offer.test.ts`, "wait" is `w35-r0-p5-hook-wait-limit.test.ts`, "e2e" is `w35-r0-p5-hook-end-to-end.test.ts`, and "own" is `w35-r0-p5-hook-ownership.test.ts`.
+
+| Case | State | Proof |
+| --- | --- | --- |
+| A48 | Proven | block: beside a hook of another tool, every other byte stays; the refusals for a hooks path of the repository and of the machine, a link, and a file that is not a shell script. setup: the one line, and the rest of the run goes on. |
+| A49 | Proven | block: each of the four hooks exits 0 and prints nothing with no command, with no Store, and with no Make Docs install; a file checkout; the five state marks for the hooks after a commit and after a branch change. e2e: the hooks after a merge and after a rewrite run the checkpoint in a merge and in a rebase. |
+| A50 | Proven in part | wait: a caller with read access only gets the one line, at the level of the checkpoint core. block: a shell that may not write the Store folder prints nothing and exits 0. No test starts a hook as a caller with read access only: that needs the caller identity of an agent tool, which P6 owns. |
+| A51 | Proven | block, setup, and own: a changed block is drift, a plan changes nothing, and setup changes it only with the hook input, after the plan named it, with a backup file of the old block text. |
+| A52 | Proven | offer: the review holds each of the four paths and each exact block, and it comes before the question. setup: the dry run holds each path and each block, and writes nothing. |
+| A53 | Proven | offer: the first choice of the question in each case, and the hooks of a project that has them stay. |
+| A53a | Proven | offer and setup. |
+| A53b | Proven | setup. |
+| A53c | Proven | setup. |
+| A53d | Proven | setup and offer. |
+| A53e | Proven | setup: no settings file of an agent tool exists in the temporary home folder. This phase builds no agent tool hook. |
+| A53f | Proven in part | setup: a later setup run of an installed project installs no hook by the preference alone, and global config is byte-identical. No test runs a real update of the package from an older release. |
+| A53g | Proven | setup and offer. An adopted checkout is an older project. |
+| A54 | Proven | setup: two files of another tool, one of them with no line end at its end. |
+| A55 | Proven | setup. |
+| A56 | Done | Owner gate OG-6 did not open. See [Owner Gates](#owner-gates-og-3-and-og-6). |
+| A57 | Proven | e2e. |
+| A58 | Proven | e2e. |
+| A59 | Proven | e2e. |
+| A60 | Waits | Both lists hold the six files. The tests pass on macOS. Linux and Windows wait for the pull request run. |
+| A61 | Proven | `make-docs check prd`, the shipped-text test, and the byte-match tests pass. See [P5 Checks](#p5-checks). |
+| A62 | Waits for the owner | This section. |
+| A62a | Proven | block. |
+| A62b | Proven | block. On Windows no file is named, because Windows has no executable mode. |
+| A62c | Proven | block: the block runs in a file that ends with `exec`, and in a file that ends with `exit`. |
+| A62d | Proven | block. setup: two projects in one repository. |
+| A62e | Proven | setup. |
+| A62f | Proven | block. |
+| A62g | Proven | block, wait, and e2e. The cut is in the checkpoint. |
+| A62h | Proven | block. |
+| A62i | Proven | block. |
+| A62j | Proven on macOS | block. The test is skipped on Windows, where a test cannot make a link without a special right. |
+| A62k | Proven | block: six first lines that setup takes, and five files that it refuses. |
+| A62l | Proven | wait and block. |
+| A62m | Proven | setup: the folder was deleted, and the blocks and the record go. own: the folder of a linked work tree moved, and the blocks and the record stay. |
+| A62n | Proven | setup: the clone moved, and its checkout got a new checkout ID at the new path. A plain setup reports no false drift and takes nothing over. The hook input moves the record, `setup remove` then removes the blocks, and no record stays for the old path. own: a copy of a clone takes nothing over. |
+| A62o | Proven | block. |
+| A62p | Waits for the owner | [The List For The Owner](#the-list-for-the-owner). |
+| A62q | Proven | wait. |
+| A62r | Proven on macOS | wait. The bound is a number: the action may take at most 3,500 ms longer than the same action with a free Store, and at most 4,500 ms in all while a lock file of the Store is held. |
+| A62s | Proven | wait. |
+| A62t | Proven in part | wait: a direct run waits the busy time. For the first sync, a test shows that a commit whose hook run is the first sync of a checkout with 61 work files imports each one. That run is shorter than the limit on this machine, so it does not show a run that is longer than the limit. A unit test shows that the limit is the wait of a Store connection and no timer. |
+| A62u | Proven | wait: a command file on PATH records two checkpoint calls for one amended commit. The recorded command of that test does not exist, so the block uses PATH. |
+| A62v | Waits for the owner | The PRDs hold the run mode and the limit. |
+
+### The Wait Limit (T35 To T37, A62q To A62u)
+
+How it is built. The Store code has a wait limit for one call (`withStoreWaitLimit` in `packages/cli/src/store/database.ts`). Each Store connection that opens inside that call sets its busy time to the limit, the retry of a busy open ends at the limit, and each wait for a live Store owner ends at the limit. The checkpoint operation takes the limit of 1,000 ms for a trigger run with the event `commit` or `branch-change`. Nothing else takes it. So a direct run, a trigger run with another event, and each other command keep the wait times of the Store. The first build bounded only the busy time, and only for the event `commit`. [Each Place Where A Checkpoint Run Can Wait](#each-place-where-a-checkpoint-run-can-wait) holds the correction and each bound.
+
+The times below are from test log lines of the first build on the maintainer machine. [The Measured Times After The Fix](#the-measured-times-after-the-fix) holds the times of the final build, also for a held lock file and for an amended commit. They are not a result of [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs), and they are one run each.
+
+| Action with the installed hooks | Free Store | Store held by another process | Added |
+| --- | --- | --- | --- |
+| A commit | 196 ms | 1,309 ms, exit code 0, no output | 1,113 ms |
+| A true merge (`git pull` with a local commit) | 416 ms | 1,363 ms, exit code 0, no output | 947 ms |
+| `make-docs project checkpoint --event commit` (the run of the hook, alone) | not measured | about 1,300 ms, exit code 1, one line on standard error | not measured |
+| `make-docs project checkpoint` (a direct run) | not measured | about 5,500 ms, exit code 1 | not measured |
+| `make-docs project checkpoint --event branch-change` | not measured | about 200 ms, exit code 0, the report | not measured |
+
+The added time is about one limit, so a trigger run that imports has one wait for the Store on this machine. The test bound of 3,500 ms is the limit and a margin for a shared test machine. Before the limit, the same commit took about 5.5 seconds longer ([P4 evidence](#owner-gate-og-4-the-run-mode-of-a-git-hook)).
+
+The block of P5 differs from the proof block that `PERF-007` measured: it reads the state marks, it finds the command in two steps, and it holds the output of the checkpoint until the checkpoint ends. The phase file asks for a rerun of an affected check only. The builder ran no `PERF-007` sample again. The one comparable number of this phase is the commit with nothing due and a free Store: 196 ms in one test run. That is one run with a small fixture of 2 work files, so it cannot be compared with the `PERF-007` medians on 471 work files.
+
+### Owner Gates OG-3 And OG-6
+
+OG-3 did not open. The record is one row of the existing table `tool_operations`, written with the same statement form as the machine receipts. The build added no table, no column, no schema version, and no migration. A test reads the schema version of the Store before and after and finds it the same. What changed is text: the table catalog in code and the R-MIN row of PRD 38 name the new kind of row and its writer. This stays a finding of P4 and of this build. It is not an owner decision. If the owner reads a new kind of row in that table as a Store schema change, the gate opens with the two options of the plan: A, approve a Store schema change; B, record the block for each checkout, a form that the design refused. The plan recommends A.
+
+OG-6 did not open, by the finding of the P4 platform run. So T10 has nothing to apply, and it closes as `superseded`, as the phase file writes. One point of that finding concerns this phase: git runs a hook file that is a link has no Windows proof. Setup refuses a hook file that is a link on each platform, and that check reads the file and does not need git to run it. The test of that refusal in this phase is skipped on Windows too, because a test cannot make a link there.
+
+### Where This Phase Meets A Rule That W22 Owns
+
+This phase edited no W22 file. It changed shared setup code in these places, each small:
+
+- `packages/cli/src/cli.ts`, the project flow of `runResolvedCli`. Five inserts: the reset of one module value at the start, the preference question inside `afterHarnessSelection`, one value named `gitHookNewProject` beside `planNewProjectName`, the hook decision after `printPlan`, the question after the project approval, and the install after `applyInstallPlan`. W22 R2 adds the adoption path to this same function. A merge is by hand.
+- "New project". The hook code reads the same two facts as the project name rule: a fresh setup target, and no config file. An adopted checkout (`setup --adopt`) has a config file, so it is an older project, and the preference installs no hook there. This follows from R3a. W22 R2 owns adoption, so it should know this consequence.
+- A second work tree of a project. It binds through `make-docs project checkout apply` and then `make-docs setup --adopt --yes`, which are W22 rules. The hooks act there only after that. This phase changed none of it.
+- A clone that moved. The record repair of T33 works with a checkout that got a new checkout ID at the new path, and with a checkout that kept its ID through `make-docs project move apply`. In the test of this phase the reviewed move was not available ("The target has no independent managed ownership fact."), so the test covers only the new checkout ID. W22 R1 owns the move.
+- `writeCanonicalSetupResult` gained one field, `gitHooks`. It is null when setup stops before the hook decision, such as at the adoption choice of PRD 07 R-SETUP-CLI-14.
+- `packages/cli/src/uninstall.ts`. Two inserts around the removal operation. The removal of the project is unchanged.
+- PRD 07 gained R-SETUP-CLI-15 to R-SETUP-CLI-24 after R-SETUP-CLI-14, and PRD 38 gained R-HOOK-STATE after R-HARNESS-STATE and one changed row of the R-MIN register. Both PRDs append a Requirement History entry at the end.
+
+### P5 New Behavior That The Documents Did Not State
+
+The builder chose each point. No point is an owner decision. The owner has not reviewed this list. The recommendations and the proposals above are not repeated here.
+
+1. A refusal is for all four hooks. One hook file that setup must refuse means that setup installs no hook.
+2. With the hook input, setup replaces a drifted block. The reviewed plan names the change first, and the old block text goes into a backup file. Without the hook input, setup keeps a drifted block and changes no hook in that run, also after an explicit "yes" and with the machine preference on (RF-2, RF-3). The first build replaced it on the preference path, with no backup, and the review found that.
+3. A fourth state: a current block for which a newer block is ready. It appears when the recorded paths or the block text of a newer Make Docs differ. Setup writes the newer block only with the hook input.
+4. A block with no Store record. Setup with the hook input records it when its bytes equal the block that setup would write, and replaces it, with a backup file, when they differ. Without the hook input setup keeps it. `setup remove` leaves it and names it.
+5. A hook file that holds a damaged Make Docs block (one marker, or the markers in the wrong order) is refused, with the words to fix it by hand.
+6. A setup with no terminal and no `--yes` installs no hook, also with the hook input. An interactive setup with the hook input installs the hooks with no extra question, after the review.
+7. `--git-hooks-for-new-projects` is valid only with `make-docs setup system`. Project setup refuses it, so one run cannot set the preference and use it.
+8. The hook input also counts as a selection input of `make-docs setup reconfigure --yes`.
+9. A project that has the hooks, each with a current block, gets no question in an interactive setup. Setup reports the state.
+10. A project outside a git work tree gets one line, and no offer.
+11. Two Make Docs projects in one git repository share the hook files. The block names each project folder, and `setup remove` in one project takes its folder out of the block.
+12. `setup remove` handles the hooks after the project files, and a hook problem never fails the removal of the project.
+13. The machine result and the setup JSON result gained one field each: `gitHooksPreference` and `gitHooks`.
+14. The Store check gained a list of the git hook records. It adds no fixed rule, and clean removes no hook record. A record of a clone that was deleted stays, and blocks nothing.
+15. Three rule IDs are new in the work rule catalog: `WORK-RULE-070` to `WORK-RULE-072`. Three PRD 52 requirements are new: R-WORK-CHECKPOINT-13 to R-WORK-CHECKPOINT-15.
+16. The MCP result of `project_checkpoint` with the event `commit` or `branch-change` holds the short form in its `lines`, as the CLI does. Each other field is unchanged.
+17. Register entry R-046 is new: a git hook does nothing when its shell may not use the Store.
+18. The test setup stops the repository search of git at the temporary folder of the machine, for each test of the suite.
+
+### The Twin Review (T36)
+
+The checkpoint is deterministic logic with an agent form, `make-docs://system/reference/work-store.md`. The agent form was reviewed for each change of this phase, and it changed:
+
+- The short form and the wait limit are rules of the checkpoint that an agent can meet in a hook output. They are `WORK-RULE-070` and `WORK-RULE-071`, in the catalog and in the Checkpoint section.
+- `WORK-RULE-072` says what the four hooks do, that only setup installs and removes a git hook, that an agent installs no hook by hand and writes no hook file of its own, and that an agent starts a direct run when a hook prints that something waits. This is the agent form of "install the hooks by hand": the answer is "do not". An agent without the CLI has no checkpoint to run, so a hook written by hand would have nothing to call.
+- "When to Run It" says that the hooks do not replace the three moments, and why.
+
+The twin test passes: each rule ID is in the catalog and in the agent form, in its own section. The template file and the installed copy are byte-identical.
+
+### The Hand Run
+
+This hand run is of the first build, before the fixes after the independent review. The hook review in step 4 is replaced with the review of the final build, which a function of setup made in a temporary project. These outputs of the final build differ from the lines below, and [The Hand Run Of The Four Review Cases](#the-hand-run-of-the-four-review-cases) shows them: each `gitHooks` result also holds `kept`, `takeoverFrom`, and `command`; the plan of `setup remove` with another bound checkout also names each hook file; the report of a kept changed block has more words; and the time in step 6 is now about 1.3 seconds.
+
+One script ran the whole story with the built CLI, a temporary Store at a fixed path, a temporary home folder, and temporary git repositories. In the output below, `<work>` stands for the temporary folder of the run, `<node>` for the full path of the `node` program, and `<cli>` for the full path of the built CLI. The JSON results are cut to the hook part. The sandbox of the builder gives no terminal, so two texts come from the functions that setup calls: the review under `This computer` (`prepareSystemSetupCommand`) and the hook review (`renderGitHookReview`). Each other line is the plain output of the command.
+
+```text
+=== 1. The machine step sets the preference (non-interactive input) ===
+--yes alone: {"status":"skipped-none","gitHooksPreference":{"value":null,"changed":false}}
+The review under This computer, as the machine step shows it before the approval:
+Detection is a hint. It does not prove support or limit your choice.
+
+Generic MCP client: available; Make Docs prints a standard configuration and does not edit client-owned files. Next: rerun setup with `--generic-mcp-client <label>`.
+
+No native harness method is selected.
+Choosing none makes no native file changes.
+Resource reads need no Store access.
+
+Global intent file: <work>/store/config.json
+- Effect: no global harness intent change.
+
+Git hooks for new projects: no answer, which means No -> Yes
+- Effect: writes one value, settings.gitHooksForNewProjects, in <work>/store/config.json. It changes no other value.
+- With Yes, setup of a new project installs the Make Docs git hooks, also with `make-docs setup --yes`. This change installs no hook in any project now. An older project gets the hooks only by `make-docs setup --git-hooks` or by your yes in an interactive setup of that project.
+- This preference never installs a hook that belongs to one agent tool.
+with the input: {"status":"configured","gitHooksPreference":{"value":true,"changed":true}}
+config.json settings.gitHooksForNewProjects: true
+
+=== 2. A new project with the preference on: setup --yes installs the four hooks ===
+{
+  "status": "complete",
+  "gitHooks": {
+    "selection": "machine-preference",
+    "preferenceOn": true,
+    "newProject": true,
+    "status": "installed",
+    "message": null,
+    "hooks": [
+      "post-commit: absent -> create-file",
+      "post-merge: absent -> create-file",
+      "post-rewrite: absent -> create-file",
+      "post-checkout: absent -> create-file"
+    ]
+  }
+}
+post-checkout
+post-commit
+post-merge
+post-rewrite
+
+=== 3. An older project: setup --yes installs none, and the explicit input installs them ===
+{
+  "status": "complete",
+  "gitHooks": {
+    "selection": "none",
+    "preferenceOn": false,
+    "newProject": true,
+    "status": "none",
+    "message": "Git hooks: none installed. The machine preference for git hooks is off. To install them for this project, run `make-docs setup --git-hooks`.",
+    "hooks": [
+      "post-commit: absent -> none",
+      "post-merge: absent -> none",
+      "post-rewrite: absent -> none",
+      "post-checkout: absent -> none"
+    ]
+  }
+}
+{
+  "status": "complete",
+  "gitHooks": {
+    "selection": "none",
+    "preferenceOn": true,
+    "newProject": false,
+    "status": "none",
+    "message": "Git hooks: none installed. The machine preference installs them only in a new project, and this project was set up before. To install them here, run `make-docs setup --git-hooks`.",
+    "hooks": [
+      "post-commit: absent -> none",
+      "post-merge: absent -> none",
+      "post-rewrite: absent -> none",
+      "post-checkout: absent -> none"
+    ]
+  }
+}
+
+=== 4. The review that setup shows before it writes (a dry run in a terminal, with the explicit input) ===
+{
+  "status": "planned",
+  "gitHooks": {
+    "selection": "hook-input",
+    "preferenceOn": true,
+    "newProject": false,
+    "status": "planned",
+    "message": null,
+    "hooks": [
+      "post-commit: absent -> create-file",
+      "post-merge: absent -> create-file",
+      "post-rewrite: absent -> create-file",
+      "post-checkout: absent -> create-file"
+    ]
+  }
+}
+The hook review, as setup shows it in a terminal before it writes:
+Make Docs can add one marked block to each of four git hook files of this clone, in <work>/older/.git/hooks.
+Each block runs the checkpoint in the foreground after the git action. A block never fails or blocks git, and it prints nothing when nothing is due.
+Each work tree of this clone uses these hook files. Make Docs sets no machine-wide git hooks path.
+Each hook runs the Make Docs command at the recorded path: <node> <cli>. That is the version that writes the block. Only when that file or that `node` program is gone does a hook run `make-docs` from PATH.
+
+<work>/older/.git/hooks/post-commit
+- Make Docs creates this file, with the executable mode, and puts the block in it.
+- It runs: make-docs project checkpoint --event commit (it imports changed docs/work/ files into the work store and writes no project file)
+<work>/older/.git/hooks/post-merge
+- Make Docs creates this file, with the executable mode, and puts the block in it.
+- It runs: make-docs project checkpoint --event commit (it imports changed docs/work/ files into the work store and writes no project file)
+<work>/older/.git/hooks/post-rewrite
+- Make Docs creates this file, with the executable mode, and puts the block in it.
+- It runs: make-docs project checkpoint --event commit (it imports changed docs/work/ files into the work store and writes no project file)
+<work>/older/.git/hooks/post-checkout
+- Make Docs creates this file, with the executable mode, and puts the block in it.
+- It runs: make-docs project checkpoint --event branch-change (after a branch change only; it imports nothing and only reports)
+
+Limits:
+- The hooks act only in a checkout that is bound to the Store. A new work tree of this clone is not bound until `make-docs project checkout apply` runs there. Until then the hooks do nothing there and say nothing.
+- These git actions do not reach the checkpoint through a hook: `git reset --hard`, `git am`, and a cherry-pick with no conflict. The reminder line of the next Make Docs command and the next commit cover them.
+- While another Make Docs process holds the Store or one of its locks, a hook waits at most 1 second at each wait for the Store. Then it gives up, prints nothing, and git goes on. The next checkpoint imports the file. The limit bounds the waits for the Store. It does not bound the work of the checkpoint, which reads each file below `docs/work/` and so takes longer in a project with more work files.
+- A hook does nothing, and says nothing, when the shell that runs it may not use the Store, such as a restricted command shell of an agent tool.
+- The block holds two paths of this computer: the `node` program and the Make Docs command file. A hook runs the command at these paths first, so the version that wrote the block runs, and not another `make-docs` on PATH. The paths can go stale when you move, update, or remove them. Then a hook runs `make-docs` from PATH, or does nothing when none is there. Run `make-docs setup --git-hooks` again to record them again.
+- Make Docs keeps a block that you changed, and a block that no record of this clone covers. Only `make-docs setup --git-hooks` replaces or records such a block, and it keeps a backup of the old text of a block that it replaces.
+- Make Docs refuses a hook file that starts another program on itself (a line with `exec` and `$0` as one word), because a block of shell text would break that file.
+- Make Docs knows no other hook tool by name. When another tool writes a hook file again, it can remove the Make Docs block. A later `make-docs setup` then reports the block as missing.
+- On a platform with file modes, git does not run a hook file that is not executable. Make Docs names such a file and does not change its mode.
+- To see the error output of a hook, set MAKE_DOCS_HOOK_DEBUG=1 for one git command.
+
+The exact block for post-commit:
+# >>> make-docs git hook: post-commit >>>
+# Make Docs wrote this block (version 1). It runs `make-docs project checkpoint --event commit` after a commit.
+# It never fails or blocks git, and it prints nothing when nothing is due. Set MAKE_DOCS_HOOK_DEBUG=1 to see its errors.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_git=$(git rev-parse --absolute-git-dir 2>/dev/null)
+  for md_mark in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD BISECT_LOG; do
+    if [ -e "$md_git/$md_mark" ]; then exit 0; fi
+  done
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-commit <<<
+
+The exact block for post-merge:
+# >>> make-docs git hook: post-merge >>>
+# Make Docs wrote this block (version 1). It runs `make-docs project checkpoint --event commit` after a merge.
+# It never fails or blocks git, and it prints nothing when nothing is due. Set MAKE_DOCS_HOOK_DEBUG=1 to see its errors.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-merge <<<
+
+The exact block for post-rewrite:
+# >>> make-docs git hook: post-rewrite >>>
+# Make Docs wrote this block (version 1). It runs `make-docs project checkpoint --event commit` after a rewrite of commits.
+# It never fails or blocks git, and it prints nothing when nothing is due. Set MAKE_DOCS_HOOK_DEBUG=1 to see its errors.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-rewrite <<<
+
+The exact block for post-checkout:
+# >>> make-docs git hook: post-checkout >>>
+# Make Docs wrote this block (version 1). It runs `make-docs project checkpoint --event branch-change` after a branch change.
+# It never fails or blocks git, and it prints nothing when nothing is due. Set MAKE_DOCS_HOOK_DEBUG=1 to see its errors.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  [ "${3:-}" = 1 ] || exit 0
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_git=$(git rev-parse --absolute-git-dir 2>/dev/null)
+  for md_mark in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD BISECT_LOG; do
+    if [ -e "$md_git/$md_mark" ]; then exit 0; fi
+  done
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event branch-change --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event branch-change --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-checkout <<<
+
+`make-docs setup remove` takes these blocks out again, and only while they are unchanged.
+{
+  "status": "complete",
+  "gitHooks": {
+    "selection": "hook-input",
+    "preferenceOn": true,
+    "newProject": false,
+    "status": "installed",
+    "message": null,
+    "hooks": [
+      "post-commit: absent -> create-file",
+      "post-merge: absent -> create-file",
+      "post-rewrite: absent -> create-file",
+      "post-checkout: absent -> create-file"
+    ]
+  }
+}
+
+=== 5. A commit with a changed work file, and a commit with nothing due ===
+$ git commit -m "Add the work files"
+Checkpoint: 2 files imported.
+exit code: 0
+$ git commit -m "A note" (nothing due)
+exit code: 0
+$ git commit -m "Change a task"
+Checkpoint: 1 file imported.
+exit code: 0
+git status --porcelain: []
+
+=== 6. A commit while another process holds the Store ===
+exit code: 0, output: none, time: 1376 ms (the Store was held for 7,000 ms)
+$ make-docs work status (first lines)
+{
+  "operation": "work.queue.status",
+  "mode": "store",
+  "storeState": "usable",
+$ git commit -m "The next commit"
+Checkpoint: 1 file imported.
+exit code: 0
+
+=== 7. A hook file that another tool owns: the refusal ===
+{
+  "status": "complete",
+  "gitHooks": {
+    "selection": "hook-input",
+    "preferenceOn": true,
+    "newProject": true,
+    "status": "refused",
+    "message": "Git hooks: none installed. The hook file <work>/owned/.git/hooks/post-commit is not a shell script: its first line does not name sh, bash, dash, ksh, or zsh. Make Docs changed no hook file.",
+    "hooks": []
+  }
+}
+the file of the other tool: #!/usr/bin/env node console.log("another tool"); 
+
+=== 8. A second linked work tree ===
+  "status": "registered",
+{
+  "status": "complete",
+  "gitHooks": {
+    "selection": "hook-input",
+    "preferenceOn": true,
+    "newProject": false,
+    "status": "installed",
+    "message": null,
+    "hooks": [
+      "post-commit: current -> none",
+      "post-merge: current -> none",
+      "post-rewrite: current -> none",
+      "post-checkout: current -> none"
+    ]
+  }
+}
+$ git commit (in the linked work tree)
+Checkpoint: 1 conflict waits for a person.
+Run make-docs project checkpoint to see and settle what waits.
+exit code: 0
+$ git checkout -b side (in the main work tree: a branch change only reports)
+exit code: 0
+
+=== 9. setup remove in one work tree, and then in the last one ===
+Git hooks: the Make Docs blocks stay in <work>/new/.git/hooks. Another bound checkout of this clone uses them:
+- <work>/new
+Make Docs removes the blocks when `make-docs setup remove` runs in the last of these checkouts.
+Git hooks: the Make Docs blocks stay, because another bound checkout of this clone uses them:
+- <work>/new
+This checkout is no longer in their Store record.
+post-checkout post-commit post-merge post-rewrite 
+Git hooks: this is the last bound checkout of this clone that selected the hooks, so Make Docs removes its blocks from <work>/new/.git/hooks and removes their Store record.
+- <work>/new/.git/hooks/post-commit: Make Docs created this file and it holds nothing else, so Make Docs removes the file.
+- <work>/new/.git/hooks/post-merge: Make Docs created this file and it holds nothing else, so Make Docs removes the file.
+- <work>/new/.git/hooks/post-rewrite: Make Docs created this file and it holds nothing else, so Make Docs removes the file.
+- <work>/new/.git/hooks/post-checkout: Make Docs created this file and it holds nothing else, so Make Docs removes the file.
+Git hooks: removed for this clone. The Store holds no git hook record for it now.
+- <work>/new/.git/hooks/post-commit: the file was removed, because Make Docs created it and it held nothing else
+- <work>/new/.git/hooks/post-merge: the file was removed, because Make Docs created it and it held nothing else
+- <work>/new/.git/hooks/post-rewrite: the file was removed, because Make Docs created it and it held nothing else
+- <work>/new/.git/hooks/post-checkout: the file was removed, because Make Docs created it and it held nothing else
+hook files left: []
+Store check lines that name a git hook record after removal: 1
+
+=== 10. A changed block at removal ===
+{
+  "status": "complete",
+  "gitHooks": {
+    "selection": "none",
+    "preferenceOn": true,
+    "newProject": false,
+    "status": "selected",
+    "message": "Git hooks: this project has the Make Docs git hooks. This run changes none.\n- <work>/older/.git/hooks/post-commit: drifted: the block was changed after Make Docs wrote it\n- <work>/older/.git/hooks/post-merge: current\n- <work>/older/.git/hooks/post-rewrite: current\n- <work>/older/.git/hooks/post-checkout: current\nTo write the current block again, run `make-docs setup --git-hooks`.",
+    "hooks": [
+      "post-commit: drifted -> none",
+      "post-merge: current -> none",
+      "post-rewrite: current -> none",
+      "post-checkout: current -> none"
+    ]
+  }
+}
+Git hooks: removed for this clone. The Store holds no git hook record for it now.
+- <work>/older/.git/hooks/post-commit: kept: the block was changed after Make Docs wrote it. Take out its two marker lines and the lines between them by hand
+- <work>/older/.git/hooks/post-merge: the file was removed, because Make Docs created it and it held nothing else
+- <work>/older/.git/hooks/post-rewrite: the file was removed, because Make Docs created it and it held nothing else
+- <work>/older/.git/hooks/post-checkout: the file was removed, because Make Docs created it and it held nothing else
+hook files left: [post-commit ]
+```
+
+What the hand run shows, step by step:
+
+1. The machine step. `--yes` alone leaves the preference with no value. The explicit input writes `true`, and the review names the one value that it writes.
+2. A new project with the preference on. `make-docs setup --yes` installs the four hooks, and the result names the selection `machine-preference`.
+3. An older project. With the preference off, and then with the preference on, `make-docs setup --yes` installs none and gives its one line.
+4. The hook review, with each path, the limits, and each exact block. Then the explicit input installs the hooks in the older project.
+5. A commit with new work files prints `Checkpoint: 2 files imported.`. A commit with nothing due prints nothing. `git status --porcelain` is empty after each one.
+6. A commit while another process holds the Store for 7 seconds: exit code 0, no output, about 1.4 seconds in all. The next commit imports the file.
+7. A hook file of another tool that is not a shell script: setup is `complete`, the hooks are `refused` with one line, and the file of the other tool is unchanged.
+8. A second linked work tree: it binds, `setup --adopt --yes --git-hooks` finds the four blocks current and records the checkout, and a commit there runs the checkpoint. The commit reports a conflict in two lines, because the store held a newer text of that file from the main work tree.
+9. `setup remove` in the linked work tree keeps the blocks and names the checkout that uses them. `setup remove` in the main work tree removes the four files and the record. The Store check still names 1 record after that: the record of the older project of step 3, which has the hooks.
+10. A changed block. Repeat setup reports it as drifted and changes nothing. `setup remove` keeps that block, says how to remove it by hand, removes the other three files, and removes the record.
+
+### P5 Fixes After The Independent Review
+
+The independent review of this phase gave 4 findings that must be fixed (M1 to M4), 5 that should be fixed (S1 to S4 and S6, with S5 inside M2), and 4 notes. The builder made each case again in temporary repositories before the fix, and each one was true. This section holds what changed. Each rule that this round added is a proposal. None is an owner decision. [More Points For The Owner](#more-points-for-the-owner) lists each one with a new label, RF-1 and later, so no earlier label of this report changed.
+
+| Finding | Result | What changed |
+| --- | --- | --- |
+| M1: a commit can wait 30 seconds | Applied | The wait limit of a hook run now bounds each wait for the Store, also the wait for a lock file that a live process holds, and a `branch-change` run takes the same limit. See [Each Place Where A Checkpoint Run Can Wait](#each-place-where-a-checkpoint-run-can-wait). |
+| M2: the machine preference path overwrites a person's edit | Applied | Make Docs keeps a block that a person changed, and a block that no record of this clone covers, unless the person gave `--git-hooks`. With that input the plan names each such block, and the old block text goes into a backup file that the result names. |
+| M3: a copy of a clone takes over the record of the original | Applied | A record is taken over only by `--git-hooks`, after the plan named the record and its folder. `setup remove` reads, writes, and deletes only the record of its own clone. |
+| M4: a test runs the installed `make-docs` | Applied, in another way | The PATH of each git child process of a hook test is one tool folder inside the temporary folder of the test and the system folders. The folder of `node` itself is not on that PATH, because on the maintainer machine it holds an installed `make-docs`. See [The Test PATH](#the-test-path). |
+| S1: nothing bounds the whole hook run | Applied as asked: measured, no new limit | [The Cost Of A Hook With Nothing Due, For The Owner](#the-cost-of-a-hook-with-nothing-due-for-the-owner), and register entry R-047. |
+| S2: the amended commit with a held Store | Applied | Measured again: 2,633 ms (median of 3). The earlier words "about 2 seconds" are gone. |
+| S3: wrong words for a block that is written again | Applied | The plan and the report of `setup remove` say that Make Docs writes the block again with no line for the project folder of this checkout. |
+| S4: the Phase 4 test lost its upper time bound | Applied | Both P4 tests of a held Store have the bound 4,500 ms again. See [The Measured Times After The Fix](#the-measured-times-after-the-fix). |
+| S5: a kept drifted block loses its record | Applied with M2 | The record still goes with the last removal. The kept block is then a block with no record, and the rule of M2 keeps it in each later run with no hook input. |
+| S6: the hook prefers `make-docs` on PATH | Applied | The block runs the recorded command first, and uses PATH only when the recorded file or the recorded `node` program is gone. The hook review names the command. |
+| Note: a hook file with a second language | Applied | It breaks, so setup refuses it with one reason. |
+| Note: the modes of a Store that `setup system` makes | Applied | The Store folder is made with mode 0700 and `config.json` with mode 0600, as the rest of the Store code does. |
+| Note: points that the owner must see | Applied | [More Points For The Owner](#more-points-for-the-owner). |
+| Note: host name and process number in the record | Checked, no change | Each row of `tool_operations` holds them. See [The Data Of The Record](#the-data-of-the-record). |
+
+#### Each Place Where A Checkpoint Run Can Wait
+
+Before the fix, the limit of 1,000 ms was only the busy time of a Store connection, and only for the event `commit`. Each other wait kept its own bound. The reviewer's case is one of them: a live process holds `removal.lock`, and the run waits 30,000 ms for it.
+
+The fix: the Store code reads the wait limit of the call path in each place below. A trigger run with the event `commit` or `branch-change` takes the limit (`CHECKPOINT_GIT_HOOK_EVENTS` in `checkpoint-ops.ts`). No other caller takes it, so each other command keeps each bound in the last column exactly.
+
+| Place in the code | What the run waits for | Old bound in a hook run | New bound in a hook run | Every other caller |
+| --- | --- | --- | --- | --- |
+| `acquireStoreAccess` in `packages/cli/src/store/database.ts` | A live owner of `removal.lock`, `installation-bootstrap.lock`, or `installation-lease-recovery.lock`; a live owner of the legacy session file `store-access.lock`; a busy session folder on Windows | 30,000 ms | 1,000 ms | 30,000 ms, or the time that the caller gives |
+| `waitForStoreAccessToDrain` in the same file | Other live Store sessions to end. A checkpoint reaches it only when the Store must be prepared | 30,000 ms | 1,000 ms | 30,000 ms, or the time that the caller gives |
+| `acquireStorePreparationLease` in `packages/cli/src/store/installation-state.ts` | The preparation lock `installation-bootstrap.lock`. A checkpoint reaches it only when the Store must be prepared | 30,000 ms | 1,000 ms | 30,000 ms |
+| `acquireInstallationLock` in the same file | A live checkout writer. In the measure below, a commit with nothing due did not wait here | 30,000 ms | 1,000 ms | 30,000 ms |
+| `acquireRemovalLease` in `packages/cli/src/store/tool-operations.ts` | The removal lock. Only Store removal calls it, so a checkpoint does not reach it | 30,000 ms | 1,000 ms, if a limited call reached it | 30,000 ms |
+| The busy time of each Store connection (five places in `database.ts`) | A write lock of the Store database that another process holds | 1,000 ms for `commit`, 5,000 ms for `branch-change` | 1,000 ms | 5,000 ms |
+| `openSqliteWithRetry` in `database.ts` | A busy open of the Store database, with retries | 1,000 ms for `commit`, 5,000 ms for `branch-change` | 1,000 ms | 5,000 ms |
+| `acquireGlobalAssetLock` in `packages/cli/src/store/global-asset-lock.ts` | Nothing. It fails at once, and a checkpoint does not reach it | No wait | No wait | No wait |
+| The hook block | Nothing. The shell text holds no timer and no wait | No wait | No wait | Not used |
+
+What the limit bounds, stated plainly: each wait for the Store by itself. A wait that reaches the limit ends the run with the typed Store result, and the hook then prints nothing and exits 0. In each measured case a hook run met one wait, so the added time is about one limit. The limit is not a bound on the whole run. It does not bound the work of the checkpoint, and it does not add the waits of one run together.
+
+The proof that the limit does not leak: `w35-r0-p5-hook-wait-limit.test.ts` shows that outside the limit a caller that gives 2,000 ms waits 2,000 ms, that the default stays 30,000 ms, and that a direct run of the checkpoint, a trigger run with the event `turn-end`, and `make-docs work status` still wait for a held `removal.lock` at 4,500 ms, well after a hook run gave up, and then end well when the lock is free.
+
+Statements that the old behavior made false, and that now hold: [PRD 52](../../prd/52-work-store-and-work-queue.md) R-WORK-CHECKPOINT-14, [PRD 38](../../prd/38-global-store-and-project-state.md) R-DB-3, `WORK-RULE-071` in the catalog and in the agent form, the limit sentence of the hook review, `packages/cli/src/store/README.md`, and the rows R8 and R11 of this report.
+
+#### The Measured Times After The Fix
+
+Each time is from a hand run on the maintainer machine, with the built block, a temporary Store at a fixed path, and a project with 2 work files. Each value is the median of 3 runs. They are not a result of [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs).
+
+| Case | A commit | A branch change | An amended commit |
+| --- | --- | --- | --- |
+| Free Store | 193 ms | 171 ms | 363 ms |
+| A live process holds `removal.lock` | 1,166 ms (before the fix: 30,177 ms) | 1,163 ms (before the fix: 30,203 ms) | not measured |
+| A live process holds `installation-bootstrap.lock` | 1,164 ms | 1,150 ms | not measured |
+| A live process holds `installation-lease-recovery.lock` | 1,164 ms | 1,156 ms | not measured |
+| A live process holds the legacy session file `store-access.lock` | 1,160 ms | 1,154 ms | not measured |
+| Another process holds the write lock of the Store database | 1,325 ms | 171 ms. It only reads, so it does not wait | 2,633 ms. Two hooks run, and each one waits the limit |
+
+Each run exits 0 and prints nothing. The numbers before the fix are the builder's own run of the reviewer's case.
+
+The test bounds. A git action with the installed hooks may take at most 4,500 ms while a lock file is held (`HELD_LOCK_RUN_BOUND_MS` in `w35-r0-p5-hook-wait-limit.test.ts`), and so may one trigger run and one commit with the proof hook in the two P4 tests (`HELD_STORE_RUN_BOUND_MS` in `w35-r0-p4-hook-checkpoint.test.ts`, finding S4). How the bound was chosen: the limit of 1,000 ms, about 300 ms of normal run cost on this machine, and a margin of about 3,200 ms for a slow shared test machine. The bound is less than the busy time of 5,000 ms and far less than 30,000 ms, so a run with the old behavior fails each of these tests.
+
+#### The Cost Of A Hook With Nothing Due, For The Owner
+
+This is an open point for the owner. It records no decision. The owner decided on 2026-11-23 "fast path: not now", with a look again at about 900 work files, and chose the exact check on 2026-11-27. This round adds no limit and no fast path. Register entry R-047 holds the point.
+
+The plain statement: the time that a hook adds to a git action grows with the count and the size of the work files, also when nothing is due, and the wait limit does not bound it.
+
+A side measure, with the built block, in a temporary project with a temporary Store, on the maintainer machine. Each value is the median of 7 runs. "Added" is the time of the git action with the hook, less the time of the same action with the hooks turned off for that one command. No work file changed in a measured run, so nothing was due.
+
+Work files of a real size: about 12,000 bytes and 7 tasks each, which is near the mean of the work files of this repository (403 files, 4.8 million bytes).
+
+| Work files | Added to a commit | Added to a branch change | The first sync in a commit, one run |
+| --- | --- | --- | --- |
+| 100 | 226 ms | 200 ms | 460 ms |
+| 470 | 419 ms | 326 ms | 1,242 ms |
+| 1,000 | 773 ms | 517 ms | 2,370 ms |
+| 2,000 | 1,862 ms | 1,137 ms | 4,733 ms |
+
+Small work files: about 300 bytes and 3 tasks each.
+
+| Work files | Added to a commit | Added to a branch change | The first sync in a commit, one run |
+| --- | --- | --- | --- |
+| 100 | 205 ms | 182 ms | 372 ms |
+| 470 | 302 ms | 249 ms | 746 ms |
+| 1,000 | 501 ms | 366 ms | 1,356 ms |
+| 2,000 | 1,006 ms | 640 ms | 2,696 ms |
+
+The limits of this measure. It is a side measure and not a result of `PERF-007`. It is one machine, one run of the script for each table, with made-up work files that all look the same, in 20 files for each backlog folder. The reviewer measured more on another setup: 1.85 seconds for each commit at 1,000 work files. So the numbers show the growth, and not a time that another computer will have. An amended commit runs two hooks, so it adds about two times the commit value.
+
+#### The Rules For A Changed Block, A Block With No Record, And A Record Of Another Folder
+
+The rules that this round built, each as a proposal:
+
+1. A block that a person changed (state `drifted`) and a block that no record of this clone covers (a block with no Store record) are never replaced or recorded without the hook input `--git-hooks`. The machine preference and an explicit "yes" in an interactive setup are not enough.
+2. Without the hook input, setup keeps such a block. That run changes no hook file and no hook record, asks no hook question, and prints one line with the next step. One kept block keeps all four hook files as they are. This is the existing rule "one refused hook file refuses all four", used again, so that a project never has some hooks that name a new project folder and one that does not.
+3. With the hook input, the plan names each such block before the write: the review text has a list, and each hook of the JSON plan has `backup: true`. Setup then writes the old block text to a backup file, and after that it replaces the block. The result names the file.
+4. The backup place is the backup folder of setup, in the project that ran setup: `.make-docs/backup/<date>/git-hooks/<hook name>.block`, with the same folder name rule as each other backup (`resolveBackupDestinationPlan`, the date and then a number). Only the folder and its name rule are used. The file holds the old block text and nothing else. The backup and restore commands do not read it.
+5. A block with the same bytes and no record is recorded, with no byte change and no backup, and only by the hook input.
+6. A record belongs to the clone at the folder of its key. A record of another folder is taken over only by the hook input, when exactly one such record holds the same blocks and its git folder is not there. The plan names the record and the folder first. The write moves the record.
+7. `setup remove` never takes a record over. It reads, writes, and deletes only the record under the key of its own clone.
+
+The cases, and the rule for each:
+
+| Case | A plain setup | `make-docs setup --git-hooks` | `make-docs setup remove` |
+| --- | --- | --- | --- |
+| A moved clone: the same repository at a new path, and the old path is gone | Reports that no record of this clone covers the blocks, names the record of the old folder, and changes nothing. No false drift | The plan names the record and the old folder. The run moves the record to the new key. The blocks do not change | Before the take-over: leaves each block, removes no record, and says to run `make-docs setup --git-hooks` first. After it: removes the blocks and the record |
+| A copied clone: two folders, both there | Reports that no record of this clone covers the blocks. Names no other record, because the git folder of the original exists | Records the blocks of the copy under its own key. The record of the original is not read as a candidate and not changed | Each clone removes only its own blocks and its own record |
+| A copied clone while the original is away, such as on a drive that is not connected | The same report as for a moved clone. Nothing is taken over | It looks the same as a moved clone, so the take-over can move the record of the original. The plan says so, and says to do it only when the clone moved. When the original comes back, its blocks have no record, a plain setup there says so, and the hook input there records them again | In the copy: leaves the blocks, and does not delete the record of the original. In the original, when it is back and the record was not taken: removes its blocks |
+| A clone restored from a backup at the same path | The key is the path, so the record is its record. Blocks with the same bytes are current. A block from an older backup that differs is drifted, and it is kept | Replaces a drifted block, with a backup file | Removes each block that matches the record, and keeps a block that differs |
+| A clone restored from a backup at another path | As a moved clone when the old path is gone, and as a copied clone when it exists | The same | The same |
+| A linked work tree whose folder moved | The git folder is the same, so the record is the same. The checkout of the work tree is not bound at its new folder, so the Store sees it as gone | In the moved work tree, after it is bound again: adds its checkout to the record | In the last bound checkout: the plan names the gone checkout by its recorded folder. When git lists a work tree of the clone that holds a Make Docs project and is no bound checkout of the record, the blocks and the record stay, the plan names that work tree, and the gone checkout stays in the record. When git lists no such work tree, the blocks and the record go |
+
+The check for the moved work tree: the reviewer noted that such a work tree counts as "gone", and that `setup remove` in the main checkout then removed blocks that the moved work tree uses. The test `setup remove in the main checkout keeps the blocks for a linked work tree whose folder moved` shows that no block goes now, and that the plan names the work tree first.
+
+The limit sentence of the earlier report, "the copy holds blocks with no Store record", was true only for a copy beside its original. With the original away, the copy took the record over, with no input. That sentence is corrected in [P5 Known Limits](#p5-known-limits).
+
+#### The Command That A Hook Runs
+
+The safest order, as a proposal: the recorded command first, and then PATH. The recorded command is the `node` program and the Make Docs command file of the setup run that wrote the block. That version knows the events `commit` and `branch-change` and the wait limit. An older `make-docs` that is first on PATH can lack the limit, and then a commit could wait the full Store times, or it can fail on the event.
+
+What happens after the person updates or removes Make Docs:
+
+- An update at the same path, as a global install does: the recorded path now holds the new version, and the hook runs it.
+- An update to another path, such as another `node` version of a version manager: the old command file still exists, so the hook keeps running the old version until `make-docs setup --git-hooks` records the new one. Repeat setup names the block as "current, and a newer block is ready". The old version knows the limit, because it wrote the block.
+- The recorded file or the recorded `node` program is gone: the hook runs `make-docs` from PATH. With none there, it does nothing and says nothing.
+- Make Docs is removed and no command is left: the hook does nothing and says nothing.
+
+The hook review now has one line that names the command: "Each hook runs the Make Docs command at the recorded path: `<node>` `<cli>`. That is the version that writes the block. Only when that file or that `node` program is gone does a hook run `make-docs` from PATH." The other form, PATH first with a block that detects an old version, was not built: the block cannot ask a command for its version without a second start of `node` at each git action.
+
+#### A Hook File With A Second Language
+
+A hook file can start with `#!/bin/sh` and then start another program on the same file, such as `exec node "$0" "$@"`. That program reads the whole file in its own language. The test shows that such a file runs before, and that the same file with a block after its first line ends with an error and does not run the other program. So setup refuses it, as it refuses a file that is not a shell script: one reason, and no change to any hook file. The rule: a line that is not a comment and holds both the word `exec` and `$0` as one whole word, also as `"$0"` and `${0}`. A line that only builds another path from `$0`, such as `exec "$(dirname "$0")/run"`, starts another file. It is plain shell, and setup takes it. The rule is a text mark. It cannot see each form of such a file, and the hook review names the refusal.
+
+#### The Modes Of The Store Folder
+
+`setup system` with no Store wrote `config.json` through `writeStoreJsonFile`, which made the Store folder with the default mode (0755) and the file with the default mode (0644). The rest of the Store code makes the Store folder with mode 0700 (`acquireStoreAccess`, `prepareStore`) and its files with mode 0600 (`applyStoreFileMode`, the lock files). `writeStoreJsonFile` now uses 0700 for a folder that it makes and 0600 for the file. It writes two files: `config.json` and the global manifest. It does not change the mode of a Store folder that exists. A test reads both modes after the machine step made the Store.
+
+#### The Data Of The Record
+
+The record holds three full paths of this computer in its JSON: the shared git folder, the `node` program, and the Make Docs command file. The block needs the last two, and the key and the check for a moved clone need the first. The row also holds the process number and the host name of the write, in the columns `pid` and `hostname`. The table defines both columns as `NOT NULL`, and each row of `tool_operations` holds them: the tool operation journal and the machine harness receipts fill them in the same way. The R-MIN register of PRD 38 names "process" and "host" as fields of `tool_operations`, with the privacy rule "host data stays local". So nothing was dropped. PRD 38 R-HOOK-STATE-2 now says that the row holds them.
+
+#### The Test PATH
+
+The failing test, made again before the fix: `w35-r0-p5-git-hook-block.test.ts`, `expected 'Build parser 2.' to be 'Build the parser.'`. The git child process of that step had the full PATH of the test run, a hook found the `make-docs` that is installed on the maintainer machine, and that command imported a file into the temporary Store of the test.
+
+The fix is in `packages/cli/tests/git-hook-proof.ts`, so it holds for each P4 and P5 hook test:
+
+- The environment of each git child process drops the PATH of the caller. Its PATH is one tool folder inside the temporary folder of the test, and the system folders (`/usr/bin` and `/bin`, or the two system folders of Windows).
+- On a computer with file modes the tool folder holds two small scripts, `git` and `node`, that start the real programs by their full paths. So the folders of the real programs are not on PATH. This differs from the words of the finding, "the folder of the `node` that runs the tests": on the maintainer machine that folder also holds an installed `make-docs`. On Windows the folder of `git` stands on PATH, because a program there is found only by its real file.
+- Each git run checks its PATH first and throws when the PATH reaches a `make-docs` command outside the temporary folder of the test.
+- The recorded `node` of the fixture is the script in a helper folder that holds only `node`, because the block adds the folder of the recorded `node` to the end of PATH.
+
+The guard test is `packages/cli/tests/w35-r0-p5-test-path-guard.test.ts`, with 4 tests. Each one puts a fake `make-docs` first on the PATH of the test process, and the fake writes a mark file when it runs. The same leak in Phase 4: `w35-r0-p4-hook-checkpoint.test.ts` used the full PATH for each "terminal" case and the real folder of `node` in one test. Both now use the helper.
+
+The proof: the P1 to P5 test files ran with a fake `make-docs` first on the outer PATH. Each test passed, and the fake command did not run. See [The Checks Of This Round](#the-checks-of-this-round).
+
+#### The Hand Run Of The Four Review Cases
+
+Each case ran by hand with the final build, a temporary Store at a fixed path, a temporary home folder, and temporary git repositories. `<work>` stands for the temporary folder of the run.
+
+The 30 second wait. A lock file in the temporary Store names a live `sleep` process. Each value is one of the 3 runs of the table above.
+
+```text
+commit with held removal.lock:                         -> exit 0, 1168 ms
+branch change with held removal.lock:                  -> exit 0, 1244 ms
+commit with held installation-bootstrap.lock:          -> exit 0, 1166 ms
+branch change with held installation-bootstrap.lock:   -> exit 0, 1150 ms
+commit with held installation-lease-recovery.lock:     -> exit 0, 1162 ms
+branch change with held installation-lease-recovery.lock: -> exit 0, 1144 ms
+```
+
+The lost edit, and the copied clone. The output is the hook part of each setup JSON result, in a short form, and the plain lines of `setup remove`.
+
+```text
+=== M2. The lost edit ===
+status: installed | selection: hook-input | takeoverFrom: null
+  post-commit: absent / create-file
+  post-merge: absent / create-file
+  post-rewrite: absent / create-file
+  post-checkout: absent / create-file
+the person edits the block of post-commit. Lines with --json: 1
+$ make-docs setup --yes   (new project in sub/, preference on)
+status: none | selection: none | takeoverFrom: null
+message: Git hooks: The Make Docs block in <work>/m/.git/hooks/post-commit was changed after Make Docs wrote it. Make Docs keeps it and changes no hook in this run. To replace it and keep a backup of the old block text, run `make-docs setup --git-hooks`.
+  post-commit: drifted / keep
+  post-merge: outdated / keep
+  post-rewrite: outdated / keep
+  post-checkout: outdated / keep
+lines with --json in post-commit after it: 1
+$ make-docs setup --yes --git-hooks
+status: installed | selection: hook-input | takeoverFrom: null
+  post-commit: drifted / replace-block / backup planned / backup: <work>/m/sub/.make-docs/backup/2026-11-27/git-hooks/post-commit.block
+  post-merge: outdated / replace-block
+  post-rewrite: outdated / replace-block
+  post-checkout: outdated / replace-block
+lines with --json in post-commit after it: 0; lines with --json in the backup file: 1
+
+=== M3. The copied clone ===
+status: installed | selection: hook-input | takeoverFrom: null
+  record git-hooks:6457d90ee14c... git folder <work>/m/.git, checkouts 2
+  record git-hooks:19671729650a... git folder <work>/g/.git, checkouts 1
+g2 is bound as a separate checkout; g is away
+$ make-docs setup --adopt --yes   (in g2)
+status: none | selection: none | takeoverFrom: null
+message: Git hooks: This folder has Make Docs hook blocks that no record of this clone covers (post-commit, post-merge, post-rewrite, post-checkout, in <work>/g2/.git/hooks). Make Docs keeps them and changes no hook in this run. The Store holds a record of the same blocks for the git folder <work>/g/.git, which is not there now. When this clone moved from that folder, run `make-docs setup --git-hooks` here to move that record to this clone.
+$ make-docs setup remove --yes   (in g2)
+Git hooks: these hook files hold a Make Docs block, and no record of this clone covers it. So `setup remove` leaves each block and removes no record.
+- <work>/g2/.git/hooks/post-commit
+- <work>/g2/.git/hooks/post-merge
+- <work>/g2/.git/hooks/post-rewrite
+- <work>/g2/.git/hooks/post-checkout
+The Store holds a record of the same blocks for the git folder <work>/g/.git, which is not there now. `setup remove` does not take that record over and does not delete it. When this clone moved from that folder, stop here and run `make-docs setup --git-hooks` first: it moves that record to this clone, and then `make-docs setup remove` takes the blocks out.
+To remove a block by hand, take out its two marker lines and the lines between them.
+  record git-hooks:6457d90ee14c... git folder <work>/m/.git, checkouts 2
+  record git-hooks:19671729650a... git folder <work>/g/.git, checkouts 1
+blocks in g2 after it: 4
+g comes back. $ make-docs setup --yes   (in g)
+status: selected | selection: none | takeoverFrom: null
+message: Git hooks: this project has the Make Docs git hooks, and each block is current.
+$ make-docs setup remove --yes   (in g)
+Git hooks: removed for this clone. The Store holds no git hook record for it now.
+hook files in g after it: 0
+  record git-hooks:6457d90ee14c... git folder <work>/m/.git, checkouts 2
+```
+
+What the hand run shows. The lost edit: the plain setup of the new project in `sub/` keeps the edit and changes no hook, and the hook input replaces the block and names the backup file, which holds the edit. The copied clone: the plain setup in the copy says the true state, `setup remove` in the copy removes no record and no block, and the original has its record and its four blocks when it comes back.
+
+The installed command on PATH: see [The Test PATH](#the-test-path) and [The Checks Of This Round](#the-checks-of-this-round).
+
+#### More Points For The Owner
+
+Nothing in this list is an owner decision. Each label is new, so no label of [The List For The Owner](#the-list-for-the-owner) or of [P5 New Behavior That The Documents Did Not State](#p5-new-behavior-that-the-documents-did-not-state) changed.
+
+| Label | The point | What is built now |
+| --- | --- | --- |
+| RF-1 | What the wait limit bounds | Each wait for the Store by itself, for the events `commit` and `branch-change`. It does not bound the whole run, and it does not add the waits of one run together. R8 and R11 state it. |
+| RF-2 | Who may replace a changed block or record a block with no record | Only the hook input `--git-hooks`. The machine preference and an interactive "yes" keep such a block. This is stricter than point 2 of the earlier list, which also took an interactive "yes". |
+| RF-3 | The other hooks of a run that keeps one block | One kept block keeps all four hook files, and the run asks no hook question. The other form is to handle the three other hooks. Then a project could have hooks that name a new project folder beside one that does not. |
+| RF-4 | The backup of a replaced block | A file below `.make-docs/backup/` of the project that ran setup. With `--yes --git-hooks` the same run names the block in its plan and then replaces it, with no pause. A dry run shows the plan with no write. |
+| RF-5 | The take-over of a record of another folder | Only by the hook input, and the run moves the record. With the original away, a copy looks the same as a moved clone, so the hook input in the copy can move the record of the original. The plan warns of this. Another form is to never move a record: the hook input records the blocks under a new key, and the old record stays for the Store check. That form loses the facts of which hook files Make Docs created. |
+| RF-6 | `setup remove` in a moved clone | It leaves each block and removes no record, until the person ran `make-docs setup --git-hooks` there. Before this round it took the record over and removed the blocks. |
+| RF-7 | The "folder gone" rule for a work tree | A checkout whose recorded folder is gone does not keep the blocks, except when git lists a work tree of the clone that can be that checkout at a new folder. Then the blocks and the record stay. When the person later deletes that work tree with no `setup remove`, the blocks stay until the person takes them out by hand. |
+| RF-8 | A changed block that `setup remove` keeps | It has no Store record after the last removal. A later setup keeps it, and only the hook input replaces it, with a backup. |
+| RF-9 | The command that a hook runs | The recorded command first, and then PATH. Before this round: PATH first. |
+| RF-10 | A hook file that starts another program on itself | Refused, by a text mark. |
+| RF-11 | The modes of a Store that the machine step makes | 0700 for the folder and 0600 for `config.json` and the global manifest. |
+| RF-12 | The cost of a hook with nothing due | Not bounded, and it grows with the work files. Open, with no decision. Register entry R-047. |
+| RF-13 | An interactive setup with `--git-hooks` asks no hook question | It shows the hook review, and the input is the selection. The person can stop only at the project approval. |
+| RF-14 | `make-docs setup reconfigure --yes --git-hooks` | The hook input alone passes the rule that `reconfigure --yes` needs one selection flag. |
+| RF-15 | The short hook output changes what each caller of `--event commit` gets | The short form and the wait limit belong to the events `commit` and `branch-change`, and not to the git hook. A later agent tool hook that gives one of these events gets the same two lines and the same limit. |
+| RF-16 | A setup with no terminal and no `--yes` | It installs no hook, also with the hook input, and says so in one line. |
+| RF-17 | An interactive `--dry-run` with the preference off and no hook input | The plan says "none installed", and a real run would ask the hook question. |
+| RF-18 | The linked work tree that never selected the hooks | Not changed in this round. The block names project folders and not checkouts, so the hooks also run in a bound work tree of the clone that has the same project folder and did not select them. A plain setup there says that the preference is off or that the project is older, and does not say that the hooks of the clone run there. |
+
+#### The Twin Review Of This Round
+
+The checkpoint is deterministic logic with an agent form. This round changed one rule of both: `WORK-RULE-071`. The catalog text and the Checkpoint section of `make-docs://system/reference/work-store.md` now say that the limit holds for `commit` and `branch-change`, that it holds while another process holds the Store or one of its lock files, and that it bounds the waits and not the work of the run. The template file and the installed copy are byte-identical. The rules of setup for a changed block and for a record are rules of setup, and an agent does not install, change, or remove a hook by hand (`WORK-RULE-072`), so the agent form needs no new rule for them.
+
+#### The Checks Of This Round
+
+Every test, measurement, and CLI run of this round used a temporary Store at a fixed path under `/private/tmp/claude` or inside the temporary folder of the test, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. No run installed, changed, or removed a git hook in this repository or in any real repository, and no run started `make-docs setup`, `setup system`, or `setup remove` against this repository or with the real home folder. After the last run, the hooks folder of this repository holds only the `.sample` files. All checks ran on the maintainer machine, on macOS, with Node `v26.13.1` and git 2.47.1.
+
+- `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- The P1 to P5 test files (14 files), with a fake `make-docs` first on the outer PATH: 303 tests pass and 1 is skipped. The fake command writes a mark file when it runs, and no mark file exists after the run. The one skipped test is the P4 test of a real global install, which needs the package registry and skips when the install does not work.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`, after the last change of product code: 4,040 tests pass, 2 fail, and 7 are skipped, in 172 test files, in 632 seconds. The 2 are the known failures of `tests/mcp-app-contract.test.ts` on Node 26. `backup.test.ts` and `uninstall.test.ts` pass. After that run, only documents changed.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `make-docs check prd --target-root .`, with the built CLI: exit code 0, status `passed`.
+- `make-docs check performance-evidence --target-root .`: exit code 1, with 127 diagnostics, the same count as before this phase. No diagnostic is new.
+- `make-docs project paths validate --target-root .`: valid, 0 failing findings, 1,139 files checked.
+- `make-docs project markdown validate --path <file>` on each document that this round changed: no findings on this report, the P5 phase file, PRD 07, PRD 52, the work store reference of the template and its installed copy, and the Store README. On PRD 38 it reports 8 findings and on the risk register 9, each on a line that this phase did not change.
+- `make-docs backlog snapshot --target-root . --json`: exit code 0, and no diagnostic names W35.
+- `cmp` shows that `.make-docs/system/references/work-store.md` matches its template file byte for byte.
+- After the last document change, in one run: the consistency test, the shipped-text test, the name catalog test, the package safety test, the P1 to P5 test files, the W29 agent twin test, the work store contract test, the Store table catalog test, the template links test, and the Human Experience propagation test. 572 tests pass and 1 is skipped, in 23 files. After that run, only this one line of this report changed.
+- The four review cases by hand: [The Hand Run Of The Four Review Cases](#the-hand-run-of-the-four-review-cases).
+- Not run: any run on Linux or Windows, `npm run smoke:pack:local`, `npm pack` for the digest, a run in a real terminal, and `make-docs project checkpoint` in this repository, which would write the real Store.
+
+### The Background Mode (T39 To T45, A62w To A62ae)
+
+This section holds the change that followed the owner's decisions of 2026-11-28 on the run mode of the git hooks. It was built after the fixes of the independent review, on the same uncommitted phase. Where an earlier part of this P5 report says that a hook runs the checkpoint in the foreground, that a hook prints a line when something is due, or that a hook run waits 1,000 ms, this section replaces it. [What This Change Replaced In The Earlier Parts](#what-this-change-replaced-in-the-earlier-parts) names each place.
+
+#### The Owner Decisions Of 2026-11-28 On The Run Mode
+
+These are the owner's decisions, built as decided. This section records no other decision as made.
+
+The reason for the change, as a fact that the owner saw: an independent review measured that the cost of a foreground hook grows with the count of work files (about 1.85 seconds for each commit at 1,000 work files in the review's project), and that the wait limit does not bound the work of the run.
+
+| Decision | What the owner decided | What was built | Proof |
+| --- | --- | --- | --- |
+| OD-P5-1 | Git hooks run in the background: the hook starts the checkpoint and returns, and git does not wait. This replaces the foreground mode that the owner chose at owner gate OG-4 on 2026-11-28 (option A). The record of that earlier answer stays in the [P4 evidence](#owner-gate-og-4-the-run-mode-of-a-git-hook). | The block sets one variable and runs the checkpoint command. The command starts the checkpoint as a process of its own session and ends at once. | A62w, A62x, A62y |
+| OD-P5-2 | A foreground fallback applies where a background process cannot survive: on a platform or in an agent tool where the started process does not keep running after the hook ends, the hook runs the checkpoint in the foreground. The owner did not exclude a foreground fallback for git hooks and sees no reason why it cannot be done. The review that setup shows says which mode applies. | When the last background run of a checkout did not end and its process is gone, the next hook runs the checkpoint in the foreground. The hook review states the mode and the fallback. The rule itself is a proposal (RF-21). | A62aa, A62ac |
+| OD-P5-3 | In the background, the checkpoint has no short limit on the wait for the Store: it uses the normal wait, the Store busy timeout, 5,000 ms today, and then syncs. The fix for the 30 second waits stays: no background run waits that long. | A background run waits at most 5,000 ms at each wait for the Store. | A62r, A62s |
+| OD-P5-4 | In the foreground fallback, the limit of 1,000 ms on each wait for the Store applies, as the owner chose with OG-4 (improvement 1). | A foreground run with the event `commit` or `branch-change` waits at most 1,000 ms at each wait. | A62r, A62ab |
+| OD-P5-5 | A person who wants a foreground hook, or a hook whose output an agent can see, uses the hook of an agent tool (Phase 6). So a git hook in the background mode prints nothing, in every case. | The command prints nothing when it starts the background run, and the background run has no output. | A62w, A62h |
+
+Not decided by the owner, and built as proposals: how a hook knows that it must fall back; what the fallback prints, other than "gives up quietly" for a held Store; how the mode shows in the setup review, in the setup JSON result, and in the Store record; and whether the mode is fixed at install time or found at each run. [The Background Mode For The Owner](#the-background-mode-for-the-owner) lists each one.
+
+#### What Was Built For The Background Mode
+
+Product code:
+
+- `packages/cli/src/store/git-hook-runs.ts` (new): the start code. It decides the run mode, starts the background run, holds the fallback rule and the bound on waiting runs, and reads and removes the run files.
+- `packages/cli/src/index.ts`: the entry of the CLI now calls the start code first and loads the rest of the CLI after it. So a hook start loads about 24,000 bytes of code and not the whole CLI. Each other command runs as before.
+- `packages/cli/src/git-hooks.ts`: the block text, version 2; the hook review; the run mode in the plan and in the Store record; and the removal of the run files with `setup remove`.
+- `packages/cli/src/setup-git-hooks.ts`: the fields `runMode`, `runFallback`, and `runStateDir` of the setup JSON result.
+- `packages/cli/src/operations/project/checkpoint-ops.ts` and `packages/cli/src/operations/work/work-queue/checkpoint.ts`: the bound of each wait for the Store by run mode.
+- `packages/cli/src/operations/work/work-store/catalog.ts`: the words of `WORK-RULE-071` and `WORK-RULE-072`.
+- `packages/cli/src/store/lifecycle.ts`: Store removal takes out the folder of the run files.
+
+Shipped text: the work store reference of the template and its byte-identical installed copy, in the three rules of the Checkpoint section and in the paragraph under "When to Run It".
+
+Tests:
+
+- `packages/cli/tests/w35-r0-p5-hook-background.test.ts` (new, 17 tests at first, and 20 since the fixes after the second review): the background start, also with a pipe and with captured output; the process group of the run and the hang-up signal; the run after its parent ended; ten commits in a loop; the bound on waiting runs; the fallback after a stopped run; the stale rule; the fallback with a held Store and with the debug switch; the start code; the mode in setup and in the record; the run files and their removal. It is in both fixed lists of the platform workflow.
+- `packages/cli/tests/w35-r0-p5-hook-wait-limit.test.ts` (rewritten in its second half, 20 tests at first, and 21 since the fixes after the second review): the bound of a background run, of a foreground fallback run, and of each other caller, for a held Store and for each held lock file.
+- `packages/cli/tests/git-hook-setup.ts` and `packages/cli/tests/git-hook-proof.ts`: each git action of a hook test now waits, with a bound of 45 seconds, until no background run of the temporary Store is left, and a test that must see git return first uses a second function with no wait. The wait reads the run files. The cleanup of each fixture waits in the same way before it removes the temporary folder.
+- `w35-r0-p5-git-hook-block.test.ts`, `w35-r0-p5-hook-end-to-end.test.ts`, `w35-r0-p5-hook-ownership.test.ts`, and `w35-r0-p5-test-path-guard.test.ts`: each check of a line that a hook printed now reads the output of the background run from its run file, and checks that git printed nothing.
+
+Evidence files: [perf-007-r2-harness.mjs](evidence/p5/performance/perf-007-r2-harness.mjs), [perf-007-r2-results.json](evidence/p5/performance/perf-007-r2-results.json), [hook-cost-by-work-files.mjs](evidence/p5/performance/hook-cost-by-work-files.mjs), [hook-cost-by-work-files-results.json](evidence/p5/performance/hook-cost-by-work-files-results.json), and [p5-background-proof.sh](evidence/p5/access/p5-background-proof.sh).
+
+#### The Start: The Shell Or The Command
+
+Two forms can start a process that outlives the hook. The table compares them. The builder chose the second one. The choice is a proposal (RF-19).
+
+| Point | The shell starts it (`&`, with `nohup`, `setsid`, or `disown`) | The command starts it (chosen) |
+| --- | --- | --- |
+| What exists on each platform | `&` is in each POSIX `sh`. `nohup` is on Linux and macOS. `setsid` as a program is on Linux and not on macOS. `disown` is in bash and zsh and not in a plain POSIX `sh` such as dash. What the shell that git ships on Windows provides was not checked in this build. | Node gives one call for each platform: a child process with the option `detached`, no input, output, or error output (`stdio: "ignore"`), and `unref()`. On Linux and macOS the child is the leader of a new session. On Windows it is a process with its own process group and no window. |
+| The process group | A background job of the hook shell stays in the process group of git, because a shell that runs a script has no job control. A signal to that group reaches it. | The child has a session and a process group of its own. A signal to the group of git does not reach it. |
+| The hang-up signal | `nohup` makes the signal ignored for the program that it starts. Node sets each signal back to its default at its start, so the checkpoint would not keep that. This statement about Node is from the builder's knowledge of Node, and no test of this phase checks it. | The child has no terminal, so the hang-up signal of a closed terminal is not sent to it. |
+| The output pipe | The shell text must send each output to nowhere. One missed output keeps the pipe of git open, and a tool that reads it waits. | The child gets no output at all. |
+| The cost in the foreground | The shell and its git lookups only. The start-and-return proof hook of `PERF-007-R1` added 27 ms to a commit. | One more start of `node`, which loads only the start code. `PERF-007-R2` gives 59 ms added to a commit. |
+| Where the fallback rule lives | In shell text, in each hook file, on each platform. | In the command, in one place, with tests. |
+| What is shipped | Nothing new. | Nothing new: the same command file. The entry of the CLI changed. |
+
+Why the command starts it: one form for the three platforms, a process that is outside the process group and the terminal of git, and a fallback rule that is code with tests and not shell text. The price is about 30 ms more for each hook start than the shell form of `PERF-007-R1`, as a comparison across two sessions.
+
+The cost of the start alone, on the maintainer machine, 5 runs each, with `time`: `node -e 0` takes 20 ms, and `make-docs --version` with the whole CLI takes 80 ms. `PERF-007-R2` measured `make-docs --version` at 91 ms (the floor) and the whole hook, with the shell, two git lookups, the start code, and the start of the child, at 59 ms added to a commit. So the hook start costs less than one start of the whole CLI.
+
+What a block does on each platform: the same thing. It sets `MAKE_DOCS_GIT_HOOK_RUN=start` and runs the checkpoint command at the recorded path. The command does the rest. The block has no background job, no `nohup`, no `setsid`, and no `disown`.
+
+#### The New Block Text
+
+The four blocks, version 2, as `renderGitHookBlock` in `packages/cli/src/git-hooks.ts` gives them for a project at the top folder of the work tree. `<node>` stands for the full path of the `node` program and `<cli>` for the full path of the Make Docs command file. Three lines differ from version 1 in each block: the two comment lines about the run mode, and the line with `export`. The blocks differ from each other as before: the event, the check of the third argument in `post-checkout`, and the state marks only in `post-commit` and `post-checkout`.
+
+`post-commit`:
+
+```sh
+# >>> make-docs git hook: post-commit >>>
+# Make Docs wrote this block (version 2). It runs `make-docs project checkpoint --event commit` after a commit.
+# It starts the checkpoint in the background and prints nothing, so git does not wait. It never fails or blocks git.
+# Only when the last background run did not end does it run the checkpoint in the foreground. MAKE_DOCS_HOOK_DEBUG=1 shows the errors of such a run.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_git=$(git rev-parse --absolute-git-dir 2>/dev/null)
+  for md_mark in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD BISECT_LOG; do
+    if [ -e "$md_git/$md_mark" ]; then exit 0; fi
+  done
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  export MAKE_DOCS_GIT_HOOK_RUN=start
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-commit <<<
+```
+
+`post-merge`:
+
+```sh
+# >>> make-docs git hook: post-merge >>>
+# Make Docs wrote this block (version 2). It runs `make-docs project checkpoint --event commit` after a merge.
+# It starts the checkpoint in the background and prints nothing, so git does not wait. It never fails or blocks git.
+# Only when the last background run did not end does it run the checkpoint in the foreground. MAKE_DOCS_HOOK_DEBUG=1 shows the errors of such a run.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  export MAKE_DOCS_GIT_HOOK_RUN=start
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-merge <<<
+```
+
+`post-rewrite`:
+
+```sh
+# >>> make-docs git hook: post-rewrite >>>
+# Make Docs wrote this block (version 2). It runs `make-docs project checkpoint --event commit` after a rewrite of commits.
+# It starts the checkpoint in the background and prints nothing, so git does not wait. It never fails or blocks git.
+# Only when the last background run did not end does it run the checkpoint in the foreground. MAKE_DOCS_HOOK_DEBUG=1 shows the errors of such a run.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  export MAKE_DOCS_GIT_HOOK_RUN=start
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event commit --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-rewrite <<<
+```
+
+`post-checkout`:
+
+```sh
+# >>> make-docs git hook: post-checkout >>>
+# Make Docs wrote this block (version 2). It runs `make-docs project checkpoint --event branch-change` after a branch change.
+# It starts the checkpoint in the background and prints nothing, so git does not wait. It never fails or blocks git.
+# Only when the last background run did not end does it run the checkpoint in the foreground. MAKE_DOCS_HOOK_DEBUG=1 shows the errors of such a run.
+# Do not edit it. `make-docs setup remove` takes it out only while it is unchanged.
+(
+  set +e +u
+  [ "${3:-}" = 1 ] || exit 0
+  md_top=$(git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$md_top" ] || exit 0
+  md_git=$(git rev-parse --absolute-git-dir 2>/dev/null)
+  for md_mark in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD BISECT_LOG; do
+    if [ -e "$md_git/$md_mark" ]; then exit 0; fi
+  done
+  md_debug=${MAKE_DOCS_HOOK_DEBUG:-}
+  md_node='<node>'
+  md_file='<cli>'
+  md_cmd=$(command -v make-docs 2>/dev/null)
+  md_node_dir=${md_node%/*}
+  if command -v cygpath >/dev/null 2>&1; then md_node_dir=$(cygpath -u "$md_node_dir" 2>/dev/null); fi
+  if [ -n "$md_node_dir" ] && [ -d "$md_node_dir" ]; then PATH=$PATH:$md_node_dir; fi
+  md_run() {
+    if [ -f "$md_file" ] && [ -x "$md_node" ]; then "$md_node" "$md_file" "$@"
+    elif [ -n "$md_cmd" ]; then "$md_cmd" "$@"
+    else
+      if [ -n "$md_debug" ]; then echo 'make-docs git hook: no make-docs command at the recorded path and none on PATH.' >&2; fi
+      return 127
+    fi
+  }
+  export MAKE_DOCS_GIT_HOOK_RUN=start
+  for md_folder in '.'; do
+    md_root=$md_top
+    [ "$md_folder" = . ] || md_root=$md_top/$md_folder
+    [ -f "$md_root/.make-docs/config.yaml" ] || continue
+    if [ -n "$md_debug" ]; then
+      md_out=$(md_run project checkpoint --event branch-change --target-root "$md_root")
+    else
+      md_out=$(md_run project checkpoint --event branch-change --target-root "$md_root" 2>/dev/null)
+    fi
+    md_status=$?
+    if [ "$md_status" = 0 ] && [ -n "$md_out" ]; then printf '%s\n' "$md_out"; fi
+  done
+  exit 0
+) </dev/null || :
+# <<< make-docs git hook: post-checkout <<<
+```
+
+The block still prints what the command prints. In the background mode the command prints nothing. In the foreground fallback it prints the short form. A block of version 1 that a project already has keeps its foreground run, with the limit of 1,000 ms, until `make-docs setup --git-hooks` writes version 2. Repeat setup names such a block as "current, and a newer block is ready".
+
+#### What The Command Does At A Hook Start
+
+1. The command sees the variable of the block and a checkpoint call with the event `commit` or `branch-change` and no `--json`. Each other command, a checkpoint call with another event, a call with `--json`, and a checkpoint call with no such variable run as before.
+2. With no usable Store, in a folder that is no Make Docs project, or when the folder of the run files cannot be made, such as in a shell that may not write the Store folder: it runs the checkpoint in the foreground, as before this change. That run does nothing or reports with read access only.
+3. It reads `started.json` of this checkout. When the file is absent, or names a process that lives and is younger than 60 seconds: the background mode. It writes `started.json`, starts the same command again as a background process, and ends with exit code 0 and no output.
+4. When `started.json` names a process that is gone, or is older than 60 seconds: the foreground fallback. It writes `foreground.json`, runs the checkpoint itself with the short form and the limit of 1,000 ms, and then starts a background run too.
+5. The background run: when another background run of this checkout waits, this run ends at once, because the waiting run reads the work files later. Else it waits for the run that works now, for at most 5,000 ms, and then runs the checkpoint, with the bound of 5,000 ms at each wait for the Store. At its end, also after an error, it writes `last.json` and removes `started.json`.
+
+#### The Fallback Rule, And What It Can And Cannot Detect
+
+The rule, as a proposal (RF-21): a hook runs the checkpoint in the foreground when the last background run of its checkout left its start mark and the process of that run is gone. A run that ends, also with an error or with a Store that stayed held, removes its start mark. So only a run that something stopped leaves it. The mode is found at each hook run. It is not fixed at install time, and setup has no mode input.
+
+Why the fallback also starts a background run: that run is the test of the shell. When it ends, the next hook uses the background again. When it is stopped too, the next hook stays in the foreground. So a shell that stops each background run gets the foreground at each hook run after the first one, and a checkout that lost one run to a restart of the computer gets one foreground run and then the background again.
+
+| Case | What the rule does | Detected |
+| --- | --- | --- |
+| The background run was stopped before its end: a shell or a tool that stops each process that a command started, a `kill`, or a restart of the computer | The next hook of this checkout runs in the foreground | Yes, at the next hook run |
+| The first hook run in such a shell | The background run is stopped, and nothing is synced. `make-docs work status` and the reminder line count the file as waiting | No. A hook cannot know before its run that its child will be stopped |
+| The background run still works when the next hook comes, as with two commits in quick succession | The next hook uses the background | Yes: the process of the start mark lives |
+| The background run ended with an error, or gave up after the wait for a held Store | The next hook uses the background. The file of the last run holds the error output | Not a fallback case: the process survived |
+| The shell may not write the Store folder, so no run file can be written | The hook runs the checkpoint in the foreground, which does nothing there, as before this change (register entry R-046) | Yes, at this hook run |
+| A shell that lets the background run live, but stops it later than the run takes | No fallback is needed: the run ended | Not a case |
+| One checkout that is used from a terminal and from a shell that stops background runs, in turn | After a change from the terminal to that shell, the first hook run there syncs nothing. After a change back, the first hook run in the terminal is a foreground run | In part: the rule keeps one fact for each checkout, and not one for each shell |
+| The process number of a stopped run was given to another process that lives | The hook takes the run as alive, for at most 60 seconds from the start mark. Then the mark is stale, and the next hook runs in the foreground | Late, by at most 60 seconds |
+| A platform where a process with its own session cannot be started at all | The start fails, the hook runs in the foreground at once, and the start mark stays, so each next hook is a foreground run | Yes |
+
+By platform. On macOS each row above that a test can make is proven: the stopped run, the fallback and the return to the background, the stay in the foreground, the stale rule, and the folder that cannot be written. On Linux and on Windows the same tests are in both fixed lists of the platform workflow, and they have no result yet. For Windows two points are open until that run: that a process started with the `detached` option outlives the shell that git starts for a hook, and that the check for a live process (`process.kill` with signal 0) answers as on the other platforms. The test of the process group and of the hang-up signal is skipped on Windows, which has neither. No rule by platform is built: no platform is known where the background cannot work, so none is named.
+
+What the rule never does: it never makes a hook fail, block, or print in the background mode; it writes no file of the project; and it needs no Store schema change. In a linked work tree it works as in the main one, because the folder of the run files is named by a digest of the project folder, and each work tree has another folder. The end-to-end test with two work trees passes with the installed hooks.
+
+#### Owner Gate OG-3 For The Run Files
+
+OG-3 did not open. The facts of the hook runs are files in the Store folder, below `git-hook-runs/`, and not rows. The build added no table, no column, no schema version, and no migration, and the Store record of the hook blocks gained two values inside its JSON (`runMode` and `runFallback`) in the same row as before. What is new is one folder in the Store folder, with at most five small files for each checkout. PRD 38 R-HOOK-STATE-8 and the Store README name it, `setup remove` takes out the files of its checkout, and Store removal takes out the folder when it holds only these files. This is a finding of this build, and not an owner decision. If the owner reads a new folder in the Store folder as a change that needs the gate, the gate opens, and RF-23 names the other places that the files could have.
+
+#### The Folder Of The Run Files In The Store
+
+The folder is `git-hook-runs/<digest>/` in the Store folder. The digest is the SHA-256 of the real path of the project folder, with forward slashes. So each checkout has its own folder, also each linked work tree, and two projects in one repository have two. The start code makes the folder with the mode 0700 at the first hook start of a checkout, and only when the Store database exists and the project folder holds `.make-docs/config.yaml`. Each file has the mode 0600. The code is `packages/cli/src/store/git-hook-runs.ts`.
+
+| File | Who writes it, and when | What it holds | Who removes it |
+| --- | --- | --- | --- |
+| `started.json` | The hook process, right before it starts a background run, and again with the process number right after | A token of the run, the process number of the background run, the start time, and the event | The background run, at its end, when the file still holds its token. A run that was stopped leaves it, and that is the sign for the fallback |
+| `pending.json` | A background run that must wait, at its start | Its token, its process number, and the time | That run, when it stops waiting and starts its work |
+| `working.json` | A background run, when it starts its work | Its token, its process number, and the time | That run, at its end, when the file still holds its process number |
+| `last.json` | Each background run, at its end, also after an error. The next run replaces it | `schemaVersion`, `mode` (`background`), `outcome` (`ran`, or `covered` for a run that ended at once because another run waited), `event`, `root` (the full path of the project folder), `pid`, `startedAt`, `endedAt`, `exitCode`, and at most 4,000 characters each of `output` and `errorOutput` | Nobody, until `setup remove` or Store removal |
+| `foreground.json` | The hook process, when it falls back to the foreground. The next fallback replaces it | `schemaVersion`, `at`, `event`, `root`, `reason`, and `previous` with the process number and the start time of the background run that did not end | Nobody, until `setup remove` or Store removal |
+
+A write of `started.json`, `working.json`, `last.json`, or `foreground.json` goes to a file with the ending `.<process number>.tmp` and is then renamed, so a reader sees a whole file. A run that is stopped in that moment can leave such a `.tmp` file. `setup remove` and Store removal take out a file of that name form with the run files.
+
+Who removes the folder:
+
+- `make-docs setup remove`: when it handles the git hooks of a checkout that is in the hook record (the cases "shared", "held", and "last"), it removes the five file names of that checkout and then the folder when it is empty, and then `git-hook-runs/` when that is empty. A bound work tree of a clone with hooks gets a run folder also when it is not in the hook record, because each work tree uses the hook files. Since the fixes after the second review, `setup remove` takes out the run folder of its checkout in each case, also with no hook record.
+- Store removal (`removeGlobalStore`, which `make-docs uninstall` calls): it removes each folder with a digest name, by the five file names only, and then `git-hook-runs/`. When another file or folder is there, it keeps `git-hook-runs/` and reports it with the entries that the Store does not own.
+- `make-docs setup store check` does not read `git-hook-runs/`. It names no run folder and counts none. It works on the rows of the Store database, and the run files are no rows.
+- `make-docs setup store clean` does not read or remove `git-hook-runs/`. Its backup is a copy of the database only, so it holds no run file.
+- Nothing removes the run folder of a project folder that a person deleted with no `setup remove`. It stays until Store removal. It blocks nothing, and it holds at most five small files.
+
+These are gaps of the build, and RF-23 lists them for the owner: Store care does not name the run folders, and the run folder of a deleted project folder stays until Store removal.
+
+#### The Waits For The Store, By Kind Of Run
+
+This table replaces the columns "New bound in a hook run" of [Each Place Where A Checkpoint Run Can Wait](#each-place-where-a-checkpoint-run-can-wait). The places in the code are the same. No other caller changed.
+
+| What the run waits for | A background run of a git hook | A run in the foreground fallback | Every other caller |
+| --- | --- | --- | --- |
+| A live owner of `removal.lock`, `installation-bootstrap.lock`, or `installation-lease-recovery.lock`, a live owner of the legacy session file, or a busy session folder on Windows (`acquireStoreAccess`) | 5,000 ms | 1,000 ms | 30,000 ms, or the time that the caller gives |
+| Other live Store sessions to end (`waitForStoreAccessToDrain`) | 5,000 ms | 1,000 ms | 30,000 ms, or the time that the caller gives |
+| The preparation lock (`acquireStorePreparationLease`) | 5,000 ms | 1,000 ms | 30,000 ms |
+| A live checkout writer (`acquireInstallationLock`) | 5,000 ms | 1,000 ms | 30,000 ms |
+| The removal lock (`acquireRemovalLease`), which a checkpoint does not reach | 5,000 ms, if such a run reached it | 1,000 ms, if such a run reached it | 30,000 ms |
+| The busy time of each Store connection | 5,000 ms, the normal time | 1,000 ms | 5,000 ms |
+| A busy open of the Store database, with retries (`openSqliteWithRetry`) | 5,000 ms, the normal time | 1,000 ms | 5,000 ms |
+| Another background run of the same checkout that works now. This wait is new, and it is not a wait for the Store | 5,000 ms. Then the run goes on | No such wait | No such wait |
+| The start code in the hook process | No wait: it reads at most two small files and starts one process | No wait before the run | Not used |
+| The hook block | No wait: the shell text holds no timer | No wait | Not used |
+
+"A run in the foreground fallback" is each foreground run with the event `commit` or `branch-change`: the fallback of a hook, a block of version 1, and a person or a hook of an agent tool that gives one of these events. A direct run, a trigger run with another event, and each other command are "every other caller".
+
+What each bound is, stated plainly: the bound of one wait. It is not a bound on the whole run. It does not bound the work of the checkpoint, and it does not add the waits of one run together. A background run that meets one held wait ends about 5 seconds after its start, and the git action is not delayed by it.
+
+Measured in the tests on the maintainer machine, from the log lines of one test run: with a live process that holds `removal.lock`, a commit with the hooks took 86 ms, and its background run ended with exit code 1 after 5,079 ms. A foreground run of the same checkpoint took 1,105 ms. The two other lock files gave 84 ms and 82 ms for the commit, 5,080 ms and 5,077 ms for the background run, and 1,149 ms and 1,142 ms for the foreground run. With another process that holds the write lock of the Store database, a commit took 84 ms, next to 88 ms with a free Store, and its background run ended after 5,531 ms. When that process freed the Store after 2 seconds, the background run ended after 2,033 ms with `Checkpoint: 1 file imported.`. A commit in the foreground fallback with a held Store took 1,454 ms.
+
+#### Overlapping Runs And The Bound On Waiting Runs
+
+Two commits in quick succession start two background runs. The fix for register entry R-041 makes that safe for the data: the scan of the work files runs inside the Store write session. The test `ten commits in a loop, and then one direct checkpoint` starts ten commits with real hooks and no wait between them. After the runs the store holds the text of the tenth commit, and a direct run of the checkpoint finds nothing due: no file imported, no file that waits, and no conflict. The hand run gave the same result: ten commits took 938 ms in all, and the store held "Loop 10." after the runs.
+
+The bound, as a proposal (RF-24): at most one background run of a checkout waits. A run that finds a waiting run ends at once. The waiting run waits at most 5 seconds for the working run. Then it works too. So the rule bounds the runs that wait, and not the runs that work: two runs of one checkout can work at the same time when one takes longer than 5 seconds. The first report said "at most one works and one waits", which was false, and the second independent review found it: [The Fixes After The Second Independent Review](#the-fixes-after-the-second-independent-review). This is safe because the waiting run has not read the work files yet: it reads them after it stops waiting, which is after the commit of the run that ended. The waiting run waits for the working run for at most 5,000 ms and then goes on. A mark of a waiting or working run that is older than 60 seconds, or whose process is gone, is taken as left behind.
+
+The test `at most one background run of a checkout waits, and a run that finds a waiting run ends at once` holds the Store, makes six commits, and reads the process number of each started run. While the Store is held, two of the six processes live, the first as the working run and the second as the waiting run, and the other four ended. After the Store is free, the store holds the text of the sixth commit, and a direct run finds nothing due.
+
+What the bound does not cover: two projects in one repository have two checkouts, so each one can have one working and one waiting run. A run that waits for the Store for 5 seconds and gives up is replaced by the waiting run, so a Store that stays held for a long time gives one run that gives up about each 5 seconds while commits go on.
+
+#### What A Hook Prints Now
+
+This table replaces [Each Line That A Hook Can Print](#each-line-that-a-hook-can-print) for the background mode. The lines of that table are now the lines of the foreground fallback, which is a proposal (RF-22), and the short form that the file of the last run keeps.
+
+| Case | The background mode | The foreground fallback |
+| --- | --- | --- |
+| Nothing is due | No line | No line |
+| Files were imported, and nothing waits | No line | `Checkpoint: <N> file imported.` or `Checkpoint: <N> files imported.` |
+| Something waits | No line | The summary line, and then `Run make-docs project checkpoint to see and settle what waits.` |
+| After a branch change, when files wait | No line | `Checkpoint: <N> file waits.` and then the line with the command |
+| The caller has read access only, and files wait | No line | The one line with the count and the command |
+| A held Store after the wait | No line | No line. The owner chose "gives up quietly" |
+| No command, no Store, no Make Docs project, a checkout that is not bound, a shell that may not use the Store, each other error | No line | No line |
+| With `MAKE_DOCS_HOOK_DEBUG` set, on standard error | No line from the run. With no command at all, the block still says: `make-docs git hook: no make-docs command at the recorded path and none on PATH.` That line comes from the block before any run starts | The error output of the checkpoint |
+
+Where a person finds the result of a background run: `make-docs work status`, and the reminder line of the next Make Docs command when files wait. The hook review says so. For a person who looks for a fault, `last.json` in the folder of the run files holds the outcome, the exit code, and at most 4,000 characters each of the output and of the error output of the last background run, and the hook review names that folder.
+
+#### The Mode In The Setup Review, In The Setup Result, And In The Record
+
+Each of these is a proposal (RF-27).
+
+The hook review starts with these lines, from `renderGitHookReview`, with `<hooks folder>` for the hooks folder of the clone:
+
+```text
+Make Docs can add one marked block to each of four git hook files of this clone, in <hooks folder>.
+Run mode: background. Each block starts the checkpoint in the background after the git action and returns, so git does not wait. A block never fails or blocks git, and it prints nothing. To see the result, run `make-docs work status`, or read the reminder line of the next Make Docs command.
+Fallback: foreground. Only when the last background checkpoint of this checkout did not end does a hook run the checkpoint in the foreground, and then git waits for it.
+Each work tree of this clone uses these hook files. Make Docs sets no machine-wide git hooks path.
+```
+
+Its limits list has these new or changed points, with `<run folder>` for the folder of the run files of the checkout:
+
+```text
+- A hook prints nothing, also when something is due, because the checkpoint ends after git returned. To see the result, run `make-docs work status`. The next Make Docs command also shows the reminder line when files wait.
+- While another Make Docs process holds the Store or one of its locks, the background checkpoint waits at most 5 seconds at each wait for the Store. Then it syncs, or it gives up and the next checkpoint imports the file. Git does not wait in either case. The checkpoint reads each file below `docs/work/`, so it takes longer in a project with more work files, and that time is not added to the git action.
+- At most one background checkpoint of a checkout waits. A hook run that finds a waiting one ends at once, because the waiting one reads the files later. The waiting one waits at most 5 seconds for the working one. Then it works too, so two can work at the same time when one takes longer than 5 seconds.
+- The foreground fallback: when the last background checkpoint of this checkout did not end and is not running, such as in a shell that stops each process that a command started, the next hook runs the checkpoint in the foreground. Git then waits for it. That run waits at most 1 second at each wait for the Store, and it prints the summary line and the command when something is due. It then starts a background checkpoint again. When that one ends, the next hook uses the background again. A hook cannot know before its run that a shell will stop the background checkpoint, so the first hook run in such a shell syncs nothing.
+- Make Docs keeps the facts of the hook runs of this checkout in the Store folder, in <run folder>: `last.json` holds the result of the last background checkpoint with its output, and `foreground.json` names the last foreground fallback. No file of the project changes.
+- To see the error output of a foreground run of a hook, set MAKE_DOCS_HOOK_DEBUG=1 for one git command. A background checkpoint prints nothing with that variable too, and `last.json` holds its error output.
+```
+
+The setup JSON result holds three new fields in `gitHooks`: `runMode` with the value `background`, `runFallback` with the value `foreground`, and `runStateDir` with the folder of the run files. The Store record of the clone holds `runMode` and `runFallback` in its JSON, and its block version is 2. A record of block version 1 has no such value, and its blocks run in the foreground.
+
+#### The Method Of PERF-007-R2 As Recorded Before The Runs
+
+These points stood in the [requalification record](05-git-hooks-in-setup.md#requalification-of-perf-007-with-the-built-block) of the phase file before the counted runs. They moved here after the runs, with the same words, because the work store holds a work file only up to 65,536 characters, and the phase file was over that size. The phase file keeps the profile, the reason, the authorization, the budget event with its limits, and the stop rule.
+
+- Method: the harness of `PERF-007-R1` with stated differences, kept as [perf-007-r2-harness.mjs](evidence/p5/performance/perf-007-r2-harness.mjs). The actions, the states, the measurement boundary, the statistic, the count of runs and rounds, and the outcome rules are those of the profile. The differences:
+  - The hooks are the four blocks that `make-docs setup --yes --git-hooks` installs in the clone, and not proof hooks. The profile lists "the hook block that P5 builds" and "a hook that finds the command through a recorded path" among its exclusions, so the hook columns of this result are not comparable with those of `PERF-007-R1` as a result. The column with no hook is comparable.
+  - The modes are: no hook; the installed hooks in the background mode, which is their normal mode; and the installed hooks in the foreground fallback. The harness makes the fallback happen before each timed action: it leaves the start mark of a background run whose process is gone. A fallback run also starts one background run, as the built code does, and the harness waits for it.
+  - The candidate is the built CLI of this checkout, started through a small command file. It is not packed and installed, because the sandbox of the builder cannot reach the package registry. The result names the digest of the package file that `npm pack` makes from the same build.
+  - The harness cannot count the checkpoints that the hooks of one action start, because the block writes no log line. It checks in place of that: each background run ended with exit code 0, the foreground fallback ran only in its mode, the store units changed only when they must, the work tree is clean, and what git printed.
+  - The second number of each sample is the time between the end of git and the end of the last background run, read from the run files in the temporary Store.
+- Result: `PERF-007-R2`, recorded beside `PERF-007-R1` in the [result record](04-git-hook-proofs.md#result-record) of the profile.
+- Side measure, outside the profile: the time that the installed hooks add to a commit by the count of work files (about 100, 470, 1,000, and 2,000), in the background mode and in the foreground fallback, with made-up work files in a temporary project. One more [harness](evidence/p5/performance/hook-cost-by-work-files.mjs) runs it. It is one session on one machine, it is informational, it is not a result of `PERF-007`, and it uses no counted run of the budget.
+
+#### The New Measurements
+
+`PERF-007` ran again with the built block, as [`PERF-007-R2`](04-git-hook-proofs.md#result-record-of-the-requalification), outcome `pass`. The [requalification record](05-git-hooks-in-setup.md#requalification-of-perf-007-with-the-built-block) was written before the counted runs, with budget event `W35-R0-P5-PERF-007-2`. The phase file of P4 holds the full result record. All numbers of the first table are from `PERF-007-R2`: one git action, in milliseconds, the median of 15 samples, on clones of this repository with 4,417 store units, on the maintainer machine (Apple M2 Pro, 10 cores, 16 GiB, macOS, Node `v26.13.1`, git 2.47.1), on macOS only.
+
+| Action | No hook | Background: the hooks add | Then the checkpoint ends after | Foreground fallback: the hooks add |
+| --- | --- | --- | --- | --- |
+| `git commit`, no change | 24 | 59 | 461 | 492 |
+| `git commit`, one changed work file | 25 | 59 | 543 | 580 |
+| `git merge` (a true merge), no change | 47 | 51 | 458 | 487 |
+| `git merge` (a true merge), one changed work file | 48 | 50 | 545 | 572 |
+| `git commit --amend` (two hooks), no change | 24 | 111 | 857 | 546 |
+| `git commit --amend` (two hooks), one changed work file | 25 | 113 | 955 | 632 |
+| `git checkout <branch>`, no change | 16 | 59 | 345 | 378 |
+| `git checkout <branch>`, one changed work file | 16 | 59 | 348 | 378 |
+| A commit whose hook run is the first sync of the checkout (3 samples) | not measured | the commit takes 161 in all | 1,706 | the commit takes 1,825 in all |
+
+In each sample git exited 0, the work tree was clean after the action, the store changed only when it must, each background run ended with exit code 0, and git printed nothing in the background mode. The limits of the result: three runs in one session on one machine; the candidate is the built CLI of the checkout and not a packed install, because the sandbox of the builder cannot reach the package registry; the hook columns are not comparable with `PERF-007-R1` as a result; the fallback is made by the harness; and the harness could not count the checkpoints that one action starts.
+
+The side measure by the count of work files, outside the profile. One [harness](evidence/p5/performance/hook-cost-by-work-files.mjs) made one temporary project for each count, with made-up work files of a real size (about 12,000 bytes and 7 tasks each, 20 files for each backlog folder), installed the hooks through setup, and timed a commit with nothing due. Each value is the median of 7 samples, in milliseconds. "Adds" is the time of the commit with the hooks, less the time of the same commit with the hooks turned off for that one command. The [results](evidence/p5/performance/hook-cost-by-work-files-results.json) hold each sample.
+
+| Work files | Background: added to a commit | Then the checkpoint ends after | Foreground fallback: added to a commit | The first sync in a commit, one run: the commit, and then the checkpoint ends after |
+| --- | --- | --- | --- | --- |
+| 100 | 59 | 218 | 247 | 141, and 395 |
+| 470 | 57 | 463 | 489 | 142, and 1,346 |
+| 1,000 | 56 | 884 | 923 | 145, and 2,511 |
+| 2,000 | 56 | 2,129 | 2,175 | 144, and 5,296 |
+
+What the side measure shows: in the background mode the time that the hooks add to a commit does not grow with the count of work files. It is 56 ms to 59 ms from 100 to 2,000 work files. The work of the checkpoint still grows, and it now runs after git returned. In the foreground fallback the added time grows as the foreground hook did: about 0.25 seconds at 100 work files and about 2.2 seconds at 2,000. The limits of this measure: it is a side measure and not a result of `PERF-007`; one machine, one session, made-up work files that all look the same; a commit only. The earlier table of [The Cost Of A Hook With Nothing Due, For The Owner](#the-cost-of-a-hook-with-nothing-due-for-the-owner) is of the foreground block of the first build. Its numbers for a commit are near the fallback column here.
+
+#### The Proof Inside Each Agent Tool, For The Orchestrator
+
+The builder ran no agent tool session. The orchestrator ran the proof under standing rule 11 on 2026-11-28 and filled the table below.
+
+The script [p5-background-proof.sh](evidence/p5/access/p5-background-proof.sh) has three actions, each for a plain shell. It was tried one time from the shell of the builder: `prepare`, then `hold` for 3 seconds with one commit, then `read`. The reading showed the hook name, no start mark, a last run that ended 2.8 seconds after its start with `Checkpoint: 1 file imported.`, and the new task text in the store. That trial is not a proof inside an agent tool.
+
+What `prepare` makes: a temporary project with two work files, a temporary Store and a temporary home folder inside the work folder, the first sync, and the four real hook blocks, which the real `make-docs setup --yes --git-hooks` installs. The shell of an agent tool does not have the variable of the temporary Store. So the script adds two lines before the Make Docs block of each hook file that set `MAKE_DOCS_HOME` to the temporary Store, and one line at the end of each hook file that records that git ran the hook. It changes no byte of a block. Without those two lines a hook in the tool would use the real Store, which the rule of this Wave forbids.
+
+Steps for each agent tool:
+
+1. In a plain shell: `sh docs/work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence/p5/access/p5-background-proof.sh prepare <new work folder> <full path of the make-docs command> [setup method inputs]`. Use a new work folder for each tool. With no method inputs, setup connects no agent tool. A method input of the tool can change the configuration of that tool on the machine, so the orchestrator decides it.
+2. Open the folder `<work folder>/project` in the agent tool.
+3. Commit 1, with the Store held, so that the background checkpoint must outlive the command of the tool. In a plain shell: `sh <script> hold <work folder> 60`. It prints `held`. At once, ask the agent to change "Build the parser." to "Build parser 1." in `docs/work/2042-06-01-w1-r0-aurora/01-first.md` and to run `git add -A && git commit -m "Commit 1"` as one command of its own. Wait until the hold printed `free`. Then, in a plain shell: `sh <script> read <work folder> after-commit-1`.
+4. Commit 2, with a free Store. Ask the agent to change "Build parser 1." to "Build parser 2.", to run `git add -A && git commit -m "Commit 2"`, and to report each line that the commit printed. Wait 10 seconds. Then: `sh <script> read <work folder> after-commit-2`.
+5. Commit 3, with a free Store, in the same way with "Build parser 3." and the label `after-commit-3`.
+6. Copy the three readings from `<work folder>/readings.txt` into the record of the run, and remove the work folder.
+
+The files that the script makes in the work folder, all outside the project:
+
+| File | Made by | What it means |
+| --- | --- | --- |
+| `setup.json` | `prepare` | The JSON result of the first `make-docs setup --yes`. |
+| `first-sync.json` | `prepare` | The JSON result of the first checkpoint, from the plain shell. |
+| `setup-hooks.json` | `prepare` | The JSON result of `make-docs setup --yes --git-hooks`. Its `gitHooks` part holds `status`, `runMode`, `runFallback`, and `runStateDir`, the folder of the run files. |
+| `empty.gitconfig` | `prepare` | The empty file that stands in for the global and the system git config in the git commands of the script. The agent tool does not use it. |
+| `hooks-ran.txt` | Each hook file, by its last line | One hook name for each hook that git ran. An empty file means that no hook ran. |
+| `store/git-hook-runs/<digest>/` | The hooks | The run files: `started.json`, `pending.json`, `working.json`, `last.json`, and `foreground.json`. [The Folder Of The Run Files In The Store](#the-folder-of-the-run-files-in-the-store) says what each one holds. |
+| `readings.txt` | `read` | Each reading, one after the other, with its label and its time. |
+
+`hold` writes no file. It prints `held` when it has the write lock of the temporary Store and `free` when it let go.
+
+The three results, and how each one shows:
+
+- "The background run ran to its end": a reading shows `started.json: none`, and `last.json` with an `endedAt` after the commit. `outcome` is `ran`. With `exitCode` 0, `output` holds what the checkpoint did, such as `Checkpoint: 1 file imported.`, or nothing when nothing was due. With `exitCode` 1, `errorOutput` holds the reason, such as `store-unavailable` after a held Store.
+- "The run was stopped": after the wait, a reading still shows `started.json` with a process number, and `last.json` is absent or is of an earlier commit. The store does not have the new task text.
+- "The fallback happened": a reading shows `foreground.json` with an `at` after the commit, and `previous.pid` is the process number of the stopped run. The agent saw the line of the checkpoint in the output of its commit when something was due.
+
+How to read one reading:
+
+- "hooks that git ran" holds the hook names. No name means that the tool did not start the hook.
+- After commit 1: `last.json` with `"exitCode":1`, `store-unavailable` in `errorOutput`, and an end about 5 seconds after the start means that the run outlived the command of the tool, waited the normal time for the held Store, and gave up. That is the survival proof. `started.json` that still exists after the hold ended, with no new `last.json`, means that the tool stopped the run.
+- After commit 2: when the run of commit 1 was stopped, `foreground.json` exists with a time after commit 2, the agent reports the line `Checkpoint: 1 file imported.`, and the store has "Build parser 2.". That is the fallback. When the run of commit 1 survived, no `foreground.json` exists, the agent reports no line of a hook, and `last.json` holds `Checkpoint: 1 file imported.`.
+- After commit 3: the mode of the third hook. In a tool that stops each background run, `foreground.json` has a time after commit 3. In a tool that lets it live, `last.json` is of commit 3.
+- "the store, task T1" is the text that the temporary Store holds at the time of the reading.
+
+The table to fill:
+
+| Agent tool | Who started the session | Setup method of the tool | Commit 1: the hook ran | Commit 1: the background run ended, and what it did | Commit 2: the fallback happened, and what the agent saw | Commit 3: the mode | The store after commit 3 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Codex | The orchestrator, as delegated sessions with no command sandbox (each session reported this). Commit 1 was one session, and commits 2 and 3 were a second session | `none` | yes | Yes. The commit took 0.15 seconds. The background run started at 07:19:02.9 and ended at 07:19:08.4 UTC, so it outlived the command. It waited 5 seconds for the held Store and ended with exit code 1 and `store-unavailable` | No fallback. The agent saw no line of a hook. The commit took 0.08 seconds | background: `last.json` is of commit 3, exit code 0, `Checkpoint: 1 file imported.`, with no `foreground.json` | "Build parser 3." |
+| Claude Code | The orchestrator, as subagent sessions. Each commit ran inside the command sandbox of the tool. Commit 1 was one session, and commits 2 and 3 were a second session | `none` | yes | Yes. The commit took 0.16 seconds. The background run started at 07:18:33.9 and ended at 07:18:39.4 UTC, so it outlived the command. It waited 5 seconds for the held Store and ended with exit code 1 and `store-unavailable` | No fallback. The agent saw no line of a hook. The commit took 0.10 seconds | background: `last.json` is of commit 3, exit code 0, `Checkpoint: 1 file imported.`, with no `foreground.json` | "Build parser 3." |
+| GitHub Copilot CLI | no proof gathered: the orchestrator's environment cannot start this tool | | | | | | |
+
+The orchestrator ran these proofs on 2026-11-28 on the maintainer machine (macOS), with the built CLI of the staged Phase 5 work. Findings:
+
+- In both tools the background run outlived the command of the tool, and no tool stopped it. So the foreground fallback did not happen in any run, and these runs do not prove the fallback inside an agent tool. The tests and the hand runs of the builder prove the fallback with a killed run.
+- In both tools the agent saw no line of a hook in any commit.
+- In each run the temporary Store was in a folder that the shell of the tool may write. The Phase 4 access runs showed that the checkpoint stops with `store-unavailable` where the shell may not write the Store folder, and the background mode does not change that.
+- What is not proven: a setup method other than `none`; GitHub Copilot CLI; a session that the person started by hand in the app of a tool; Linux and Windows.
+
+The orchestrator removed the two work folders after the record.
+
+
+One observation of the builder, which is not a row of the table. The builder works inside the command shell of one agent tool, with its sandbox on. In a hand run there, a commit with the installed hooks in a temporary project started a background run while another process held the temporary Store, and the tool command ended at once. A later tool command found that the run had ended 3.7 seconds after its start, with `Checkpoint: 1 file imported.`. So in that one shell, on that day, a background run outlived the command that started it. It is one run, the builder's own session is not a session that the orchestrator started for the proof, and the temporary Store was inside the folders that the sandbox lets a command write.
+
+What the script cannot show: a real Store in the home folder of a person, a session that a person started by hand in the app of a tool, and Linux or Windows.
+
+#### The Cases Of The Background Mode By Test
+
+"bg" is `w35-r0-p5-hook-background.test.ts`, and "wait" is `w35-r0-p5-hook-wait-limit.test.ts`.
+
+| Case | State | Proof |
+| --- | --- | --- |
+| A62q | Proven on macOS | wait: a commit, a rewrite, and a true merge print nothing, the store holds each edit after the run, and no run file of a live run is left. bg: the foreground fallback prints the line before git returns. |
+| A62r | Proven on macOS | wait: with a held Store and with each of the three held lock files, a commit ends in less than 900 ms, its background run ends after 4,900 ms to 9,000 ms with exit code 1, and a foreground run of the checkpoint ends after 900 ms to 4,500 ms. |
+| A62s | Proven | wait: the file is not imported, `work status` and the reminder line count it, the next commit and a direct run import it, and a Store that is free again after 2 seconds lets the background run import it. |
+| A62t | Proven in part | wait: a direct run waits 5,000 ms. A commit whose hook run is the first sync of 61 work files imports each one. As before, that run is shorter than each bound on this machine. |
+| A62u | Proven | wait: a command file on PATH records two checkpoint calls for one amended commit, and git prints nothing. |
+| A62v | Waits for the owner | The PRDs hold the modes and each bound. `make-docs check prd` passes. |
+| A62w | Proven on macOS | bg: with a held Store, a commit returns in less than 900 ms and prints nothing, the run still waits, and after the Store is free the store has the edit and `git status` shows no change. |
+| A62x | Proven on macOS | bg: `git commit ... \| cat` and a process that reads both outputs of git through pipes each return in less than 900 ms while the background run still waits. |
+| A62y | Proven on macOS. Skipped in part on Windows | bg: the run leads a process group of its own, it lives after the hang-up signal went to the group of the shell that ran git, and it then imports. A second test shows that it lives after the process that ran git ended, and that only `last.json` is left. A hand run with a real terminal, outside the sandbox, gave the same result: see [The Hand Runs Of The Background Mode](#the-hand-runs-of-the-background-mode). The first test is skipped on Windows. |
+| A62z | Proven on macOS | bg: ten commits in a loop and one direct run; six commits with a held Store, of which two runs live and four ended. |
+| A62aa | Proven on macOS | bg: a run that was stopped with a kill signal; the next commit prints `Checkpoint: 1 file imported.` and syncs; the commit after it prints nothing and syncs in the background. Two commits, each after a stopped run, both run in the foreground. A start mark of a live process that is older than 60 seconds gives the foreground. |
+| A62ab | Proven on macOS | bg: a fallback commit with a held Store takes 900 ms to 4,500 ms, prints nothing, and exits 0, and with the debug switch standard error holds `store-unavailable`. No file of the project changes: `git status --porcelain --ignored` is empty. The end-to-end test with two work trees passes. No schema change: see [Owner Gate OG-3 For The Run Files](#owner-gate-og-3-for-the-run-files). |
+| A62ac | Proven | bg: the review, the JSON result, and the record state the mode, and `setup remove` in the last checkout removes the run folder. |
+| A62ad | Done | `PERF-007-R2` and the side measure are recorded. `make-docs check performance-evidence` shows 127 diagnostics, the same count as before this change. |
+| A62ae | Prepared. Waits for the orchestrator | The script, the steps, and the table are above. No cell holds a result. |
+
+#### The Hand Runs Of The Background Mode
+
+Each run used the built CLI, a temporary project that the real setup made, a temporary Store at a fixed path below `/private/tmp/claude`, a temporary home folder, empty files in place of the global and the system git config, and the PATH `/usr/bin:/bin`. `<work>` stands for the temporary folder. Each time holds about 25 ms of the timer of the script, which is one start of `node`. The lines are the plain output of the scripts. Lines that only print a run file again are left out, and `<work>` replaces the path of the temporary folder. In the first run, `last.json` is there right after git because an earlier commit of the same script session left it.
+
+```text
+commit 1: exit 0 in 98 ms (with about 25 ms for the timer)
+  right after git: last.json started.json working.json 
+  after the run: last.json 
+{"schemaVersion":1,"mode":"background","outcome":"ran","event":"commit","root":"<work>/project","pid":22356,"startedAt":"2026-11-28T06:07:43.829Z","endedAt":"2026-11-28T06:07:43.957Z","exitCode":0,"output":"Checkpoint: 1 file imported.\n","errorOutput":""}
+  waiting for import: []
+commit 2 piped to cat: 98 ms; output: [[main 875d304] c2
+ 1 file changed, 1 insertion(+), 1 deletion(-)]
+  waiting for import: []
+no hook commit: 48 ms
+hook commit nothing due: 101 ms
+
+=== ten commits in a loop ===
+ten commits: 938 ms in all
+store body after the runs: Loop 10.
+Checkpoint: nothing is due. The work files and the work store match.
+
+=== a commit with the Store held ===
+commit, Store held for 2.5 s: exit 0 in 99 ms
+background run ended 2505 ms after git; body: Held short.
+commit, Store held for 8 s: exit 0 in 101 ms
+background run ended 5527 ms after git; body: Held short.
+ran 1 "" {"ok":false,"code":"store-unavailable","message":"Make Docs waited 5 seconds to write Store data at <work>/store/store.db. ...
+Checkpoint: 1 file imported.
+body: Held long.
+
+=== the fallback: a background run is killed ===
+files after the kill: last.json started.json working.json
+next commit: exit 0 in 228 ms, output: [Checkpoint: 1 file imported.]
+{"schemaVersion":1,"at":"2026-11-28T06:08:54.289Z","event":"commit","root":"<work>/project","reason":"The last background run of this checkout did not end, and its process is not running.","previous":{"pid":23382,"at":"2026-11-28T06:08:51.016Z"}}
+the commit after it: exit 0 in 100 ms, output: []
+{"schemaVersion":1,"mode":"background","outcome":"ran","event":"commit","root":"<work>/project","pid":23473,"startedAt":"2026-11-28T06:08:54.720Z","endedAt":"2026-11-28T06:08:54.845Z","exitCode":0,"output":"Checkpoint: 1 file imported.\n","errorOutput":""}
+
+=== a closed terminal, outside the sandbox ===
+background run before the close: pid pgid sess tty = 10894 10894      0 ??
+the shell in the terminal before the close: 10880 10880 ttys003  sh -c git commit -q -m hup; sleep 30
+close at 2026-11-28T06:35:36.089Z
+run6.sh: line 17: 10878 Hangup: 1               script -q /dev/null sh -c 'git commit -q -m hup; sleep 30' > /dev/null 2>&1
+background run after the close: [10894 Ss   ??      ]
+{"schemaVersion":1,"mode":"background","outcome":"ran","event":"commit","root":"<work>/project","pid":10894,"startedAt":"2026-11-28T06:35:35.973Z","endedAt":"2026-11-28T06:35:39.917Z","exitCode":0,"output":"Checkpoint: 1 file imported.\n","errorOutput":""}
+```
+
+What the hand runs show. A commit returns in about 0.1 seconds, and the store has the file a moment later. A commit whose output goes through `cat` returns as fast. Ten commits in a loop leave the store equal to the files. With the Store held for 2.5 seconds, the background run waits and then imports. With the Store held for 8 seconds, it gives up after about 5.5 seconds, the commit is not delayed, and the next checkpoint imports the file. After a killed background run, the next commit runs the checkpoint in the foreground and prints its line, and the commit after it is quiet again.
+
+The closed terminal. The sandbox of the builder gives no terminal, so this one run used the command `script` outside the sandbox, in the same temporary project and with the same temporary Store and home folder. `script` gave the shell a real terminal (`ttys003`). The commit ran there, with the Store held. The background run had its own process group and no terminal (`??`). Then the terminal was closed with the hang-up signal to `script`. The shell in the terminal ended. The background run was still there, and it ended 3.8 seconds later with the import. It is one run on macOS.
+
+Not run by hand: a case on Linux or Windows, and a session of an agent tool that the orchestrator started.
+
+#### The Background Mode For The Owner
+
+Nothing in this list is an owner decision. Each label is new, and it continues the labels RF-1 to RF-18, so no earlier label changed its meaning.
+
+| Label | The point | What is built now | What the person sees | Another form |
+| --- | --- | --- | --- | --- |
+| RF-19 | How the background run starts | The command starts it, as a process of its own session, with the Node options `detached` and `stdio: "ignore"` and with `unref()`. The shell text starts no job. It costs one start of `node` with the start code in the foreground. | A git action with the hooks takes about 59 ms longer in `PERF-007-R2`, and the person gets the prompt back before the checkpoint ends. | A background job of the shell. It added 27 ms in `PERF-007-R1`, it stays in the process group of git, and its fallback rule would be shell text. |
+| RF-20 | The sign from the block to the command | The environment variable `MAKE_DOCS_GIT_HOOK_RUN`, which the block sets to `start`. The command sets it to `foreground` or to `background:` and a token for the run. It follows the form of `MAKE_DOCS_HOOK_DEBUG`. It is no CLI option and no MCP input, so the name catalog did not change. Since the fixes after the second review, the variable changes only a checkpoint call with the event `commit` or `branch-change` and with no `--json`. Each other command, each other event, and a call with `--json` run as without it. | Nothing, in normal use. The person sees the name in the block text of the hook review. A person who sets it to `start` by hand with `make-docs project checkpoint --event commit` gets a background run and no output. With `--event session-start`, or with `--json`, the person gets the same output as without the variable. | A hidden CLI option. |
+| RF-21 | How a hook knows that it must fall back, and when the mode is found | A hook runs in the foreground when the last background run of its checkout left its start mark and its process is gone, or the mark is older than 60 seconds. The fallback run also starts a background run, and when that one ends, the next hook uses the background again. The mode is found at each hook run. It is not fixed at install time, and setup has no mode input. [The Fallback Rule](#the-fallback-rule-and-what-it-can-and-cannot-detect) says what it can and cannot detect. | In a shell that stops background runs: nothing at the first git action, and from the second one on git waits for the checkpoint and prints its line when something is due. The hook review says so before the person selects the hooks. | A rule by platform; a mode input of setup that fixes the mode for a project; a sign in the environment of a known kind of shell. None is built: no platform is known where the background fails, and no shell is known by name. |
+| RF-22 | What the foreground fallback prints | The lines that the foreground hook printed before: nothing when nothing is due, the summary line and the command when something is due, the one line for a caller with read access only, and nothing after a held Store and after each other error. | After the git action, `Checkpoint: 1 file imported.`, or the summary line and `Run make-docs project checkpoint to see and settle what waits.`, or no line. | Nothing in each case, as in the background mode. Then a shell that stops background runs would get the sync and no line. |
+| RF-23 | Where the facts of the hook runs are kept | Files in the Store folder, `git-hook-runs/<digest of the project folder>/`, with at most five small JSON files for each checkout. They are no part of the database. `setup remove` and Store removal take them out. Two gaps: `setup store check` and `setup store clean` do not read these folders, and a person who deletes a project folder with no `setup remove` leaves the folder of that checkout until Store removal. [The Folder Of The Run Files In The Store](#the-folder-of-the-run-files-in-the-store) holds each file. | Nothing at a git action. The hook review names the folder of this checkout. A person who opens `last.json` there reads what the last background run did, with the full path of the project folder and, after an error, paths in the error output. | The git folder of the work tree, which a sandbox can keep read-only and which is inside the project folder; the temporary folder of the system, which differs between shells and is cleaned by the system; a row of the Store database, which would make each hook start open the database. |
+| RF-24 | The bound on waiting runs | At most one background run of a checkout waits. A run that finds a waiting run ends at once. The waiting run waits at most 5 seconds for the working run. Then it works too, so two runs can work at the same time when one takes longer than 5 seconds. A mark older than 60 seconds, or of a process that is gone, is left behind. | Nothing. After many commits in quick succession the store holds the last state, and `last.json` can show the outcome `covered` for a run that ended at once. | No bound: each commit keeps one process that waits for the Store. |
+| RF-25 | The bound of a background run at each wait | 5,000 ms at each wait for the Store, also for the waits that are 30,000 ms for each other caller. The owner said "the normal wait, about 5 seconds", and that no background run waits 30 seconds. The same value for each wait is the builder's reading of those words. | Nothing at the git action, which is not delayed. While the Store stays held, the file is imported up to about 5.5 seconds after the commit, or it waits for the next checkpoint, and `make-docs work status` counts it as waiting. | 30,000 ms for a live Store owner, as for each other caller. The owner excluded it. |
+| RF-26 | The debug switch in the background mode | `MAKE_DOCS_HOOK_DEBUG` makes a background run print nothing, as without it. The file `last.json` always holds the output and the error output of the last background run. The switch shows the error output of a foreground run on standard error, and the line of the block for "no command at all". | With the switch and a background run: nothing. With the switch and a foreground run: the typed Store result on standard error. With the switch and no command: `make-docs git hook: no make-docs command at the recorded path and none on PATH.` | A log file that only the switch turns on. |
+| RF-27 | How the mode shows | The hook review has the lines "Run mode: background." and "Fallback: foreground.", with what the person sees and where the result is. The setup JSON result has `runMode`, `runFallback`, and `runStateDir`. The Store record has `runMode` and `runFallback`, and the block version is 2. | The two lines at the top of the hook review, and the points of its limits list. [The Mode In The Setup Review](#the-mode-in-the-setup-review-in-the-setup-result-and-in-the-record) holds the exact words. | One field with one word for both. |
+| RF-28 | The hook after a branch change in the background mode | It starts a background run that only reads, as the other hooks do. Its report goes to `last.json`. It adds about 59 ms to each branch change. In the foreground fallback it prints its two lines. | Nothing at a branch change, also when files wait. The reminder line of the next Make Docs command says that files wait. | The hook after a branch change does nothing in the background mode, which saves that time. The owner decided that this hook only reports (design OD-9), and did not decide what it does when a hook prints nothing. So the builder kept one form for the four hooks. |
+| RF-29 | A block of version 1, and an older `make-docs` on PATH | A project that already has version 1 keeps the foreground run with the limit of 1,000 ms until `make-docs setup --git-hooks` writes version 2. When the recorded command is gone and a hook runs an older `make-docs` from PATH, that version does not know the variable, and it runs in the foreground as it did. | Repeat setup says for each hook: "current, and a newer block is ready", and names `make-docs setup --git-hooks`. Until then the person sees the lines of the foreground hook at a git action. | An update that writes the new block by itself. Recommendation R1 and the rule for a changed block forbid a write with no selection. |
+| RF-30 | No usable Store, no Make Docs project, or a Store folder that cannot be written | The command runs the checkpoint in the foreground, as before this change, and that run does nothing or reports with read access only. It starts no process and writes no file. | Nothing, or the one line for a caller with read access only. | No run at all in these cases. |
+| RF-31 | The entry of the CLI | Each start of the CLI now runs the start code first and then loads the rest. For each command that is no hook start, this is one check of one variable. | Nothing. Each command prints what it printed before. | A second command file only for hooks, which is a new shipped program. |
+| RF-32 | The first hook run in a shell that stops background runs, and a checkout that is used from two kinds of shell | The first hook run there syncs nothing. The rule keeps one fact for each checkout, so each change between a terminal and such a shell costs one hook run: one that syncs nothing, or one foreground run in the terminal. | Nothing at that first git action. `make-docs work status` and the reminder line count the file as waiting. After a change back to the terminal, one git action waits for the checkpoint. | One fact for each kind of shell, by a sign such as "standard error is a terminal". It is a guess about the shell, so it is not built. |
+
+##### What This Change Replaced In The Earlier Parts
+
+| Earlier point | What this change did to it |
+| --- | --- |
+| The row "A hook runs the checkpoint in the foreground" of [Owner Decisions That This Phase Built](#owner-decisions-that-this-phase-built) | Replaced by OD-P5-1 to OD-P5-5. The row stays as the record of the first answer. |
+| R8, the limit of 1,000 ms | Holds only for a foreground run: the fallback, a block of version 1, and a person or a hook of an agent tool that gives the event. A background run waits 5,000 ms at each wait. |
+| R9, the checkpoint takes the limit | Still holds. The checkpoint takes the bound by run mode. No CLI option and no MCP input is new. One environment variable is new (RF-20). |
+| R10, "quietly" | Still holds for the foreground fallback, where the owner chose it. In the background mode a hook prints nothing in every case, by OD-P5-5. |
+| R11, the limit covers each wait and not the run | Still holds, in both modes. |
+| T26, where the output is cut | Still holds: the checkpoint gives the short form. In the background mode nobody sees it at the action, and `last.json` keeps it. |
+| T27 and A62h, the debug switch | Changed: it shows the error output of a foreground run only (RF-26). |
+| T31 and A62l, what a hook prints after an error | Holds for the foreground fallback. The background mode prints nothing in every case. |
+| T35, A62q, and the words "the block starts no background process" | Replaced. The shell text still starts no job, and the command starts the background run. |
+| The table [Each Line That A Hook Can Print](#each-line-that-a-hook-can-print) | Now the lines of the foreground fallback. [What A Hook Prints Now](#what-a-hook-prints-now) replaces it. |
+| RF-1, what the wait limit bounds | Changed: 5,000 ms at each wait in a background run, and 1,000 ms at each wait in a foreground run. Still each wait by itself. |
+| RF-9, the command that a hook runs | Still holds. It matters more now: only the recorded version knows the variable of the block. |
+| RF-12, the cost of a hook with nothing due | Changed by the background mode: the added time of a git action no longer grows with the work files. It stays open for the foreground fallback and for the time until the store has the file. Register entry R-047 holds it. |
+| RF-15, the short form and the limit belong to the events | Changed in part: the short form belongs to the events `commit` and `branch-change`. The bound now also depends on the run mode. What holds after the fixes of the second review: a trigger run with the event `commit` or `branch-change` that an agent tool hook or a person starts gets the short form and the limit of 1,000 ms, in the foreground. It starts in the background only when its environment holds the variable of the git hook block and the call has no `--json`. A call with another event never starts in the background and never gets the short form or the limit. |
+| Point 16 of [P5 New Behavior That The Documents Did Not State](#p5-new-behavior-that-the-documents-did-not-state) | Still holds. |
+| The times of [The Wait Limit](#the-wait-limit-t35-to-t37-a62q-to-a62u), of [The Measured Times After The Fix](#the-measured-times-after-the-fix), and of [The Cost Of A Hook With Nothing Due, For The Owner](#the-cost-of-a-hook-with-nothing-due-for-the-owner) | They are of the foreground block of the first build and of the fix round. They stay as measured. [The New Measurements](#the-new-measurements) hold the times of the built block. |
+| [The Hand Run](#the-hand-run), its hook review, its four blocks, and its lines that a commit printed | They are of block version 1. [The New Block Text](#the-new-block-text) and [The Hand Runs Of The Background Mode](#the-hand-runs-of-the-background-mode) hold version 2. |
+| R1 to R7, T20 to T25, T28 to T30, T32 to T34, RF-2 to RF-8, RF-10, RF-11, RF-13, RF-14, and RF-16 to RF-18 | Not changed. |
+
+#### The Twin Review Of The Background Mode
+
+The checkpoint is deterministic logic with an agent form, `make-docs://system/reference/work-store.md`. This change touched two rules of both forms, and the agent form was reviewed for each:
+
+- `WORK-RULE-071`: the catalog text and the Checkpoint section now give the two bounds, 5 seconds in a background run of a git hook and 1 second in a foreground run, and say that git does not wait for a background run.
+- `WORK-RULE-072`: both now say that a hook starts the run in the background and prints nothing, that the next hook runs in the foreground only when the last background run did not end, and what an agent does: it does not wait for a line of a hook after a commit, it reads `make-docs work status` or the reminder line, and it starts a direct run when something waits.
+- `WORK-RULE-070`, the short form, keeps its rule. Its sentence about who sees the output changed in the agent form.
+- "When to Run It" says that a hook starts the checkpoint in the background and prints nothing, so an agent still runs the checkpoint at the three moments.
+
+An agent without the CLI has no hook and no checkpoint, so the agent form needs no rule for the start code, the run files, or the fallback: those are parts of the command. The twin test passes, and the template file and the installed copy are byte-identical.
+
+#### The Checks Of The Background Mode
+
+Every test, measurement, and CLI run of this change used a temporary Store at a fixed path under `/private/tmp/claude` or inside the temporary folder of the test, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. No run installed, changed, or removed a git hook in this repository or in any real repository, and no run started `make-docs setup`, `setup system`, or `setup remove` against this repository or with the real home folder. Each hook ran only in a temporary git repository, with a temporary home folder and empty files in place of the global and the system git config. After the last run, the hooks folder of this repository holds only the `.sample` files, and no checkpoint process of a test or of a hand run is left. All checks ran on the maintainer machine, on macOS, with Node `v26.13.1` and git 2.47.1.
+
+- `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- The P1 to P5 test files (15 files), with a fake `make-docs` first on the outer PATH: 321 tests pass and 1 is skipped. The fake command writes a mark file when it runs, and no mark file exists after the run. The one skipped test is the P4 test of a real global install.
+- `w35-r0-p5-hook-background.test.ts`, 10 runs in a row: 17 tests pass in each run.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`, after the last change of product code: 4,058 tests pass, 2 fail, and 7 are skipped, in 173 test files, in 658 seconds. The 2 are the known failures of `tests/mcp-app-contract.test.ts` on Node 26. `backup.test.ts` and `uninstall.test.ts` pass.
+- After the last document change, in one run: the consistency test, the template links test, the package safety test, the P3 name and router test, the W29 parser and sync test, the two dependency direction tests, and the P1 surface test. 259 tests pass in 8 files. After that run, only this line changed.
+- A first full run of this change found 5 more failures, and each one was the builder's. Two dependency tests: the first build kept the start code below `src/run/` and added a file between the entry and the CLI, and the operation core may reach neither. The start code moved to `packages/cli/src/store/git-hook-runs.ts`, and the entry file loads the CLI itself. Two parser tests: the phase files of P4 and P5 were longer than the 65,536 characters that the work store holds for one file. Both are shorter now, with 65,063 and 64,748 characters, and the method list of the requalification moved to this report. One test of this change read the end of a process a moment too early, and it now waits for it. The second full run is the result above.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `make-docs check prd --target-root .`, with the built CLI: exit code 0, no diagnostics.
+- `make-docs check performance-evidence --target-root .`: exit code 1, with 127 diagnostics, the same count as before this change. No diagnostic is new. A first run gave 128: lines of the P5 phase file held a time value and no profile name. Those lines now name `PERF-007` or hold no value.
+- `make-docs project paths validate --target-root .`: valid, 0 failing findings.
+- `make-docs project markdown validate --path <file>` on each document that this change touched: no findings on this report, the phase files of P4 and P5, the index, the two plan files, the design, PRD 07, PRD 52, the work store reference of the template and its installed copy, and the Store README. On PRD 38 it reports 8 findings and on the risk register 9, the same counts as before, each on a line that this change did not touch.
+- `make-docs backlog snapshot --target-root . --json`: exit code 0, and no diagnostic names W35. The snapshot shows 7 phases and 138 tasks for W35 R0.
+- `cmp` shows that `.make-docs/system/references/work-store.md` matches its template file byte for byte.
+- The hand runs: [The Hand Runs Of The Background Mode](#the-hand-runs-of-the-background-mode). One of them, the closed terminal, ran outside the sandbox of the builder, in a temporary project with a temporary Store.
+- Not run: any run on Linux or Windows, `npm run smoke:pack:local`, a packed install of the candidate, a session inside an agent tool that the orchestrator started, and `make-docs project checkpoint` in this repository, which would write the real Store. The orchestrator runs that checkpoint, because work files changed.
+
+- A repair of this report, after the checks above. One late edit of the builder, which changed one line of this list of checks, cut out the whole section [The Background Mode](#the-background-mode-t39-to-t45-a62w-to-a62ae) and the last three lines of [The Checks Of This Round](#the-checks-of-this-round): it cut from the first line with the same first words, which stood in that earlier section, to a line of this list. So the staged report held none of it, while other lines linked to it. The orchestrator found this. The section is written again from the builder's saved copy, and the three lines are back with their first words. Four parts are new in the repair: the block text of each of the four hooks, from the code; the folder of the run files with each file; the files and the three results of the proof script; and the column "What the person sees" of the list for the owner. One small code change came with it: `setup remove` and Store removal also take out a `.tmp` file that a stopped write of a run file left behind, with a test. After the repair: `npx tsc --noEmit -p packages/cli` has no errors; the background test file, the W29 parser and sync test, the two dependency direction tests, and `uninstall.test.ts` pass with 155 tests in 5 files; a script found that each number of the two tables of [The New Measurements](#the-new-measurements) and of the table of `PERF-007-R2` in the P4 phase file equals the value of its results file, and that each link with an anchor in the W35 work files, the W35 plan files, the design, PRD 07, PRD 38, PRD 52, and the Store README has its heading. The full suite did not run again after this small code change.
+
+#### The Fixes After The Second Independent Review
+
+The second independent review of this phase found that the data and the hooks hold, and it failed two statements. It gave 2 findings that must be fixed (MF-1 and MF-2), 3 that should be fixed (SF-1 to SF-3), and a list of notes. The builder checked each one against the code before the change, and each one was true. This section holds what changed. Each rule that this round added is a proposal. None is an owner decision.
+
+| Finding | Result | What changed |
+| --- | --- | --- |
+| MF-1: "at most one background run works" is false | Applied | The claim is corrected in the hook review, in PRD 52 R-WORK-CHECKPOINT-15, in the code comment, in the test title, in the phase file (A62z), and in this report. One new test shows a working run that lasts longer than the wait. See [The Rule For Waiting Runs, In Its True Words](#the-rule-for-waiting-runs-in-its-true-words). |
+| MF-2: the run files have no row in the field register | Applied, with two rows | PRD 38 has two new R-MIN rows, and the table catalog in code names both. R-MIN-1 gives each fact one class, and the marks and the reports have different classes, so one row was not enough. See [The New Rows Of The Field Register](#the-new-rows-of-the-field-register). |
+| SF-1: the variable also changed calls that are no git hook calls | Applied | Only a checkpoint call with the event `commit` or `branch-change` and with no `--json` can start in the background. Each other call ignores the variable. A call with `--json` prints its JSON and never starts in the background. RF-20, RF-15, PRD 07 R-SETUP-CLI-22, and PRD 52 R-WORK-CHECKPOINT-15 say so. |
+| SF-2: the preference path writes old, unedited blocks of an older project again | Applied as a statement, with no code change | PRD 07 R-SETUP-CLI-23 states the case, and RF-33 lists it for the owner. |
+| SF-3: the offer test file was in neither platform list | Applied | `w35-r0-p5-setup-offer.test.ts` is in both fixed lists. Each of the 8 `w35-r0-p5-*.test.ts` files is in both lists now. |
+| Note: the start mark can be written again after a very fast run removed it | Applied, with a rest | The hook process writes the process number into the start mark only while the mark still holds the token of its run. A rest stays: see the known limits below. |
+| Note: two runs can both take a left `pending.json` | Recorded | No small safe fix was found. See the known limits below. |
+| Note: a dead waiting run whose process number another process got | Recorded | See the known limits below. |
+| Note: the Store error text said "6 seconds" for 5,009 ms and "2 seconds" for 1,010 ms | Applied | The message rounded up. It now rounds down, in one function (`waitedSecondsText` in `packages/cli/src/store/database.ts`), which the Store message and the message for a live checkout writer use: 5,009 ms is "5 seconds", 1,010 ms is "1 second", and less than 1,000 ms is "less than 1 second". No test pinned the old text. One new test pins the new text. |
+| Note: `setup remove` with a block that it writes again kept the old block version in the record | Applied | When `setup remove` writes a block again for the checkouts that stay, the record takes the block version, the run mode, and the fallback of this version. One test sets a record to version 1 and reads version 2 after the removal. |
+| Note: a bound work tree that is not in the hook record gets a run folder, and `setup remove` there left it | Applied | `setup remove` takes out the run folder of its checkout in each case, after the project files. One test shows it. |
+| Note: risks on Windows | Applied in part | The rename of a run file is tried again up to 5 times, for at most about 50 ms. The other risks are recorded below. |
+| Note: points for the owner | Applied | [The Points Of The Second Review For The Owner](#the-points-of-the-second-review-for-the-owner). |
+
+##### The Rule For Waiting Runs, In Its True Words
+
+The exact words, as the hook review, the code comment, and PRD 52 hold them: "At most one background checkpoint of a checkout waits. A hook run that finds a waiting one ends at once, because the waiting one reads the files later. The waiting one waits at most 5 seconds for the working one. Then it works too, so two can work at the same time when one takes longer than 5 seconds."
+
+Why the first words were false: the waiting run waits for the working run with a bound of 5,000 ms (`GIT_HOOK_RUN_QUEUE_WAIT_MS`), and then it goes on. The reviewer's case: a project with 4,002 work files, a first commit whose first sync took 14 seconds, and a second commit at once. At 5.6 seconds both runs were alive. The data was safe, because the scan of the work files runs inside the Store write session (register entry R-041).
+
+What the rule bounds: the runs of one checkout that wait, which is one. It does not bound the runs that work. While one run works for a long time, a new run can start to work about each 5 seconds for as long as commits go on, and each one then waits for the Store with its own bound.
+
+The new test, `the waiting run waits about 5 seconds for a working run that still lives, then it works too, and the store agrees with the files at the end`: a process that the test controls holds the working mark, as a working run that lasts longer than the wait. A commit with the hooks starts a run. That run holds the pending mark for more than 1.5 seconds, and the store does not have the edit. After the wait it takes the working mark while the long process still lives. Its run took 5,190 ms in one test run, with the bounds 4,800 ms and 10,000 ms. At the end the store has the edit, a direct run of the checkpoint finds nothing due, and `git status` shows no change. The test uses no project with thousands of files. So it shows the wait and its end, and it does not show two real syncs of one checkout at the same time. The tests of register entry R-041 in `w35-r0-p4-sync-race.test.ts` show two real syncs at the same time.
+
+##### The New Rows Of The Field Register
+
+PRD 38 has two new rows in the R-MIN table, before the row of `tool_operations`. The table catalog in code names both as rows outside the tables (`STORE_NON_TABLE_RMIN_ROWS` in `packages/cli/src/store/table-catalog.ts`), and the drift test of the catalog passes.
+
+| Fact | Class | Writer | Readers | Retention | Privacy | Purpose |
+| --- | --- | --- | --- | --- | --- | --- |
+| Git hook run marks: `started.json`, `pending.json`, and `working.json` in `git-hook-runs/<digest>/` | Short-lived mutation guard | The hook process writes the start mark, and a background checkpoint writes the two others | The next hook process of the checkout, and a background checkpoint | A run that ends removes its marks. A left mark is replaced or taken over. `setup remove` removes the marks of its checkout, and Store removal removes all | Process numbers of this computer; local data only | Start a background checkpoint, find one that did not end, and keep at most one waiting run |
+| Git hook run reports: `last.json` and `foreground.json` in `git-hook-runs/<digest>/` | Historical evidence | A background checkpoint writes `last.json`, and the hook process writes `foreground.json` | A person. No Make Docs decision reads them | What the code does today: the next run or the next fallback replaces the file, `setup remove` removes the files of its checkout, and Store removal removes all. The files of a deleted project folder stay with no end date until Store removal. This is the open owner point RF-23, and no decided rule | The full path of the project folder, and paths in the error output; local data only, with the modes 0700 and 0600 | Show what the last background checkpoint did, and that a fallback happened |
+
+The table above is a short form. PRD 38 holds the full words of each cell. The `W35 R0 P5` Requirement History entry of PRD 38 names the two rows.
+
+##### What Holds For The Variable And For The Events
+
+- `MAKE_DOCS_GIT_HOOK_RUN=start` changes one kind of call only: `make-docs project checkpoint` with `--event commit` or `--event branch-change` and with no `--json`. That call starts in the background, or it runs in the foreground fallback.
+- With the variable and another event, such as `--event session-start`, the call prints the full trigger output in the foreground, as without the variable. Before the fix it printed nothing and ran in the background.
+- With the variable and `--json`, the call prints its JSON result in the foreground. A hook block never passes `--json`. Before the fix it printed no JSON.
+- Neither call makes a run file or starts a process.
+- For RF-15: the short form and the limit of 1,000 ms still belong to the events `commit` and `branch-change`. A hook of an agent tool, or a person, that gives one of these events gets both, in the foreground. It gets the background only when the variable of the git hook block is in its environment.
+- The tests: the start code for five other event names and for two places of `--json`, and two calls of the built CLI with the variable, one with `--event session-start` and one with `--event commit --json`.
+
+##### The Known Limits Of The Run Marks
+
+Each one is recorded with its effect and its bound. None can lose data: the Store and the sync core decide what is written, and the marks only decide when a run starts.
+
+| Limit | How it comes | Effect | Bound |
+| --- | --- | --- | --- |
+| A start mark of a run that already ended | The hook process writes the start mark, starts the run, and then writes the process number into the mark. A run that ends at once, as a run that another run covers, can remove the mark between the check and the second write of the hook process. Since this round the hook process writes only while the mark still holds the token of its run, so the time for this is the time between one read and one write of a small file | The next hook finds a start mark of a process that is gone, and runs one checkpoint in the foreground that was not needed. Then the background is used again | One foreground run |
+| Two runs take a left `pending.json` | Two runs start in the same moment and both find a pending mark of a process that is gone. Both remove it, and the second removal can take out the new mark of the first run | Both runs wait, and both work then. One more run works at the same time than the rule says | Two runs in place of one, for one pair of starts |
+| A left `pending.json` of a process number that another process got | A waiting run was stopped, and the system gave its process number to another process that lives | Each new run of the checkout ends as "covered", with no run that covers it. Nothing is synced by a hook in that time. `make-docs work status` and the reminder line count the files as waiting | At most 60 seconds from the time of the mark. Then the mark is taken as left behind |
+| A left `working.json` of a process number that another process got | The same, for a working run that was stopped | Each new run waits 5 seconds before it works | At most 60 seconds from the time of the mark |
+
+##### The Expected Risks On Windows, Before The Platform Run
+
+No run of this phase used Windows. These risks are stated before the platform run, so that a failure there has a known cause.
+
+- A rename onto a run file that another process has open can fail on Windows. The write of a run file renames a new file onto the old one. Since this round the rename is tried again up to 5 times, for at most about 50 ms in all. When it still fails for `started.json` in the hook process, the hook runs the checkpoint in the foreground. When it fails for `last.json` or for the removal of the start mark at the end of a run, the start mark stays, and one foreground run follows that was not needed.
+- A `pending.json` that is deleted while another process has it open can stay visible for a moment on Windows. A new run that reads it in that moment can end as "covered" with no run that covers it. The file is then imported by the next checkpoint. No change was made for this.
+- It is not proven that the process that the command starts with the `detached` option outlives the shell that git starts for a hook on Windows. When it does not, each hook run after the first one is a foreground run, by the fallback rule.
+- It is not proven that the check for a live process (`process.kill` with signal 0) answers on Windows as on the other platforms.
+- The test of the process group and of the hang-up signal is skipped on Windows, which has neither.
+
+##### The Points Of The Second Review For The Owner
+
+Nothing in this list is an owner decision. A point with an earlier label keeps that label. Three labels are new, RF-33 to RF-35, and they continue the labels RF-1 to RF-32.
+
+- RF-32: the first hook run in a shell that stops background processes syncs nothing, and no line says so there.
+- RF-21: the mode is found at each hook run, so the hook review that setup shows cannot say which mode applies in a given shell. It says how the mode is found.
+- RF-24: two background runs of one checkout can work at the same time when one takes longer than 5 seconds. Only the count of waiting runs has a bound.
+- RF-25: when the Store stays held for the whole wait, a background run gives up, and the change waits for the next checkpoint.
+- RF-23: the run folder of a deleted project folder stays until Store removal, and the Store check does not show it.
+- RF-5: `make-docs setup --yes --git-hooks` in a copy of a clone can move the record of an original that is away. The plan names the record, and no separate question is asked.
+- RF-15: a trigger run with the event `commit` or `branch-change` from an agent tool gets the short form and the limit of 1,000 ms, in the foreground. It never starts in the background by the event alone.
+- RF-33, new: an unedited block of an older version is brought up to date when setup writes the hooks for another project of the same clone. The case of the review: a project at the top folder of a repository has hooks, and `make-docs setup --yes` of a new project in a subfolder, with the machine preference on and no hook input, writes all four blocks again. This follows from the shared hook files: the blocks must name the new project folder. A block that a person edited is kept. What the person sees: the plan of that run names each of the four hook files with the state `outdated` and the action `replace-block`, and the hook review says for each one "Make Docs replaces its block with a newer one and keeps every other byte." No backup is made, because the old block is the unedited text that Make Docs wrote. Another form: the preference path adds only the new project folder and keeps the old block version, which needs two block versions in one file set.
+- RF-34, new: the run folder is a new format on disk, with a format version of its own (`schemaVersion` 1 in `last.json` and in `foreground.json`). It did not open owner gate OG-3 by the letter of that gate, which names a table, a column, a version of the Store schema, or a migration. The owner can read it as a change that the gate must cover.
+- RF-35, new: the Store message for a wait now rounds the time down, and it says "less than 1 second" below one second. It changes the text of a message that each command with a held Store can print, and not only a hook.
+
+##### The Checks After The Second Review
+
+Every test and CLI run of this round used a temporary Store at a fixed path under `/private/tmp/claude` or inside the temporary folder of the test, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store, and no run installed, changed, or removed a git hook in this repository or in any real repository. After the last run, the hooks folder of this repository holds only the `.sample` files. All checks ran on the maintainer machine, on macOS, with Node `v26.13.1` and git 2.47.1.
+
+- `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- The P1 to P5 test files (15 files): 325 tests pass and 1 is skipped, which is the P4 test of a real global install.
+- `w35-r0-p5-hook-background.test.ts`, 5 runs in a row: 20 tests pass in each run.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`, after the last change of product code: 4,062 tests pass, 2 fail, and 7 are skipped, in 173 test files, in 662 seconds. The 2 are the known failures of `tests/mcp-app-contract.test.ts` on Node 26.
+- A first run of the Store table catalog test failed after the two new R-MIN rows: the catalog in code did not name them. It names them now, and the test passes in the full run above.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `make-docs check prd --target-root .`: exit code 0.
+- `make-docs check performance-evidence --target-root .`: 127 diagnostics, the same count as before. No diagnostic is new.
+- `make-docs project paths validate --target-root .`: valid, 0 failing findings.
+- `make-docs project markdown validate --path <file>`: no findings on this report, the P5 phase file, PRD 07, and PRD 52. PRD 38 has 8 findings, the same count as before, each on a line that this round did not touch.
+- `make-docs backlog snapshot --target-root . --json`: exit code 0, no diagnostic names W35, and W35 R0 has 138 tasks.
+- The anchor check script: each of the 196 links with an anchor into this report has its heading. The script names one line, line 715, where a quoted sentence of the reference stands in code marks and is no live link.
+- The character counts of the two phase files, with the limit of 65,536: `04-git-hook-proofs.md` has 65,063, and `05-git-hooks-in-setup.md` has 64,850.
+- Not run: any run on Linux or Windows, and `make-docs project checkpoint` in this repository, which would write the real Store. After the full run above, only this list changed.
+
+### P5 Known Limits
+
+The second independent review added limits of the run marks and expected risks on Windows. [The Known Limits Of The Run Marks](#the-known-limits-of-the-run-marks) and [The Expected Risks On Windows, Before The Platform Run](#the-expected-risks-on-windows-before-the-platform-run) hold them.
+
+The first ten points below are of the background mode. Each later point is of the earlier builds, and it still holds unless [What This Change Replaced In The Earlier Parts](#what-this-change-replaced-in-the-earlier-parts) names it.
+
+- The background mode is proven on macOS only. The test file `w35-r0-p5-hook-background.test.ts` is in both fixed lists of the platform workflow, and Linux and Windows have no result yet. On Windows two points are open until that run: that a process started with the `detached` option outlives the shell that git starts for a hook, and that the check for a live process answers as on the other platforms. The test of the process group and of the hang-up signal is skipped on Windows.
+- No proof of the background mode ran inside an agent tool in a session that the orchestrator started. The script, the steps, and the table are ready.
+- The first hook run in a shell that stops background runs syncs nothing, and no line says so there. The reminder line and the next hook run cover it.
+- The fallback rule keeps one fact for each checkout, and not one for each shell. A checkout that is used from a terminal and from a shell that stops background runs pays one hook run at each change.
+- A hook in the background mode prints nothing, so a person no longer sees the line about what waits at a git action. This follows from OD-P5-5.
+- The foreground fallback costs what the foreground hook cost, and that cost grows with the count of work files (register entry R-047).
+- The store is behind a commit for the time of the background run: about 0.5 seconds on this repository, about 2.1 seconds at 2,000 made-up work files, and up to about 5.5 seconds more when the Store is held. A command that reads the work store right after a commit can see the state before the commit. The reminder line names files that wait.
+- The run files hold the full path of the project folder, and `last.json` can hold paths in its error output. A person who deletes a project folder with no `setup remove` leaves the run folder of that checkout in the Store folder.
+- `PERF-007-R2` used the built CLI of the checkout and not a packed install, and its harness could not count the checkpoints that one action starts. The statement that Node sets each signal back to its default at its start is from the builder's knowledge, and no test checks it. It is one reason for the chosen start and not the only one.
+- A project with blocks of version 1 keeps the foreground run until `make-docs setup --git-hooks` writes version 2.
+- The tests ran on macOS with git 2.47.1 only. The four hook test files run on Linux and on Windows only in the platform run, which is not done.
+- No test ran on Windows, so these Windows points have no proof yet: that the block starts the recorded `node` program by a path with a drive letter, that the block finds its folder for PATH with `cygpath`, and that each path comparison of the tests holds with the folder names of Windows. The block uses only the forms that the P4 proofs ran on Windows.
+- No run used a real terminal. The prompts are proven with replaced prompts.
+- No run used the real Store, by the rule of this Wave. So no run shows the hooks beside a real Store in a home folder.
+- No test starts a hook as a caller with read access only. The one line for that caller is proven in the checkpoint core.
+- No test runs a real update of the package from release 2.1.0 and then checks the preference and the hooks. The rule is proven by the code path: only the machine step writes the preference, and only a setup run with a selection writes a hook.
+- The first sync test does not show a run that is longer than the limit.
+- The test of the moved clone covers a checkout that got a new checkout ID. It does not cover `make-docs project move apply`, which was not available for that fixture.
+- A record of a clone that a person deleted stays in the Store. The Store check names it, and nothing removes it.
+- When a person copies a clone with its hook files, the copy holds blocks that no record of this clone covers. A plain setup says so and changes nothing. Setup with the hook input records them. `setup remove` leaves them and names them. The first report said that this held for each copy. It did not: with the original away, the copy took the record of the original over with no input, and `setup remove` in the copy deleted it. The fixes after the review ended that. One limit stays: with the original away, the hook input in the copy can still move the record of the original, after the plan named it (RF-5).
+- The block runs the recorded command first. When the person updated Make Docs to another path and the old command file still exists, the hook keeps running the old version until `make-docs setup --git-hooks` records the new one. Only when the recorded command is gone does the hook run `make-docs` from PATH, and an older Make Docs there can lack the wait limit or the event.
+- The wait limit bounds each wait for the Store by itself. It does not bound the whole hook run. The time of a hook run with nothing due grows with the count and the size of the work files (register entry R-047).
+- The check for a hook file with a second language is a text mark: a line with `exec` and `$0` as one word. It cannot see each form of such a file.
+- When `setup remove` keeps the blocks for a moved work tree and the person later deletes that work tree, the blocks and the record stay until the person takes the blocks out by hand.
+- The PATH of the hook tests on Windows holds the folder of `git`. No Windows run checked the new test helper.
+- With two projects in one repository, the block runs one checkpoint for each project, one after the other. So a commit takes about that many times longer.
+- The hook review is long: it holds four full blocks, as the owner asked for the exact block of each hook.
+- The times of the wait limit are one test run each for the first build, and the median of 3 hand runs for the final build, on one machine.
+
+### P5 Checks
+
+This list is of the first build. [The Checks Of This Round](#the-checks-of-this-round) holds the runs after the fixes that followed the independent review.
+
+Every test and every CLI run used a temporary Store at a fixed path under `/private/tmp/claude` or inside the temporary folder of the test, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. All checks ran on the maintainer machine, on macOS, with Node `v26.13.1` and git 2.47.1.
+
+- `npm ci`, then `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- The five new test files, each in its own run: 26, 17, 10, 7, and 6 tests pass. None is skipped on macOS.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`, after the last change of product code: 4,017 tests pass, 2 fail, and 6 are skipped, in 170 test files, in 604 seconds. The 2 are the known failures of `tests/mcp-app-contract.test.ts` on Node 26. `backup.test.ts` and `uninstall.test.ts` pass. A first full run, during the build, found 3 tests of P1 that held the full trigger output and 8 tests that the builder's own edits broke in the middle of that run. Each one was corrected, and the second full run is the result above. After that run, only documents, one sentence of `packages/cli/src/store/README.md`, and this report changed.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `make-docs check prd --target-root .`: exit code 0, no diagnostics.
+- `make-docs check performance-evidence --target-root .`: exit code 1, as before this phase, with 127 diagnostics. The same check on the files of commit `7e3436d0` gives the same 127. No diagnostic is new.
+- `bash scripts/check-instruction-routers.sh`: not run. This phase changed no router.
+- `npm run smoke:pack:local`: not complete. The run packed the candidate, passed the packed router parity, and ran its setup, sync, Skill, backup, and removal steps with the packed CLI in temporary folders. Its last step, the package proof `scripts/w22-r1-package-proof.mjs`, stopped with `getaddrinfo ENOTFOUND registry.npmjs.org`: the sandbox of the builder cannot reach the registry. A second try with registry access asked for gave the same error. So the package proof did not run here.
+- `make-docs project paths validate --target-root .`: valid, 0 failing findings, 1,139 files checked.
+- `make-docs project markdown validate --path <file>` on each changed document: no findings on this report, the P5 phase file, PRD 07, PRD 30, PRD 52, and the work store reference of the template. On PRD 28, PRD 38, PRD 39, and the risk register it reports findings only on lines that this phase did not change.
+- `make-docs backlog snapshot --target-root . --json`: exit code 0, and no diagnostic names W35. The snapshot shows 7 phases and 131 tasks for W35 R0.
+- `cmp` shows that `.make-docs/system/references/work-store.md` matches its template file byte for byte.
+- After the last document change, in one run: the consistency test, the shipped-text test, the name catalog test, the P1 to P3 test files, the W29 agent twin test, the P4 test files, the five P5 test files, the work store contract test, the Store table catalog test, the template links test, and the Human Experience propagation test. 546 tests pass in 20 files.
+- Not run: any run on Linux or Windows, `npm pack` for the digest, and an update by hand from the released 2.1.0 package.
+
+### P5 Not Done
+
+- The independent review of the background mode.
+- The proof of the background mode inside each agent tool, and its table (T45, A62ae). The orchestrator runs it.
+- The owner review of the points RF-19 to RF-32.
+- A60: the three-platform result. It waits for the phase commit, the push, the pull request run, and the evidence commit.
+- A62, A62p, and A62v: the owner review.
+- A second look by the independent review at the fixes of [P5 Fixes After The Independent Review](#p5-fixes-after-the-independent-review).
+- The owner review of the points RF-1 to RF-18.
+- `make-docs project checkpoint` after the edits of the phase file and of this report. A work file changed, and the rule of the repository asks for the checkpoint. It would write the real Store, which the rule of this round forbids, so the builder did not run it. The orchestrator runs it.
+- The package digest. This phase changed package bytes, so the recorded digest is stale. The builder did not edit `.github/release-candidates/`.
+- T10: the orchestrator closes it as `superseded`.
+- No guide changed. P7 owns the guides.
+- No history record was written. The closeout owns it.

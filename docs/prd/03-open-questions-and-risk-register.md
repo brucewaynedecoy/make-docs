@@ -3033,7 +3033,7 @@ With hooks, two runs at the same time become likely: a git hook and an agent too
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W35 R0 P4 recorded this risk on 2026-11-27, with proof tests on git 2.47.1 on macOS. The Linux and Windows results come with the P4 evidence commit. | W35 R0 P5 installs the hook after a rewrite (`post-rewrite`) for this case, and names the open cases in the hook review that setup shows. |
+| Open | W35 R0 P4 recorded this risk on 2026-11-27, with proof tests on git 2.47.1 on macOS. The Linux and Windows results come with the P4 evidence commit. W35 R0 P5 built the hook after a rewrite on 2026-11-28: with the installed hooks, `git pull --rebase` with local commits imports the pulled work file through `post-rewrite`. The [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup) holds the test. | The hook review that setup shows names the git actions that reach no checkpoint. The owner accepts the open cases, or a later Wave removes them. The three-platform result of the P5 tests comes with the P5 evidence commit. |
 
 **Issue**: Git runs the hook after a merge (`post-merge`) for `git pull` with a merge, for a pull that only moves the branch forward, and for `git pull --rebase` with no local commits. With local commits, `git pull --rebase` runs `post-checkout`, `post-commit`, and `post-rewrite`, and it does not run `post-merge`. So a hook after a merge alone misses the work files that such a pull brings.
 
@@ -3062,25 +3062,25 @@ With hooks, two runs at the same time become likely: a git hook and an agent too
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W35 R0 P4 found this on 2026-11-27, in the proof of how a hook finds the command. | W35 R0 P5 builds the hook block. It decides whether the block also records the folder of the `node` program. That is a new behavior, so the P5 report shows it to the owner. |
+| Open | W35 R0 P4 found this on 2026-11-27, in the proof of how a hook finds the command. W35 R0 P5 built the block on 2026-11-28 with two recorded paths: the `node` program and the Make Docs command file. The block starts the recorded command file with the recorded `node` program. The fixes after the independent review of P5 set this order, as a proposal: the recorded command runs first, and the block uses `make-docs` from PATH only when the recorded file or the recorded `node` program is gone. So an older `make-docs` on PATH cannot run in place of the version that wrote the block. The block also adds the folder of the recorded `node` program to the end of PATH for the call. This is a proposal, and the owner reviews it with the P5 report. | The recorded paths can go stale. The hook then does nothing and says nothing, the hook review says so, and `make-docs setup --git-hooks` records them again. The [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup) holds the tests. |
 
 **Issue**: Git runs a hook with the environment of the git process, and an app that starts git can pass a short PATH. A PATH lookup then finds no `make-docs` command. A path that setup recorded in the block finds the command file. But the command file that a global install writes starts `node` by name. With a short PATH that has no `node`, the command file is found and cannot start.
 
 **Why it matters**: The hook then does nothing, and it says nothing, because a hook never fails a git action and prints nothing when it cannot run. A person who commits from such an app gets no sync after a commit and no line. Only the reminder of the next Make Docs command in a terminal covers it.
 
-**Recommendation**: The block looks up the command on PATH first, then uses the recorded path. For the call, it adds the recorded folder of the `node` program to the end of PATH, so the person's own PATH still wins. The block hides the error output of a command that cannot start, and it exits 0.
+**Recommendation**: P4 recommended that the block looks up the command on PATH first, and then uses the recorded path. The review of P5 found that an older `make-docs` on PATH then runs the checkpoint with no wait limit, or fails on the event. So the block of P5 uses the recorded path first, and then PATH. For the call, it adds the recorded folder of the `node` program to the end of PATH, so the person's own PATH still wins for each other program. The block hides the error output of a command that cannot start, and it exits 0.
 
 **To close**: P5 builds the block with a choice for this case, a test proves it on each platform, and the hook review that setup shows names what remains.
 
 **What W35 R0 does**: A proof test in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts` shows both sides on macOS: with a short PATH the recorded command file is found and does not start, the hook prints nothing and exits 0, and with the folder of `node` added for the call the checkpoint imports the work file.
 
-**What W35 R0 does not remove**: A recorded path is the path at the time of setup. When a person moves or updates the `node` program or the command with a version manager, the recorded path can point to nothing. The hook then does nothing until the person runs setup again.
+**What W35 R0 does not remove**: A recorded path is the path at the time of setup. When a person moves or updates the `node` program or the command with a version manager, the recorded path can point to nothing. The hook then runs `make-docs` from PATH, or does nothing when none is there, until the person runs `make-docs setup --git-hooks` again. A recorded command that still exists and is older than the command on PATH keeps running until then, and repeat setup names a newer block as ready.
 
 ### R-045 A Hook Does Nothing in a Work Tree That Is Not Bound to the Store
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W35 R0 P4 found this on 2026-11-27, in the two-worktree proof. | W35 R0 P5 names it in the hook review that setup shows, and its two-worktree test (T12) records it. |
+| Open | W35 R0 P4 found this on 2026-11-27, in the two-worktree proof. W35 R0 P5 kept the form on 2026-11-28: in a work tree that is not bound, each of the four hooks exits 0 and prints nothing. This is a proposal, and the owner reviews it with the P5 report. | The hook review that setup shows names the limit and the command `make-docs project checkout apply`. The [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup) holds the test. |
 
 **Issue**: Every work tree of one clone shares one hooks folder, so a hook that setup installs through one checkout runs in each work tree. But each work tree is its own checkout for the Store, and a second checkout of a project binds only through `make-docs project checkout apply`. In a work tree that is not bound, the checkpoint syncs nothing. A trigger run there prints nothing and exits 0.
 
@@ -3093,6 +3093,48 @@ With hooks, two runs at the same time become likely: a git hook and an agent too
 **What W35 R0 does**: A proof test in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts` shows that the plain binding step refuses a second work tree of one project, that the checkpoint there syncs nothing and exits 0, that a trigger run prints nothing, and that the work tree binds as a separate checkout.
 
 **What W35 R0 does not remove**: This Wave does not bind a work tree by itself. W22 R2 works on checkout adoption, and this Wave does not touch its files.
+
+### R-046 A Git Hook Does Nothing When Its Shell May Not Use the Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | An access run of W35 R0 P4 found this on 2026-11-27, inside the command shell of one agent tool. W35 R0 P5 decided the form of the hook on 2026-11-28 as a proposal: the hook prints nothing and exits 0. The owner reviews it with the P5 report. On 2026-11-28 the owner decided that git hooks run in the background and print nothing in every case, with a foreground fallback where a background process cannot survive. That decision covers the output of a hook. It does not give the reach back to a shell that may not use the Store. | The hook review that setup shows names the limit. The owner accepts it, or a later Wave gives the person a sign. |
+
+**Issue**: A git hook runs with the rights of the process that started git. The Store is in the home folder of the person. When an agent commits from a command shell that may not write the Store folder, the checkpoint that the hook starts ends with a typed Store result and exit code 1. The same holds for a short time while another process holds the Store: a background run of a hook waits 5 seconds and then gives up, and a run in the foreground fallback waits 1 second.
+
+A second case belongs to the same reach since the background mode: a command shell that stops each process that a command started. There the background checkpoint of a hook is stopped before it syncs. The next hook run finds that the last background run did not end, and it runs the checkpoint in the foreground. A hook cannot know this before its run, so the first hook run in such a shell syncs nothing.
+
+**Why it matters**: The design gives the git hooks a reach that needs no agent memory and no agent tool support. Where the shell of an agent may not use the Store, that reach ends, and no line says so at the commit. The work file stays out of the store until a checkpoint with Store access runs.
+
+**Recommendation**: Keep the hook quiet. A hook that prints a Store error at each commit of a restricted shell would add noise to every such commit, and the agent there cannot fix it. The file is not lost: the next checkpoint with Store access imports it, and `make-docs work status` and the reminder line count it as waiting. A person who looks for a fault reads the file of the last background run in the Store folder, which holds the Store result, or sets `MAKE_DOCS_HOOK_DEBUG=1` for one git command and sees the Store result of a foreground run.
+
+**To close**: The owner accepts the quiet form, or chooses a sign for this case.
+
+**What W35 R0 does**: A test in `packages/cli/tests/w35-r0-p5-git-hook-block.test.ts` shows that a commit with the installed hooks exits 0 and prints nothing when the shell may not write the Store folder, and that the next checkpoint imports the file. A second test shows the debug switch. The tests in `packages/cli/tests/w35-r0-p5-hook-wait-limit.test.ts` show the case of a held Store. The tests in `packages/cli/tests/w35-r0-p5-hook-background.test.ts` show the case of a background run that was stopped: the next hook runs the checkpoint in the foreground and syncs, and the hook after it uses the background again.
+
+**What W35 R0 does not remove**: No run tested the real Store inside an agent tool, by the rule of this Wave. No run used the command shell of each agent tool, on each platform. The proof of the background mode inside each agent tool is prepared and waits for the orchestrator. The first hook run in a shell that stops the background checkpoint syncs nothing, and no line says so there.
+
+### R-047 The Time That a Git Hook Adds Grows With the Work Files, and No Rule Bounds It
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The independent review of W35 R0 P5 found this, and the fixes after that review measured it as a side measure. No decision is recorded. The owner decided on 2026-11-23 "fast path: not now", with a look again at about 900 work files, and chose the exact check on 2026-11-27. This entry states the cost of that choice for a git hook, for the owner to see. On 2026-11-28 the owner saw this cost and decided that git hooks run in the background, with a foreground fallback (OD-P5-1 to OD-P5-5). That decision takes the cost off the git action in the background mode. It records no decision on the cost in the foreground fallback or on a fast path. | The owner reads the tables in the [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#the-new-measurements) and accepts what stays open, or opens the fast path question again. |
+
+**What the background mode changes**: a git hook now starts the checkpoint in the background and returns. A side measure of W35 R0 P5 with the built block gave 56 ms to 59 ms added to a commit from 100 to 2,000 work files, so the time that a hook adds to a git action no longer grows with the work files in that mode. [`PERF-007-R2`](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#result-record-of-the-requalification) gave 59 ms for a commit on this repository.
+
+**What stays open**: three things. First, the foreground fallback runs the checkpoint as the foreground hook did, so in a shell that stops background runs each git action after the first one takes the time of the table: about 0.25 seconds at 100 work files and about 2.2 seconds at 2,000, in the same side measure. Second, the work of the checkpoint still grows with the work files, and it now runs after git returned, so the store is behind a commit for that time: about 0.2 seconds at 100 work files and about 2.1 seconds at 2,000. Third, no rule bounds the work of a run, in either mode. The issue below is as it was written for the foreground hook of the first build, and it describes the fallback now.
+
+**Issue**: A git hook runs the checkpoint in the foreground. With nothing due, the checkpoint still reads each file below `docs/work/` to find out that nothing is due. So each commit, each merge, each rewrite, and each branch change takes longer in a project with more work files. The wait limit of [PRD 52](52-work-store-and-work-queue.md) R-WORK-CHECKPOINT-14 bounds only the waits for the Store. No rule bounds the whole hook run.
+
+**Why it matters**: A person feels the added time at each git action, and an amended commit runs two hooks. The side measure of P5 gave about 0.2 seconds for each commit at 100 work files and about 1.9 seconds at 2,000 work files of a real size, on one machine. The independent review measured more on its machine. A first sync in a commit takes longer still.
+
+**Recommendation**: None is recorded here. The owner's decisions of 2026-11-23 and 2026-11-27 stand, and this phase adds no limit and no fast path.
+
+**To close**: The owner accepts the cost for the git hooks, or decides a bound or a fast path in a later Wave.
+
+**What W35 R0 does**: A git hook starts the checkpoint in the background, so the cost is off the git action in that mode. The hook review that setup shows says that the checkpoint takes longer in a project with more work files, that this time is not added to the git action, and that git waits for the checkpoint in the foreground fallback. The P5 evidence holds the measured tables of both modes.
+
+**What W35 R0 does not remove**: The cost itself, which stays in the foreground fallback and as the time until the store has the file. The side measures are from one machine, with made-up work files, and they are not a result of `PERF-007`.
 
 ## Source Anchors
 

@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HARNESS_CALLER_IDENTITY_ENV } from "../src/harness-access/contract";
 import { CLI_STORE_MAINTENANCE_VERSIONS } from "../src/operations/setup/store-ops";
-import type { WorkCheckpointResult } from "../src/operations/work/work-queue/checkpoint";
+import { CHECKPOINT_GIT_HOOK_STORE_WAIT_MS, type WorkCheckpointResult } from "../src/operations/work/work-queue/checkpoint";
 import type { WorkUnitRecord } from "../src/operations/work/work-store/schemas";
 import { platform } from "../src/platform";
 import { getInstallationCheckoutId, previewInstallationCheckoutMove, registerSeparateInstallationCheckout, withInstallationDatabase } from "../src/store/installation-state";
@@ -91,6 +91,14 @@ afterEach(() => {
 });
 
 /** The environment of git with another PATH. Windows holds the name in another letter case, so each form goes. */
+/**
+ * The upper time bound of one trigger run, or of one commit with the proof hook, while another process holds the
+ * Store. It is the wait limit of 1,000 ms, plus the normal cost of the run, plus a margin for a slow shared test
+ * machine: 4,500 ms in all. On the maintainer machine the run takes about 1,300 ms, so the margin is about 3,200
+ * ms. The bound is less than the busy time of the Store, 5,000 ms, so a run that waits the busy time fails here.
+ */
+const HELD_STORE_RUN_BOUND_MS = CHECKPOINT_GIT_HOOK_STORE_WAIT_MS + 3_500;
+
 function envWithPath(value: string): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {};
   for (const [key, entry] of Object.entries(proof.env)) if (key.toUpperCase() !== "PATH") env[key] = entry;
@@ -329,8 +337,9 @@ describe.skipIf(!existsSync(CLI))("W35 R0 P4 how a hook finds the make-docs comm
       const root = project();
       proof.hook(root, "post-commit", hookText("post-commit"));
       editTask(root, "Build the new parser.");
-      // The global command folder and the node folder are on PATH, as in a person's terminal.
-      const result = commitAll(root, envWithPath([globalBin, path.dirname(process.execPath), shortPath()].join(path.delimiter)));
+      // The global command folder and a node folder are on PATH, as in a person's terminal. The node folder is the
+      // one of the helper, which holds only `node`: the real folder of `node` can hold an installed `make-docs`.
+      const result = commitAll(root, envWithPath([globalBin, proof.nodeDir, shortPath()].join(path.delimiter)));
       expect(result.status).toBe(0);
       expect(found().map((entry) => entry.command !== "")).toEqual([true]);
       expect(taskText(root)).toBe("Build the new parser.");
@@ -395,11 +404,13 @@ function release(holder: ChildProcessWithoutNullStreams): Promise<void> {
 }
 
 /**
- * The worst case of a foreground hook, as the product behaves today. The Store is one for the machine, so any other
- * Make Docs write on the machine can hold it. These tests pin the behavior. They do not say that it is wanted.
+ * The worst case of a foreground hook. The Store is one for the machine, so any other Make Docs write on the machine
+ * can hold it. At the time of P4 a trigger run for a commit waited the busy time of the Store. W35 R0 P5 built the
+ * wait limit that the owner chose on 2026-11-28, so these two tests now pin the limit: a trigger run for a commit
+ * waits the limit and not the busy time. The P5 test file for the wait limit holds the cases of the installed block.
  */
 describe.skipIf(!existsSync(CLI))("W35 R0 P4 a trigger run while another process holds the Store (OG-4)", () => {
-  it("a trigger run for a commit waits the Store busy time, exits 1, and prints one line with the typed Store result on standard error", async () => {
+  it("a trigger run for a commit waits the wait limit and not the Store busy time, exits 1, and prints one line with the typed Store result on standard error", async () => {
     const root = project();
     editTask(root, "Build the new parser.");
     const holder = await holdStore();
@@ -425,9 +436,11 @@ describe.skipIf(!existsSync(CLI))("W35 R0 P4 a trigger run while another process
     expect(errorLines).toHaveLength(1);
     // The one line is the typed Store result as JSON, also with no `--json` input. It is long: about 1,100 characters.
     const failure = JSON.parse(errorLines[0]!) as { ok: boolean; code: string; operation: string; details: { issue: { code: string; waitedMs: number } } };
-    expect([failure.ok, failure.code, failure.operation, failure.details.issue.code, failure.details.issue.waitedMs]).toEqual([false, "store-unavailable", "project.checkpoint.run", "contention-timeout", STORE_BUSY_TIMEOUT_MS]);
-    expect(elapsed).toBeGreaterThanOrEqual(STORE_BUSY_TIMEOUT_MS - 100);
-    expect(elapsed).toBeLessThan(STORE_BUSY_TIMEOUT_MS + 10_000);
+    expect([failure.ok, failure.code, failure.operation, failure.details.issue.code, failure.details.issue.waitedMs]).toEqual([false, "store-unavailable", "project.checkpoint.run", "contention-timeout", CHECKPOINT_GIT_HOOK_STORE_WAIT_MS]);
+    expect(CHECKPOINT_GIT_HOOK_STORE_WAIT_MS).toBeLessThan(STORE_BUSY_TIMEOUT_MS);
+    expect(HELD_STORE_RUN_BOUND_MS).toBeLessThan(STORE_BUSY_TIMEOUT_MS);
+    expect(elapsed).toBeGreaterThanOrEqual(CHECKPOINT_GIT_HOOK_STORE_WAIT_MS - 100);
+    expect(elapsed).toBeLessThan(HELD_STORE_RUN_BOUND_MS);
     expect(branchChange.status).toBe(0);
     expect(branchChange.stdout.split("\n")[0]).toBe("Checkpoint: 1 file waits.");
     expect(branchElapsed).toBeLessThan(STORE_BUSY_TIMEOUT_MS - 1_000);
@@ -436,7 +449,7 @@ describe.skipIf(!existsSync(CLI))("W35 R0 P4 a trigger run while another process
     expect(checkpoint(root).imported).toEqual([P1]);
   }, 60_000);
 
-  it("a commit with a foreground proof hook then takes the Store busy time longer, exits 0, and prints nothing, because the proof block hides the error and the exit code", async () => {
+  it("a commit with a foreground proof hook then waits the wait limit, exits 0, and prints nothing, because the proof block hides the error and the exit code", async () => {
     const root = project();
     proof.hook(root, "post-commit", hookText("post-commit"));
     editTask(root, "Build the new parser.");
@@ -454,7 +467,8 @@ describe.skipIf(!existsSync(CLI))("W35 R0 P4 a trigger run while another process
     recordGitFact(proof, "store-held-foreground-hook", { exit: result.status, commitMs: Math.round(elapsed / 100) * 100, output: `${result.stdout}${result.stderr}` });
     expect(result.status).toBe(0);
     expect(`${result.stdout}${result.stderr}`).toBe("");
-    expect(elapsed).toBeGreaterThanOrEqual(STORE_BUSY_TIMEOUT_MS - 100);
+    expect(elapsed).toBeGreaterThanOrEqual(CHECKPOINT_GIT_HOOK_STORE_WAIT_MS - 100);
+    expect(elapsed).toBeLessThan(HELD_STORE_RUN_BOUND_MS);
     expect(proof.git(root, ["status", "--porcelain"]).stdout).toBe("");
     expect(taskText(root)).toBe("Build the parser.");
   }, 60_000);

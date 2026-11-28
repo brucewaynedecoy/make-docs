@@ -20,6 +20,7 @@ import {
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { platform } from "../platform";
 import { getStoreDatabasePath } from "./paths";
 import { WORK_STORE_SINCE_SCHEMA, WORK_STORE_TABLE_NAMES, WORK_STORE_V8_STATEMENTS } from "./work-store-schema";
@@ -343,11 +344,56 @@ export function applyStoreFileMode(file: string): void {
   }
 }
 
+/**
+ * A wait time for a message, in whole seconds, rounded down, so the message never names more time than passed:
+ * 5,009 ms is "5 seconds". A wait below one second is "less than 1 second".
+ */
+export function waitedSecondsText(waitedMs: number): string {
+  const seconds = Math.floor(Math.max(0, waitedMs) / 1000);
+  return seconds < 1 ? "less than 1 second" : seconds === 1 ? "1 second" : `${seconds} seconds`;
+}
+
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
 
+/**
+ * The wait limit of one call path (W35 R0 P5, PRD 38 R-DB-3). A caller that must not wait the full busy time,
+ * such as the checkpoint that a git hook starts, runs its Store work inside {@link withStoreWaitLimit}. Inside
+ * that call the limit bounds each wait for the Store: the busy time of each Store connection, each retry of an
+ * open, the wait for a shared Store session, the wait for a named lock file, the wait for other sessions to end,
+ * and the wait for a checkout writer. Every other caller keeps {@link STORE_BUSY_TIMEOUT_MS} and
+ * {@link STORE_OWNER_WAIT_MS} exactly. The limit bounds each wait by itself, and a wait that reaches it ends
+ * with the contention error of that wait. It does not bound the work that follows a wait.
+ */
+const storeWaitLimit = new AsyncLocalStorage<number>();
+
+/** Milliseconds that a connection of the current call path waits on a locked database. */
+export function storeBusyTimeoutMs(): number {
+  return storeWaitLimit.getStore() ?? STORE_BUSY_TIMEOUT_MS;
+}
+
+/** Run `fn` with a shorter wait for a held Store. The limit never goes above the busy time of the Store. */
+export function withStoreWaitLimit<T>(limitMs: number, fn: () => T): T {
+  const limit = Math.max(0, Math.min(STORE_BUSY_TIMEOUT_MS, Math.floor(limitMs)));
+  return storeWaitLimit.run(limit, fn);
+}
+
 /** Maximum time to wait for a live Store owner before reporting contention. */
 export const STORE_OWNER_WAIT_MS = 30_000;
+
+/**
+ * Milliseconds that the current call path waits for a live Store owner: a shared session, a named lock file,
+ * or a checkout writer. It is {@link STORE_OWNER_WAIT_MS}, or the wait limit of the call path when one is set.
+ */
+export function storeOwnerWaitMs(): number {
+  return storeWaitLimit.getStore() ?? STORE_OWNER_WAIT_MS;
+}
+
+/** A wait time that a caller gave, cut to the wait limit of the call path when one is set. No limit, no change. */
+function withinStoreWaitLimit(timeoutMs: number): number {
+  const limit = storeWaitLimit.getStore();
+  return limit === undefined ? timeoutMs : Math.min(timeoutMs, limit);
+}
 
 /** The legacy file path is now a directory of shared process sessions. */
 export const STORE_ACCESS_PATH = "store-access.lock";
@@ -888,7 +934,7 @@ export function formatStoreIssue(
       summary = `Make Docs cannot ${issue.operation} the Store at ${issue.path} because SQLite support is not available. ${issue.cause}`;
       break;
     case "contention-timeout":
-      summary = `Make Docs waited ${Math.ceil(issue.waitedMs / 1000)} seconds to ${issue.operation} at ${issue.path}. ${issue.cause}`;
+      summary = `Make Docs waited ${waitedSecondsText(issue.waitedMs)} to ${issue.operation} at ${issue.path}. ${issue.cause}`;
       break;
     case "unsafe-path":
       summary = `Unsafe Store path: ${issue.path}. Make Docs refused it. ${issue.cause}`;
@@ -1399,6 +1445,7 @@ export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true)
 
 /** Wait until an exclusive maintenance task can safely open or remove the Store. */
 export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_OWNER_WAIT_MS): string[] {
+  timeoutMs = withinStoreWaitLimit(timeoutMs);
   const started = Date.now();
   const deadline = started + timeoutMs;
   let attempt = 0;
@@ -1434,6 +1481,7 @@ export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_O
 
 /** Acquire one shared Store session. Nested calls in this process reuse it. */
 export function acquireStoreAccess(storeRoot: string, preparing = false, timeoutMs = STORE_OWNER_WAIT_MS): () => void {
+  timeoutMs = withinStoreWaitLimit(timeoutMs);
   const requestedStoreRoot = path.resolve(storeRoot);
   try {
     storeRoot = platform.describePath(requestedStoreRoot).canonicalPath;
@@ -1732,7 +1780,7 @@ export function classifyStoreCheckpoint9State(
   let db: StoreDatabase | null = null;
   try {
     db = openSqliteWithRetry(driver.sqlite, databasePath, { readOnly: true }, "inspect", (connection) => {
-      connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+      connection.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     }, false);
     const check = db.prepare("PRAGMA quick_check").get() as
       | { quick_check?: string }
@@ -1806,7 +1854,7 @@ export function classifyStoreCheckpoint9State(
     const contention = isSqliteContention(error);
     const issue = error instanceof StoreUnavailableError
       ? error.issue
-      : makeStoreIssue(corrupt ? "corrupt" : contention ? "contention-timeout" : "io-error", databasePath, "inspect", error, contention ? { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS } : {});
+      : makeStoreIssue(corrupt ? "corrupt" : contention ? "contention-timeout" : "io-error", databasePath, "inspect", error, contention ? { retryable: true, waitedMs: storeBusyTimeoutMs() } : {});
     return {
       state: corrupt ? "corrupt" : "indeterminate",
       databasePath,
@@ -1932,7 +1980,7 @@ export function readStoreCheckpoint9JournalEntry(
   let db: StoreDatabase | null = null;
   try {
     db = openSqliteWithRetry(driver.sqlite, classification.databasePath, { readOnly: true }, "read Store migration journal", (connection) => {
-      connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+      connection.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     });
     const row = db.prepare(
       `SELECT receipt_id, checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json
@@ -2240,7 +2288,7 @@ export function readUserVersion(db: StoreDatabase): number {
 
 function connect(sqlite: SqliteModule, databasePath: string, verify: boolean): StoreDatabase {
   return openSqliteWithRetry(sqlite, databasePath, {}, "open", (db) => {
-    db.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+    db.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     db.exec("PRAGMA journal_mode = WAL");
     db.exec("PRAGMA synchronous = NORMAL");
     db.exec("PRAGMA foreign_keys = ON");
@@ -2279,7 +2327,7 @@ function openSqliteWithRetry(
   checkGuard = true,
 ): StoreDatabase {
   const started = Date.now();
-  const deadline = started + STORE_BUSY_TIMEOUT_MS;
+  const deadline = started + storeBusyTimeoutMs();
   let attempt = 0;
   while (true) {
     let db: StoreDatabase | null = null;
@@ -2324,7 +2372,7 @@ export function openStoreForReview(databasePath: string, operation = "review Sto
     throw new StoreUnavailableError({ code: "sqlite-unavailable", path: databasePath, operation, retryable: false, attempts: 1, waitedMs: 0, cause: driver.reason });
   }
   const db = openSqliteWithRetry(driver.sqlite, databasePath, { readOnly: true }, operation, (connection) => {
-    connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+    connection.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
   }, false);
   try {
     const guardProblems = inspectStoreGuardAndVersion(db);
@@ -2354,7 +2402,7 @@ export function openStoreSqliteConnection(
     });
   }
   return openSqliteWithRetry(driver.sqlite, databasePath, options, operation, (db) => {
-    db.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+    db.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     db.exec("PRAGMA foreign_keys = ON");
     if (!options.readOnly) db.exec("PRAGMA synchronous = FULL");
   });

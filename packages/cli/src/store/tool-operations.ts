@@ -4,7 +4,7 @@ import { existsSync, lstatSync, unlinkSync, readFileSync, type Stats } from "nod
 import { GLOBAL_ASSET_LOCK_FILE } from "./global-asset-lock";
 import { STORE_LEASE_RECOVERY_FILE } from "./lease-recovery";
 import { getStoreDatabasePath, classifyStoreCheckpoint9State } from "../store";
-import { acquireStoreAccess, makeStoreIssue, openStoreSqliteConnection, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain } from "./database";
+import { acquireStoreAccess, makeStoreIssue, openStoreSqliteConnection, storeOwnerWaitMs, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain } from "./database";
 import { validateInstallationStoreRoot, withInstallationDatabase } from "./installation-state";
 import { platform } from "../platform";
 
@@ -75,7 +75,7 @@ export async function runRecordedToolOperation<T extends { exitCode: number | nu
 
 function acquireRemovalLease(storeRoot: string, lockPath: string, token: string): Stats {
   const started = Date.now();
-  const deadline = started + STORE_OWNER_WAIT_MS;
+  const deadline = started + storeOwnerWaitMs();
   let attempts = 0;
   while (true) {
     try {

@@ -341,6 +341,11 @@ export interface CheckpointScenarioFixture extends FixtureBase {
     next: string[];
     /** True when the run wrote or removed a project file. */
     changedFiles: boolean;
+    /**
+     * W35 R0 P5: the exact plain lines of a trigger run for a git event, which prints the short form
+     * (WORK-RULE-070). Absent for a run that prints the full result.
+     */
+    lines?: string[];
   };
 }
 
@@ -1413,10 +1418,12 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
     id: "WSF-076",
     group: "checkpoint",
     title: "A trigger run imports a changed file, writes no file, and names the file that waits for a direct run",
-    rules: ["WORK-RULE-057"],
+    // W35 R0 P5: this is the run that the git hooks after a commit, a merge, and a rewrite start (WORK-RULE-072). It
+    // prints the short form (WORK-RULE-070). Its wait limit does not cut a run that has the Store (WORK-RULE-071).
+    rules: ["WORK-RULE-057", "WORK-RULE-070", "WORK-RULE-071", "WORK-RULE-072"],
     kind: "checkpoint-scenario",
     input: { scenario: "trigger-run-imports-only" },
-    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: false, quiet: false, firstSync: false, imported: 1, written: 0, waiting: 1, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: false, quiet: false, firstSync: false, imported: 1, written: 0, waiting: 1, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false, lines: ["Checkpoint: 1 file imported, 1 file waits.", "Run make-docs project checkpoint to see and settle what waits."] },
   },
   {
     id: "WSF-077",
@@ -1431,10 +1438,11 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
     id: "WSF-078",
     group: "checkpoint",
     title: "A trigger run after a branch change imports nothing and says how many files wait",
-    rules: ["WORK-RULE-058"],
+    // W35 R0 P5: this is the run that the git hook after a branch change starts (WORK-RULE-072), in the short form (WORK-RULE-070).
+    rules: ["WORK-RULE-058", "WORK-RULE-070", "WORK-RULE-072"],
     kind: "checkpoint-scenario",
     input: { scenario: "branch-change" },
-    expected: { authority: "store", syncRan: false, syncSkipped: "branch-change", nothingDue: false, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 1, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false },
+    expected: { authority: "store", syncRan: false, syncSkipped: "branch-change", nothingDue: false, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 1, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false, lines: ["Checkpoint: 1 file waits.", "Run make-docs project checkpoint to see and settle what waits."] },
   },
   {
     id: "WSF-079",

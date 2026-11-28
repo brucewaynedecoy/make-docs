@@ -5,13 +5,19 @@ import { STORE_READ_PROJECT_READ_ACCESS, STORE_WRITE_PROJECT_WRITE_ACCESS } from
 import type { OperationExecutionContext } from "../context";
 import type { OperationDefinition } from "../registry";
 import { StoreAccessStateError } from "../store-access";
+import { withStoreWaitLimit } from "../../store/database";
+import { gitHookRunMode } from "../../store/git-hook-runs";
 import type { JsonValue } from "../types";
 import {
   CHECKPOINT_EVENTS,
+  CHECKPOINT_GIT_HOOK_BACKGROUND_STORE_WAIT_MS,
+  CHECKPOINT_GIT_HOOK_EVENTS,
+  CHECKPOINT_GIT_HOOK_STORE_WAIT_MS,
   checkpointEventRefusal,
   checkpointNotAProject,
   isMakeDocsProject,
   workCheckpoint,
+  type CheckpointEvent,
   type CheckpointReadReason,
 } from "../work/work-queue/checkpoint";
 import { checkWorkHarness } from "../work/work-queue/files-fallback";
@@ -83,6 +89,24 @@ export const projectCheckpointOperations: OperationDefinition[] = [{
     const event = input.event ?? null;
     // A folder that is not a Make Docs project: one line, and no Store is read.
     if (!isMakeDocsProject(root)) return checkpointNotAProject(root, event) as unknown as JsonValue;
+    // W35 R0 P5 (PRD 52 R-WORK-CHECKPOINT-14): a trigger run with an event that a git hook gives, `commit` or
+    // `branch-change`, has a bound at each wait for the Store: the busy time of a connection, a shared session, a
+    // named lock file, and a checkout writer. A wait that reaches the bound ends the run with the typed Store
+    // result. The bound is for the waits only, and not for the work of the run, so a first sync that has the Store
+    // runs to its end.
+    // - A run in the foreground holds a git action or a person, so it waits a short time: 1,000 ms.
+    // - A background run that a git hook started holds nobody, so it waits the normal busy time of the Store at
+    //   each wait: 5,000 ms. It never waits the 30,000 ms of a live Store owner.
+    if (event !== null && CHECKPOINT_GIT_HOOK_EVENTS.includes(event)) {
+      const limit = gitHookRunMode() === "background" ? CHECKPOINT_GIT_HOOK_BACKGROUND_STORE_WAIT_MS : CHECKPOINT_GIT_HOOK_STORE_WAIT_MS;
+      return await withStoreWaitLimit(limit, () => run(root, event, context));
+    }
+    return await run(root, event, context);
+  },
+}];
+
+async function run(root: string, event: CheckpointEvent | null, context: OperationExecutionContext): Promise<JsonValue> {
+  {
     const env = { storeRoot: context.storeRoot, now: new Date(context.now()) };
 
     // Step 1: who is in charge, with the rule of `work status`. A caller with no Store access gets the files.
@@ -105,5 +129,5 @@ export const projectCheckpointOperations: OperationDefinition[] = [{
       root,
       () => workCheckpoint(root, env, { event, access: readReason === null ? "write" : "read", readReason, authority }) as unknown as JsonValue,
     );
-  },
-}];
+  }
+}

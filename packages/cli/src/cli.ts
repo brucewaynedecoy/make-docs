@@ -117,6 +117,17 @@ import type {
 } from "./types";
 import { CAPABILITIES, PROJECT_RESOURCE_TYPES } from "./types";
 import { PACKAGE_ROOT, readPackageMeta } from "./utils";
+import type { GitHookApplyResult } from "./git-hooks";
+import {
+  answerSetupGitHooks,
+  applySetupGitHooks,
+  decideSetupGitHooks,
+  renderSetupGitHookReview,
+  renderSetupGitHooksResult,
+  setupGitHooksJson,
+  type SetupGitHooksDecision,
+} from "./setup-git-hooks";
+import { readGitHooksPreference } from "./store/global-config";
 import {
   promptForManagedFileConflictResolutions,
   runSelectionWizard,
@@ -215,6 +226,12 @@ interface ParsedArgs {
   selectedSkillsValue?: string;
   projectResources?: ProjectResourceType[];
   adopt?: boolean;
+  /** W35 R0 P5: the hook input of project setup. `true` is `--git-hooks`, and `false` is `--no-git-hooks`. */
+  gitHooks?: boolean;
+  /** Each hook input flag of the command line, to find a conflict before any write. */
+  gitHooksFlags?: string[];
+  /** W35 R0 P5: the explicit answer to the machine preference for git hooks (`setup system`). */
+  gitHooksPreference?: boolean;
   conflicts?: "keep" | "overwrite";
   skillsManifest?: string;
   adoptExisting?: string[];
@@ -421,6 +438,7 @@ async function runResolvedCli(
   // One run decides the name of a new project once. An earlier run in this process must not leak in.
   setupNewProjectName = null;
   setupNewProjectNameRefused = false;
+  setupGitHooks = null;
   if (argv[0] === "--version" || argv[0] === "-v") {
     output.write(`${readPackageMeta().version}\n`);
     return;
@@ -496,6 +514,8 @@ async function runResolvedCli(
       yes: parsed.yes,
       rotateMcp: parsed.rotateMcp,
       promptForMethods: !parsed.yes && !parsed.dryRun && !parsed.json && Boolean(input.isTTY && output.isTTY),
+      ...(parsed.gitHooksPreference !== undefined ? { gitHooksPreference: parsed.gitHooksPreference } : {}),
+      ...(!parsed.yes && !parsed.dryRun && !parsed.json && input.isTTY && output.isTTY ? { promptForGitHooksPreference: "always" as const } : {}),
       targetRoot: path.resolve(parsed.targetDir ?? process.cwd()),
       methods: {
         ...(parsed.codexMethod !== undefined ? { codex: parsed.codexMethod } : {}),
@@ -1015,11 +1035,18 @@ async function runResolvedCli(
     selectionSource = "verified completed-removal resource records";
   }
   let interactiveMethodSelections: Partial<Record<"codex" | "claude-code" | "github-copilot", HarnessMethodSelection>> = {};
+  // W35 R0 P5 (PRD 07 R-SETUP-CLI-17): the answer to the machine preference question of the inline machine step.
+  // `null` means that the question ran and the person gave no answer.
+  let inlineGitHooksPreference: boolean | null | undefined;
 
   if (interactive) {
-    const { inspectSystemHarnesses, promptForSystemSetupMethods } = await import("./setup-system");
+    const { inspectSystemHarnesses, promptForGitHooksPreference, promptForSystemSetupMethods } = await import("./setup-system");
     const harnessSupport = inspectSystemHarnesses();
     const afterHarnessSelection = async (wizardSelections: InstallSelections): Promise<boolean> => {
+      // The machine step asks the preference question only when global config holds no answer yet.
+      if (inlineGitHooksPreference === undefined && !parsed.dryRun && readGitHooksPreference(storeRoot) === undefined) {
+        inlineGitHooksPreference = (await promptForGitHooksPreference(undefined)) ?? null;
+      }
       interactiveMethodSelections = await promptForSystemSetupMethods({
         dryRun: parsed.dryRun,
         yes: false,
@@ -1134,6 +1161,7 @@ async function runResolvedCli(
     manualMcpOutput: !jsonOutput,
     targetRoot: targetDir,
     persistIntent: true,
+    ...(typeof inlineGitHooksPreference === "boolean" ? { gitHooksPreference: inlineGitHooksPreference } : {}),
   };
   const resumedSystemSetup = await resumePendingSystemSetupCommand(systemOptions);
   if (resumedSystemSetup) {
@@ -1276,6 +1304,8 @@ async function runResolvedCli(
       ? decideProjectNameForNewConfig(targetDir, name => findProjectNameHolderForSetup(targetDir, name, storeRoot))
       : null;
   setupNewProjectName = planNewProjectName();
+  // W35 R0 P5 (PRD 07 R-SETUP-CLI-19): "new project" has the meaning of the project name rule above. It is read here, before any write.
+  const gitHookNewProject = freshInstallTarget && !existsSync(getMakeDocsConfigPath(targetDir));
   if (setupNewProjectName?.state === "write") {
     plannedConfigContent = addProjectNameToNewConfig(plannedConfigContent, setupNewProjectName.name);
   }
@@ -1486,6 +1516,24 @@ async function runResolvedCli(
     output.write("Project harness intent: update .make-docs/config.yaml after machine verification.\n");
   }
 
+  // W35 R0 P5 (PRD 07 R-SETUP-CLI-15 to R-SETUP-CLI-23): the git hooks of this project. Setup shows each hook path
+  // and the exact block before it writes, and it installs the hooks only after the project is set up.
+  let gitHooksDecision = decideSetupGitHooks({
+    targetDir,
+    storeRoot,
+    hookInput: parsed.gitHooks,
+    interactive,
+    yes: parsed.yes,
+    dryRun: parsed.dryRun,
+    preferenceOn: preparedSystemSetup.gitHooksPreference?.after === true,
+    newProject: gitHookNewProject,
+  });
+  setupGitHooks = { decision: gitHooksDecision, applied: null };
+  if (!jsonOutput) {
+    if (gitHooksDecision.mode === "install" || gitHooksDecision.mode === "ask") note(renderSetupGitHookReview(gitHooksDecision), "Git hooks");
+    else if (gitHooksDecision.line) output.write(`${gitHooksDecision.line}\n`);
+  }
+
   const unresolvedManagedFileConflicts = findReviewableManagedFileConflicts(plan);
   if (parsed.dryRun && unresolvedManagedFileConflicts.length === 0) {
     const skillRoute = skillChangesLeft.length > 0 ? ` ${skillChangesNextAction(skillChangesLeft.length, skillRouteTarget)}` : "";
@@ -1590,6 +1638,20 @@ async function runResolvedCli(
       withGuide: true,
     });
     projectApproved = !isCancel(proceed) && Boolean(proceed);
+  }
+
+  // The hook offer is for this one project. "No" is first, except with the machine preference on in a new project.
+  if (gitHooksDecision.mode === "ask" && systemApproved && projectApproved) {
+    const answer = await confirm({
+      message: "Install these four Make Docs git hooks for this project?",
+      initialValue: gitHooksDecision.askDefault,
+      active: "Yes",
+      inactive: "No",
+      withGuide: true,
+    });
+    gitHooksDecision = answerSetupGitHooks(gitHooksDecision, !isCancel(answer) && Boolean(answer));
+    setupGitHooks = { decision: gitHooksDecision, applied: null };
+    if (gitHooksDecision.line) output.write(`${gitHooksDecision.line}\n`);
   }
 
   if (!systemApproved) {
@@ -1965,6 +2027,19 @@ async function runResolvedCli(
     }
   } else if (setupNewProjectName?.state === "skip" && !jsonOutput) {
     output.write(`${describeNewProjectNameForSetup(setupNewProjectName).replace("Setup writes no name", "Setup wrote no name")}\n`);
+  }
+
+  // W35 R0 P5: install the git hooks that the person selected. A refusal here installs no hook, says why in one
+  // line, and the setup result stays as it is.
+  if (gitHooksDecision.mode === "install") {
+    let appliedGitHooks: GitHookApplyResult;
+    try {
+      appliedGitHooks = applySetupGitHooks(gitHooksDecision, { targetDir, storeRoot, appliedVersion: packageMeta.version });
+    } catch (error) {
+      appliedGitHooks = { status: "refused", reason: `Make Docs could not write the git hooks: ${error instanceof Error ? error.message.split("\n")[0] : String(error)}`, hooks: [] };
+    }
+    setupGitHooks = { decision: gitHooksDecision, applied: appliedGitHooks };
+    if (!jsonOutput) output.write(`${renderSetupGitHooksResult(appliedGitHooks)}\n`);
   }
 
   const appliedSkillChangesLeft = skillChangesLeftNow();
@@ -2374,7 +2449,8 @@ function hasSelectionOverrides(parsed: ParsedArgs): boolean {
       parsed.skillsManifest ||
       parsed.skillScope ||
       parsed.selectedSkills !== undefined ||
-      parsed.projectResources !== undefined,
+      parsed.projectResources !== undefined ||
+      parsed.gitHooks !== undefined,
   );
 }
 
@@ -2470,6 +2546,8 @@ function getSelectionOverrideFlags(parsed: ParsedArgs): string[] {
   if (parsed.projectResources !== undefined) {
     flags.push("--project-resources");
   }
+  for (const flag of new Set(parsed.gitHooksFlags ?? [])) flags.push(flag);
+  if (parsed.gitHooksPreference !== undefined) flags.push("--git-hooks-for-new-projects");
 
   return flags;
 }
@@ -2584,6 +2662,22 @@ function parseArgs(argv: string[]): ParsedArgs {
       case "--adopt":
         parsed.adopt = true;
         break;
+      case "--git-hooks":
+      case "--no-git-hooks":
+        parsed.gitHooksFlags = [...(parsed.gitHooksFlags ?? []), arg];
+        parsed.gitHooks = arg === "--git-hooks";
+        break;
+      case "--git-hooks-for-new-projects": {
+        const value = args.shift();
+        if (value !== "yes" && value !== "no") {
+          throw new Error("`--git-hooks-for-new-projects` must be yes or no.");
+        }
+        if (parsed.gitHooksPreference !== undefined && parsed.gitHooksPreference !== (value === "yes")) {
+          throw new Error("`--git-hooks-for-new-projects` was given two times with different values.");
+        }
+        parsed.gitHooksPreference = value === "yes";
+        break;
+      }
       case "--conflicts": {
         const value = args.shift();
         if (value !== "keep" && value !== "overwrite") {
@@ -2935,6 +3029,9 @@ let setupNewProjectName: NewProjectNameDecision | null = null;
 /** True when the Store did not keep the name that this setup run wrote. */
 let setupNewProjectNameRefused = false;
 
+/** W35 R0 P5: what this setup run decided about the git hooks of the project, and what it wrote. Null before the decision. */
+let setupGitHooks: { decision: SetupGitHooksDecision; applied: GitHookApplyResult | null } | null = null;
+
 interface SetupProjectNameWriteJson {
   /** `planned`: setup will write the name. `written`: the config has it. `skipped`: setup writes no name. */
   state: "planned" | "written" | "skipped";
@@ -3086,6 +3183,10 @@ function writeCanonicalSetupResult(input: {
         .sort((left, right) => left.relativePath.localeCompare(right.relativePath))
         .map(action => ({ path: action.relativePath, action: action.type })),
     },
+    // W35 R0 P5: the git hooks of this project. Null when setup stopped before the hook decision.
+    gitHooks: setupGitHooks
+      ? setupGitHooksJson(setupGitHooks.decision, setupGitHooks.applied, input.status === "planned" ? "planned" : input.status === "blocked" ? "stopped" : "done")
+      : null,
     failedCondition: input.failedCondition,
     nextAction: input.nextAction,
   })}\n`);
@@ -3097,6 +3198,16 @@ function validateParsedArgs(parsed: ParsedArgs): void {
   }
   if (parsed.conflicts && (parsed.command !== "setup" || parsed.setupSubcommand === "system" || parsed.setupSubcommand === "skills" || parsed.setupSubcommand === "backup" || parsed.setupSubcommand === "remove")) {
     throw new Error("`--conflicts` is valid only with project setup or reconfigure.");
+  }
+  // W35 R0 P5 (PRD 07 R-SETUP-CLI-18): conflicting hook input fails before any write.
+  if (parsed.gitHooksFlags && new Set(parsed.gitHooksFlags).size > 1) {
+    throw new Error("`--git-hooks` cannot be combined with `--no-git-hooks`.");
+  }
+  if (parsed.gitHooksFlags && (parsed.command !== "setup" || (parsed.setupSubcommand !== undefined && parsed.setupSubcommand !== "reconfigure"))) {
+    throw new Error("`--git-hooks` and `--no-git-hooks` are valid only with `make-docs setup` or `make-docs setup reconfigure`.");
+  }
+  if (parsed.gitHooksPreference !== undefined && (parsed.command !== "setup" || parsed.setupSubcommand !== "system")) {
+    throw new Error("`--git-hooks-for-new-projects` is valid only with `make-docs setup system`. It sets a preference of this computer, and it installs no hook.");
   }
   if (parsed.rotateMcp && (parsed.command !== "setup" || parsed.setupSubcommand !== "system")) {
     throw new Error("`--rotate-mcp` is valid only with `make-docs setup system`.");
@@ -3647,6 +3758,8 @@ const SETUP_SHARED_OPTIONS = `General options:
   --dry-run                      Show planned changes without writing files.
   --yes                          Approve a fully specified non-interactive plan.
   --adopt                        Register a checkout with a saved projectId in this Store.
+  --git-hooks                    Install the four Make Docs git hooks for this project.
+  --no-git-hooks                 Install no git hook in this run.
   --conflicts <keep|overwrite>   Resolve changed managed files in this setup plan.
   --recover <resume|restore>     Choose recovery for unfinished project work.
   --json                         Emit only the canonical setup result JSON.
@@ -3682,6 +3795,8 @@ const RECONFIGURE_SHARED_OPTIONS = `General options:
   --target <dir>                 Operate on a different make-docs install directory.
   --dry-run                      Show planned changes without writing files.
   --yes                          Approve a fully specified non-interactive plan.
+  --git-hooks                    Install the four Make Docs git hooks for this project.
+  --no-git-hooks                 Install no git hook in this run.
   --json                         Emit only the canonical setup result JSON.
   --help, -h                     Show help for this command.
 
@@ -3828,6 +3943,10 @@ Options:
   --no-codex                     Skip Codex support.
   --no-claude-code               Skip Claude Code support.
   --no-github-copilot           Skip GitHub Copilot CLI support.
+  --git-hooks-for-new-projects <yes|no>
+                                Set whether setup of a new project installs the Make Docs
+                                git hooks automatically. The default is no. --yes alone
+                                never changes it. It installs no hook by itself.
   --rotate-mcp                   Replace keys for selected first-party MCP methods.
   --help, -h                     Show help for this command.
 

@@ -114,7 +114,7 @@ The first-party Unassisted Goal Testing Skill is a supported optional payload. I
 
 All seven first-party Skills use the bundled delivery contract owned by PRD 08. Setup installs selected payloads into the shared content root and exposes them through the native harness paths above. The `naive-uat` adapter follows this common delivery rule without changing the shared UAT workflow or policy.
 
-Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product. The bounded first-party harness adapters in R-HARNESS are part of setup, not a third-party plugin system. Any additional adapter or method needs a traced non-Playbook purpose, an existing owning PRD, real harness capability evidence, explicit selection, and safe install and removal authority; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns that admission boundary.
+Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product. It admits two bounded kinds of hook, and no other: the git hooks that setup offers for each project ([07-cli-command-surface-and-lifecycle.md](07-cli-command-surface-and-lifecycle.md) R-SETUP-CLI-15), and a hook method of a first-party adapter with real capability evidence. The git hooks belong to no agent tool. The bounded first-party harness adapters in R-HARNESS are part of setup, not a third-party plugin system. Any additional adapter or method needs a traced non-Playbook purpose, an existing owning PRD, real harness capability evidence, explicit selection, and safe install and removal authority; [30-plugin-substrate-and-workflow-bundles.md](30-plugin-substrate-and-workflow-bundles.md) owns that admission boundary.
 
 ### No-Default-Skills
 
@@ -126,7 +126,7 @@ Shared agentics are written only when the user explicitly selects Skills through
 - No generated-stub default behavior.
 - No symlink-only behavior without copy-mirror fallback.
 - No silent fallback from native exposure to generic stubs.
-- No general third-party plugin, hook, extension, workflow-bundle, Playbook, Protocol, packaging-compiler, or generated-bundle contract.
+- No general third-party plugin, hook, extension, workflow-bundle, Playbook, Protocol, packaging-compiler, or generated-bundle contract. The two bounded kinds of hook of the Optional Agentics Boundary are not a general hook contract.
 - No harness method that bypasses the operation access contract, explicit write permission, reviewed host change, or parity proof.
 - No broader alternate-source trust redesign; PRD 08 owns the first-party bundled delivery contract.
 - No automatic selected Skill or other agentic installation.
@@ -258,6 +258,16 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: Copilot CLI may gain a reviewed user MCP entry through one static adapter. The Copilot app is a separate proved consumer. Its own MCP install path stays user-owned, and any unknown effective entry blocks the app support claim.
 - Rationale: GitHub documents both CLI-config reuse and an independent app MCP install path. A CLI entry alone cannot prove the app's effective source.
 - Source: [W27 R0 design](../designs/2026-10-24-w27-r0-github-copilot-cli-and-app-support.md) and [P1 plan](../plans/2026-10-24-w27-r0-github-copilot-support/01-contract-and-native-probe.md)
+
+### 2026-11-28 — W35 R0 P5
+
+- Date: 2026-11-28
+- Coordinate: W35 R0 P5
+- Affected requirement or section: `### Optional Agentics Boundary`; `## Non-Requirements`.
+- Previous contract: "Make Docs has no general plugin, hook, extension, workflow-bundle, or Playbook-generated Skill product." No hook of any kind was admitted.
+- Replacement contract: The same sentence, with two bounded kinds of hook admitted: the git hooks that setup offers for each project, and a hook method of a first-party adapter with real capability evidence. The Non-Requirements line says that these two are not a general hook contract.
+- Rationale: The owner approved this change on 2026-11-27 (design OD-10, option B), with the clarification that the sentence was meant for hooks that belong to one agent tool. This phase builds the git hooks. A later phase builds the hook method of an adapter.
+- Source: [W35 R0 P5](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/05-git-hooks-in-setup.md) and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup).
 
 ## Source Anchors
 

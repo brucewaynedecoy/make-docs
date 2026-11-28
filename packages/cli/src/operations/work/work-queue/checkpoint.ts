@@ -139,6 +139,32 @@ export interface WorkCheckpointInput {
   authority: WorkAuthority;
 }
 
+/**
+ * The events that a git hook gives (W35 R0 P5, PRD 52 R-WORK-CHECKPOINT-13 and R-WORK-CHECKPOINT-14). A trigger run
+ * with one of them prints the short form: the summary line and, when something waits, one line with the command.
+ */
+export const CHECKPOINT_GIT_HOOK_EVENTS: readonly CheckpointEvent[] = ["commit", "branch-change"];
+
+/**
+ * How long a trigger run in the foreground with an event of a git hook, `commit` or `branch-change`, waits at
+ * each wait for the Store, in milliseconds (PRD 52 R-WORK-CHECKPOINT-14). It is a fixed rule of the checkpoint,
+ * with no input. It bounds each wait for the Store by itself: the busy time of a connection, a shared session, a
+ * named lock file, and a checkout writer. It does not bound the work of the run. A direct run, and a trigger run
+ * with another event, keep the wait times of the Store. A git hook reaches this bound only in its foreground
+ * fallback.
+ */
+export const CHECKPOINT_GIT_HOOK_STORE_WAIT_MS = 1000;
+
+/**
+ * How long a background run that a git hook started waits at each wait for the Store, in milliseconds: the
+ * normal busy time of the Store (`STORE_BUSY_TIMEOUT_MS`). Git does not wait for such a run, so it has no short
+ * limit. It still never waits the 30,000 ms of a live Store owner.
+ */
+export const CHECKPOINT_GIT_HOOK_BACKGROUND_STORE_WAIT_MS = 5000;
+
+/** The second line of the short form: the one command that shows and settles what waits. */
+export const CHECKPOINT_SHORT_COMMAND_LINE = `Run ${CHECKPOINT_COMMAND} to see and settle what waits.`;
+
 /** How many ready units the short list shows. */
 export const CHECKPOINT_NEXT_LIMIT = 3;
 
@@ -400,6 +426,19 @@ export function workCheckpoint(root: string, env: WorkQueueEnv, input: WorkCheck
     for (const item of result.next) lines.push(`  ${item.unit}: ${item.title}${item.sourcePath ? ` (${item.sourcePath})` : ""}`);
     if (result.readyCount > result.next.length) lines.push(`  ... and ${result.readyCount - result.next.length} more. Run make-docs work next for the full list.`);
     lines.push(`Claim the first one: ${result.next[0]!.claimCommand}`);
+  }
+
+  // W35 R0 P5: a git hook prints the summary line and the command, and no other line. The fields above keep each detail.
+  if (event !== null && CHECKPOINT_GIT_HOOK_EVENTS.includes(event) && !nothingDue) {
+    const summaryLine = lines[0]!;
+    const attention = result.waiting.length + conflictCount + heldCount + notWrittenCount + unreadableCount > 0;
+    lines.length = 0;
+    if (syncSkipped === "read-access-only") {
+      lines.push(`${summaryLine} This caller has read access only, so a caller with write access must run ${CHECKPOINT_COMMAND}.`);
+    } else {
+      lines.push(summaryLine);
+      if (attention) lines.push(CHECKPOINT_SHORT_COMMAND_LINE);
+    }
   }
 
   return {

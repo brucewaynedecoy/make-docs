@@ -727,6 +727,34 @@ export const WORK_STORE_RULES: readonly WorkStoreRule[] = Object.freeze([
     agentForm: agent("project-uris"),
     humanMeaning: "A backlog read by project URI runs no sync check. It says in one fixed sentence that it does not know whether work files wait for sync, and that the checkpoint in a checkout finds out.",
   },
+  // W35 R0 P5: the checkpoint that a git hook starts (PRD 52 R-WORK-CHECKPOINT-13 to R-WORK-CHECKPOINT-15).
+  {
+    id: "WORK-RULE-070",
+    title: "A git hook prints the short form",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-13"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "A trigger run for a commit or a branch change prints at most two lines: the summary line, and one line with the checkpoint command when something waits. A caller with read access only gets one line. A direct run gives each detail.",
+  },
+  {
+    id: "WORK-RULE-071",
+    title: "A run that a git hook starts has a bound at each wait for the Store",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-14"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "A trigger run for a commit or a branch change has a bound at each wait for the Store, while another process holds the Store or one of its lock files. A background run that a git hook started waits at most 5 seconds at each wait, and git does not wait for it. A run in the foreground waits at most 1 second. Then the run ends, imports nothing, and changes no Store record. The bound is for the waits for the Store, and not for the work of the run. The next checkpoint imports the file. A direct run keeps the full waits of the Store.",
+  },
+  {
+    id: "WORK-RULE-072",
+    title: "Setup installs the git hooks, and an agent installs none by hand",
+    area: "checkpoint",
+    prdRequirements: ["R-WORK-CHECKPOINT-15"],
+    cliForm: [WORK_STORE_CHECKPOINT_OPERATION],
+    agentForm: agent("checkpoint"),
+    humanMeaning: "Four git hooks start a trigger run: after a commit, a merge, and a rewrite they import, and after a branch change they only report. A hook starts the run in the background and prints nothing, so git does not wait. Only when the last background run of the checkout did not end does the next hook run in the foreground and print the short form. Only make-docs setup installs and removes the hooks, after a person selected them. An agent installs no hook by hand. make-docs work status and the reminder line show what waits, and a direct run of the checkpoint settles it.",
+  },
 ]);
 
 /**

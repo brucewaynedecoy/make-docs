@@ -17,6 +17,7 @@ import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { describe, expect, it } from "vitest";
+import { GIT_HOOK_NAMES, renderGitHookBlock } from "../src/git-hooks";
 
 import { applyInstallPlan, findReviewableManagedFileConflicts, planInstall } from "../src/install";
 import { loadManifest, writeManifest } from "../src/manifest";
@@ -286,6 +287,21 @@ describe("W35 R0 P3 each text names only current catalog names (T7, A36, PRD 39 
     expect(nameProblems(mcpWorkRuleText()!, { requiredMcp: CHECKPOINT.newMcp, tools: currentTools })).toEqual([]);
     expect(mcpWorkRuleToolNames()).toEqual(["project_checkpoint", "work_status", "work_next"]);
     expect(MCP_WORK_RULE_OPERATIONS.map((id) => CURRENT.find((item) => item.id === id)?.newMcp)).toEqual(mcpWorkRuleToolNames());
+  });
+
+  // W35 R0 P5 T15: the block that setup writes into a git hook file is shipped text too (PRD 39 R-NAME-6).
+  it("the block of each git hook names the current checkpoint command with the event of that hook", () => {
+    for (const hook of GIT_HOOK_NAMES) {
+      const block = renderGitHookBlock(hook, { nodePath: "/opt/node/bin/node", commandFile: "/opt/make-docs/dist/index.js", projectFolders: ["."] });
+      const event = hook === "post-checkout" ? "branch-change" : "commit";
+      // The comment of the block names the command in a code span, and the call of the block runs the same path.
+      expect(nameProblems(block, { tools: currentTools }), hook).toEqual([]);
+      expect(block, hook).toContain(`\`make-docs ${CHECKPOINT.newCli} --event ${event}\``);
+      expect(block, hook).toContain(`md_run ${CHECKPOINT.newCli} --event ${event} --target-root "$md_root"`);
+      expect(CHECKPOINT_EVENTS as readonly string[]).toContain(event);
+      // The same check fails for a block with a command that the catalog does not hold.
+      expect(nameProblems(block.replace(`make-docs ${CHECKPOINT.newCli}`, "make-docs project sync-all"), {}), hook).toEqual(["unknown command: make-docs project sync-all"]);
+    }
   });
 
   it("fails on a fixture with an unknown command or tool", () => {

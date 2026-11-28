@@ -1180,7 +1180,8 @@ describe("W35 R0 P2 the agent form (T12, A28)", () => {
 
   it("each new rule has an ID on both sides, and a rule ID on one side only fails", () => {
     const reference = readFileSync(TEMPLATE, "utf8");
-    const added = WORK_STORE_RULES.filter((rule) => Number(rule.id.slice(-3)) >= 66);
+    // The rules of this phase. A later phase adds its rules after them.
+    const added = WORK_STORE_RULES.filter((rule) => Number(rule.id.slice(-3)) >= 66 && Number(rule.id.slice(-3)) <= 69);
     expect(added.map((rule) => [rule.id, rule.agentForm.split("#")[1]])).toEqual([
       ["WORK-RULE-066", "sync"], ["WORK-RULE-067", "readiness"], ["WORK-RULE-068", "readiness"], ["WORK-RULE-069", "project-uris"],
     ]);

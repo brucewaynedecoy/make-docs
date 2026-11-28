@@ -54,6 +54,12 @@ export interface GlobalConfigSettings {
   marketplaceAutoRegistration: boolean;
   /** Machine intent only. Live native harness configuration remains authority. */
   harnesses: Record<string, GlobalHarnessIntent>;
+  /**
+   * W35 R0 P5 (PRD 38 R-HOOK-STATE-7): whether Make Docs installs its git hooks automatically in each new project.
+   * The person sets it at the machine step of setup. An absent value means "No". It never installs a hook that
+   * belongs to one agent tool.
+   */
+  gitHooksForNewProjects?: boolean;
   /** Preserve settings owned by a newer CLI. */
   [key: string]: unknown;
 }
@@ -183,6 +189,16 @@ function normalizeGlobalConfig(
     );
   }
 
+  const gitHooksForNewProjects = settingsRaw.gitHooksForNewProjects;
+  if (typeof gitHooksForNewProjects === "boolean") {
+    settings.gitHooksForNewProjects = gitHooksForNewProjects;
+  } else if (gitHooksForNewProjects !== undefined) {
+    delete settings.gitHooksForNewProjects;
+    warnings.push(
+      'Global config setting "gitHooksForNewProjects" must be a boolean; using no answer, which means "No".',
+    );
+  }
+
   const harnesses = settingsRaw.harnesses;
   if (harnesses !== undefined) {
     if (typeof harnesses !== "object" || harnesses === null || Array.isArray(harnesses)) {
@@ -261,6 +277,24 @@ function normalizeGlobalConfig(
         : GLOBAL_CONFIG_SCHEMA_VERSION,
     settings,
   };
+}
+
+/** The key of the machine preference for git hooks in global config. */
+export const GIT_HOOKS_PREFERENCE_KEY = "gitHooksForNewProjects";
+
+/**
+ * The machine preference for git hooks: true, false, or undefined when the person gave no answer yet.
+ * Only `true` installs the git hooks automatically, and only in a new project.
+ */
+export function readGitHooksPreference(storeRoot: string): boolean | undefined {
+  return loadGlobalConfig(storeRoot).config.settings.gitHooksForNewProjects;
+}
+
+/** Write the one value of the preference. It changes no other value of global config. */
+export function writeGitHooksPreference(storeRoot: string, value: boolean): string {
+  const current = loadGlobalConfig(storeRoot).config;
+  current.settings.gitHooksForNewProjects = value;
+  return writeGlobalConfig(storeRoot, current);
 }
 
 function normalizeMcpConnection(value: unknown, owner: string): McpConnectionRecord | null {

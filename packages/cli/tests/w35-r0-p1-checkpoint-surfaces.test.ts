@@ -433,7 +433,8 @@ describe("W35 R0 P1 make-docs project checkpoint (T6 to T10, A3 to A9)", () => {
     expect([result.written, result.removed]).toEqual([[], []]);
     expect(result.waiting).toEqual([{ path: P2, waitsFor: "write" }]);
     expect(result.lines[0]).toBe("Checkpoint: 1 file imported, 1 file waits.");
-    expect(result.summary).toContain("A hook started this run, so it wrote and removed no project file. Run make-docs project checkpoint to apply what waits.");
+    // W35 R0 P5: a trigger run for a git event prints the short form: the summary line and the command.
+    expect(result.lines).toEqual(["Checkpoint: 1 file imported, 1 file waits.", "Run make-docs project checkpoint to see and settle what waits."]);
     expect(result.quiet).toBe(false);
     expect(fileHashes(root)).toEqual(files);
     // It prints when something is due.
@@ -454,7 +455,8 @@ describe("W35 R0 P1 make-docs project checkpoint (T6 to T10, A3 to A9)", () => {
     const result = await cliJson(root, ["--event", "branch-change"]);
     expect([result.syncRan, result.syncSkipped]).toEqual([false, "branch-change"]);
     expect(result.waiting).toEqual([{ path: P1, waitsFor: "import" }]);
-    expect(result.summary).toContain("The branch changed, so this run imported nothing: 1 file waits. Run make-docs project checkpoint to sync.");
+    // W35 R0 P5: a trigger run for a git event prints the short form: the summary line and the command.
+    expect(result.lines).toEqual(["Checkpoint: 1 file waits.", "Run make-docs project checkpoint to see and settle what waits."]);
     expect(storeState(root)).toBe(before);
     expect(fileHashes(root)).toEqual(files);
   });
@@ -621,8 +623,12 @@ describe("W35 R0 P1 checkpoint rule IDs in both forms (T13, A11, A12)", () => {
   const TEMPLATE = readFileSync(path.join(REPO, "packages/docs/template/.make-docs/system/references/work-store.md"), "utf8");
   const CHECKPOINT_RULES = WORK_STORE_RULES.filter((rule) => rule.area === "checkpoint");
 
-  it("the checkpoint rules are WORK-RULE-055 to WORK-RULE-065, and each names the checkpoint operation", () => {
-    expect(CHECKPOINT_RULES.map((rule) => rule.id)).toEqual(Array.from({ length: 11 }, (_, index) => `WORK-RULE-${String(55 + index).padStart(3, "0")}`));
+  it("the checkpoint rules are WORK-RULE-055 to WORK-RULE-065, with the three git hook rules of W35 R0 P5, and each names the checkpoint operation", () => {
+    expect(CHECKPOINT_RULES.map((rule) => rule.id)).toEqual([
+      ...Array.from({ length: 11 }, (_, index) => `WORK-RULE-${String(55 + index).padStart(3, "0")}`),
+      // W35 R0 P5: the short form, the wait limit, and the git hooks.
+      "WORK-RULE-070", "WORK-RULE-071", "WORK-RULE-072",
+    ]);
     for (const rule of CHECKPOINT_RULES) {
       expect(rule.cliForm, rule.id).toEqual(["project.checkpoint.run"]);
       expect(rule.agentForm, rule.id).toBe("make-docs://system/reference/work-store.md#checkpoint");
@@ -712,6 +718,9 @@ describe("W35 R0 P1 checkpoint parity fixtures run through the real checkpoint (
 
   it.each(fixtures.map((fixture) => [fixture.id, fixture.title, fixture] as const))("%s: %s", async (_id, _title, fixture) => {
     const { root, result, before } = await runScenario(fixture.input.scenario);
+    const { lines: expectedLines, ...expected } = fixture.expected;
+    // W35 R0 P5: a trigger run for a git event prints exactly the short form.
+    if (expectedLines !== undefined) expect(result.lines).toEqual(expectedLines);
     expect({
       authority: result.authority,
       syncRan: result.syncRan,
@@ -726,7 +735,7 @@ describe("W35 R0 P1 checkpoint parity fixtures run through the real checkpoint (
       claims: result.claims.map((claim) => claim.state),
       next: result.next.map((item) => item.coordinate),
       changedFiles: JSON.stringify(fileHashes(root)) !== JSON.stringify(before),
-    }).toEqual(fixture.expected);
+    }).toEqual(expected);
     // The summary line is the first line, and no result shows a claim ID.
     expect(result.lines[0]).toBe(result.summary.split("\n")[0]);
     expect(JSON.stringify(result)).not.toMatch(/wc-[a-z0-9]{8,}/);

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   CHECKPOINT_COMMAND,
+  CHECKPOINT_SHORT_COMMAND_LINE,
   CHECKPOINT_EVENTS,
   CHECKPOINT_NEXT_LIMIT,
   checkpointEventRefusal,
@@ -517,7 +518,8 @@ describe("W35 R0 P1 checkpoint files that wait for a removal, and a long ready l
     expect(trigger.removed).toEqual([]);
     expect(trigger.waiting.map((file) => file.waitsFor)).toEqual(["removal", "removal", "removal"]);
     expect(trigger.lines[0]).toBe("Checkpoint: 3 files wait.");
-    expect(trigger.summary).toContain(`  Waits for a removal: ${P1}`);
+    // W35 R0 P5: a trigger run for a git event prints the short form. The result fields still name the file.
+    expect(trigger.lines).toEqual(["Checkpoint: 3 files wait.", CHECKPOINT_SHORT_COMMAND_LINE]);
     expect(trigger.quiet).toBe(false);
     expect(projectFiles(root)).toEqual(files);
     // A read-only check counts the same files.
@@ -604,8 +606,8 @@ describe("W35 R0 P1 checkpoint trigger run", () => {
     expect(result.waiting).toEqual([{ path: P2, waitsFor: "write" }]);
     expect([result.syncRan, result.nothingDue, result.quiet]).toEqual([true, false, false]);
     expect(result.lines[0]).toBe("Checkpoint: 1 file imported, 1 file waits.");
-    expect(result.summary).toContain(`A hook started this run, so it wrote and removed no project file. Run ${CHECKPOINT_COMMAND} to apply what waits.`);
-    expect(result.summary).toContain(`  Waits for a write: ${P2}`);
+    // W35 R0 P5: a trigger run for a git event prints the short form. The result fields above still name the file.
+    expect(result.lines).toEqual(["Checkpoint: 1 file imported, 1 file waits.", CHECKPOINT_SHORT_COMMAND_LINE]);
     expect(projectFiles(root)).toEqual(files);
     expect(unitAt(root, "W1 R0 P1 T1").title).toBe("Build the new parser.");
 
@@ -655,7 +657,8 @@ describe("W35 R0 P1 checkpoint trigger run", () => {
     expect(result.imported).toEqual([]);
     expect(result.waiting).toEqual([{ path: P1, waitsFor: "import" }, { path: P2, waitsFor: "write" }]);
     expect(result.lines[0]).toBe("Checkpoint: 2 files wait.");
-    expect(result.summary).toContain(`The branch changed, so this run imported nothing: 2 files wait. Run ${CHECKPOINT_COMMAND} to sync.`);
+    // W35 R0 P5: a trigger run for a git event prints the short form.
+    expect(result.lines).toEqual(["Checkpoint: 2 files wait.", CHECKPOINT_SHORT_COMMAND_LINE]);
     expect(storeState(root)).toBe(state);
     expect(projectFiles(root)).toEqual(files);
   });

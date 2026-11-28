@@ -8,8 +8,9 @@ import { platform } from "../platform";
  * readers of the global config and manifest never observe a torn write.
  */
 export function writeStoreJsonFile(filePath: string, value: unknown): void {
-  mkdirSync(path.dirname(filePath), { recursive: true });
+  // The same modes as the rest of the Store code: a new folder is for the owner only (0700), and so is the file (0600).
+  mkdirSync(path.dirname(filePath), { recursive: true, mode: 0o700 });
   const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(tempPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  writeFileSync(tempPath, `${JSON.stringify(value, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
   platform.atomicReplace(tempPath, filePath);
 }
