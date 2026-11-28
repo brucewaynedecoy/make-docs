@@ -30,7 +30,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 
 ### Integration Admission (R-ADMIT)
 
-- R-ADMIT-1 (MUST): a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status.
+- R-ADMIT-1 (MUST): a future optional integration requires a traced current non-Playbook consumer and purpose, a coherent owning PRD, explicit selection, a real harness capability contract or, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform, install and uninstall behavior, ownership and provenance records, safe audit/backup/migration handling, and honest support status.
 - R-ADMIT-2 (MUST): production imports, registrations, or public call sites establish a traced consumer. Tests, fixtures, archived designs, historical work, documentation proposals, generated examples, or an unused schema do not establish current product use.
 - R-ADMIT-3 (MUST): absence of a traced consumer means the surface is absent or a removal candidate. It is not preserved as speculative compatibility, a provisional plugin product, or a dormant workflow-bundle promise.
 - R-ADMIT-4 (MUST): unsupported harness APIs are reported as unsupported. Make Docs does not simulate hooks, extensions, native plugins, background daemons, hidden mutations, or hidden retries.
@@ -38,7 +38,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 
 ### Selection, Configuration, and Manifest Boundary (R-SELECT)
 
-- R-SELECT-1 (MUST): bare setup, default sync, and Skills selection install no plugin, hook, extension, workflow bundle, or other unadmitted agentic artifact. `--selected-skills all` expands only within the effective Skills manifest.
+- R-SELECT-1 (MUST): bare setup, default sync, and Skills selection install no plugin, hook, extension, workflow bundle, or other unadmitted agentic artifact. `--selected-skills all` expands only within the effective Skills manifest. The git hooks are installed only by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set.
 - R-SELECT-2 (MUST): configuration overlays may render labels after canonical resolution but cannot invent an integration, plugin id, hook, extension point, harness contract, selection, or routing rule.
 - R-SELECT-3 (MUST): current manifests track selected Skills and their ownership. They do not reserve or imply a plugin payload namespace or a generic extension selection schema.
 - R-SELECT-4 (MUST): an admitted future integration must use explicit, inspectable selection and must not become a correctness prerequisite for the core operation it exposes.
@@ -74,7 +74,7 @@ It does not create a plugin manifest, plugin store, workflow-bundle catalog, Pla
 ## Acceptance Criteria
 
 - Core routers, resources, CLI, and MCP remain complete with no optional agentics installed.
-- Default setup, sync, and Skills selection create no plugin, hook, extension, workflow-bundle, or generated package output.
+- Default setup, sync, and Skills selection create no plugin, extension, workflow-bundle, or generated package output, and no hook other than the git hooks that R-SELECT-1 admits.
 - Every current optional integration has a traced non-Playbook purpose, an owning PRD, explicit selection, lifecycle authority, real harness capability evidence, and an honest support state.
 - Untraced plugin and Playbook-derived packaging surfaces are absent from current manifests, discovery, selection, support claims, and installed-product checks.
 - User-authored, modified, ambiguous, and legacy extension artifacts are preserved unless verified ownership and an accepted migration authorize removal.
@@ -134,6 +134,16 @@ A clean-room rebuild must keep core operation independent of agentics, admit no 
 - Replacement contract: Make Docs has no general plugin or workflow-bundle product; core behavior is complete through resources and typed CLI/MCP operations, selected Skills remain separate, and any future optional integration must have a traced non-Playbook consumer, an owning PRD, explicit selection, lifecycle authority, real capability evidence, and honest conformance status.
 - Rationale: Unsupported and untraced plugin infrastructure must not remain a current product promise, while evidence-backed optional extensibility retains a clear admission seam.
 - Source: [W19 R1 recovery design](../designs/2026-08-12-make-docs-v2-product-boundary-and-missing-migration-recovery.md) and [accepted W19 R1 plan](../plans/2026-08-13-w19-r1-make-docs-v2-product-boundary-and-missing-migration-recovery/00-overview.md)
+
+### 2026-11-28 — W35 R0 P5
+
+- Date: 2026-11-28
+- Coordinate: W35 R0 P5
+- Affected requirement or section: R-ADMIT-1; R-SELECT-1; the Acceptance Criteria line about default setup.
+- Previous contract: An optional integration needed "a real harness capability contract". Bare setup, default sync, and Skills selection installed no hook, and default setup created no hook.
+- Replacement contract: R-ADMIT-1 also admits, for the git hooks that PRD 07 owns, the git hook behavior that tests prove on each supported platform. R-SELECT-1 says that the git hooks are installed only by an explicit hook input, by an explicit answer in interactive setup, or by the machine preference that the person set. The Acceptance Criteria line admits no hook other than those git hooks. No other requirement of this PRD changed.
+- Rationale: Git is not an agent tool, so a git hook could not meet "a real harness capability contract". The machine preference is an explicit selection that the person made. The owner approved these exact words on 2026-11-27 (owner gates OG-5 and OG-10, design OD-11 and OD-12).
+- Source: [W35 R0 P5](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/05-git-hooks-in-setup.md) and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup).
 
 ## Source Anchors
 

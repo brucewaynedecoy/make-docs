@@ -1,0 +1,212 @@
+{
+ "measure": "hook cost by count of work files",
+ "note": "A side measure. It is not a result of PERF-007. Paths and IDs are left out.",
+ "samples": 7,
+ "rows": [
+  {
+   "workFiles": 100,
+   "firstSync": {
+    "commitMs": 141.2,
+    "endsAfterMs": 394.9
+   },
+   "none": [
+    21.8,
+    21.1,
+    19.9,
+    20.8,
+    20.7,
+    20.3,
+    20.3
+   ],
+   "background": [
+    79.4,
+    79.6,
+    79.2,
+    79.3,
+    80.1,
+    78.6,
+    80.6
+   ],
+   "backgroundEndsAfter": [
+    214.6,
+    224.7,
+    224.2,
+    215,
+    221.8,
+    214.9,
+    217.9
+   ],
+   "fallback": [
+    267.7,
+    270.4,
+    271.7,
+    265.4,
+    269.2,
+    263.7,
+    267
+   ],
+   "summary": {
+    "noHookMedian": 20.7,
+    "backgroundAdds": 58.7,
+    "backgroundEndsAfterMedian": 217.9,
+    "fallbackAdds": 247
+   }
+  },
+  {
+   "workFiles": 470,
+   "firstSync": {
+    "commitMs": 142.2,
+    "endsAfterMs": 1345.8
+   },
+   "none": [
+    22.6,
+    22.8,
+    22.6,
+    20.8,
+    20.5,
+    20.8,
+    20.5
+   ],
+   "background": [
+    81.6,
+    80.2,
+    80.7,
+    76.2,
+    76.7,
+    77,
+    77.5
+   ],
+   "backgroundEndsAfter": [
+    467,
+    463.1,
+    464.7,
+    463.3,
+    457.6,
+    467.2,
+    460.7
+   ],
+   "fallback": [
+    513.1,
+    523.4,
+    507.2,
+    507.7,
+    515.3,
+    508,
+    509.8
+   ],
+   "summary": {
+    "noHookMedian": 20.8,
+    "backgroundAdds": 56.7,
+    "backgroundEndsAfterMedian": 463.3,
+    "fallbackAdds": 489
+   }
+  },
+  {
+   "workFiles": 1000,
+   "firstSync": {
+    "commitMs": 144.6,
+    "endsAfterMs": 2511.4
+   },
+   "none": [
+    21.6,
+    21.6,
+    21.4,
+    21.6,
+    21.4,
+    21.6,
+    21.3
+   ],
+   "background": [
+    77.3,
+    77.1,
+    76.8,
+    76.8,
+    78.4,
+    77.8,
+    78.6
+   ],
+   "backgroundEndsAfter": [
+    881.5,
+    888.6,
+    884.1,
+    929.5,
+    882.8,
+    872.8,
+    885
+   ],
+   "fallback": [
+    974.8,
+    936,
+    941.7,
+    948.2,
+    946.5,
+    944.3,
+    940.3
+   ],
+   "summary": {
+    "noHookMedian": 21.6,
+    "backgroundAdds": 55.7,
+    "backgroundEndsAfterMedian": 884.1,
+    "fallbackAdds": 922.7
+   }
+  },
+  {
+   "workFiles": 2000,
+   "firstSync": {
+    "commitMs": 143.8,
+    "endsAfterMs": 5295.6
+   },
+   "none": [
+    23.7,
+    22.4,
+    23.8,
+    24.2,
+    23.1,
+    23.7,
+    23.8
+   ],
+   "background": [
+    78.1,
+    79.1,
+    79.6,
+    79.1,
+    80,
+    79.5,
+    79.4
+   ],
+   "backgroundEndsAfter": [
+    2135,
+    2133.4,
+    2129.2,
+    2120.1,
+    2114.5,
+    2135.1,
+    2118.1
+   ],
+   "fallback": [
+    2189.4,
+    2206.5,
+    2195.1,
+    2194.2,
+    2204,
+    2198.8,
+    2199.6
+   ],
+   "summary": {
+    "noHookMedian": 23.7,
+    "backgroundAdds": 55.7,
+    "backgroundEndsAfterMedian": 2129.2,
+    "fallbackAdds": 2175.1
+   }
+  }
+ ],
+ "runtime": {
+  "node": "v26.13.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpus": 10,
+  "cpuModel": "Apple M2 Pro",
+  "memoryGiB": 16,
+  "git": "git version 2.47.1"
+ }
+}

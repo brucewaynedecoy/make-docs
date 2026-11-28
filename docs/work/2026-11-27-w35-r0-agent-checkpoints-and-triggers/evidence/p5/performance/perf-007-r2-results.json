@@ -1,0 +1,1625 @@
+{
+ "profile": "PERF-007",
+ "profileVersion": 1,
+ "result": "PERF-007-R2",
+ "difference": "The hooks are the blocks that setup installs (block version 2), in the background mode and in the foreground fallback.",
+ "note": "Paths, project names, and IDs are left out. Each run used fresh clones and fresh temporary Stores.",
+ "runs": [
+  {
+   "run": 1,
+   "ms": {
+    "none.commit.noChange": [
+     24.8,
+     23.9,
+     23.9,
+     23.5,
+     23.4
+    ],
+    "none.commit.oneWorkFile": [
+     25,
+     24.9,
+     25.6,
+     25.5,
+     25.8
+    ],
+    "none.merge.noChange": [
+     46.8,
+     47.2,
+     46.9,
+     48.4,
+     46.2
+    ],
+    "none.merge.oneWorkFile": [
+     47.1,
+     46.6,
+     46.7,
+     48.1,
+     47.7
+    ],
+    "none.rewrite.noChange": [
+     23.9,
+     23.7,
+     24,
+     23.6,
+     26.2
+    ],
+    "none.rewrite.oneWorkFile": [
+     25,
+     25.1,
+     25.6,
+     25.8,
+     25.6
+    ],
+    "none.branchChange.noChange": [
+     17.7,
+     15.5,
+     15.8,
+     16,
+     15.9
+    ],
+    "none.branchChange.oneWorkFile": [
+     15.8,
+     15.6,
+     16,
+     16.1,
+     16.1
+    ],
+    "background.commit.noChange": [
+     86.8,
+     81.9,
+     83.1,
+     87.1,
+     86.3
+    ],
+    "background.commit.oneWorkFile": [
+     83.8,
+     82.1,
+     84.1,
+     84,
+     84.7
+    ],
+    "background.merge.noChange": [
+     158.5,
+     104.5,
+     98.8,
+     96.3,
+     95.6
+    ],
+    "background.merge.oneWorkFile": [
+     96.2,
+     99.1,
+     96.8,
+     96.8,
+     96.9
+    ],
+    "background.rewrite.noChange": [
+     193.8,
+     136.4,
+     134.7,
+     134,
+     132.4
+    ],
+    "background.rewrite.oneWorkFile": [
+     138,
+     137,
+     143.4,
+     138.3,
+     136.1
+    ],
+    "background.branchChange.noChange": [
+     133.3,
+     78,
+     73.3,
+     74.8,
+     75.6
+    ],
+    "background.branchChange.oneWorkFile": [
+     73.4,
+     74.8,
+     79.6,
+     78.2,
+     74.7
+    ],
+    "fallback.commit.noChange": [
+     513.3,
+     512,
+     517.7,
+     534.4,
+     509.3
+    ],
+    "fallback.commit.oneWorkFile": [
+     609.5,
+     602.1,
+     594.2,
+     605.7,
+     611
+    ],
+    "fallback.merge.noChange": [
+     586.3,
+     533.3,
+     533.8,
+     537.4,
+     531.2
+    ],
+    "fallback.merge.oneWorkFile": [
+     614,
+     615.9,
+     621.3,
+     614.6,
+     618
+    ],
+    "fallback.rewrite.noChange": [
+     625.2,
+     565.5,
+     564.3,
+     563.9,
+     569.2
+    ],
+    "fallback.rewrite.oneWorkFile": [
+     651.7,
+     640.3,
+     648.5,
+     654.7,
+     658
+    ],
+    "fallback.branchChange.noChange": [
+     462.4,
+     390,
+     394,
+     393,
+     392.8
+    ],
+    "fallback.branchChange.oneWorkFile": [
+     391.9,
+     391.1,
+     389.7,
+     397.4,
+     394
+    ]
+   },
+   "afterReturnMs": {
+    "none.commit.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.commit.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.merge.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.merge.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.rewrite.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.rewrite.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.branchChange.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.branchChange.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "background.commit.noChange": [
+     466,
+     456.4,
+     460,
+     467.5,
+     461.1
+    ],
+    "background.commit.oneWorkFile": [
+     541.3,
+     541.2,
+     547.8,
+     546.8,
+     542.3
+    ],
+    "background.merge.noChange": [
+     456.6,
+     460.9,
+     454.5,
+     459.6,
+     449.7
+    ],
+    "background.merge.oneWorkFile": [
+     539.8,
+     537.3,
+     539.3,
+     556,
+     548.8
+    ],
+    "background.rewrite.noChange": [
+     800.1,
+     861.2,
+     857,
+     861.9,
+     875.1
+    ],
+    "background.rewrite.oneWorkFile": [
+     991.1,
+     955.2,
+     932.3,
+     969.9,
+     917.6
+    ],
+    "background.branchChange.noChange": [
+     340.9,
+     345.4,
+     345.2,
+     347.6,
+     348.2
+    ],
+    "background.branchChange.oneWorkFile": [
+     349.8,
+     346.6,
+     355.4,
+     347.9,
+     344.7
+    ],
+    "fallback.commit.noChange": [
+     452.6,
+     451.7,
+     446.5,
+     461.2,
+     457.6
+    ],
+    "fallback.commit.oneWorkFile": [
+     451.4,
+     462.5,
+     460.6,
+     454.4,
+     457.9
+    ],
+    "fallback.merge.noChange": [
+     461.7,
+     457.7,
+     450.7,
+     466.7,
+     455.7
+    ],
+    "fallback.merge.oneWorkFile": [
+     449.5,
+     455.7,
+     453.3,
+     461.1,
+     453.3
+    ],
+    "fallback.rewrite.noChange": [
+     807.5,
+     859.5,
+     859.8,
+     863.7,
+     869.5
+    ],
+    "fallback.rewrite.oneWorkFile": [
+     855.9,
+     853.7,
+     875.8,
+     867.5,
+     870.2
+    ],
+    "fallback.branchChange.noChange": [
+     344.2,
+     336.3,
+     340.7,
+     337,
+     333.3
+    ],
+    "fallback.branchChange.oneWorkFile": [
+     336.6,
+     336.9,
+     348.1,
+     337.7,
+     332.3
+    ]
+   },
+   "firstSync": {
+    "background": {
+     "ms": 239.4,
+     "afterReturnMs": 1705.7,
+     "units": 4417,
+     "firstLine": null
+    },
+    "fallback": {
+     "ms": 1820.7,
+     "afterReturnMs": 453.6,
+     "units": 4417,
+     "firstLine": "Checkpoint: <n> files imported."
+    }
+   },
+   "seen": {
+    "none.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.commit.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.merge.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.rewrite.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.branchChange.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.commit.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.merge.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.rewrite.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.branchChange.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.commit.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.merge.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.rewrite.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.branchChange.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file waits.",
+     "lines": 2
+    }
+   },
+   "commit": "fab9f749",
+   "floor": [
+    89.8,
+    90.6,
+    91.3
+   ]
+  },
+  {
+   "run": 2,
+   "ms": {
+    "none.commit.noChange": [
+     25.1,
+     24,
+     23.3,
+     23.8,
+     23.7
+    ],
+    "none.commit.oneWorkFile": [
+     25.7,
+     25.5,
+     25.1,
+     25.3,
+     25.1
+    ],
+    "none.merge.noChange": [
+     47.3,
+     47,
+     47,
+     46.9,
+     46.5
+    ],
+    "none.merge.oneWorkFile": [
+     47.7,
+     50.1,
+     47.4,
+     47.7,
+     48
+    ],
+    "none.rewrite.noChange": [
+     24,
+     24.4,
+     24.8,
+     27,
+     24
+    ],
+    "none.rewrite.oneWorkFile": [
+     24.8,
+     24.9,
+     26.6,
+     31,
+     25.7
+    ],
+    "none.branchChange.noChange": [
+     15.6,
+     15.2,
+     15.5,
+     16.9,
+     15.6
+    ],
+    "none.branchChange.oneWorkFile": [
+     16.1,
+     16,
+     15.7,
+     15.8,
+     16.1
+    ],
+    "background.commit.noChange": [
+     84.3,
+     82.7,
+     84.2,
+     82.4,
+     82.8
+    ],
+    "background.commit.oneWorkFile": [
+     85.1,
+     84,
+     84.2,
+     83.7,
+     84.7
+    ],
+    "background.merge.noChange": [
+     157.7,
+     102.1,
+     98.2,
+     97.1,
+     97.1
+    ],
+    "background.merge.oneWorkFile": [
+     98.4,
+     99.3,
+     99,
+     96.5,
+     97.7
+    ],
+    "background.rewrite.noChange": [
+     195.9,
+     139.7,
+     135.8,
+     134.4,
+     135.4
+    ],
+    "background.rewrite.oneWorkFile": [
+     134.3,
+     138.8,
+     138.2,
+     137.6,
+     138.1
+    ],
+    "background.branchChange.noChange": [
+     136.2,
+     73.7,
+     73,
+     75.2,
+     74.8
+    ],
+    "background.branchChange.oneWorkFile": [
+     76.7,
+     72.8,
+     73.1,
+     74.2,
+     76.7
+    ],
+    "fallback.commit.noChange": [
+     530.6,
+     524.2,
+     508.9,
+     515.1,
+     521.1
+    ],
+    "fallback.commit.oneWorkFile": [
+     609.1,
+     608.4,
+     603.7,
+     605.4,
+     601.8
+    ],
+    "fallback.merge.noChange": [
+     609.8,
+     534.1,
+     527.6,
+     537.1,
+     531.1
+    ],
+    "fallback.merge.oneWorkFile": [
+     623.5,
+     619.2,
+     613.7,
+     624,
+     611.6
+    ],
+    "fallback.rewrite.noChange": [
+     632,
+     572.5,
+     573.4,
+     570.4,
+     571.4
+    ],
+    "fallback.rewrite.oneWorkFile": [
+     659.9,
+     656.9,
+     659.5,
+     657.5,
+     641.1
+    ],
+    "fallback.branchChange.noChange": [
+     452.5,
+     394,
+     389,
+     391.5,
+     397.4
+    ],
+    "fallback.branchChange.oneWorkFile": [
+     388.1,
+     397.2,
+     396.1,
+     398.8,
+     392.5
+    ]
+   },
+   "afterReturnMs": {
+    "none.commit.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.commit.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.merge.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.merge.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.rewrite.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.rewrite.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.branchChange.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.branchChange.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "background.commit.noChange": [
+     462.1,
+     461,
+     461.2,
+     466,
+     464.7
+    ],
+    "background.commit.oneWorkFile": [
+     543.6,
+     542.8,
+     546.9,
+     542.4,
+     548.3
+    ],
+    "background.merge.noChange": [
+     461.9,
+     449.3,
+     462.4,
+     454.9,
+     455.4
+    ],
+    "background.merge.oneWorkFile": [
+     539.1,
+     540.5,
+     544.7,
+     556.1,
+     546.8
+    ],
+    "background.rewrite.noChange": [
+     810.1,
+     849.7,
+     855,
+     865,
+     880.5
+    ],
+    "background.rewrite.oneWorkFile": [
+     929.5,
+     941.2,
+     961.1,
+     945.9,
+     968.5
+    ],
+    "background.branchChange.noChange": [
+     344.1,
+     345.4,
+     341.5,
+     344.3,
+     345.6
+    ],
+    "background.branchChange.oneWorkFile": [
+     346.2,
+     349.2,
+     349.2,
+     348.4,
+     342.3
+    ],
+    "fallback.commit.noChange": [
+     452.4,
+     447.9,
+     452.3,
+     459.5,
+     456
+    ],
+    "fallback.commit.oneWorkFile": [
+     452.4,
+     450.7,
+     459.5,
+     458.7,
+     457.6
+    ],
+    "fallback.merge.noChange": [
+     451.8,
+     454.8,
+     449.5,
+     454.8,
+     453.6
+    ],
+    "fallback.merge.oneWorkFile": [
+     462.1,
+     448.5,
+     458.9,
+     454.9,
+     450.2
+    ],
+    "fallback.rewrite.noChange": [
+     804.2,
+     875.5,
+     855.8,
+     854.1,
+     867.2
+    ],
+    "fallback.rewrite.oneWorkFile": [
+     861.6,
+     871.5,
+     862,
+     878,
+     847.7
+    ],
+    "fallback.branchChange.noChange": [
+     332.9,
+     330.9,
+     333.9,
+     343.2,
+     338.9
+    ],
+    "fallback.branchChange.oneWorkFile": [
+     334,
+     340.2,
+     345.8,
+     338.3,
+     340.3
+    ]
+   },
+   "firstSync": {
+    "background": {
+     "ms": 140.8,
+     "afterReturnMs": 1705.5,
+     "units": 4417,
+     "firstLine": null
+    },
+    "fallback": {
+     "ms": 1825.3,
+     "afterReturnMs": 451.6,
+     "units": 4417,
+     "firstLine": "Checkpoint: <n> files imported."
+    }
+   },
+   "seen": {
+    "none.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.commit.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.merge.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.rewrite.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.branchChange.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.commit.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.merge.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.rewrite.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.branchChange.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.commit.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.merge.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.rewrite.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.branchChange.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file waits.",
+     "lines": 2
+    }
+   },
+   "commit": "6121e246",
+   "floor": [
+    89.8,
+    90.8,
+    89.9
+   ]
+  },
+  {
+   "run": 3,
+   "ms": {
+    "none.commit.noChange": [
+     25.1,
+     23.8,
+     23.2,
+     23.9,
+     24.5
+    ],
+    "none.commit.oneWorkFile": [
+     25.9,
+     25.3,
+     26.7,
+     24.9,
+     25.2
+    ],
+    "none.merge.noChange": [
+     46.4,
+     46.6,
+     46.9,
+     46.8,
+     46.8
+    ],
+    "none.merge.oneWorkFile": [
+     46.8,
+     47.9,
+     47,
+     47.6,
+     47.8
+    ],
+    "none.rewrite.noChange": [
+     23.8,
+     23.9,
+     23.6,
+     24.7,
+     23.6
+    ],
+    "none.rewrite.oneWorkFile": [
+     25.1,
+     25.7,
+     25.4,
+     25.3,
+     25.2
+    ],
+    "none.branchChange.noChange": [
+     15.7,
+     15.6,
+     15.6,
+     15.8,
+     15.8
+    ],
+    "none.branchChange.oneWorkFile": [
+     16.6,
+     15.9,
+     15.9,
+     16.1,
+     16.2
+    ],
+    "background.commit.noChange": [
+     82,
+     81.4,
+     81.5,
+     81.7,
+     82.8
+    ],
+    "background.commit.oneWorkFile": [
+     83.4,
+     84.2,
+     87,
+     83,
+     82.4
+    ],
+    "background.merge.noChange": [
+     176.4,
+     97.3,
+     97.4,
+     96.8,
+     96
+    ],
+    "background.merge.oneWorkFile": [
+     96.7,
+     98.3,
+     97.1,
+     97.7,
+     105.9
+    ],
+    "background.rewrite.noChange": [
+     213,
+     135.3,
+     135.4,
+     135.9,
+     133.3
+    ],
+    "background.rewrite.oneWorkFile": [
+     138.6,
+     137.8,
+     135.7,
+     139.8,
+     136
+    ],
+    "background.branchChange.noChange": [
+     153.4,
+     74.2,
+     74.6,
+     75.2,
+     72.6
+    ],
+    "background.branchChange.oneWorkFile": [
+     74.5,
+     73.6,
+     73.1,
+     75.2,
+     74.9
+    ],
+    "fallback.commit.noChange": [
+     515.9,
+     516.3,
+     517.5,
+     516.1,
+     515
+    ],
+    "fallback.commit.oneWorkFile": [
+     609.2,
+     607.3,
+     603.3,
+     606.9,
+     604.7
+    ],
+    "fallback.merge.noChange": [
+     592.8,
+     527.9,
+     533.3,
+     537.1,
+     535.1
+    ],
+    "fallback.merge.oneWorkFile": [
+     627.2,
+     622.4,
+     618.5,
+     619.9,
+     619.8
+    ],
+    "fallback.rewrite.noChange": [
+     624.6,
+     569.7,
+     563.7,
+     571.1,
+     568.5
+    ],
+    "fallback.rewrite.oneWorkFile": [
+     652,
+     658.8,
+     650.6,
+     681.7,
+     659.9
+    ],
+    "fallback.branchChange.noChange": [
+     449.4,
+     396.1,
+     392,
+     396.3,
+     394.5
+    ],
+    "fallback.branchChange.oneWorkFile": [
+     397.1,
+     394.7,
+     393.8,
+     395.1,
+     391.1
+    ]
+   },
+   "afterReturnMs": {
+    "none.commit.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.commit.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.merge.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.merge.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.rewrite.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.rewrite.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.branchChange.noChange": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "none.branchChange.oneWorkFile": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "background.commit.noChange": [
+     460.9,
+     464.9,
+     458.5,
+     456.6,
+     459.3
+    ],
+    "background.commit.oneWorkFile": [
+     538.1,
+     552.6,
+     538.4,
+     546.1,
+     539.7
+    ],
+    "background.merge.noChange": [
+     465.1,
+     464.6,
+     457.2,
+     457.7,
+     461.8
+    ],
+    "background.merge.oneWorkFile": [
+     542.6,
+     547.2,
+     547.6,
+     546.7,
+     537.9
+    ],
+    "background.rewrite.noChange": [
+     818.9,
+     843.4,
+     842.8,
+     866.9,
+     868.6
+    ],
+    "background.rewrite.oneWorkFile": [
+     988.7,
+     934.1,
+     982.4,
+     940.4,
+     975.2
+    ],
+    "background.branchChange.noChange": [
+     349.8,
+     345.1,
+     341.2,
+     346.6,
+     346.7
+    ],
+    "background.branchChange.oneWorkFile": [
+     352.6,
+     339.4,
+     347.7,
+     343.3,
+     343.6
+    ],
+    "fallback.commit.noChange": [
+     454.1,
+     449.2,
+     455.2,
+     458.6,
+     448.4
+    ],
+    "fallback.commit.oneWorkFile": [
+     454.7,
+     451.7,
+     453.4,
+     461.9,
+     450.7
+    ],
+    "fallback.merge.noChange": [
+     464.8,
+     448.3,
+     456.6,
+     463.9,
+     460.4
+    ],
+    "fallback.merge.oneWorkFile": [
+     454.5,
+     453.3,
+     462.9,
+     454.9,
+     469.3
+    ],
+    "fallback.rewrite.noChange": [
+     799.6,
+     862.8,
+     873.8,
+     855.3,
+     843.2
+    ],
+    "fallback.rewrite.oneWorkFile": [
+     868.5,
+     871.1,
+     852.2,
+     869.2,
+     878.1
+    ],
+    "fallback.branchChange.noChange": [
+     342.1,
+     336.4,
+     334.4,
+     332.8,
+     333.7
+    ],
+    "fallback.branchChange.oneWorkFile": [
+     337.2,
+     346.1,
+     339.9,
+     332.9,
+     341
+    ]
+   },
+   "firstSync": {
+    "background": {
+     "ms": 161.3,
+     "afterReturnMs": 1728.6,
+     "units": 4417,
+     "firstLine": null
+    },
+    "fallback": {
+     "ms": 1874.9,
+     "afterReturnMs": 458.1,
+     "units": 4417,
+     "firstLine": "Checkpoint: <n> files imported."
+    }
+   },
+   "seen": {
+    "none.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.commit.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.merge.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.rewrite.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "none.branchChange.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.commit.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.merge.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.rewrite.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "background.branchChange.oneWorkFile": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.commit.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.commit.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.merge.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.merge.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.rewrite.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.rewrite.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file imported.",
+     "lines": 1
+    },
+    "fallback.branchChange.noChange": {
+     "firstLine": null,
+     "lines": 0
+    },
+    "fallback.branchChange.oneWorkFile": {
+     "firstLine": "Checkpoint: <n> file waits.",
+     "lines": 2
+    }
+   },
+   "commit": "88e45376",
+   "floor": [
+    88.8,
+    91.5,
+    92.1
+   ]
+  }
+ ],
+ "stop": {
+  "reason": "all 3 runs done",
+  "elapsedSeconds": 275.9
+ },
+ "summary": {
+  "floor": {
+   "samples": 9,
+   "median": 90.6,
+   "min": 88.8,
+   "max": 92.1
+  },
+  "actions": {
+   "commit.noChange": {
+    "none": {
+     "samples": 15,
+     "median": 23.9,
+     "min": 23.2,
+     "max": 25.1
+    },
+    "background": {
+     "samples": 15,
+     "median": 82.8,
+     "min": 81.4,
+     "max": 87.1,
+     "adds": 58.9,
+     "afterReturnMedian": 461.1
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 516.1,
+     "min": 508.9,
+     "max": 534.4,
+     "adds": 492.2,
+     "afterReturnMedian": 452.6
+    }
+   },
+   "commit.oneWorkFile": {
+    "none": {
+     "samples": 15,
+     "median": 25.3,
+     "min": 24.9,
+     "max": 26.7
+    },
+    "background": {
+     "samples": 15,
+     "median": 84,
+     "min": 82.1,
+     "max": 87,
+     "adds": 58.7,
+     "afterReturnMedian": 542.8
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 605.7,
+     "min": 594.2,
+     "max": 611,
+     "adds": 580.4,
+     "afterReturnMedian": 454.7
+    }
+   },
+   "merge.noChange": {
+    "none": {
+     "samples": 15,
+     "median": 46.9,
+     "min": 46.2,
+     "max": 48.4
+    },
+    "background": {
+     "samples": 15,
+     "median": 97.4,
+     "min": 95.6,
+     "max": 176.4,
+     "adds": 50.5,
+     "afterReturnMedian": 457.7
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 534.1,
+     "min": 527.6,
+     "max": 609.8,
+     "adds": 487.2,
+     "afterReturnMedian": 455.7
+    }
+   },
+   "merge.oneWorkFile": {
+    "none": {
+     "samples": 15,
+     "median": 47.7,
+     "min": 46.6,
+     "max": 50.1
+    },
+    "background": {
+     "samples": 15,
+     "median": 97.7,
+     "min": 96.2,
+     "max": 105.9,
+     "adds": 50,
+     "afterReturnMedian": 544.7
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 619.2,
+     "min": 611.6,
+     "max": 627.2,
+     "adds": 571.5,
+     "afterReturnMedian": 454.9
+    }
+   },
+   "rewrite.noChange": {
+    "none": {
+     "samples": 15,
+     "median": 24,
+     "min": 23.6,
+     "max": 27
+    },
+    "background": {
+     "samples": 15,
+     "median": 135.4,
+     "min": 132.4,
+     "max": 213,
+     "adds": 111.4,
+     "afterReturnMedian": 857
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 570.4,
+     "min": 563.7,
+     "max": 632,
+     "adds": 546.4,
+     "afterReturnMedian": 859.5
+    }
+   },
+   "rewrite.oneWorkFile": {
+    "none": {
+     "samples": 15,
+     "median": 25.4,
+     "min": 24.8,
+     "max": 31
+    },
+    "background": {
+     "samples": 15,
+     "median": 138,
+     "min": 134.3,
+     "max": 143.4,
+     "adds": 112.6,
+     "afterReturnMedian": 955.2
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 656.9,
+     "min": 640.3,
+     "max": 681.7,
+     "adds": 631.5,
+     "afterReturnMedian": 868.5
+    }
+   },
+   "branchChange.noChange": {
+    "none": {
+     "samples": 15,
+     "median": 15.7,
+     "min": 15.2,
+     "max": 17.7
+    },
+    "background": {
+     "samples": 15,
+     "median": 74.8,
+     "min": 72.6,
+     "max": 153.4,
+     "adds": 59.1,
+     "afterReturnMedian": 345.4
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 394,
+     "min": 389,
+     "max": 462.4,
+     "adds": 378.3,
+     "afterReturnMedian": 336.3
+    }
+   },
+   "branchChange.oneWorkFile": {
+    "none": {
+     "samples": 15,
+     "median": 16,
+     "min": 15.6,
+     "max": 16.6
+    },
+    "background": {
+     "samples": 15,
+     "median": 74.7,
+     "min": 72.8,
+     "max": 79.6,
+     "adds": 58.7,
+     "afterReturnMedian": 347.7
+    },
+    "fallback": {
+     "samples": 15,
+     "median": 394,
+     "min": 388.1,
+     "max": 398.8,
+     "adds": 378,
+     "afterReturnMedian": 338.3
+    }
+   }
+  },
+  "firstSync": {
+   "background": {
+    "samples": 3,
+    "median": 161.3,
+    "min": 140.8,
+    "max": 239.4,
+    "afterReturnMedian": 1705.7,
+    "units": 4417
+   },
+   "fallback": {
+    "samples": 3,
+    "median": 1825.3,
+    "min": 1820.7,
+    "max": 1874.9,
+    "afterReturnMedian": 453.6,
+    "units": 4417
+   }
+  }
+ },
+ "runtime": {
+  "node": "v26.13.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpus": 10,
+  "cpuModel": "Apple M2 Pro",
+  "memoryGiB": 16,
+  "git": "git version 2.47.1"
+ }
+}

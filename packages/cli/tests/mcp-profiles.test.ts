@@ -37,6 +37,8 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
     "project_relations_list",
     // W29 R0 P4 work queue (PRD 52 R-WORK-QUEUE-12).
     "work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add",
+    // W35 R0 P1 project checkpoint (PRD 25 R-MCP-PROFILE-12).
+    "project_checkpoint",
   ],
   quality: [
     "check_performance_evidence", "check_prd", "project_paths_validate",
@@ -48,6 +50,8 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
   backlog: [
     "backlog_cache_lookup", "backlog_cache_write", "backlog_review_open", "backlog_review_refresh", "backlog_snapshot",
     "work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add",
+    // W35 R0 P1 project checkpoint (PRD 25 R-MCP-PROFILE-12).
+    "project_checkpoint",
   ],
   // W30 R0 P3 factory tools (PRD 25 R-MCP-PROFILE-8).
   factory: ["factory_status", "factory_tools_save", "factory_workflow_save", "factory_workflow_show", "factory_workflow_list", "factory_proof_save", "factory_assignment_start", "factory_assignment_save", "factory_assignment_list", "factory_restore", "factory_tools_list", "factory_file_backup_save", "factory_grant_use_record", "factory_workflow_clean"],
@@ -55,6 +59,8 @@ const EXPECTED_PROFILES: Record<McpProfile, string[]> = {
 
 /** W34 R0 P1 tools (PRD 25 R-MCP-PROFILE-11). They landed after W33 R0 and have no former names. */
 const W34_R0_P1_TOOLS = new Set(["check_decomposition", "project_relations_list", "project_markdown_validate", "project_markdown_repair"]);
+/** W35 R0 P1 project checkpoint tool (PRD 25 R-MCP-PROFILE-12). It landed after W33 R0 and has no former name. */
+const W35_R0_P1_TOOLS = new Set(["project_checkpoint"]);
 /** W29 R0 P4 work queue tools (PRD 25 R-MCP-PROFILE). They landed after W33 R0 and have no former names. */
 const W29_R0_P4_TOOLS = new Set(["work_status", "work_sync", "work_next", "work_claim", "work_release", "work_report", "work_close", "work_export", "work_add"]);
 /** W30 R0 P3 factory tools (PRD 25 R-MCP-PROFILE-8). They landed after W33 R0 and have no former names. */
@@ -103,7 +109,7 @@ describe("W33 R0 P2 profile membership", () => {
         return next!;
       });
       const members = ready.filter((tool) => tool.mcp!.profiles.includes(profile)).map((tool) => tool.name);
-      expect(members.filter((name) => !W34_R0_P1_TOOLS.has(name) && !W29_R0_P4_TOOLS.has(name) && !W30_R0_P3_TOOLS.has(name)).sort(), profile).toEqual(expected.sort());
+      expect(members.filter((name) => !W34_R0_P1_TOOLS.has(name) && !W35_R0_P1_TOOLS.has(name) && !W29_R0_P4_TOOLS.has(name) && !W30_R0_P3_TOOLS.has(name)).sort(), profile).toEqual(expected.sort());
       expect(members.sort(), profile).toEqual([...EXPECTED_PROFILES[profile]].sort());
     }
   });
@@ -115,12 +121,12 @@ describe("W24 R0 P1 MCP metadata", () => {
     vi.resetModules();
   });
 
-  test("assigns all 81 ready tools, including checkout move, with all equal to the intent union", () => {
+  test("assigns all 82 ready tools, including checkout move, with all equal to the intent union", () => {
     const ready = listMakeDocsMcpTools().filter((tool) => tool.mcpReady !== false);
     const names = ready.map((tool) => tool.name);
-    // 54 before W34 R0 P1, which added 4 (PRD 25 R-MCP-PROFILE-11), W29 R0 P4 added 9, W30 R0 P3 added 10, and the W30 R0 follow-up added 3.
-    expect(names).toHaveLength(81);
-    expect(new Set(names).size).toBe(81);
+    // 54 before W34 R0 P1, which added 4 (PRD 25 R-MCP-PROFILE-11), W29 R0 P4 added 9, W30 R0 P3 added 10, the W30 R0 follow-up added 3, and W35 R0 P1 added 1 (PRD 25 R-MCP-PROFILE-12).
+    expect(names).toHaveLength(82);
+    expect(new Set(names).size).toBe(82);
     for (const tool of ready) {
       expect(() => assertMcpToolMetadata(tool.name, tool.mcp)).not.toThrow();
     }

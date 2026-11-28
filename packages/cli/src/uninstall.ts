@@ -14,7 +14,10 @@ import {
 } from "./lifecycle-ui";
 import { getManifestFileHash, loadManifest } from "./manifest";
 import { resolveProjectIdentity } from "./store";
-import { recordPlannedFileChange, removeInstallationManifest, withInstallationOperation } from "./store/installation-state";
+import { getExistingInstallationCheckoutId, recordPlannedFileChange, removeInstallationManifest, withInstallationOperation } from "./store/installation-state";
+import { resolveStoreRoot } from "./store/paths";
+import { removeGitHookRunState } from "./store/git-hook-runs";
+import { applyGitHookRemoval, planGitHookRemoval, type GitHookRemovalPlan, type GitHookRemovalResult } from "./git-hooks";
 import type {
   AuditReport,
   BackupDestinationPlan,
@@ -61,6 +64,8 @@ export type UninstallExecutionResult =
       /** Project removal preserves machine-level Store rows in W19 R1 P4. */
       storeHandling: { status: "preserved"; reason: string };
       receipt?: LifecycleMutationReceipt;
+      /** W35 R0 P5: what removal did with the git hooks of this checkout. */
+      gitHooks?: GitHookRemovalResult;
     };
 
 export async function runUninstallCommand(
@@ -113,6 +118,19 @@ export async function runUninstallCommand(
     backupDestinationDir,
   });
 
+  // W35 R0 P5 (PRD 07 R-SETUP-CLI-24): the git hooks are outside the project folder, so the audit
+  // does not hold them. The review names what removal does with each hook file, before the person approves.
+  const hookStoreRoot = options.storeRoot ?? resolveStoreRoot();
+  let hookCheckoutId: string | null = null;
+  let hookRemovalPlan: GitHookRemovalPlan | null = null;
+  try {
+    hookCheckoutId = getExistingInstallationCheckoutId(targetDir, hookStoreRoot);
+    hookRemovalPlan = planGitHookRemoval(targetDir, hookStoreRoot, hookCheckoutId);
+  } catch {
+    // No usable Store or no bound checkout: this checkout has no git hook record to remove.
+  }
+  if (hookRemovalPlan && hookRemovalPlan.lines.length > 0) process.stdout.write(`${hookRemovalPlan.lines.join("\n")}\n`);
+
   const finalApproved = await renderer.confirmUninstallRun({
     permissions: options.permissions,
     backupRequested: options.backup,
@@ -136,7 +154,7 @@ export async function runUninstallCommand(
     destinationPlan: plan.backupDestinationPlan,
   }) : null;
 
-  return withInstallationOperation(targetDir, "setup.remove", () => {
+  const removal = withInstallationOperation(targetDir, "setup.remove", (): UninstallExecutionResult => {
     removeInstallationManifest(targetDir);
     let backupResult: BackupExecutionResult | null = null;
     if (preparedBackup) {
@@ -221,6 +239,55 @@ export async function runUninstallCommand(
       ...(receipt ? { receipt } : {}),
     };
   }, { storeRoot: options.storeRoot, projectId: manifest?.projectId });
+
+  // The hooks go after the project files, and a hook problem never fails the removal of the project.
+  // A bound checkout of a clone with hooks has a folder of run files also when it is not in the hook record. The
+  // folder goes with the project, in each case.
+  if (removal.status === "completed") {
+    try { removeGitHookRunState(hookStoreRoot, targetDir); } catch { /* The run files are small, and Store removal takes them out. */ }
+  }
+  if (removal.status !== "completed" || !hookRemovalPlan || hookRemovalPlan.status === "none" || hookRemovalPlan.status === "unavailable") return removal;
+  let gitHooks: GitHookRemovalResult;
+  try {
+    gitHooks = applyGitHookRemoval(targetDir, hookStoreRoot, hookCheckoutId, options.now);
+  } catch (error) {
+    gitHooks = { ...hookRemovalPlan, status: "unavailable", reason: toErrorMessage(error), hooks: [], recordRemoved: false, lines: [`Git hooks: Make Docs could not change the hook files, so it left them and their Store record as they are. ${toErrorMessage(error).split("\n")[0]}`] };
+  }
+  process.stdout.write(`${renderGitHookRemovalReport(gitHooks)}\n`);
+  return { ...removal, gitHooks };
+}
+
+/** The lines that a person sees after removal handled the git hooks. */
+export function renderGitHookRemovalReport(result: GitHookRemovalResult): string {
+  if (result.status === "unavailable") return result.lines.join("\n");
+  if (result.status === "shared") {
+    const updated = result.hooks.filter((entry) => entry.action === "update-block");
+    return [
+      "Git hooks: the Make Docs blocks stay, because another bound checkout of this clone uses them:",
+      ...result.remaining.map((root) => `- ${root}`),
+      ...(updated.length === 0 ? [] : ["Make Docs wrote these blocks again, with no line for the project folder of this checkout, and kept every other byte:", ...updated.map((entry) => `- ${entry.path}`)]),
+      "This checkout is no longer in their Store record.",
+    ].join("\n");
+  }
+  if (result.status === "held") {
+    return [
+      "Git hooks: the Make Docs blocks stay, with no change, and their Store record stays. Git lists a work tree of this clone that can be a checkout of the record at a new folder:",
+      ...result.heldFor.map((root) => `- ${root}`),
+      "This checkout is no longer in their Store record.",
+    ].join("\n");
+  }
+  const done: Record<string, string> = {
+    "remove-block": "the Make Docs block was removed, and every other byte stays",
+    "remove-file": "the file was removed, because Make Docs created it and it held nothing else",
+    "keep-changed": "kept: the block was changed after Make Docs wrote it. It has no Store record now, and a later setup keeps it unless you give `--git-hooks`. To remove it, take out its two marker lines and the lines between them by hand",
+    "keep-shared": "kept",
+    "update-block": "kept",
+    gone: "no Make Docs block was in the file",
+  };
+  return [
+    "Git hooks: removed for this clone. The Store holds no git hook record for it now.",
+    ...result.hooks.map((entry) => `- ${entry.path}: ${done[entry.action]}`),
+  ].join("\n");
 }
 
 function assertRemovalEvidenceCurrent(entry: AuditReport["removableFiles"][number]): void {

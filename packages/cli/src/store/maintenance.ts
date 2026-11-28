@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { lstatSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, unlinkSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, unlinkSync } from "node:fs";
 import path from "node:path";
 
 import { platform, type ProcessLiveness } from "../platform";
@@ -24,6 +24,7 @@ import {
   type StoreUnguardableTable,
 } from "./database";
 import { getStoreDatabasePath } from "./paths";
+import { listGitHookRecords } from "../git-hooks";
 import {
   DETACHED_EVIDENCE_REASON,
   STORE_BLOCKING_LEFTOVERS,
@@ -697,8 +698,42 @@ export interface StoreCheckReport {
   rules: StoreMaintenanceRuleReport[];
   decisions: StoreMaintenanceDecision[];
   leftovers: StoreMaintenanceLeftover[];
+  /**
+   * W35 R0 P5 (PRD 38 R-HOOK-STATE-6): each git hook record of the Store. A record is kept, and no fixed rule
+   * removes it. `setup remove` in the last bound checkout of the clone removes it with its blocks.
+   */
+  gitHookRecords: StoreGitHookRecordReport[];
   notes: string[];
   nextAction: string;
+}
+
+export interface StoreGitHookRecordReport {
+  /** The row ID in `tool_operations`. */
+  key: string;
+  /** The shared git folder of the clone that owns the blocks. */
+  gitCommonDir: string;
+  hooks: string[];
+  /** How many checkouts selected the hooks. */
+  checkouts: number;
+  /** False when the git folder of the record is gone, so the record is left behind. */
+  gitFolderExists: boolean;
+  nextAction: string;
+}
+
+function gitHookRecordReports(db: StoreDatabase): StoreGitHookRecordReport[] {
+  return listGitHookRecords(db).map(({ key, record }) => {
+    const gitFolderExists = existsSync(record.gitCommonDir);
+    return {
+      key,
+      gitCommonDir: record.gitCommonDir,
+      hooks: Object.keys(record.hooks).sort(),
+      checkouts: record.checkouts.length,
+      gitFolderExists,
+      nextAction: gitFolderExists
+        ? "To remove the blocks and this record, run make-docs setup remove in each checkout of that clone that selected the hooks."
+        : "The git folder of this record is not there now. When the clone moved, run make-docs setup --git-hooks in the clone at its new path: with that input setup moves this record there. When the folder comes back, the record is its record again. When the clone was deleted, the record is left behind and blocks nothing.",
+    };
+  });
 }
 
 function entry(row: StoreMaintenanceRowResult): StoreMaintenanceRowEntry {
@@ -844,6 +879,7 @@ function buildCheckReport(db: StoreDatabase, databasePath: string, guardProblems
     rules,
     decisions,
     leftovers,
+    gitHookRecords: gitHookRecordReports(db),
     notes: checkNotes(store),
     nextAction,
   };

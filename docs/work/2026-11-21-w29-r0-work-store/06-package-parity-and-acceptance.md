@@ -284,10 +284,44 @@ The fast-path decision rule: build the digest-only fast path now only when a syn
 - Findings: one usability finding outside the timed workload, [FOLLOW-UP-P6-SETUP-ADOPT](evidence.md#follow-ups) (register D-070): a clone with a saved project ID and a new Store needs four setup commands, and the first two do not name `setup --adopt --yes`. It is not a performance finding.
 - Owner or reviewer disposition: accepted with the owner's Guided Progress Review, passed on 2026-11-23 (option A). Fast path: not now.
 - Supported-scope limit: this repository on this machine; informational only.
-- Expiry: the material change triggers above.
-- Later result: none.
+- Expiry: the material change triggers above. A material change trigger held on 2026-11-27: W35 R0 P4 changed sync. `PERF-004-R2` below is the result for the changed sync.
+- Later result: `PERF-004-R2`, below.
 
 The fast-path decision: not now. A sync with no change takes 386 ms, which is 302 ms over the 84 ms CLI floor, well under the 1 second line. `work next` and `work status` add about 250 ms of sync check over the floor. At about 0.65 ms per work file, twice the work files would still stay under the line. The store-mode snapshot costs 336 ms (12 percent) more than the file snapshot, and the snapshot is slow in both modes because it builds a JSON result of about 8 MB. Look again when this repository holds about 900 work files, or when a person reports a slow work command.
+
+#### Result Record Of The Requalification
+
+- Result ID: `PERF-004-R2`
+- Exact profile binding: `PERF-004`, version `1`, the source digest above. The profile text did not change.
+- Why this result exists: [W35 R0 P4](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time) moved the scan of the work files inside the Store write session of sync, to fix risk register entry R-041. That is the material change trigger "a change to the sync". The authorization, the budget event `W35-R0-P4-PERF-004-2`, and the budget ledger are in the [P4 phase file](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#requalification-of-perf-004-after-the-sync-core-fix), written before the runs.
+- Build and evidence fingerprint: the packed candidate that reports version `2.1.1`, tarball SHA-256 `739ad356412dfa09c3ffb853e3f0a62391cef44d042da3fbb11c676eb8ab7ab9`, built from `d12d1047` plus the W35 R0 P4 change of the sync core. The kept harness with no change, SHA-256 `8b13dd77d2de91f16ad156d4a5ad1a51b5ff2059a615bc51465501fe442701f5`.
+- Environment and workload: the same machine, macOS 27.2.1 arm64 (Apple M2 Pro, 10 cores, 16 GiB), Node `v26.13.1`. A fresh clone of this repository at `d12d1047` for each run: 471 work files imported and 4,396 store units. Run on 2026-11-27.
+- Raw and analyzed evidence: [perf-004-r2-results.json](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence/p4/performance/perf-004-r2-results.json).
+- Observed distribution, in milliseconds (median, then minimum to maximum), beside `PERF-004-R1`:
+
+| Command | Samples | `PERF-004-R2` median | Range | `PERF-004-R1` median | Over the floor, R2 | Over the floor, R1 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `make-docs --version` (the floor) | 9 | 100 | 96 to 103 | 84 | 0 | 0 |
+| First import (`work sync`, first sync of the checkout) | 3 | 1,883 | 1,846 to 1,943 | 1,380 | 1,783 | 1,296 |
+| `work sync` with no change | 15 | 444 | 428 to 505 | 386 | 344 | 302 |
+| `work next` | 15 | 383 | 365 to 394 | 330 | 282 | 246 |
+| `work status` | 15 | 399 | 382 to 411 | 351 | 299 | 267 |
+| `backlog snapshot --work-store --json` | 15 | 3,808 | 3,618 to 4,227 | 3,245 | 3,708 | 3,161 |
+| `backlog snapshot --json` (files, for comparison) | 15 | 3,441 | 3,290 to 3,673 | 2,909 | 3,341 | 2,825 |
+
+- What the table shows: each command is slower than in `PERF-004-R1`, and so is the floor, which runs no sync (100 ms and not 84 ms). `work next`, `work status`, and the file snapshot do not run the changed code: the first two run the read-only sync check, and the third reads no store. They are slower by 14 to 18 percent. `work sync` with no change, which runs the changed code, is slower by 15 percent. So this result alone cannot say whether the move of the scan adds time: each command is slower by about the same share, also the commands that do not run the changed code, and this result holds no run of the build before the fix in the same session. The change itself gives no reason for added time: sync does the same scan one time, at a later point. A comparison of the two builds in one session is below, as a side measure outside the profile. The first import is slower by 36 percent, which is more than the other commands. The fix does not explain that: the first import scans one time, as before. Between the two results the package went from the 2.0.9 candidate to the 2.1.1 candidate, the work files from 463 to 471, and the store units from 4,183 to 4,396, and the two results are from different days on the same machine. This result does not separate those causes.
+- Fingerprint against `PERF-004-R1`: `materially-changed`. The profile version, the harness, the machine, and the method are the same. The build, the fixture size, and the day differ. No run of the build before the fix was made on this day, so the result cannot give the cost of the fix as one number. The budget allowed three runs of the candidate.
+- Correctness: every run passed every non-sacrificable condition. Each first import imported 471 files and wrote, removed, and found nothing else. Each sync with no change imported, wrote, and removed nothing. No work file changed, and the store units did not change during the rounds (4,396 units, revision sum 4,396).
+- The time that a second sync waits for the Store, outside the profile: one more [harness](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence/p4/performance/perf-004-r2-wait-harness.mjs) started two `work sync` runs with no change at the same time, five times, in one fresh clone. One sync alone took 459 ms. Of the two, the first ended after 468 ms and the second after 764 ms. So the second sync waits about 305 ms for the Store while the first one works. [Results](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence/p4/performance/perf-004-r2-wait-results.json).
+- A comparison of the build with the fix and the build before it in one session, outside the profile: the independent review of W35 R0 P4 asked for it on 2026-11-27. One more [harness](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence/p4/performance/perf-004-r2-compare-harness.mjs) ran both builds in turn on one fresh clone with 471 work files and one temporary Store, 25 samples for each build and command. The builds were made in temporary copies of the source and differ only in the sync file. `work sync` with no change: 431.8 ms with the fix and 432.6 ms before it. `make-docs project checkpoint` with no change: 498.9 ms with the fix and 503.0 ms before it. These are medians, and the samples of one build spread over 70 ms to 110 ms. So the comparison found no difference larger than its spread. It does not prove that the fix costs nothing. It is one session on one machine, it is not a result of this profile, and it used no counted run. [Results](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence/p4/performance/perf-004-r2-compare-results.json). The [W35 R0 evidence](../2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#the-fix-for-two-syncs-at-the-same-time-t18-to-t23-a47a-to-a47f) holds the method and its limits.
+- Uncertainty and exclusions: three runs on one machine with a warm file cache; another machine, a larger project, or a sync with many changed files can differ.
+- Outcome: `pass`
+- Findings: none.
+- Owner or reviewer disposition: the independent review of W35 R0 P4 read it on 2026-11-27. It found that the first text of "What the table shows" said "no added time" with no support in this result. The text above is the corrected one. No number of this result changed.
+- The fast-path decision: this result does not change it. A sync with no change takes 444 ms, which is 344 ms over the 100 ms floor, under the 1 second line of the record of 2026-11-23. The decision "Fast path: not now" of 2026-11-23 stands.
+- Supported-scope limit: this repository on this machine; informational only.
+- Expiry: the material change triggers above.
+- Later result: none.
 
 ## Source PRD Docs
 

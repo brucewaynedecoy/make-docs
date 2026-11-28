@@ -1233,19 +1233,21 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Store session admission retries transient Windows `EPERM`, `EACCES`, and `EBUSY` at every step, until the admission deadline. | None. |
+| Open | The admission repair remains. A later Windows run exposed the same sharing errors during session release, outside that retry. | W35 R0 P5 corrects the reviewed cleanup regression: one short release deadline, best-effort Windows sharing cleanup, and preservation of the first admission error. Confirm the final package in Windows CI. No owner decision is recorded. |
 
 **Issue**: The "windows-latest installed package" job of PR #65 failed twice, on 2026-11-19 and 2026-11-20, and then passed. The failing test was "keeps shared Store sessions safe under 20 processes and five checkouts" in `packages/cli/tests/installation-state.test.ts`. The error was `access-denied` with `EPERM` on `store-access.lock` at the "secure session directory" step in `packages/cli/src/store/database.ts`. Windows returns `EPERM` when a process opens a path that another process is deleting. Store session admission races with the cleanup of the empty session directory. Admission already retries Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. It does not retry them when it creates or opens the session directory, or when it creates the session file on Windows.
 
 **Why it matters**: Under concurrent use on Windows, a Store-backed command can fail and tell the person to grant Store access that they already have. The failure also makes the Windows CI job unreliable. PRD 38 R-DB-3 requires bounded busy retry for concurrent Store writers.
 
-**Recommendation**: Treat Windows `EPERM`, `EACCES`, and `EBUSY` as transient at each session admission step, and retry them until the admission deadline. Keep the error fatal on other platforms and after the deadline.
+**Recommendation**: Retry Windows `EPERM`, `EACCES`, and `EBUSY` at session admission until its deadline, with lasting admission faults still reported. Release shares a 5,000 ms deadline, reduced by the call limit; empty-folder cleanup is capped at 250 ms and the remaining budget. These Windows cleanup codes leave the lease or folder for later recovery or reuse instead of replacing a completed result. Other I/O, safety, ownership, and POSIX release errors remain errors. Failed-admission cleanup preserves its first failure.
 
-**To close**: A deterministic fault-injection test covers each step, a lasting error, and another platform. Each fails without the change. A Windows CI pass alone cannot prove a timing fix, so it is supporting evidence only.
+**To close**: Deterministic fault injection covers admission, failed-admission cleanup, default and hook release budgets, busy-folder reuse, retained-lease recovery, lasting errors, POSIX behavior, and a completed command result at the production admission/CLI boundary. The regression cases fail on `1a9c3e1a`. A Windows CI pass alone cannot prove a timing fix, so it is supporting evidence only.
 
 **Resolution**: Closed on 2026-11-20 in W22 R0 P9 at the owner's direction. `database.ts` retries the transient Windows codes when it creates the session directory, opens and secures it, and creates the session file. After the PR #66 review, the admission loop also retries a wrapped transient code from any safety read between those steps, and a failed attempt removes its own pending session file. `w22-r0-p9-windows-session-admission.test.ts` fails without the change and passes with it. A lasting error still fails with `access-denied` after the deadline, and other platforms keep `EPERM` fatal.
 
 **Evidence**: [W22 R0 P9 evidence](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry).
+
+**W35 follow-up, 2026-11-28**: Reopened by [PR 69 run 46129718995](https://github.com/brucewaynedecoy/make-docs/actions/runs/46129718995/job/140935568454). The checkpoint race failed with `EPERM` from `rmdir store-access.lock`, operation `clean session directory`, `attempts: 1`, `waitedMs: 0`. Release tried to remove the directory before closing its own unlinked session handle, and did not retry Windows `EPERM` or `EACCES`. This path also exists on `main`; W35 did not introduce it. The first repair closes the handle before directory cleanup and adds retries. Independent review of `1a9c3e1a` found that optional folder cleanup could now fail a completed command, and that release had two full owner budgets. The corrected release shares one 5,000 ms deadline, reduced by the call limit; empty-folder cleanup is capped at 250 ms and the remaining caller budget. Persistent Windows `EPERM`, `EACCES`, or `EBUSY` at release leaves the owned lease or folder for later proven-dead-owner recovery or reuse without replacing the command result. Admission permission failures and other real I/O, safety, ownership, and POSIX release faults retain their meaning. Cleanup after a failed admission cannot hide its first error. Fault injection also exposed a session rename error hidden by `atomic-replace-failed`; Windows admission now sees its underlying sharing code. The unchanged race test remains the package check. [P5 CI follow-up evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-ci-follow-up-windows-pipes-and-store-session-cleanup) records the proof and remaining Windows confirmation.
 
 ### D-060 Project Config Cannot Be Rebuilt From the Store
 
@@ -2177,6 +2179,20 @@ All 24 registry operations project to MCP tools. A pending registration must not
 
 **To close**: An accepted lifecycle change states when a plan is optional and where the coordinate decision and promise map live without one, or records that the plan stays required.
 
+### Q-027 Does the Exact Reminder Check Stay on Each Command as the Work Files Grow?
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | None yet. The owner chose the exact check on 2026-11-27 (design OD-6 option A). `PERF-006` showed that owner gate OG-2 did not open. | Look again at about 900 work files, or when a person reports a slow Make Docs command. |
+
+**Question**: The reminder runs the exact sync check on 46 commands of the reminder set. The 47th, `backlog snapshot`, runs no reminder check of its own and reuses its own sync check with `--work-store`. The owner's decision "Fast path: not now" of 2026-11-23 covered only the work commands that already ran that check. Does the exact check stay on each command of the reminder set when the project holds more work files?
+
+**Why it matters**: The check reads and hashes each work file, so its time grows with the count of work files. `PERF-006` measured it on this repository on 2026-11-27, with 471 work files and 4,382 store units: the check adds 189 ms to 196 ms to a command that does not sync first (for example `project state status`: 124 ms with no check and 317 ms with the check), about 160 ms to `work add`, which syncs first and then also pays for the check, and about 20 ms to `backlog snapshot --work-store`, which reuses its own check. The largest added time is 196 ms, under the 1 second line of owner gate OG-2. So a command that took about 130 ms now takes about 330 ms. At about 0.4 ms for each work file, the added time reaches 1 second near 2,400 work files. The measurement is one machine and one repository.
+
+**Recommendation**: Keep the exact check now. Measure again at about 900 work files, as the record of 2026-11-23 says. If the added time passes 1 second, bring owner gate OG-2 to the owner: keep the exact check on fewer commands, or take a stored signal with a Store schema change (design OD-6 option B).
+
+**To close**: The owner decides, after a new measurement at about 900 work files or after a report of a slow command, that the exact check stays, that the reminder set shrinks, or that a stored signal replaces the check.
+
 ## Rebuild Risks
 
 ### R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild
@@ -2933,6 +2949,194 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 **To close**: The real-host matrix is complete, all core gaps are fixed or covered by active accepted exceptions, expired exceptions fail the gate, and public support claims match the evidence without reducing target scope.
 
 **Resolution**: P6 workflow 35483206273 passed its required source and installed-package jobs on Windows, macOS, and Linux. The comparison accepted no missing host, repeated host, different candidate, source-checkout substitute, extract-only proof, or different public contract. W22 closes with no platform exception and no reduction of the parity target.
+
+### R-039 One Project Store Serves Every Branch and Worktree
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W35 R0 P1 recorded this risk on 2026-11-27, as the [agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks. No owner decision changes the store model in this Wave. | W35 R0 P4 ran the two-worktree tests on 2026-11-27 and recorded the result. A store that holds work for each branch is a larger change, and no Wave owns it yet. |
+
+**Issue**: Work units belong to the project, and the sync ledger belongs to one checkout. A clone can have many worktrees on different branches, and they share one project store. So a checkpoint in a worktree on another branch imports that branch's work files into the one project store. The store then follows the last branch that someone synced.
+
+**Why it matters**: Every other worktree sees the store change in its next sync, as files that wait for a write, or as a conflict when its own file also changed. A person gets pending writes and conflicts that no one asked for. With hooks, an import happens after git actions, so it happens more often and with no person who chose it.
+
+**Recommendation**: Keep each difference visible, and do not hide the checkout. Do not import after a branch change.
+
+**To close**: An owner decision accepts the risk as a permanent limit, or a later Wave gives the store work for each branch.
+
+**What W35 R0 does**: The result of a checkpoint names the checkout that it synced. A trigger run with the event `branch-change` imports nothing and only reports what waits. Sync never settles a conflict, so each difference stays visible as a pending write or a conflict. W35 R0 P4 added the two-worktree tests on 2026-11-27, in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts`, and its [evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#two-work-trees-and-a-direct-checkpoint-t12-a44) holds the result. The first sync of a work tree whose branch already differs reports each file that differs as a conflict, and the store keeps its text. After both first syncs, an edit in one work tree and a direct checkpoint there move the store to that text. The other work tree then sees one file that waits for a write, and a direct run there writes that file and names it. When the other work tree also changed the file, the difference is a conflict. Nothing is overwritten with no report.
+
+**What W35 R0 does not remove**: The risk itself. An agent or a person who runs the checkpoint, or any work write command, in a worktree on another branch still imports that branch's work files. This was true before W35 R0, because each work write command already syncs first.
+
+### R-040 A Trigger Run Can Be the First Sync of a Checkout
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W35 R0 P1 recorded this risk on 2026-11-27, as the [agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks. | W35 R0 P4 measured the trigger run with `PERF-007` on 2026-11-27. The owner answered owner gate OG-4 on 2026-11-28: a git hook runs the checkpoint in the foreground, with a short time limit on the wait for the Store. |
+
+**Issue**: The first sync of a checkout imports every work file of its branch. A trigger run is a checkpoint that a hook starts. When a checkout has no sync yet, the first trigger run is that first sync, at a moment that no person chose.
+
+**Why it matters**: The first sync takes longer than a later sync: `PERF-004-R1` measured 1,380 ms for this repository. It also moves every work file of that branch into the project store at one time, so other worktrees can see many pending writes or conflicts in their next sync (R-039).
+
+**Recommendation**: Say in the result when a run was the first sync of its checkout, and never write a project file in a trigger run.
+
+**To close**: `PERF-007` shows the time of a first sync in a hook, the owner answers OG-4, and the owner accepts the remaining risk or a later Wave removes it. The first two are done: `PERF-007-R1` ran on 2026-11-27, and the owner answered OG-4 on 2026-11-28. The owner has not accepted the remaining risk.
+
+**What W35 R0 does**: The checkpoint result names the checkout and says when the run was the first sync of that checkout. A trigger run imports only, so it writes and removes no project file. A trigger run with the event `branch-change` imports nothing, so it is never a first sync. [`PERF-007-R1`](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs) measured the first sync in a hook on this repository, with 471 work files: a commit with a foreground hook takes about 2.2 seconds one time. With a hook that starts the checkpoint and returns, the commit takes about 0.14 seconds, and the first sync ends about 1.9 seconds later.
+
+**What W35 R0 does not remove**: A trigger run after a commit, a merge, or a rewrite can still be the first sync of a checkout. This Wave does not ask a person before that first sync.
+
+### R-041 Two Syncs at the Same Time Can Import an Older File Text
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Closed | The fix pass of W35 R0 P1 found this on 2026-11-27, with a test that starts two checkpoints at the same time. A review on the same day proved with the built CLI that the store does not fully recover. The owner decided on 2026-11-27: fix it in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed it in P4, before any hook installs. W35 R0 P4 built the fix on 2026-11-27. | Closed on 2026-11-27 by [W35 R0 P4](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time) Stage 5 (T18 to T23). The [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#the-fix-for-two-syncs-at-the-same-time-t18-to-t23-a47a-to-a47f) holds the proof. The independent review of P4 checks it before the phase commit. |
+
+**Issue**: `syncWorkFiles` in `packages/cli/src/operations/work/work-store/sync.ts` reads the work files before it takes the Store for its write. When two syncs of one checkout run at the same time, the second one waits for the Store with the file text that it read before the first one wrote. It then imports that older text. In the test, the first run wrote a closed task to its file, and the second run imported the older file and set the task back to open in the store. `make-docs work sync` in the released version 2.1.0 has the same fault, and it is older than the checkpoint. A trigger run imports, so each hook run that overlaps a run that writes a file can do this.
+
+**Why it matters**: The store does not fully recover. The review closed a task with `make-docs work close "<unit>" --expected-version <n> --outcome cancelled` and then started two `make-docs project checkpoint --json` runs at the same time. One run wrote the file. The other run imported that same file with its older text, and the store showed the task as open. One more run closed the task again from the file, with the outcome `done`.
+
+- Lost for good: the close outcome `cancelled`. A task line shows only that a task is closed, so the import records `done`. The same happens with `superseded`.
+- Wrong until the next run: the unit shows as open and ready. So another agent can claim work that is closed.
+- Recovers: the closed status comes back with the next run that imports the file. A close with the outcome `done` then agrees with the store again.
+- Stayed in the review: evidence rows and an in-progress status.
+- Stopped as a conflict: an older file scan with a missing file or a missing task.
+- Not checked: notes and met gates.
+
+With hooks, two runs at the same time become likely: a git hook and an agent tool hook can start a checkpoint for the same commit.
+
+**Recommendation**: Move the file scan inside the Store write session, so that the second sync sees what the first one wrote. Then measure the sync time again. The owner chose on 2026-11-27 to fix it in this Wave, before the hooks ship. W35 R0 P4 built it.
+
+**To close**: The sync core reads the files inside its write session, and tests with two runs at the same time prove that the store keeps the close outcomes `cancelled` and `superseded`. The same tests check notes and met gates. The sync time is measured again with the `PERF-004` method.
+
+**What W35 R0 does**: P4 Stage 5 moved the scan of the work files inside the Store write session of sync (`syncWorkFiles` in `packages/cli/src/operations/work/work-store/sync.ts`). A second sync of the same checkout now reads the files only after the first one wrote them, and it imports nothing. The tests in `packages/cli/tests/w35-r0-p4-sync-race.test.ts` hold two checkpoint runs of the built CLI at the Store at the same time, with a helper process that holds the Store write lock. They prove that the store keeps the close outcomes `cancelled` and `superseded`, that no run shows the unit as open, and that a progress note and a met gate stay. The three race tests fail on the code before the fix: the store shows the unit as open. A progress note and a met gate also stayed before the fix. The sync time was measured again with the `PERF-004` method (`PERF-004-R2`). [PRD 52](52-work-store-and-work-queue.md) R-WORK-SYNC-1 holds the rule.
+
+**What W35 R0 does not remove**: The fix is for two syncs of one checkout. Two checkouts of one project that sync at the same time each read their own files, and the sync table keeps each difference visible as a file that waits or as a conflict (R-039). The released version 2.1.0 keeps the fault until a version with this fix is released.
+
+### R-042 `work add` Ignores `--dry-run` and Writes the Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | A review of W35 R0 P2 found this on 2026-11-27. It is not from that phase, and that phase did not fix it. The owner decided on 2026-11-27: fix it in this Wave. The owner did not choose the phase. The orchestrator placed it in P7. | The fix is not built yet. [W35 R0 P7](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/07-acceptance.md#stage-4---the-fix-for-an-unknown-option-on-a-write-command) Stage 4 holds it, as tasks T14 to T19 and cases A79a to A79f. T19 closes this entry when the fix lands. |
+
+**Issue**: `make-docs work add "x" --dry-run` adds the quick item to the work store and ends with exit code 0. The fix pass of W35 R0 P2 proved it on 2026-11-27 with the built CLI and a temporary Store: the result said "Added task 1: x.", and `make-docs work next --level quick-item` then listed the item. The help of `make-docs work add` does not list `--dry-run`. The CLI still takes the flag for every command and gives it to the operation as its dry-run state, and `work add` does not read that state. An unknown flag such as `--no-such-flag` ends with an error, so only this flag passes with no effect. The fix pass checked `work add` only. The other work write commands were not checked.
+
+**Why it matters**: A person or an agent who adds `--dry-run` to see what a command would do gets a real write. A quick item lives only in the work store, so no file shows the change.
+
+**Recommendation**: Make each work write command either refuse `--dry-run` with a clear error or honor it and write nothing. Check the other work write commands for the same fault. The owner chose on 2026-11-27 to fix it in this Wave. P7 Stage 4 finds the cause, checks every write command of the registry, and makes a write command refuse an option that it does not know. The fix is not built yet.
+
+**To close**: `make-docs work add` with `--dry-run` writes no Store record, or refuses the flag, and a test proves it for each work write command.
+
+**What W35 R0 does**: P2 records the fault here. It changes no code for it. P7 Stage 4 holds the fix.
+
+**What W35 R0 does not remove**: The fault stays until P7 Stage 4 lands.
+
+### R-043 `git pull --rebase` With Local Commits Runs No Hook After a Merge
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W35 R0 P4 recorded this risk on 2026-11-27, with proof tests on git 2.47.1 on macOS. The Linux and Windows results come with the P4 evidence commit. W35 R0 P5 built the hook after a rewrite on 2026-11-28: with the installed hooks, `git pull --rebase` with local commits imports the pulled work file through `post-rewrite`. The [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup) holds the test. | The hook review that setup shows names the git actions that reach no checkpoint. The owner accepts the open cases, or a later Wave removes them. The three-platform result of the P5 tests comes with the P5 evidence commit. |
+
+**Issue**: Git runs the hook after a merge (`post-merge`) for `git pull` with a merge, for a pull that only moves the branch forward, and for `git pull --rebase` with no local commits. With local commits, `git pull --rebase` runs `post-checkout`, `post-commit`, and `post-rewrite`, and it does not run `post-merge`. So a hook after a merge alone misses the work files that such a pull brings.
+
+**Why it matters**: `git pull --rebase` is a common setting. Without a second hook, the store would not have the pulled work files after the pull, and no line would say so.
+
+**Recommendation**: Install the hook after a rewrite beside the hook after a merge. Let both run the checkpoint also while git still shows its merge or rebase state, because they run at the end of the action.
+
+**To close**: P5 installs the hook after a rewrite, the three-platform run proves the facts on Linux and Windows, and the owner accepts the open cases or a later Wave removes them.
+
+**What W35 R0 does**: The proof tests in `packages/cli/tests/w35-r0-p4-git-hook-facts.test.ts` and `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts` stay in the suite. They prove these covered cases:
+
+- `git pull --rebase` with local commits: `post-rewrite` runs one time, with the argument `rebase`, as the last hook of the action. The rebase folder of git is still there. A checkpoint that this hook starts imports the pulled work file.
+- An amended commit: `post-commit` and `post-rewrite` run, so the checkpoint runs two times.
+- During the rebase, each `post-commit` and `post-checkout` run sees the rebase folder. So the rule for git in the middle of an action stops them, and only the hook after the rewrite imports.
+- A revert. `post-commit` runs with no state mark for a revert of one commit, and with only the `sequencer` folder for each commit of a revert of two. The rule does not stop those runs, so the hook after a commit runs the checkpoint. `REVERT_HEAD` in the rule stops no hook run of a revert: git removes that file before it runs the hook.
+
+**What W35 R0 does not remove**: In these cases no trigger reaches the checkpoint. The reminder line of the next Make Docs command and the next commit cover them.
+
+- A cherry-pick with no conflict, of one commit or of more. `post-commit` runs for each commit, and each run, also the last one, sees `CHERRY_PICK_HEAD`. So the rule for git in the middle of an action stops every one of those runs, and git runs no other hook of the four at the end. With this rule, such a cherry-pick never syncs through the hook after a commit. Proof tests show it for one commit and for two. The one exception: the commit that ends a stop for a conflict sees no `CHERRY_PICK_HEAD`, and the hook runs the checkpoint there.
+- `git am`. A proof test with two patches shows that none of the four hooks runs.
+- `git reset --hard` to another commit. A proof test shows that no hook runs.
+- A rebase that rewrites no commit, such as a rebase of a branch that is already up to date. No test of this phase covers it.
+- `git stash pop` and `git stash apply`. No test of this phase covers them.
+
+### R-044 A Hook Can Find the `make-docs` Command and Still Not Start It
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W35 R0 P4 found this on 2026-11-27, in the proof of how a hook finds the command. W35 R0 P5 built the block on 2026-11-28 with two recorded paths: the `node` program and the Make Docs command file. The block starts the recorded command file with the recorded `node` program. The fixes after the independent review of P5 set this order, as a proposal: the recorded command runs first, and the block uses `make-docs` from PATH only when the recorded file or the recorded `node` program is gone. So an older `make-docs` on PATH cannot run in place of the version that wrote the block. The block also adds the folder of the recorded `node` program to the end of PATH for the call. This is a proposal, and the owner reviews it with the P5 report. | The recorded paths can go stale. The hook then does nothing and says nothing, the hook review says so, and `make-docs setup --git-hooks` records them again. The [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup) holds the tests. |
+
+**Issue**: Git runs a hook with the environment of the git process, and an app that starts git can pass a short PATH. A PATH lookup then finds no `make-docs` command. A path that setup recorded in the block finds the command file. But the command file that a global install writes starts `node` by name. With a short PATH that has no `node`, the command file is found and cannot start.
+
+**Why it matters**: The hook then does nothing, and it says nothing, because a hook never fails a git action and prints nothing when it cannot run. A person who commits from such an app gets no sync after a commit and no line. Only the reminder of the next Make Docs command in a terminal covers it.
+
+**Recommendation**: P4 recommended that the block looks up the command on PATH first, and then uses the recorded path. The review of P5 found that an older `make-docs` on PATH then runs the checkpoint with no wait limit, or fails on the event. So the block of P5 uses the recorded path first, and then PATH. For the call, it adds the recorded folder of the `node` program to the end of PATH, so the person's own PATH still wins for each other program. The block hides the error output of a command that cannot start, and it exits 0.
+
+**To close**: P5 builds the block with a choice for this case, a test proves it on each platform, and the hook review that setup shows names what remains.
+
+**What W35 R0 does**: A proof test in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts` shows both sides on macOS: with a short PATH the recorded command file is found and does not start, the hook prints nothing and exits 0, and with the folder of `node` added for the call the checkpoint imports the work file.
+
+**What W35 R0 does not remove**: A recorded path is the path at the time of setup. When a person moves or updates the `node` program or the command with a version manager, the recorded path can point to nothing. The hook then runs `make-docs` from PATH, or does nothing when none is there, until the person runs `make-docs setup --git-hooks` again. A recorded command that still exists and is older than the command on PATH keeps running until then, and repeat setup names a newer block as ready.
+
+### R-045 A Hook Does Nothing in a Work Tree That Is Not Bound to the Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | W35 R0 P4 found this on 2026-11-27, in the two-worktree proof. W35 R0 P5 kept the form on 2026-11-28: in a work tree that is not bound, each of the four hooks exits 0 and prints nothing. This is a proposal, and the owner reviews it with the P5 report. | The hook review that setup shows names the limit and the command `make-docs project checkout apply`. The [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup) holds the test. |
+
+**Issue**: Every work tree of one clone shares one hooks folder, so a hook that setup installs through one checkout runs in each work tree. But each work tree is its own checkout for the Store, and a second checkout of a project binds only through `make-docs project checkout apply`. In a work tree that is not bound, the checkpoint syncs nothing. A trigger run there prints nothing and exits 0.
+
+**Why it matters**: A person can think that the hooks keep the store current in each work tree. In a work tree that is not bound, a commit changes work files and the store does not get them, with no line from the hook.
+
+**Recommendation**: Say in the hook review that the hooks act only in a bound checkout, and name the command that binds a work tree. A direct run of the checkpoint already says that the checkout is not bound and names the next step.
+
+**To close**: The hook review names the limit, and the owner accepts it or a later Wave binds a new work tree of a bound clone by itself.
+
+**What W35 R0 does**: A proof test in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts` shows that the plain binding step refuses a second work tree of one project, that the checkpoint there syncs nothing and exits 0, that a trigger run prints nothing, and that the work tree binds as a separate checkout.
+
+**What W35 R0 does not remove**: This Wave does not bind a work tree by itself. W22 R2 works on checkout adoption, and this Wave does not touch its files.
+
+### R-046 A Git Hook Does Nothing When Its Shell May Not Use the Store
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | An access run of W35 R0 P4 found this on 2026-11-27, inside the command shell of one agent tool. W35 R0 P5 decided the form of the hook on 2026-11-28 as a proposal: the hook prints nothing and exits 0. The owner reviews it with the P5 report. On 2026-11-28 the owner decided that git hooks run in the background and print nothing in every case, with a foreground fallback where a background process cannot survive. That decision covers the output of a hook. It does not give the reach back to a shell that may not use the Store. | The hook review that setup shows names the limit. The owner accepts it, or a later Wave gives the person a sign. |
+
+**Issue**: A git hook runs with the rights of the process that started git. The Store is in the home folder of the person. When an agent commits from a command shell that may not write the Store folder, the checkpoint that the hook starts ends with a typed Store result and exit code 1. The same holds for a short time while another process holds the Store: a background run of a hook waits 5 seconds and then gives up, and a run in the foreground fallback waits 1 second.
+
+A second case belongs to the same reach since the background mode: a command shell that stops each process that a command started. There the background checkpoint of a hook is stopped before it syncs. The next hook run finds that the last background run did not end, and it runs the checkpoint in the foreground. A hook cannot know this before its run, so the first hook run in such a shell syncs nothing.
+
+**Why it matters**: The design gives the git hooks a reach that needs no agent memory and no agent tool support. Where the shell of an agent may not use the Store, that reach ends, and no line says so at the commit. The work file stays out of the store until a checkpoint with Store access runs.
+
+**Recommendation**: Keep the hook quiet. A hook that prints a Store error at each commit of a restricted shell would add noise to every such commit, and the agent there cannot fix it. The file is not lost: the next checkpoint with Store access imports it, and `make-docs work status` and the reminder line count it as waiting. A person who looks for a fault reads the file of the last background run in the Store folder, which holds the Store result, or sets `MAKE_DOCS_HOOK_DEBUG=1` for one git command and sees the Store result of a foreground run.
+
+**To close**: The owner accepts the quiet form, or chooses a sign for this case.
+
+**What W35 R0 does**: A test in `packages/cli/tests/w35-r0-p5-git-hook-block.test.ts` shows that a commit with the installed hooks exits 0 and prints nothing when the shell may not write the Store folder, and that the next checkpoint imports the file. A second test shows the debug switch. The tests in `packages/cli/tests/w35-r0-p5-hook-wait-limit.test.ts` show the case of a held Store. The tests in `packages/cli/tests/w35-r0-p5-hook-background.test.ts` show the case of a background run that was stopped: the next hook runs the checkpoint in the foreground and syncs, and the hook after it uses the background again.
+
+**What W35 R0 does not remove**: No run tested the real Store inside an agent tool, by the rule of this Wave. No run used the command shell of each agent tool, on each platform. The proof of the background mode inside each agent tool is prepared and waits for the orchestrator. The first hook run in a shell that stops the background checkpoint syncs nothing, and no line says so there.
+
+### R-047 The Time That a Git Hook Adds Grows With the Work Files, and No Rule Bounds It
+
+| Status | Decision | Follow-Up |
+| --- | --- | --- |
+| Open | The independent review of W35 R0 P5 found this, and the fixes after that review measured it as a side measure. No decision is recorded. The owner decided on 2026-11-23 "fast path: not now", with a look again at about 900 work files, and chose the exact check on 2026-11-27. This entry states the cost of that choice for a git hook, for the owner to see. On 2026-11-28 the owner saw this cost and decided that git hooks run in the background, with a foreground fallback (OD-P5-1 to OD-P5-5). That decision takes the cost off the git action in the background mode. It records no decision on the cost in the foreground fallback or on a fast path. | The owner reads the tables in the [P5 evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#the-new-measurements) and accepts what stays open, or opens the fast path question again. |
+
+**What the background mode changes**: a git hook now starts the checkpoint in the background and returns. A side measure of W35 R0 P5 with the built block gave 56 ms to 59 ms added to a commit from 100 to 2,000 work files, so the time that a hook adds to a git action no longer grows with the work files in that mode. [`PERF-007-R2`](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#result-record-of-the-requalification) gave 59 ms for a commit on this repository.
+
+**What stays open**: three things. First, the foreground fallback runs the checkpoint as the foreground hook did, so in a shell that stops background runs each git action after the first one takes the time of the table: about 0.25 seconds at 100 work files and about 2.2 seconds at 2,000, in the same side measure. Second, the work of the checkpoint still grows with the work files, and it now runs after git returned, so the store is behind a commit for that time: about 0.2 seconds at 100 work files and about 2.1 seconds at 2,000. Third, no rule bounds the work of a run, in either mode. The issue below is as it was written for the foreground hook of the first build, and it describes the fallback now.
+
+**Issue**: A git hook runs the checkpoint in the foreground. With nothing due, the checkpoint still reads each file below `docs/work/` to find out that nothing is due. So each commit, each merge, each rewrite, and each branch change takes longer in a project with more work files. The wait limit of [PRD 52](52-work-store-and-work-queue.md) R-WORK-CHECKPOINT-14 bounds only the waits for the Store. No rule bounds the whole hook run.
+
+**Why it matters**: A person feels the added time at each git action, and an amended commit runs two hooks. The side measure of P5 gave about 0.2 seconds for each commit at 100 work files and about 1.9 seconds at 2,000 work files of a real size, on one machine. The independent review measured more on its machine. A first sync in a commit takes longer still.
+
+**Recommendation**: None is recorded here. The owner's decisions of 2026-11-23 and 2026-11-27 stand, and this phase adds no limit and no fast path.
+
+**To close**: The owner accepts the cost for the git hooks, or decides a bound or a fast path in a later Wave.
+
+**What W35 R0 does**: A git hook starts the checkpoint in the background, so the cost is off the git action in that mode. The hook review that setup shows says that the checkpoint takes longer in a project with more work files, that this time is not added to the git action, and that git waits for the checkpoint in the foreground fallback. The P5 evidence holds the measured tables of both modes.
+
+**What W35 R0 does not remove**: The cost itself, which stays in the foreground fallback and as the time until the store has the file. The side measures are from one machine, with made-up work files, and they are not a result of `PERF-007`.
 
 ## Source Anchors
 

@@ -115,6 +115,12 @@ export interface WorkProjectResourceRead {
 
 const CONFLICT_NOTE =
   "Sync conflicts belong to one checkout, so this read does not show them. Run make-docs work next in a checkout to see them.";
+/**
+ * W35 R0 P2 (PRD 52 R-WORK-URI-3): the fixed sentence of a `backlog` read. A
+ * project URI names no checkout, so this read runs no sync and no sync check.
+ */
+export const WORK_PROJECT_SYNC_NOTE =
+  "This read does not know whether work files wait for sync in a checkout. Run make-docs project checkpoint in a checkout to find out.";
 const READ_ONLY_TAIL = "Changes nothing.";
 
 function notFound(uri: string, part: string, message: string): WorkProjectUriError {
@@ -322,7 +328,7 @@ function readTarget(
 
   if (target.coordinate === null) {
     const children = view.listFor(null).map((child) => view.view(child));
-    const lines = [`# Backlog of ${projectLabel}`, "", canonical, "", ...renderChildren("root", children), "", CONFLICT_NOTE, READ_ONLY_TAIL];
+    const lines = [`# Backlog of ${projectLabel}`, "", canonical, "", ...renderChildren("root", children), "", CONFLICT_NOTE, WORK_PROJECT_SYNC_NOTE, READ_ONLY_TAIL];
     return { text: `${lines.join("\n")}\n`, data: { family: "backlog", kind: "list", unit: null, children } };
   }
   const unit = findWorkUnitByCoordinate(db, projectId, target.coordinate);
@@ -331,7 +337,7 @@ function readTarget(
     throw notFound(canonical, missing, `Project ${projectLabel} has no ${missing}.`);
   }
   const children = view.listFor(unit).map((child) => view.view(child));
-  const text = `${renderUnit(view.view(unit), children)}\n\n${CONFLICT_NOTE}\n${READ_ONLY_TAIL}\n`;
+  const text = `${renderUnit(view.view(unit), children)}\n\n${CONFLICT_NOTE}\n${WORK_PROJECT_SYNC_NOTE}\n${READ_ONLY_TAIL}\n`;
   return { text, data: { family: "backlog", kind: target.isList ? "list" : "unit", unit: view.view(unit), children } };
 }
 

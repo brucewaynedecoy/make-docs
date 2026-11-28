@@ -42,6 +42,13 @@ export function renderStoreCheck(report: StoreCheckReport): string {
       lines.push(`    ${leftover.clearedByClean ? "Clean clears it." : "Clean does not clear it."} Next: ${leftover.nextAction}`);
     }
   }
+  if (report.gitHookRecords.length > 0) {
+    lines.push("", "Git hook records (kept; no rule removes them):");
+    for (const record of report.gitHookRecords) {
+      lines.push(`  ${record.key}: the Make Docs blocks of ${record.hooks.join(", ")} in the clone with the git folder ${record.gitCommonDir}. ${record.checkouts} checkout${record.checkouts === 1 ? "" : "s"} selected them.${record.gitFolderExists ? "" : " That git folder is gone."}`);
+      lines.push(`    Next: ${record.nextAction}`);
+    }
+  }
   lines.push("", `Next: ${report.nextAction}`, "");
   return lines.join("\n");
 }

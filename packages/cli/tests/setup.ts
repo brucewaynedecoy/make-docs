@@ -1,4 +1,4 @@
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, realpathSync } from "node:fs";
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
@@ -30,3 +30,11 @@ afterEach(async () => {
   // Let queued I/O run between cases; preserve all test and RPC time limits.
   await yieldToEventLoop();
 });
+
+// W35 R0 P5: setup can install git hooks, and it reads the git work tree that holds its target. A test target is a
+// temporary folder. Git must never find a real repository above the temporary folder of the machine, so its search
+// stops there. A repository that a test makes inside a temporary folder is still found.
+process.env.GIT_CEILING_DIRECTORIES = [
+  ...new Set([os.tmpdir(), realpathSync.native(os.tmpdir())]),
+  ...(process.env.GIT_CEILING_DIRECTORIES ? [process.env.GIT_CEILING_DIRECTORIES] : []),
+].join(path.delimiter);

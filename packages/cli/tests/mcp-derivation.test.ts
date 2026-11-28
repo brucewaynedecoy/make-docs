@@ -77,6 +77,8 @@ const EXPECTED_DERIVED_TOOL_NAMES: Record<string, string> = {
   "project.relations.list": "project_relations_list",
   "project.markdown-style.validate": "project_markdown_validate",
   "project.markdown-style.repair": "project_markdown_repair",
+  // W35 R0 P1 (PRD 25 R-MCP-PROFILE-12).
+  "project.checkpoint.run": "project_checkpoint",
   // W29 R0 P4 (PRD 52 R-WORK-QUEUE-12).
   "work.queue.status": "work_status",
   "work.queue.sync": "work_sync",

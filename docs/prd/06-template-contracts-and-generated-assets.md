@@ -156,7 +156,7 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 
 ## Work Store and Factory Resource Set
 
-- R-WORK-RESOURCE-1 (MUST): the work store agent twin uses stable URI `make-docs://system/reference/work-store.md`. It states the readiness, claim, report, close, sync, and conflict rules of [PRD 52](52-work-store-and-work-queue.md) for an agent that edits `docs/work/` files without the CLI, and the tracker connection contract. It names itself as the agent form of the matching CLI operations.
+- R-WORK-RESOURCE-1 (MUST): the work store agent twin uses stable URI `make-docs://system/reference/work-store.md`. It states the readiness, claim, report, close, sync, conflict, and checkpoint rules of [PRD 52](52-work-store-and-work-queue.md) for an agent that edits `docs/work/` files without the CLI, and the tracker connection contract. Its `Checkpoint` section says when to run `make-docs project checkpoint`, what it does in order, its two kinds of run, what "nothing is due" means, and what an agent does by hand when the CLI is missing. It names itself as the agent form of the matching CLI operations.
 - R-WORK-RESOURCE-2 (MUST): the factory rules use stable URI `make-docs://system/contract/factory-contract.md`. The three shipped workflow types use `make-docs://system/reference/factory/workflows/build-then-review.md`, `make-docs://system/reference/factory/workflows/lead-and-specialists.md`, and `make-docs://system/reference/factory/workflows/staged-backlog.md`. [PRD 53](53-factory-setup-and-orchestration.md) owns their meaning.
 - R-WORK-RESOURCE-3 (MUST): these resources use the existing contract and reference types, the installed provider, and the optional projection model. They add no resource type, no mandatory projection, and no Playbook- or Protocol-shaped surface. They are authored in `packages/docs/template/` first, then projected into the package and this repository's dogfood instance in that order.
 - R-WORK-RESOURCE-4 (MUST): examples in the factory resources describe tools only by capability. They name no app, harness, provider, or multiplexer as a default or requirement.
@@ -296,6 +296,14 @@ R-SKILL-SOURCE-3 (MUST): system workflow resources retain their stable identitie
 - Replacement contract: the work store agent twin is a shipped reference in the `workflow` and `backlog` profiles, authored upstream first.
 - Rationale: W29 R0 P5 T1 and T5.
 - Source: [W29 R0 P5 evidence](../work/2026-11-21-w29-r0-work-store/evidence.md#p5-agent-twin-and-config)
+
+### 2026-11-27 — W35 R0 P1
+
+- Affected requirement or section: R-WORK-RESOURCE-1.
+- Previous contract: the work store agent twin stated the readiness, claim, report, close, sync, and conflict rules and the tracker connection contract. It had no checkpoint rules.
+- Replacement contract: the agent twin also states the checkpoint rules of PRD 52 R-WORK-CHECKPOINT in a `Checkpoint` section, with the rule IDs `WORK-RULE-055` to `WORK-RULE-065`. This is new behavior.
+- Rationale: the checkpoint has a CLI form, so it needs its written agent form under the same twin rule (PRD 52 R-WORK-STORE-6 and R-WORK-QUEUE-11).
+- Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md), [W35 R0 P1](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/01-checkpoint-command.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p1-checkpoint-command).
 
 ## Source Anchors
 

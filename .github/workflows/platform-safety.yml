@@ -93,6 +93,18 @@ jobs:
           tests/w22-r0-p5-compatibility-bridge.test.ts
           tests/w22-r1-ownership.test.ts
           tests/store.test.ts
+          tests/w22-r0-p9-windows-session-admission.test.ts
+          tests/w35-r0-p4-git-hook-facts.test.ts
+          tests/w35-r0-p4-hook-checkpoint.test.ts
+          tests/w35-r0-p4-sync-race.test.ts
+          tests/w35-r0-p5-git-hook-block.test.ts
+          tests/w35-r0-p5-setup-git-hooks.test.ts
+          tests/w35-r0-p5-hook-wait-limit.test.ts
+          tests/w35-r0-p5-hook-end-to-end.test.ts
+          tests/w35-r0-p5-hook-ownership.test.ts
+          tests/w35-r0-p5-test-path-guard.test.ts
+          tests/w35-r0-p5-hook-background.test.ts
+          tests/w35-r0-p5-setup-offer.test.ts
 
   package-candidate:
     name: Build one installed-package candidate
@@ -221,6 +233,18 @@ jobs:
           tests/w22-r0-p5-compatibility-bridge.test.ts
           tests/w22-r1-ownership.test.ts
           tests/store.test.ts
+          tests/w22-r0-p9-windows-session-admission.test.ts
+          tests/w35-r0-p4-git-hook-facts.test.ts
+          tests/w35-r0-p4-hook-checkpoint.test.ts
+          tests/w35-r0-p4-sync-race.test.ts
+          tests/w35-r0-p5-git-hook-block.test.ts
+          tests/w35-r0-p5-setup-git-hooks.test.ts
+          tests/w35-r0-p5-hook-wait-limit.test.ts
+          tests/w35-r0-p5-hook-end-to-end.test.ts
+          tests/w35-r0-p5-hook-ownership.test.ts
+          tests/w35-r0-p5-test-path-guard.test.ts
+          tests/w35-r0-p5-hook-background.test.ts
+          tests/w35-r0-p5-setup-offer.test.ts
 
       - name: Download the exact candidate
         uses: actions/download-artifact@v4

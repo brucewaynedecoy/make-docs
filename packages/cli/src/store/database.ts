@@ -20,7 +20,8 @@ import {
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
-import { platform } from "../platform";
+import { AsyncLocalStorage } from "node:async_hooks";
+import { platform, PlatformOperationError } from "../platform";
 import { getStoreDatabasePath } from "./paths";
 import { WORK_STORE_SINCE_SCHEMA, WORK_STORE_TABLE_NAMES, WORK_STORE_V8_STATEMENTS } from "./work-store-schema";
 import { FACTORY_STORE_SINCE_SCHEMA, FACTORY_STORE_TABLE_NAMES, FACTORY_STORE_V9_STATEMENTS } from "./factory-store-schema";
@@ -343,11 +344,56 @@ export function applyStoreFileMode(file: string): void {
   }
 }
 
+/**
+ * A wait time for a message, in whole seconds, rounded down, so the message never names more time than passed:
+ * 5,009 ms is "5 seconds". A wait below one second is "less than 1 second".
+ */
+export function waitedSecondsText(waitedMs: number): string {
+  const seconds = Math.floor(Math.max(0, waitedMs) / 1000);
+  return seconds < 1 ? "less than 1 second" : seconds === 1 ? "1 second" : `${seconds} seconds`;
+}
+
 /** Milliseconds a connection waits on a locked database before erroring. */
 export const STORE_BUSY_TIMEOUT_MS = 5000;
 
+/**
+ * The wait limit of one call path (W35 R0 P5, PRD 38 R-DB-3). A caller that must not wait the full busy time,
+ * such as the checkpoint that a git hook starts, runs its Store work inside {@link withStoreWaitLimit}. Inside
+ * that call the limit bounds each wait for the Store: the busy time of each Store connection, each retry of an
+ * open, the wait for a shared Store session, the wait for a named lock file, the wait for other sessions to end,
+ * and the wait for a checkout writer. Every other caller keeps {@link STORE_BUSY_TIMEOUT_MS} and
+ * {@link STORE_OWNER_WAIT_MS} exactly. The limit bounds each wait by itself, and a wait that reaches it ends
+ * with the contention error of that wait. It does not bound the work that follows a wait.
+ */
+const storeWaitLimit = new AsyncLocalStorage<number>();
+
+/** Milliseconds that a connection of the current call path waits on a locked database. */
+export function storeBusyTimeoutMs(): number {
+  return storeWaitLimit.getStore() ?? STORE_BUSY_TIMEOUT_MS;
+}
+
+/** Run `fn` with a shorter wait for a held Store. The limit never goes above the busy time of the Store. */
+export function withStoreWaitLimit<T>(limitMs: number, fn: () => T): T {
+  const limit = Math.max(0, Math.min(STORE_BUSY_TIMEOUT_MS, Math.floor(limitMs)));
+  return storeWaitLimit.run(limit, fn);
+}
+
 /** Maximum time to wait for a live Store owner before reporting contention. */
 export const STORE_OWNER_WAIT_MS = 30_000;
+
+/**
+ * Milliseconds that the current call path waits for a live Store owner: a shared session, a named lock file,
+ * or a checkout writer. It is {@link STORE_OWNER_WAIT_MS}, or the wait limit of the call path when one is set.
+ */
+export function storeOwnerWaitMs(): number {
+  return storeWaitLimit.getStore() ?? STORE_OWNER_WAIT_MS;
+}
+
+/** A wait time that a caller gave, cut to the wait limit of the call path when one is set. No limit, no change. */
+function withinStoreWaitLimit(timeoutMs: number): number {
+  const limit = storeWaitLimit.getStore();
+  return limit === undefined ? timeoutMs : Math.min(timeoutMs, limit);
+}
 
 /** The legacy file path is now a directory of shared process sessions. */
 export const STORE_ACCESS_PATH = "store-access.lock";
@@ -888,7 +934,7 @@ export function formatStoreIssue(
       summary = `Make Docs cannot ${issue.operation} the Store at ${issue.path} because SQLite support is not available. ${issue.cause}`;
       break;
     case "contention-timeout":
-      summary = `Make Docs waited ${Math.ceil(issue.waitedMs / 1000)} seconds to ${issue.operation} at ${issue.path}. ${issue.cause}`;
+      summary = `Make Docs waited ${waitedSecondsText(issue.waitedMs)} to ${issue.operation} at ${issue.path}. ${issue.cause}`;
       break;
     case "unsafe-path":
       summary = `Unsafe Store path: ${issue.path}. Make Docs refused it. ${issue.cause}`;
@@ -1092,6 +1138,10 @@ export interface StoreSessionRecoveryResult {
 const accessLeases = new Map<string, { count: number; release: () => void }>();
 
 function systemCode(error: unknown): string | undefined {
+  if (platform.kind === "win32" && error instanceof PlatformOperationError && error.code === "atomic-replace-failed") {
+    const cause = systemCode(error.cause);
+    if (isTransientWindowsAccessError(cause)) return cause;
+  }
   const code = (error as NodeJS.ErrnoException | null)?.code;
   return typeof code === "string" ? code : undefined;
 }
@@ -1203,6 +1253,11 @@ function readOwnerLease(file: string, operation: string, expectedVersion?: numbe
       throw new StoreUnavailableError(makeStoreIssue("owner-unverified", file, operation, new Error("The Store session start time is missing or invalid.")));
     }
     return { file, stat, bytes, token: record.token, pid: record.pid, hostname: record.hostname };
+  } catch (error) {
+    if (isTransientWindowsAccessError(systemCode(error))) {
+      throw new StoreUnavailableError(makeStoreIssue("io-error", file, operation, error));
+    }
+    throw error;
   } finally {
     closeSync(fd);
   }
@@ -1318,20 +1373,51 @@ function exclusiveBlocker(storeRoot: string, preparing: boolean): StoreLeaseSnap
   return null;
 }
 
-function cleanupAccessDirectory(directory: string): void {
-  try {
-    rmdirSync(directory);
-  } catch (error) {
-    const code = systemCode(error);
-    if (!new Set(["ENOENT", "ENOTEMPTY", "EEXIST"]).has(code ?? "") &&
-        !(platform.kind === "win32" && code === "EBUSY")) {
-      throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "clean session directory", error));
+/** Release can race with readers and pending deletions too, outside the admission loop. */
+function retryStoreSessionCleanup<T>(file: string, operation: string, cleanup: () => T, timeoutMs = storeOwnerWaitMs(), onSharingTimeout?: () => T): T {
+  const started = Date.now();
+  const deadline = started + withinStoreWaitLimit(timeoutMs);
+  let attempt = 0;
+  for (;;) {
+    try {
+      return cleanup();
+    } catch (error) {
+      const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
+      if (!(error instanceof StoreUnavailableError ? isTransientWindowsStoreIssue(error) : isTransientWindowsAccessError(code))) throw error;
+      if (Date.now() < deadline) {
+        pause(attempt++, deadline);
+        continue;
+      }
+      if (onSharingTimeout) return onSharingTimeout();
+      const details = { attempts: attempt + 1, waitedMs: Date.now() - started };
+      if (code === "EBUSY") {
+        throw new StoreUnavailableError({ code: "contention-timeout", path: file, operation, systemCode: code, retryable: true, ...details, cause: "The Store session path is still in use." });
+      }
+      // A persistent permission error keeps its original meaning after the bounded retry.
+      const issue = error instanceof StoreUnavailableError ? error.issue : makeStoreIssue("io-error", file, operation, error);
+      throw new StoreUnavailableError({ ...issue, ...details });
     }
   }
 }
 
+/** An empty session folder can stay. Do not turn its cleanup into an admission or command failure. */
+const STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS = 250;
+
+function cleanupAccessDirectory(directory: string, timeoutMs = STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS): void {
+  retryStoreSessionCleanup(directory, "clean session directory", () => {
+    try {
+      rmdirSync(directory);
+    } catch (error) {
+      const code = systemCode(error);
+      if (!new Set(["ENOENT", "ENOTEMPTY", "EEXIST"]).has(code ?? "")) {
+        throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "clean session directory", error));
+      }
+    }
+  }, Math.min(timeoutMs, STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS, storeBusyTimeoutMs()), () => undefined);
+}
+
 /** Inspect shared sessions and remove only proven-dead local owners. */
-export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true): StoreSessionRecoveryResult {
+export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true, cleanupTimeoutMs = STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS): StoreSessionRecoveryResult {
   const root = path.resolve(storeRoot);
   const directory = path.join(root, STORE_ACCESS_PATH);
   const stat = readStoreEntry(directory, "recover Store sessions");
@@ -1393,12 +1479,13 @@ export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true)
       removed.push(path.relative(root, file).split(path.sep).join(path.posix.sep));
     }
   }
-  if (remove && stat.isDirectory() && active.length === 0) cleanupAccessDirectory(directory);
+  if (remove && stat.isDirectory() && active.length === 0) cleanupAccessDirectory(directory, cleanupTimeoutMs);
   return { removed, active };
 }
 
 /** Wait until an exclusive maintenance task can safely open or remove the Store. */
 export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_OWNER_WAIT_MS): string[] {
+  timeoutMs = withinStoreWaitLimit(timeoutMs);
   const started = Date.now();
   const deadline = started + timeoutMs;
   let attempt = 0;
@@ -1406,7 +1493,7 @@ export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_O
   while (true) {
     let result: StoreSessionRecoveryResult;
     try {
-      result = recoverDeadStoreAccessSessions(storeRoot);
+      result = recoverDeadStoreAccessSessions(storeRoot, true, Math.max(0, deadline - Date.now()));
     } catch (error) {
       const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
       if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
@@ -1434,6 +1521,7 @@ export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_O
 
 /** Acquire one shared Store session. Nested calls in this process reuse it. */
 export function acquireStoreAccess(storeRoot: string, preparing = false, timeoutMs = STORE_OWNER_WAIT_MS): () => void {
+  timeoutMs = withinStoreWaitLimit(timeoutMs);
   const requestedStoreRoot = path.resolve(storeRoot);
   try {
     storeRoot = platform.describePath(requestedStoreRoot).canonicalPath;
@@ -1501,7 +1589,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       }
       if (existing?.isDirectory()) {
         try {
-          recoverDeadStoreAccessSessions(storeRoot);
+          recoverDeadStoreAccessSessions(storeRoot, true, Math.max(0, deadline - Date.now()));
         } catch (error) {
           const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
           if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
@@ -1577,7 +1665,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
           closeSync(fd);
           fd = null;
           removeOwnedSession(file, token, leaseStat, "cancel Store session");
-          cleanupAccessDirectory(directory);
+          cleanupAccessDirectory(directory, Math.max(0, deadline - Date.now()));
           if (lateBlocker.pid === process.pid && lateBlocker.hostname === platform.hostname) {
             throw new StoreUnavailableError({ code: "contention-timeout", path: lateBlocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
           }
@@ -1597,21 +1685,30 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
           if (released || --lease.count > 0) return;
           released = true;
           accessLeases.delete(storeRoot);
+          // One deadline covers both cleanup steps: 5 seconds normally, or the shorter call limit.
+          // Windows sharing failures leave the lease for dead-owner recovery without replacing the result.
+          const releaseDeadline = Date.now() + storeBusyTimeoutMs();
           try {
-            removeOwnedSession(file, token, leaseStat, "release Store session");
-            cleanupAccessDirectory(directory);
+            retryStoreSessionCleanup(file, "release Store session", () => removeOwnedSession(file, token, leaseStat, "release Store session"), Math.max(0, releaseDeadline - Date.now()), () => false);
           } finally {
             if (fd !== null) closeSync(fd);
           }
+          // Close our handle before removing the directory. An unlinked file can still be pending deletion.
+          cleanupAccessDirectory(directory, Math.max(0, releaseDeadline - Date.now()));
         };
         lease.release = release;
         accessLeases.set(storeRoot, lease);
         return release;
       } catch (error) {
-        if (fd !== null) closeSync(fd);
-        removeOwnedSession(file, token, leaseStat, "clean failed Store session");
-        removePendingSession(pendingFile, leaseStat ?? createdStat);
-        cleanupAccessDirectory(directory);
+        try { if (fd !== null) closeSync(fd); } catch { /* Preserve the admission error. */ }
+        const cleanupDeadline = Math.min(deadline, Date.now() + storeBusyTimeoutMs());
+        for (const cleanup of [
+          () => retryStoreSessionCleanup(file, "clean failed Store session", () => removeOwnedSession(file, token, leaseStat, "clean failed Store session"), Math.max(0, cleanupDeadline - Date.now()), () => false),
+          () => retryStoreSessionCleanup(pendingFile, "clean pending Store session", () => removePendingSession(pendingFile, leaseStat ?? createdStat), Math.max(0, cleanupDeadline - Date.now()), () => false),
+          () => cleanupAccessDirectory(directory, Math.max(0, cleanupDeadline - Date.now())),
+        ]) {
+          try { cleanup(); } catch { /* The admission error remains the reason this attempt failed. */ }
+        }
         if (error instanceof StoreUnavailableError) throw error;
         const code = systemCode(error);
         const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
@@ -1626,9 +1723,16 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
     } catch (error) {
       // Windows also reports a transient access code from the safety reads between these steps,
       // because the same session path can be pending deletion. Retry those until the deadline.
-      if (isTransientWindowsStoreIssue(error) && Date.now() < deadline) {
-        pause(attempt++, deadline);
-        continue;
+      if (isTransientWindowsStoreIssue(error)) {
+        if (Date.now() < deadline) {
+          pause(attempt++, deadline);
+          continue;
+        }
+        const issue = (error as StoreUnavailableError).issue;
+        throw new StoreUnavailableError({ ...issue,
+          ...(issue.systemCode === "EBUSY" ? { code: "contention-timeout", retryable: true } as const : {}),
+          attempts: attempt + 1, waitedMs: Date.now() - started,
+        });
       }
       throw error;
     }
@@ -1732,7 +1836,7 @@ export function classifyStoreCheckpoint9State(
   let db: StoreDatabase | null = null;
   try {
     db = openSqliteWithRetry(driver.sqlite, databasePath, { readOnly: true }, "inspect", (connection) => {
-      connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+      connection.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     }, false);
     const check = db.prepare("PRAGMA quick_check").get() as
       | { quick_check?: string }
@@ -1806,7 +1910,7 @@ export function classifyStoreCheckpoint9State(
     const contention = isSqliteContention(error);
     const issue = error instanceof StoreUnavailableError
       ? error.issue
-      : makeStoreIssue(corrupt ? "corrupt" : contention ? "contention-timeout" : "io-error", databasePath, "inspect", error, contention ? { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS } : {});
+      : makeStoreIssue(corrupt ? "corrupt" : contention ? "contention-timeout" : "io-error", databasePath, "inspect", error, contention ? { retryable: true, waitedMs: storeBusyTimeoutMs() } : {});
     return {
       state: corrupt ? "corrupt" : "indeterminate",
       databasePath,
@@ -1932,7 +2036,7 @@ export function readStoreCheckpoint9JournalEntry(
   let db: StoreDatabase | null = null;
   try {
     db = openSqliteWithRetry(driver.sqlite, classification.databasePath, { readOnly: true }, "read Store migration journal", (connection) => {
-      connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+      connection.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     });
     const row = db.prepare(
       `SELECT receipt_id, checkpoint, project_root_digest, snapshot_id, committed_at, receipt_json
@@ -2240,7 +2344,7 @@ export function readUserVersion(db: StoreDatabase): number {
 
 function connect(sqlite: SqliteModule, databasePath: string, verify: boolean): StoreDatabase {
   return openSqliteWithRetry(sqlite, databasePath, {}, "open", (db) => {
-    db.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+    db.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     db.exec("PRAGMA journal_mode = WAL");
     db.exec("PRAGMA synchronous = NORMAL");
     db.exec("PRAGMA foreign_keys = ON");
@@ -2279,7 +2383,7 @@ function openSqliteWithRetry(
   checkGuard = true,
 ): StoreDatabase {
   const started = Date.now();
-  const deadline = started + STORE_BUSY_TIMEOUT_MS;
+  const deadline = started + storeBusyTimeoutMs();
   let attempt = 0;
   while (true) {
     let db: StoreDatabase | null = null;
@@ -2324,7 +2428,7 @@ export function openStoreForReview(databasePath: string, operation = "review Sto
     throw new StoreUnavailableError({ code: "sqlite-unavailable", path: databasePath, operation, retryable: false, attempts: 1, waitedMs: 0, cause: driver.reason });
   }
   const db = openSqliteWithRetry(driver.sqlite, databasePath, { readOnly: true }, operation, (connection) => {
-    connection.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+    connection.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
   }, false);
   try {
     const guardProblems = inspectStoreGuardAndVersion(db);
@@ -2354,7 +2458,7 @@ export function openStoreSqliteConnection(
     });
   }
   return openSqliteWithRetry(driver.sqlite, databasePath, options, operation, (db) => {
-    db.exec(`PRAGMA busy_timeout = ${STORE_BUSY_TIMEOUT_MS}`);
+    db.exec(`PRAGMA busy_timeout = ${storeBusyTimeoutMs()}`);
     db.exec("PRAGMA foreign_keys = ON");
     if (!options.readOnly) db.exec("PRAGMA synchronous = FULL");
   });

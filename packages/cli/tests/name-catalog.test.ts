@@ -58,7 +58,8 @@ const PRD_LISTS = {
       "PRD 52 Operations",
       parsePrdOperationTable(markdownSection(markdown, "### Operations")),
       NAME_CATALOG,
-      (item) => item.id.startsWith("work.queue."),
+      // W35 R0 P1: the Operations table also holds the project checkpoint row (PRD 52 R-WORK-CHECKPOINT).
+      (item) => item.id.startsWith("work.queue.") || item.id === "project.checkpoint.run",
     ),
   prd53: (markdown: string) =>
     comparePrdCommandList(
@@ -80,6 +81,14 @@ const PRD_LISTS = {
       parsePrdOperationTable(markdownSection(markdown, "### Skill Check Commands (R-SKILL-CHECK)")),
       NAME_CATALOG,
       (item) => item.addedBy === "W34 R0",
+    ),
+  // W35 R0 P1: the checkpoint command table (PRD 39 R-CHECKPOINT-CMD).
+  checkpointCmd: (markdown: string) =>
+    comparePrdCommandList(
+      "PRD 39 R-CHECKPOINT-CMD",
+      parsePrdOperationTable(markdownSection(markdown, "### Project Checkpoint Command (R-CHECKPOINT-CMD)")),
+      NAME_CATALOG,
+      (item) => item.id === "project.checkpoint.run",
     ),
   storeCmd: (markdown: string) =>
     comparePrdCommandList(
@@ -125,13 +134,14 @@ function fixture(overrides: Partial<NameCatalogEntry>): NameCatalogEntry {
 }
 
 describe("W33 R0 P1 name catalog", () => {
-  it("lists 75 current operations, 6 hand-defined tools, and no planned operations", () => {
+  it("lists 76 current operations, 6 hand-defined tools, and no planned operations", () => {
     const currentOperations = NAME_CATALOG.filter((item) => item.kind === "operation" && item.status === "current");
     const tools = NAME_CATALOG.filter((item) => item.kind === "hand-defined-tool");
     const plannedOperations = NAME_CATALOG.filter((item) => item.status === "planned");
     expect(currentOperations).toHaveLength(ADMITTED_OPERATION_IDS.length);
-    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more, W29 R0 P4 landed 9, W30 R0 P3 landed 10, the W30 R0 follow-up landed 3, and the W30 R0 Store lifecycle fixes landed 1.
-    expect(currentOperations).toHaveLength(75);
+    // W33 R0 named 48. W34 R0 P1 planned and landed 4 more, W29 R0 P4 landed 9, W30 R0 P3 landed 10, the W30 R0 follow-up landed 3, the W30 R0 Store lifecycle fixes landed 1, and W35 R0 P1 landed 1.
+    expect(currentOperations).toHaveLength(76);
+    expect(currentOperations.filter((item) => item.addedBy === "W35 R0").map((item) => item.id)).toEqual(["project.checkpoint.run"]);
     expect(currentOperations.filter((item) => item.addedBy === "W30 R0").map((item) => item.newCli).sort()).toEqual([
       "factory assignment list", "factory assignment save", "factory assignment start", "factory file-backup save", "factory grant-use record",
       "factory proof save", "factory restore", "factory status", "factory tools list", "factory tools save",
@@ -316,15 +326,17 @@ describe("W33 R0 P1 name catalog", () => {
     it("PRD 39 R-DOCTOR table", () => expect(PRD_LISTS.doctor(PRD_39)).toEqual([]));
     it("PRD 39 R-STORE-CMD table", () => expect(PRD_LISTS.storeCmd(PRD_39)).toEqual([]));
     it("W34 R0 P1: PRD 39 R-SKILL-CHECK table", () => expect(PRD_LISTS.skillCheck(PRD_39)).toEqual([]));
+    it("W35 R0 P1: PRD 39 R-CHECKPOINT-CMD table", () => expect(PRD_LISTS.checkpointCmd(PRD_39)).toEqual([]));
     it("PRD 39 R-RUN-4", () => expect(PRD_LISTS.rRun4(PRD_39)).toEqual([]));
     it("PRD 39 R-RUN-1", () => expect(PRD_LISTS.rRun1(PRD_39)).toEqual([]));
     it("PRD 25 R-MCP-PROFILE tool names", () => expect(PRD_LISTS.mcpProfiles(PRD_25)).toEqual([]));
     it("PRD 51 R-BACKLOG-APP-1 paths", () => expect(PRD_LISTS.backlogApp(PRD_51)).toEqual([]));
 
     it("reads every row of each table", () => {
-      expect(parsePrdOperationTable(markdownSection(PRD_52, "### Operations"))).toHaveLength(9);
+      expect(parsePrdOperationTable(markdownSection(PRD_52, "### Operations"))).toHaveLength(10);
       expect(parsePrdGroupedOperationTable(markdownSection(PRD_53, "### Operations"))).toHaveLength(14);
       expect(parsePrdOperationTable(markdownSection(PRD_39, "### Skill Check Commands (R-SKILL-CHECK)"))).toHaveLength(4);
+      expect(parsePrdOperationTable(markdownSection(PRD_39, "### Project Checkpoint Command (R-CHECKPOINT-CMD)"))).toHaveLength(1);
     });
   });
 });
@@ -482,7 +494,7 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
   });
 
   it("a PRD 52 list that differs: a changed path, a changed tool, or a missing row", () => {
-    expect(PRD_LISTS.prd52(PRD_52.replace("`make-docs work next`", "`make-docs work queue next`"))).toEqual([
+    expect(PRD_LISTS.prd52(PRD_52.replace("| `make-docs work next` |", "| `make-docs work queue next` |"))).toEqual([
       "PRD 52 Operations gives work.queue.next the path `work queue next`; the catalog has `work next`.",
     ]);
     expect(PRD_LISTS.prd52(PRD_52.replace("| `work_add` |", "| `work_item_add` |"))).toEqual([
@@ -512,6 +524,31 @@ describe("W33 R0 P1 name catalog fails on broken fixtures", () => {
     ]);
     const withoutRelations = PRD_39.split("\n").filter((line) => !line.startsWith("| `project.relations.list`")).join("\n");
     expect(PRD_LISTS.skillCheck(withoutRelations)).toEqual(["PRD 39 R-SKILL-CHECK misses project.relations.list, which the catalog has."]);
+  });
+
+  it("W35 R0 P1: a PRD 39 R-CHECKPOINT-CMD table that differs", () => {
+    const otherPath = PRD_39.replace("| `make-docs project checkpoint [--event <name>]", "| `make-docs project checkpoint run [--event <name>]");
+    expect(otherPath).not.toBe(PRD_39);
+    expect(PRD_LISTS.checkpointCmd(otherPath)).toEqual([
+      "PRD 39 R-CHECKPOINT-CMD gives project.checkpoint.run the path `project checkpoint run`; the catalog has `project checkpoint`.",
+    ]);
+    const otherTool = PRD_39.replace("| `project_checkpoint` |", "| `project_checkpoint_run` |");
+    expect(otherTool).not.toBe(PRD_39);
+    expect(PRD_LISTS.checkpointCmd(otherTool)).toEqual([
+      "PRD 39 R-CHECKPOINT-CMD gives project.checkpoint.run the tool `project_checkpoint_run`; the catalog has `project_checkpoint`.",
+    ]);
+    const withoutRow = PRD_39.split("\n").filter((line) => !line.startsWith("| `project.checkpoint.run`")).join("\n");
+    expect(PRD_LISTS.checkpointCmd(withoutRow)).toEqual(["PRD 39 R-CHECKPOINT-CMD misses project.checkpoint.run, which the catalog has."]);
+    const unknownRow = PRD_39.replace("| `project.checkpoint.run` |", "| `project.checkpoint.start` |");
+    expect(PRD_LISTS.checkpointCmd(unknownRow)).toEqual([
+      "PRD 39 R-CHECKPOINT-CMD lists project.checkpoint.start, which the catalog does not have.",
+      "PRD 39 R-CHECKPOINT-CMD misses project.checkpoint.run, which the catalog has.",
+    ]);
+  });
+
+  it("W35 R0 P1: the checkpoint name passes R-NAME-4 with 18 characters", () => {
+    const item = find("project.checkpoint.run");
+    expect([item.newCli, item.newMcp, item.newMcp.length, item.group]).toEqual(["project checkpoint", "project_checkpoint", 18, "project"]);
   });
 
   it("a PRD 39 R-DOCTOR or R-STORE-CMD table that differs", () => {

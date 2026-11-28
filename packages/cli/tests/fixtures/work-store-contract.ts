@@ -41,6 +41,7 @@ export const WORK_STORE_FIXTURE_GROUPS = [
   "claims",
   "report and close",
   "tracker and config",
+  "checkpoint",
 ] as const;
 export type WorkStoreFixtureGroup = (typeof WORK_STORE_FIXTURE_GROUPS)[number];
 
@@ -296,13 +297,94 @@ export interface ReportScenarioFixture extends FixtureBase {
   };
 }
 
+/**
+ * W35 R0 P1: one project checkpoint scenario on the shared fixture backlog of
+ * the checkpoint tests (one index and two phases, with two ready phases). The
+ * W35 R0 P1 surface test runs each scenario through the real checkpoint, and
+ * the `Checkpoint` section of `work-store.md` states the same answer.
+ */
+export const WORK_CHECKPOINT_SCENARIOS = [
+  "first-direct-run",
+  "repeat-direct-run",
+  "direct-run-both-ways",
+  "trigger-run-imports-only",
+  "trigger-run-nothing-due",
+  "branch-change",
+  "conflict",
+  "claim-ended",
+  "read-access-only",
+  "no-store",
+  "not-a-project",
+] as const;
+export type WorkCheckpointScenario = (typeof WORK_CHECKPOINT_SCENARIOS)[number];
+
+export interface CheckpointScenarioFixture extends FixtureBase {
+  kind: "checkpoint-scenario";
+  input: { scenario: WorkCheckpointScenario };
+  expected: {
+    authority: WorkAuthorityMode | "not-a-project";
+    /** False when the sync step did not run. `syncSkipped` says why. */
+    syncRan: boolean;
+    syncSkipped: "read-access-only" | "branch-change" | "files-authority" | "not-a-project" | null;
+    nothingDue: boolean;
+    /** True when a trigger run reports nothing. */
+    quiet: boolean;
+    firstSync: boolean;
+    imported: number;
+    written: number;
+    /** Files that wait for an import, a write, or a removal. */
+    waiting: number;
+    conflicts: number;
+    /** The state of each listed claim, in order. */
+    claims: Array<"ended" | "ends-soon">;
+    /** The coordinates of the short ready list, in order. */
+    next: string[];
+    /** True when the run wrote or removed a project file. */
+    changedFiles: boolean;
+    /**
+     * W35 R0 P5: the exact plain lines of a trigger run for a git event, which prints the short form
+     * (WORK-RULE-070). Absent for a run that prints the full result.
+     */
+    lines?: string[];
+  };
+}
+
 export interface ConfigFixture extends FixtureBase {
   kind: "config";
   input: { work: unknown };
   expected: { valid: boolean };
 }
 
+/**
+ * W35 R0 P2: one read scenario on the shared fixture backlog of the reminder
+ * tests (one index and two phases). The W35 R0 P2 test runs each scenario
+ * through the real `work next`, `work status`, and project URI read, and the
+ * work store reference states the same answer.
+ */
+export const WORK_READ_WAIT_SCENARIOS = ["nothing-waits", "one-file-changed", "new-file", "first-sync-not-done", "backlog-uri-read"] as const;
+export type WorkReadWaitScenario = (typeof WORK_READ_WAIT_SCENARIOS)[number];
+
+export interface ReadWaitScenarioFixture extends FixtureBase {
+  kind: "read-wait-scenario";
+  input: { scenario: WorkReadWaitScenario };
+  expected: {
+    /** True when the first line of `work next` and `work status` names the checkpoint. */
+    checkpointFirst: boolean;
+    /** How many work files wait for import. */
+    filesWaiting: number;
+    /** The phases that `work next` marks, because their file waits for import. */
+    markedPhases: string[];
+    /** False when `work next` says that the list is not complete. */
+    listComplete: boolean;
+    /** True when the read is a `backlog` read by project URI, which carries the fixed sentence. */
+    uriSentence: boolean;
+    /** True when the read changed a store record or a project file. Always false. */
+    changed: boolean;
+  };
+}
+
 export type WorkStoreContractFixture =
+  | ReadWaitScenarioFixture
   | ReadinessFixture
   | SyncFixture
   | DependencyFixture
@@ -315,6 +397,7 @@ export type WorkStoreContractFixture =
   | ProjectUriFixture
   | SyncScenarioFixture
   | ReportScenarioFixture
+  | CheckpointScenarioFixture
   | ConfigFixture;
 
 const PHASE_QUERY: WorkNextQuery = { level: "phase", includeQuickItems: true };
@@ -1303,5 +1386,152 @@ export const WORK_STORE_CONTRACT_FIXTURES: readonly WorkStoreContractFixture[] =
     kind: "report-scenario",
     input: { scenario: "store-only-edit-named" },
     expected: { accepted: true, latestNote: null, storeOnlyEditKinds: ["status"] },
+  },
+  {
+    id: "WSF-073",
+    group: "checkpoint",
+    title: "The first direct run of a checkout imports every work file, writes none, and says that it was the first sync",
+    rules: ["WORK-RULE-055", "WORK-RULE-056", "WORK-RULE-065"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "first-direct-run" },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: false, quiet: false, firstSync: true, imported: 3, written: 0, waiting: 0, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false },
+  },
+  {
+    id: "WSF-074",
+    group: "checkpoint",
+    title: "A second direct run right after the first changes nothing and says that nothing is due",
+    rules: ["WORK-RULE-055", "WORK-RULE-056", "WORK-RULE-059", "WORK-RULE-062"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "repeat-direct-run" },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: true, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 0, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false },
+  },
+  {
+    id: "WSF-075",
+    group: "checkpoint",
+    title: "A direct run imports a changed file and writes a store change, as work sync does",
+    rules: ["WORK-RULE-056"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "direct-run-both-ways" },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: false, quiet: false, firstSync: false, imported: 1, written: 1, waiting: 0, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: true },
+  },
+  {
+    id: "WSF-076",
+    group: "checkpoint",
+    title: "A trigger run imports a changed file, writes no file, and names the file that waits for a direct run",
+    // W35 R0 P5: this is the run that the git hooks after a commit, a merge, and a rewrite start (WORK-RULE-072). It
+    // prints the short form (WORK-RULE-070). Its wait limit does not cut a run that has the Store (WORK-RULE-071).
+    rules: ["WORK-RULE-057", "WORK-RULE-070", "WORK-RULE-071", "WORK-RULE-072"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "trigger-run-imports-only" },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: false, quiet: false, firstSync: false, imported: 1, written: 0, waiting: 1, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false, lines: ["Checkpoint: 1 file imported, 1 file waits.", "Run make-docs project checkpoint to see and settle what waits."] },
+  },
+  {
+    id: "WSF-077",
+    group: "checkpoint",
+    title: "A trigger run with nothing due is quiet, also with ready work",
+    rules: ["WORK-RULE-059"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "trigger-run-nothing-due" },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: true, quiet: true, firstSync: false, imported: 0, written: 0, waiting: 0, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false },
+  },
+  {
+    id: "WSF-078",
+    group: "checkpoint",
+    title: "A trigger run after a branch change imports nothing and says how many files wait",
+    // W35 R0 P5: this is the run that the git hook after a branch change starts (WORK-RULE-072), in the short form (WORK-RULE-070).
+    rules: ["WORK-RULE-058", "WORK-RULE-070", "WORK-RULE-072"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "branch-change" },
+    expected: { authority: "store", syncRan: false, syncSkipped: "branch-change", nothingDue: false, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 1, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false, lines: ["Checkpoint: 1 file waits.", "Run make-docs project checkpoint to see and settle what waits."] },
+  },
+  {
+    id: "WSF-079",
+    group: "checkpoint",
+    title: "The checkpoint names a conflict with its settle commands and does not settle it",
+    rules: ["WORK-RULE-060"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "conflict" },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: false, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 0, conflicts: 1, claims: [], next: ["W1 R0 P1"], changedFiles: false },
+  },
+  {
+    id: "WSF-080",
+    group: "checkpoint",
+    title: "A claim that ended is listed with no claim ID, and it is not due",
+    rules: ["WORK-RULE-061", "WORK-RULE-059"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "claim-ended" },
+    expected: { authority: "store", syncRan: true, syncSkipped: null, nothingDue: true, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 0, conflicts: 0, claims: ["ended"], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false },
+  },
+  {
+    id: "WSF-081",
+    group: "checkpoint",
+    title: "A caller with read access only gets the read steps, and the sync does not run",
+    rules: ["WORK-RULE-063"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "read-access-only" },
+    expected: { authority: "store", syncRan: false, syncSkipped: "read-access-only", nothingDue: false, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 1, conflicts: 0, claims: [], next: ["W1 R0 P1", "W1 R0 P2"], changedFiles: false },
+  },
+  {
+    id: "WSF-082",
+    group: "checkpoint",
+    title: "Without a Store the files are the authority, and the checkpoint syncs nothing",
+    rules: ["WORK-RULE-064"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "no-store" },
+    expected: { authority: "files", syncRan: false, syncSkipped: "files-authority", nothingDue: true, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 0, conflicts: 0, claims: [], next: [], changedFiles: false },
+  },
+  {
+    id: "WSF-083",
+    group: "checkpoint",
+    title: "In a folder that is not a Make Docs project the checkpoint does nothing",
+    rules: ["WORK-RULE-064"],
+    kind: "checkpoint-scenario",
+    input: { scenario: "not-a-project" },
+    expected: { authority: "not-a-project", syncRan: false, syncSkipped: "not-a-project", nothingDue: true, quiet: false, firstSync: false, imported: 0, written: 0, waiting: 0, conflicts: 0, claims: [], next: [], changedFiles: false },
+  },
+  {
+    id: "WSF-084",
+    group: "checkpoint",
+    title: "When nothing waits for import, the read commands name no checkpoint and mark no unit",
+    rules: ["WORK-RULE-066", "WORK-RULE-067", "WORK-RULE-068"],
+    kind: "read-wait-scenario",
+    input: { scenario: "nothing-waits" },
+    expected: { checkpointFirst: false, filesWaiting: 0, markedPhases: [], listComplete: true, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-085",
+    group: "checkpoint",
+    title: "With one changed work file, the read commands name the checkpoint first, and work next marks the units of that file",
+    rules: ["WORK-RULE-066", "WORK-RULE-067"],
+    kind: "read-wait-scenario",
+    input: { scenario: "one-file-changed" },
+    expected: { checkpointFirst: true, filesWaiting: 1, markedPhases: ["W1 R0 P1"], listComplete: true, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-086",
+    group: "checkpoint",
+    title: "With a new work file that the store does not hold, work next says that the list is not complete",
+    rules: ["WORK-RULE-068"],
+    kind: "read-wait-scenario",
+    input: { scenario: "new-file" },
+    expected: { checkpointFirst: true, filesWaiting: 1, markedPhases: [], listComplete: false, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-087",
+    group: "checkpoint",
+    title: "In a checkout whose first sync is not done, work next says that the list is not complete",
+    rules: ["WORK-RULE-068"],
+    kind: "read-wait-scenario",
+    input: { scenario: "first-sync-not-done" },
+    expected: { checkpointFirst: true, filesWaiting: 3, markedPhases: [], listComplete: false, uriSentence: false, changed: false },
+  },
+  {
+    id: "WSF-088",
+    group: "checkpoint",
+    title: "A backlog read by project URI runs no sync check and carries the fixed sentence",
+    rules: ["WORK-RULE-069"],
+    kind: "read-wait-scenario",
+    input: { scenario: "backlog-uri-read" },
+    expected: { checkpointFirst: false, filesWaiting: 1, markedPhases: [], listComplete: true, uriSentence: true, changed: false },
   },
 ];

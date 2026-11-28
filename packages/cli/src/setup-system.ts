@@ -7,7 +7,7 @@ import { ExecutableVerificationError, FIRST_PARTY_HARNESS_ADAPTERS, listBoundedH
 import { resolveEffectiveHarnessIntegration, type ProjectHarnessIntegrationRecord } from "./config";
 import { listHarnessCommandRules, listOperationAccessFacts, validateRegistryHarnessCommandRules } from "./operations/registry";
 import { getStoreDatabasePath, resolveStoreRoot } from "./store/paths";
-import { loadGlobalConfig, writeGlobalConfig, type GlobalConfig, type GlobalHarnessIntent } from "./store/global-config";
+import { loadGlobalConfig, readGitHooksPreference, writeGitHooksPreference, writeGlobalConfig, type GlobalConfig, type GlobalHarnessIntent } from "./store/global-config";
 import { readCurrentHarnessIntegrationReceipt, recordHarnessIntegrationReceipt } from "./store/harness-integration-receipts";
 import { completeHarnessSystemOperation, failHarnessSystemOperation, prepareHarnessSystemOperation, readPendingHarnessSystemOperation, type PendingHarnessSystemOperation } from "./store/harness-system-operations";
 import { readInstallationStatus, STORE_LEGACY_SCHEMA_NEXT_ACTION } from "./store/installation-state";
@@ -21,12 +21,12 @@ export const SYSTEM_COMMAND_RULE_AUTHORITY: HarnessCommandRuleAuthority = Object
 });
 
 export type SystemSetupStatus = "configured" | "skipped-none" | "blocked" | "partial" | "failed" | "recovery" | "unchanged";
-export interface SystemSetupResult { schemaVersion: 2; status: SystemSetupStatus; scope: "machine"; selections: HarnessMethodSelections; configured: Harness[]; skipped: Harness[]; blocked: Array<{ harness: Harness; reason: string; nextAction: string }>; attemptedWork: string[]; mutationState: "none" | "planned" | "partial" | "verified"; failedCondition: string | null; nextAction: string | null; recoveryAction: string | null; projectMayProceed?: boolean; manualInstructions?: Array<{ harness: Harness; path: string; entryId: string; text: string }>; }
+export interface SystemSetupResult { schemaVersion: 2; status: SystemSetupStatus; scope: "machine"; selections: HarnessMethodSelections; configured: Harness[]; skipped: Harness[]; blocked: Array<{ harness: Harness; reason: string; nextAction: string }>; attemptedWork: string[]; mutationState: "none" | "planned" | "partial" | "verified"; failedCondition: string | null; nextAction: string | null; recoveryAction: string | null; projectMayProceed?: boolean; manualInstructions?: Array<{ harness: Harness; path: string; entryId: string; text: string }>; /** W35 R0 P5: the machine preference for git hooks. `value` is null when the person gave no answer yet, which means "No". */ gitHooksPreference?: { value: boolean | null; changed: boolean }; }
 type HarnessMethodSelections = Record<"claude-code" | "codex", HarnessMethodSelection> & Partial<Record<"github-copilot", HarnessMethodSelection>>;
 export type SystemHarnessState = "current" | "drifted" | "blocked" | "unsupported" | "incomplete" | "pending";
 export interface SystemHarnessOperationEffect { operation: string; store: "none" | "read" | "write"; project: "none" | "read" | "write"; hostConfig: "none" | "read" | "write"; }
 export interface SystemHarnessPlan { harness: Harness; method: string; status: SystemHarnessState; operations: string[]; operationEffects: SystemHarnessOperationEffect[]; allowedStoreOperations: HarnessMethodDefinition["allowedStoreOperations"]; ownedEntries: string[]; machineFiles: string[]; changed: boolean; detail: string; manualMcpEligible?: boolean; manualMcpOffer?: { connection: ReturnType<typeof createMcpConnection>; path: string; entryId: string; text: string }; apply(): Promise<void>; verify(): Promise<boolean>; pendingOperation?(): boolean; }
-export interface RunSystemSetupOptions { dryRun: boolean; yes: boolean; harnesses: import("./types").HarnessSelections; methods?: Partial<Record<Harness, HarnessMethodSelection>>; rotateMcp?: boolean; promptForMethods?: boolean; projectHarnessIntegrations?: readonly ProjectHarnessIntegrationRecord[]; manualMcpOutput?: boolean; targetRoot?: string; storeRoot?: string; machineRoot?: string; executable?: VerifiedExecutableIdentity; appliedVersion?: string; persistIntent?: boolean; onReview?: (review: string) => void; afterNativeApplyForTests?: () => void | Promise<void>; }
+export interface RunSystemSetupOptions { dryRun: boolean; yes: boolean; harnesses: import("./types").HarnessSelections; methods?: Partial<Record<Harness, HarnessMethodSelection>>; rotateMcp?: boolean; promptForMethods?: boolean; projectHarnessIntegrations?: readonly ProjectHarnessIntegrationRecord[]; manualMcpOutput?: boolean; targetRoot?: string; storeRoot?: string; machineRoot?: string; executable?: VerifiedExecutableIdentity; appliedVersion?: string; persistIntent?: boolean; /** W35 R0 P5: the explicit answer to the machine preference for git hooks. `--yes` alone never gives one. */ gitHooksPreference?: boolean; /** Ask the preference question in an interactive run. `always` shows it again with the current value first. `when-absent` asks only when global config holds no answer. */ promptForGitHooksPreference?: "always" | "when-absent"; onReview?: (review: string) => void; afterNativeApplyForTests?: () => void | Promise<void>; }
 
 interface SystemIntentChange {
   harness: Harness;
@@ -47,7 +47,15 @@ export interface PreparedSystemSetup {
   selections: Record<Harness, HarnessMethodSelection>;
   plans: SystemHarnessPlan[];
   intent: SystemIntentProjection;
+  /** W35 R0 P5: the machine preference for git hooks, before and after this run. `undefined` is no answer. */
+  gitHooksPreference?: GitHooksPreferenceChange;
   review: string;
+  changed: boolean;
+}
+
+export interface GitHooksPreferenceChange {
+  before: boolean | undefined;
+  after: boolean | undefined;
   changed: boolean;
 }
 
@@ -65,21 +73,21 @@ export async function runSystemSetupCommand(options: RunSystemSetupOptions): Pro
   const runnablePlans = prepared.plans.filter(plan => plan.status !== "blocked" && plan.status !== "unsupported");
   if (blockedPlans.length && runnablePlans.length === 0) {
     const blocked = blockedPlans.map(plan => ({ harness: plan.harness, reason: plan.detail, nextAction: plan.detail }));
-    return makeResult("blocked", prepared.selections, [], blocked, blocked[0]?.nextAction ?? null);
+    return withGitHooksPreference(makeResult("blocked", prepared.selections, [], blocked, blocked[0]?.nextAction ?? null), prepared.gitHooksPreference, false);
   }
   if (options.dryRun) {
     const blocked = blockedPlans.map(plan => ({ harness: plan.harness, reason: plan.detail, nextAction: plan.detail }));
-    return makeResult(
+    return withGitHooksPreference(makeResult(
       blocked.length || prepared.changed ? "partial" : prepared.plans.length ? "unchanged" : "skipped-none",
       prepared.selections,
       [],
       blocked,
       prepared.changed ? "Run `make-docs setup system --yes` to apply the reviewed machine changes." : blocked[0]?.nextAction ?? null,
-    );
+    ), prepared.gitHooksPreference, false);
   }
   if (prepared.changed && !options.yes) {
     const approved = await confirm({ message: "Apply the reviewed changes to this computer?", initialValue: false, active: "Yes", inactive: "No", withGuide: true });
-    if (isCancel(approved) || !approved) return makeResult("blocked", prepared.selections, [], [], "Run `make-docs setup system` and approve the reviewed machine changes.");
+    if (isCancel(approved) || !approved) return withGitHooksPreference(makeResult("blocked", prepared.selections, [], [], "Run `make-docs setup system` and approve the reviewed machine changes."), prepared.gitHooksPreference, false);
   }
   return applyPreparedSystemSetup(prepared);
 }
@@ -110,6 +118,7 @@ export async function prepareSystemSetupCommand(options: RunSystemSetupOptions):
   validateProjectHarnessIntegrations(options.projectHarnessIntegrations, selections, options.harnesses);
   const plans = buildAdapterPlans(options, selections, machineRoot, targetRoot, storeRoot, executableAttempt);
   const intent = buildIntentProjection(storeRoot, selections, options.harnesses, options.persistIntent !== false);
+  const gitHooksPreference = await resolveGitHooksPreference(options, storeRoot);
   const detection = inspectSystemHarnesses(machineRoot).filter(state => options.harnesses[state.harness]);
   const review = [
     ...detection.map(state => `${label(state.harness)} detection: ${state.state}${state.detail ? ` (${state.detail})` : ""}${state.nextAction ? ` Next: ${state.nextAction}` : ""}`),
@@ -122,6 +131,8 @@ export async function prepareSystemSetupCommand(options: RunSystemSetupOptions):
     ...plans.filter(plan => plan.manualMcpOffer).map(plan => `${label(plan.harness)} manual MCP path: after approval, issue one connection key for this project. The key appears once after project setup finishes. The native file stays client-owned.`),
     "",
     renderIntentChanges(storeRoot, intent.changes),
+    "",
+    renderGitHooksPreference(storeRoot, gitHooksPreference),
   ].join("\n");
   return {
     options,
@@ -131,8 +142,9 @@ export async function prepareSystemSetupCommand(options: RunSystemSetupOptions):
     selections,
     plans,
     intent,
+    gitHooksPreference,
     review,
-    changed: plans.some(plan => plan.changed || plan.manualMcpOffer) || intent.changes.length > 0,
+    changed: plans.some(plan => plan.changed || plan.manualMcpOffer) || intent.changes.length > 0 || gitHooksPreference.changed,
   };
 }
 
@@ -150,7 +162,22 @@ export async function promptForSystemSetupMethods(
   );
 }
 
+/**
+ * Apply the reviewed machine plan. The machine preference for git hooks is one value of global config. It is
+ * written first, and it depends on no agent tool. Writing it installs no hook in any project, and removes none.
+ */
 export async function applyPreparedSystemSetup(prepared: PreparedSystemSetup): Promise<SystemSetupResult> {
+  const preference = prepared.gitHooksPreference;
+  const written = preference !== undefined && preference.changed && preference.after !== undefined && prepared.options.persistIntent !== false;
+  if (written) writeGitHooksPreference(prepared.storeRoot, preference.after!);
+  const result = await applyPreparedHarnessSetup(prepared);
+  if (written && (result.status === "skipped-none" || result.status === "unchanged")) {
+    return withGitHooksPreference({ ...result, status: "configured", mutationState: "verified" }, preference, true);
+  }
+  return withGitHooksPreference(result, preference, written);
+}
+
+async function applyPreparedHarnessSetup(prepared: PreparedSystemSetup): Promise<SystemSetupResult> {
   const { options, plans, selections, targetRoot, storeRoot } = prepared;
   const blockedPlans = plans.filter(plan => plan.status === "blocked" || plan.status === "unsupported");
   const blocked: SystemSetupResult["blocked"] = blockedPlans.map(plan => ({
@@ -778,3 +805,65 @@ export function renderSystemPlans(plans: SystemHarnessPlan[]): string {
 }
 export function inspectSystemHarnesses(root = platform.userHome()): SetupHarnessState[] { return FIRST_PARTY_HARNESS_ADAPTERS.map(adapter => { const detection = adapter.detect({ scope: "machine", root }); return { harness: adapter.harnessId, state: detection.state, detail: detection.reason ?? (detection.evidence.length ? detection.evidence.join(", ") : "No native entry found"), ...(detection.state === "blocked" ? { nextAction: `Resolve access to the ${adapter.displayName} native files, then run \`make-docs setup system\` again.` } : {}) }; }); }
 function renderMethodSupport(root: string, selected: HarnessSelections, executableAttempt: ExecutableVerificationAttempt): string[] { return FIRST_PARTY_HARNESS_ADAPTERS.filter(adapter => selected[adapter.harnessId]).flatMap(adapter => adapter.methods.map(method => { const support = resolveHarnessMethodSupport(adapter, method.id); const state = support.selectable && executableAttempt.executable ? support.state : "blocked"; const detail = support.selectable && executableAttempt.error ? formatExecutableVerificationFailure(executableAttempt.error) : `${support.reason} Next: ${support.nextAction}`; return `${adapter.displayName} ${method.id}: ${state}; ${detail}; native file ${path.resolve(root, method.nativeFile("machine"))}; owned native entries ${method.ownedEntries.join(", ")}.`; })); }
+
+/* ------------------------------------------------------------------------ */
+/* W35 R0 P5: the machine preference for git hooks                          */
+/* ------------------------------------------------------------------------ */
+
+const NO_GIT_HOOKS_PREFERENCE_CHANGE: GitHooksPreferenceChange = { before: undefined, after: undefined, changed: false };
+
+function withGitHooksPreference(result: SystemSetupResult, preference: GitHooksPreferenceChange | undefined, written: boolean): SystemSetupResult {
+  const change = preference ?? NO_GIT_HOOKS_PREFERENCE_CHANGE;
+  const value = written ? change.after : change.before;
+  return { ...result, gitHooksPreference: { value: value ?? null, changed: written } };
+}
+
+/**
+ * The answer to the machine preference question (PRD 07 R-SETUP-CLI-17). An explicit input decides. With no input,
+ * an interactive run asks. `--yes` alone never changes the preference, and no answer leaves global config as it is.
+ */
+async function resolveGitHooksPreference(options: RunSystemSetupOptions, storeRoot: string): Promise<GitHooksPreferenceChange> {
+  const before = readGitHooksPreference(storeRoot);
+  let after = before;
+  if (options.gitHooksPreference !== undefined) {
+    after = options.gitHooksPreference;
+  } else if (options.promptForGitHooksPreference && !options.yes && !options.dryRun &&
+      (options.promptForGitHooksPreference === "always" || before === undefined)) {
+    const answer = await promptForGitHooksPreference(before);
+    if (answer !== undefined) after = answer;
+  }
+  return { before, after, changed: after !== before };
+}
+
+/** The machine preference question. "No" is selected first when global config holds no answer. */
+export async function promptForGitHooksPreference(current: boolean | undefined): Promise<boolean | undefined> {
+  const answer = await select<"no" | "yes">({
+    message: "Install the Make Docs git hooks automatically in each new project on this computer?",
+    options: [
+      { value: "no", label: "No", hint: "Project setup still offers the git hooks for one project, and an explicit hook input still installs them." },
+      { value: "yes", label: "Yes", hint: "Setup of a new project then installs the git hooks, also with `make-docs setup --yes`. This choice changes no project now, and it never installs a hook of an agent tool." },
+    ],
+    initialValue: current === true ? "yes" : "no",
+  });
+  if (isCancel(answer) || typeof answer !== "string") return undefined;
+  return answer === "yes";
+}
+
+function preferenceWord(value: boolean | undefined): string {
+  return value === undefined ? "no answer, which means No" : value ? "Yes" : "No";
+}
+
+function renderGitHooksPreference(storeRoot: string, preference: GitHooksPreferenceChange): string {
+  const configPath = path.join(storeRoot, "config.json");
+  if (!preference.changed) {
+    return `Git hooks for new projects: ${preferenceWord(preference.before)}\n- Effect: no change to this preference.`;
+  }
+  return [
+    `Git hooks for new projects: ${preferenceWord(preference.before)} -> ${preferenceWord(preference.after)}`,
+    `- Effect: writes one value, settings.gitHooksForNewProjects, in ${configPath}. It changes no other value.`,
+    preference.after
+      ? "- With Yes, setup of a new project installs the Make Docs git hooks, also with `make-docs setup --yes`. This change installs no hook in any project now. An older project gets the hooks only by `make-docs setup --git-hooks` or by your yes in an interactive setup of that project."
+      : "- With No, `make-docs setup --yes` installs no git hook. This change removes no hook that a project already has.",
+    "- This preference never installs a hook that belongs to one agent tool.",
+  ].join("\n");
+}

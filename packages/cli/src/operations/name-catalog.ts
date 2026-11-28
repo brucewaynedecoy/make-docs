@@ -11,6 +11,10 @@
  * added them in `addedBy`. W29 R0 P4 landed the nine planned `work.queue.*`
  * entries the same way, and W30 R0 P3 the ten planned `factory.*` entries.
  *
+ * W35 R0 P1 planned and then landed the `project.checkpoint.run` entry (PRD
+ * 39 R-CHECKPOINT-CMD), with its handler, CLI command, MCP tool, and parity
+ * tests.
+ *
  * W33 R0 P2 built the command tree and the MCP names from it, so every
  * current entry's current names are its new names. `formerCli` and
  * `formerMcp` keep the names from before W33 R0 for the P3 migration
@@ -120,7 +124,7 @@ export const NON_REGISTRY_COMMANDS = [
 
 export type NameCatalogEntryKind = "operation" | "hand-defined-tool";
 export type NameCatalogStatus = "current" | "planned";
-export type NameCatalogPlanner = "W29 R0" | "W30 R0" | "W31 R0" | "W32 R0" | "W34 R0";
+export type NameCatalogPlanner = "W29 R0" | "W30 R0" | "W31 R0" | "W32 R0" | "W34 R0" | "W35 R0";
 
 export interface NameCatalogEntry {
   /** Registry operation ID, or the current MCP name of a hand-defined tool. */
@@ -273,6 +277,7 @@ const W30 = "W30 R0" as const;
 const W31 = "W31 R0" as const;
 const W32 = "W32 R0" as const;
 const W34 = "W34 R0" as const;
+const W35 = "W35 R0" as const;
 
 /** Make the MCP name from a CLI path (R-NAME-3). */
 export function mcpNameForCliPath(cliPath: string): string {
@@ -448,6 +453,9 @@ export const NAME_CATALOG: readonly NameCatalogEntry[] = [
   }),
   added("project.markdown-style.repair", W34, "project", "project markdown repair", {
     reason: "The same object word as `project markdown validate`, so the check and its repair stay together, as `project paths` does.",
+  }),
+  added("project.checkpoint.run", W35, "project", "project checkpoint", {
+    reason: "Owner decision OD-7 of the W35 R0 design names `make-docs project checkpoint`. The path ends with the verb `checkpoint`, as `lifecycle checkpoint` does, so the ID word `run` is not in the path.",
   }),
 
   // resource

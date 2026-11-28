@@ -4,7 +4,7 @@ import path from 'node:path';
 import { parseDocument } from 'yaml';
 import { recoverDeadStoreLeases } from './lease-recovery';
 import { acquireGlobalAssetLock, assertGlobalAssetLockActive, releaseGlobalAssetLock, type GlobalAssetLock } from './global-asset-lock';
-import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, fillInstallationOperationReceipt, formatStoreIssue, readStoreSchemaJournal, inspectStoreBrokenReferences, describeStoreBrokenReferences, listUnguardableStoreTables, isSqliteContention, STORE_WRITE_GUARD_LIMIT, STORE_WRITE_GUARD_SINCE_SCHEMA, makeStoreIssue, openStoreSqliteConnection, STORE_BUSY_TIMEOUT_MS, STORE_OWNER_WAIT_MS, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
+import { acquireStoreAccess, applyStoreMigrations, classifyStoreCheckpoint9State, CURRENT_STORE_SCHEMA_VERSION, fillInstallationOperationReceipt, formatStoreIssue, readStoreSchemaJournal, inspectStoreBrokenReferences, describeStoreBrokenReferences, listUnguardableStoreTables, isSqliteContention, STORE_WRITE_GUARD_LIMIT, STORE_WRITE_GUARD_SINCE_SCHEMA, makeStoreIssue, openStoreSqliteConnection, waitedSecondsText, storeBusyTimeoutMs, storeOwnerWaitMs, StoreUnavailableError, tryCreateExclusiveStoreLease, waitForStoreAccessToDrain, waitForStoreRetry, type StoreDatabase, type StoreIssue } from './database';
 import { resolveStoreRoot, getStoreDatabasePath } from './paths';
 import { validateAndMigrateManifest } from '../manifest';
 import { parseManagedBlock } from '../managed-block';
@@ -447,7 +447,7 @@ export function withStoreReadOnlyDatabase<T>(storeRoot: string, fn: (db: StoreDa
         catch (error) {
             if (!isSqliteContention(error))
                 throw error;
-            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'read Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'read Store data', error, { retryable: true, waitedMs: storeBusyTimeoutMs() }));
         }
     }
     finally {
@@ -503,7 +503,7 @@ export function withStoreWriteDatabase<T>(storeRoot: string, fn: (db: StoreDatab
         catch (error) {
             if (!isSqliteContention(error))
                 throw error;
-            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'write Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, 'write Store data', error, { retryable: true, waitedMs: storeBusyTimeoutMs() }));
         }
     }
     finally {
@@ -535,7 +535,7 @@ function validateStoreStatePaths(store: string): string {
 }
 function acquireStorePreparationLease(storeRoot: string, lockPath: string, token: string): import('node:fs').Stats {
     const started = Date.now();
-    const deadline = started + STORE_OWNER_WAIT_MS;
+    const deadline = started + storeOwnerWaitMs();
     let attempts = 0;
     while (true) {
         try {
@@ -734,7 +734,7 @@ export function withInstallationDatabase<T>(projectRoot: string, fn: (db: StoreD
         catch (error) {
             if (!isSqliteContention(error))
                 throw error;
-            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, options.readOnly ? 'read Store data' : 'write Store data', error, { retryable: true, waitedMs: STORE_BUSY_TIMEOUT_MS }));
+            throw new StoreUnavailableError(makeStoreIssue('contention-timeout', databasePath, options.readOnly ? 'read Store data' : 'write Store data', error, { retryable: true, waitedMs: storeBusyTimeoutMs() }));
         }
     }
     finally {
@@ -1191,7 +1191,7 @@ export function acquireInstallationLock(projectRoot: string, storeRoot?: string)
     try {
         const token = randomUUID();
         const started = Date.now();
-        const deadline = started + STORE_OWNER_WAIT_MS;
+        const deadline = started + storeOwnerWaitMs();
         let attempt = 0;
         while (true) {
             const previous = withInstallationDatabase(root, db => transaction(db, () => {
@@ -1214,7 +1214,7 @@ export function acquireInstallationLock(projectRoot: string, storeRoot?: string)
             if (liveness === 'unknown')
                 fail('ownership-unverified', `Make Docs cannot verify checkout writer ${previous.pid} on ${previous.hostname}. No project files changed.`);
             if (Date.now() >= deadline)
-                fail('writer-active', `Make Docs waited ${Math.ceil((Date.now() - started) / 1000)} seconds for checkout writer ${previous.pid}. The writer is still active. No project files changed. Run the command after it finishes.`);
+                fail('writer-active', `Make Docs waited ${waitedSecondsText(Date.now() - started)} for checkout writer ${previous.pid}. The writer is still active. No project files changed. Run the command after it finishes.`);
             waitForStoreRetry(attempt++, deadline);
         }
         const lock = { projectRoot: root, storeRoot: store, token, lockPath: `${getStoreDatabasePath(store)}#installation-lock/${sha(root)}`, depth: 1, releaseAccess };

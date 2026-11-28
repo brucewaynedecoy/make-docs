@@ -9,6 +9,7 @@ import {
   resolveStoreRoot,
   type ResolveStoreRootOptions,
 } from "./paths";
+import { GIT_HOOK_RUNS_DIR, removeAllGitHookRunState } from "./git-hook-runs";
 import { resolveProjectIdentity } from "./project-identity";
 import { deleteProjectRows, type DeleteProjectRowsResult } from "./state-rows";
 import { WorkStoreRefusalError, deletePrunedProjectWorkRows, type DeletePrunedProjectWorkRowsResult } from "./work-store";
@@ -278,6 +279,13 @@ export function removeGlobalStore(
   }
 
   for (const entry of entries) {
+    // W35 R0 P5: the folder of the git hook run files. Removal takes out only its known files, and keeps the
+    // folder when something else is in it.
+    if (entry === GIT_HOOK_RUNS_DIR) {
+      if (removeAllGitHookRunState(storeRoot)) result.removedFiles.push(entry);
+      else result.retainedEntries.push(entry);
+      continue;
+    }
     const isStoreFile =
       KNOWN_STORE_FILES.has(entry) || entry.startsWith(STORE_QUARANTINE_FILE_PREFIX);
     if (!isStoreFile) {

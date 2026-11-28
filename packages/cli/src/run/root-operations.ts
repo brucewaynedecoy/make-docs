@@ -24,6 +24,7 @@ import {
   type MarkdownStyleValidateResult,
 } from "../operations/project/markdown-style";
 import { renderProjectRelations, type ProjectRelationsResult } from "../operations/project/relations";
+import type { WorkCheckpointResult } from "../operations/work/work-queue/checkpoint";
 import type { ProjectListResult } from "../store/project-register";
 import { readFileSync } from "node:fs";
 import { listOperations, operationCliPath, type OperationDescriptor } from "../operations/registry";
@@ -258,7 +259,8 @@ export function renderProjectHelp(): string {
     "",
     "See and repair this project: its state, checkouts, Personas, layout,",
     "support folders, paths and links, Markdown style, document relations,",
-    "and docs.",
+    "and docs. Run the project checkpoint, which does all that is due for",
+    "the project's work.",
     "",
     "Usage: make-docs project <command> [options]",
     "",
@@ -272,6 +274,7 @@ export function renderProjectHelp(): string {
 
 /** Every `make-docs project` command, for the unknown-command guidance. */
 export const PROJECT_COMMANDS = [
+  "checkpoint",
   "list",
   "state status",
   "state recover",
@@ -320,6 +323,10 @@ export async function runProjectCommand(
   }
   if (argv[0] === "list") {
     await runProjectListCommand(argv.slice(1), launch);
+    return;
+  }
+  if (argv[0] === "checkpoint") {
+    await runProjectCheckpointCommand(argv.slice(1), launch);
     return;
   }
   if (argv[0] === "markdown" || argv[0] === "relations") {
@@ -392,6 +399,51 @@ export async function runProjectCommand(
       "",
     ].join("\n"),
   );
+}
+
+/**
+ * W35 R0 P1: `make-docs project checkpoint` (PRD 39 R-CHECKPOINT-CMD). Plain
+ * words first; `--json` prints the full result. A trigger run (`--event`) with
+ * nothing due prints nothing in plain words. The exit code is 0 for every
+ * result: only a refused input, such as an unknown event name, is an error.
+ */
+async function runProjectCheckpointCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {
+  // `make-docs project checkpoint --help` is answered by the leaf help (W33 R0 P5).
+  let json = false;
+  let targetRoot: string | undefined;
+  let event: string | undefined;
+  const seen = new Set<string>();
+  const args = [...argv];
+  while (args.length) {
+    const flag = args.shift()!;
+    if (seen.has(flag)) throw new OperationError(`Option ${flag} can be given only once.`);
+    seen.add(flag);
+    const value = (what: string) => {
+      const next = args.shift();
+      if (next === undefined || next.startsWith("--")) throw new OperationError(`${flag} requires ${what}.`);
+      return next;
+    };
+    if (flag === "--json") json = true;
+    else if (flag === "--target-root") targetRoot = path.resolve(value("a path"));
+    else if (flag === "--event") event = value("an event name");
+    else throw new OperationError(`Unexpected project checkpoint option: ${flag}.`);
+  }
+  const invocation = await invokeOperation(
+    "project.checkpoint.run",
+    // The registry refuses an unknown event name with the list, in the same words as the MCP tool.
+    { ...(targetRoot ? { targetRoot } : {}), ...(event === undefined ? {} : { event }) },
+    createExecutionContext({
+      surface: "cli",
+      route: launch.route,
+      callerIdentityRaw: launch.callerIdentityRaw,
+      callerReference: launch.callerReference,
+      cwd: targetRoot,
+      writesAllowed: true,
+    }),
+  );
+  const value = invocation.value as unknown as WorkCheckpointResult;
+  if (json) { printJson(value); return; }
+  if (!value.quiet) process.stdout.write(`${value.summary}\n`);
 }
 
 async function runProjectListCommand(argv: string[], launch: CliOperationLaunch): Promise<void> {

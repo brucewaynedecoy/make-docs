@@ -81,6 +81,8 @@ describe("make-docs MCP runtime", () => {
       "project_relations_list",
       "project_markdown_validate",
       "project_markdown_repair",
+      // W35 R0 P1 project checkpoint (PRD 25 R-MCP-PROFILE-12).
+      "project_checkpoint",
       // W29 R0 P4 work queue (PRD 52 R-WORK-QUEUE-12).
       "work_status",
       "work_sync",

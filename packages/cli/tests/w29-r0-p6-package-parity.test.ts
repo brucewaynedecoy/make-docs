@@ -178,7 +178,7 @@ describe("W29 R0 P6 defect fixes from the installed proofs", () => {
     expect(status.summary).not.toContain("to write");
     write(root, P2, P2_TEXT.replace("Ship it.", "Ship it now."));
     const next = workNext(root, env(), { level: "phase", includeQuickItems: true, claimant: null, limit: null });
-    expect(next.sync.summary).toBe("Sync check: 1 file to import. The next work write command, or make-docs work sync, applies the changes. 1 held file differs from the store, and sync never writes it.");
+    expect(next.sync.summary).toBe("Sync check: 1 file to import. make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes. 1 held file differs from the store, and sync never writes it.");
   });
 
   it("the read-only sync check tells a person to fix an unreadable file, not that sync applies it", () => {
@@ -188,7 +188,7 @@ describe("W29 R0 P6 defect fixes from the installed proofs", () => {
     expect(only.sync.summary).toBe("Sync check: 1 unreadable file. Fix each unreadable file. Sync leaves it untouched.");
     write(root, P1, P1_TEXT.replace("Build the parser.", "Build the parser first."));
     const mixed = workNext(root, env(), { level: "phase", includeQuickItems: true, claimant: null, limit: null });
-    expect(mixed.sync.summary).toBe("Sync check: 1 file to import, 1 unreadable file. The next work write command, or make-docs work sync, applies the changes. Fix each unreadable file. Sync leaves it untouched.");
+    expect(mixed.sync.summary).toBe("Sync check: 1 file to import, 1 unreadable file. make-docs project checkpoint (MCP tool: project_checkpoint) applies the changes. Fix each unreadable file. Sync leaves it untouched.");
   });
 
   it("a status that the file cannot show stays a store-only edit with copies on", () => {

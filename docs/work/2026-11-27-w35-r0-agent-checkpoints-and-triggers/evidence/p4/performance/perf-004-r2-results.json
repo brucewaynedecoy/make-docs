@@ -1,0 +1,375 @@
+{
+ "profile": "PERF-004",
+ "profileVersion": 1,
+ "note": "Paths, project names, and IDs are left out. Each run used a fresh clone and a fresh temporary Store.",
+ "runs": [
+  {
+   "run": 1,
+   "checks": {
+    "firstImport": {
+     "imported": 471,
+     "written": 0,
+     "removed": 0,
+     "conflicts": 0,
+     "unreadable": 0,
+     "fileErrors": 0,
+     "firstImport": true,
+     "summary": "First sync of this checkout: <n> work files and 4362 units entered the store. Make Docs wrote and removed no project file.\n1 dependency name no unit. Those units wait until the coordinate is fixed."
+    },
+    "firstImportWroteNoFile": true,
+    "storeAfterFirstImport": {
+     "units": 4396,
+     "revisions": 4396
+    },
+    "next": {
+     "ready": 34,
+     "waiting": 10,
+     "syncCheck": "Sync check: the files and the store match."
+    },
+    "status": {
+     "mode": "store",
+     "counts": {
+      "units": 4396,
+      "open": 965,
+      "ready": 75,
+      "waiting": 890,
+      "quickItems": 0,
+      "claims": 0
+     }
+    },
+    "snapshotStore": {
+     "workStoreKey": true,
+     "bytes": 9167227
+    },
+    "snapshotFiles": {
+     "workStoreKey": false,
+     "bytes": 9065456
+    },
+    "workFilesUnchangedAfterRun": true,
+    "storeAfterRun": {
+     "units": 4396,
+     "revisions": 4396
+    },
+    "storeUnitsUnchangedAfterRun": true
+   },
+   "ms": {
+    "floor": [
+     98.8,
+     99.4,
+     100.9
+    ],
+    "firstImport": 1883.4,
+    "noChangeSync": [
+     505.1,
+     443.9,
+     463.9,
+     443.1,
+     443.5
+    ],
+    "next": [
+     393.1,
+     394.2,
+     382.6,
+     374.9,
+     384
+    ],
+    "status": [
+     410.9,
+     406.1,
+     409.1,
+     395.6,
+     403
+    ],
+    "snapshotStore": [
+     4227.2,
+     3930.7,
+     3910.2,
+     3871.1,
+     3849.9
+    ],
+    "snapshotFiles": [
+     3673.1,
+     3528.2,
+     3431.5,
+     3524.7,
+     3418.3
+    ]
+   },
+   "commit": "d12d1047",
+   "setupFirstStatus": "blocked",
+   "setupMs": 501,
+   "median": {
+    "noChangeSync": 443.9,
+    "next": 384,
+    "status": 406.1,
+    "snapshotStore": 3910.2,
+    "snapshotFiles": 3524.7,
+    "floor": 99.4
+   }
+  },
+  {
+   "run": 2,
+   "checks": {
+    "firstImport": {
+     "imported": 471,
+     "written": 0,
+     "removed": 0,
+     "conflicts": 0,
+     "unreadable": 0,
+     "fileErrors": 0,
+     "firstImport": true,
+     "summary": "First sync of this checkout: <n> work files and 4362 units entered the store. Make Docs wrote and removed no project file.\n1 dependency name no unit. Those units wait until the coordinate is fixed."
+    },
+    "firstImportWroteNoFile": true,
+    "storeAfterFirstImport": {
+     "units": 4396,
+     "revisions": 4396
+    },
+    "next": {
+     "ready": 34,
+     "waiting": 10,
+     "syncCheck": "Sync check: the files and the store match."
+    },
+    "status": {
+     "mode": "store",
+     "counts": {
+      "units": 4396,
+      "open": 965,
+      "ready": 75,
+      "waiting": 890,
+      "quickItems": 0,
+      "claims": 0
+     }
+    },
+    "snapshotStore": {
+     "workStoreKey": true,
+     "bytes": 9167227
+    },
+    "snapshotFiles": {
+     "workStoreKey": false,
+     "bytes": 9065456
+    },
+    "workFilesUnchangedAfterRun": true,
+    "storeAfterRun": {
+     "units": 4396,
+     "revisions": 4396
+    },
+    "storeUnitsUnchangedAfterRun": true
+   },
+   "ms": {
+    "floor": [
+     101.4,
+     95.9,
+     96.2
+    ],
+    "firstImport": 1942.8,
+    "noChangeSync": [
+     460.6,
+     443.7,
+     439,
+     452.5,
+     453.9
+    ],
+    "next": [
+     388.4,
+     367.5,
+     369.5,
+     384,
+     384.2
+    ],
+    "status": [
+     410.9,
+     387.4,
+     393.3,
+     399.1,
+     402.6
+    ],
+    "snapshotStore": [
+     3781.1,
+     3695.9,
+     3749.4,
+     3617.6,
+     3808.3
+    ],
+    "snapshotFiles": [
+     3325.2,
+     3296.6,
+     3290.2,
+     3487.9,
+     3508.2
+    ]
+   },
+   "commit": "d12d1047",
+   "setupFirstStatus": "blocked",
+   "setupMs": 887.5,
+   "median": {
+    "noChangeSync": 452.5,
+    "next": 384,
+    "status": 399.1,
+    "snapshotStore": 3749.4,
+    "snapshotFiles": 3325.2,
+    "floor": 96.2
+   }
+  },
+  {
+   "run": 3,
+   "checks": {
+    "firstImport": {
+     "imported": 471,
+     "written": 0,
+     "removed": 0,
+     "conflicts": 0,
+     "unreadable": 0,
+     "fileErrors": 0,
+     "firstImport": true,
+     "summary": "First sync of this checkout: <n> work files and 4362 units entered the store. Make Docs wrote and removed no project file.\n1 dependency name no unit. Those units wait until the coordinate is fixed."
+    },
+    "firstImportWroteNoFile": true,
+    "storeAfterFirstImport": {
+     "units": 4396,
+     "revisions": 4396
+    },
+    "next": {
+     "ready": 34,
+     "waiting": 10,
+     "syncCheck": "Sync check: the files and the store match."
+    },
+    "status": {
+     "mode": "store",
+     "counts": {
+      "units": 4396,
+      "open": 965,
+      "ready": 75,
+      "waiting": 890,
+      "quickItems": 0,
+      "claims": 0
+     }
+    },
+    "snapshotStore": {
+     "workStoreKey": true,
+     "bytes": 9167227
+    },
+    "snapshotFiles": {
+     "workStoreKey": false,
+     "bytes": 9065456
+    },
+    "workFilesUnchangedAfterRun": true,
+    "storeAfterRun": {
+     "units": 4396,
+     "revisions": 4396
+    },
+    "storeUnitsUnchangedAfterRun": true
+   },
+   "ms": {
+    "floor": [
+     100.2,
+     102.5,
+     103
+    ],
+    "firstImport": 1845.7,
+    "noChangeSync": [
+     437.8,
+     436.7,
+     452.4,
+     446,
+     428.2
+    ],
+    "next": [
+     368.8,
+     371.1,
+     383.6,
+     364.8,
+     370.6
+    ],
+    "status": [
+     382.2,
+     399.9,
+     399.4,
+     385.9,
+     387.2
+    ],
+    "snapshotStore": [
+     3778.9,
+     3891.2,
+     3826.7,
+     3750.4,
+     3702.7
+    ],
+    "snapshotFiles": [
+     3440.9,
+     3559,
+     3508.6,
+     3359.6,
+     3413.9
+    ]
+   },
+   "commit": "d12d1047",
+   "setupFirstStatus": "blocked",
+   "setupMs": 506.5,
+   "median": {
+    "noChangeSync": 437.8,
+    "next": 370.6,
+    "status": 387.2,
+    "snapshotStore": 3778.9,
+    "snapshotFiles": 3440.9,
+    "floor": 102.5
+   }
+  }
+ ],
+ "stop": {
+  "reason": "all 3 runs done",
+  "elapsedSeconds": 143
+ },
+ "summary": {
+  "floor": {
+   "samples": 9,
+   "median": 100.2,
+   "min": 95.9,
+   "max": 103
+  },
+  "firstImport": {
+   "samples": 3,
+   "median": 1883.4,
+   "min": 1845.7,
+   "max": 1942.8
+  },
+  "noChangeSync": {
+   "samples": 15,
+   "median": 443.9,
+   "min": 428.2,
+   "max": 505.1
+  },
+  "next": {
+   "samples": 15,
+   "median": 382.6,
+   "min": 364.8,
+   "max": 394.2
+  },
+  "status": {
+   "samples": 15,
+   "median": 399.4,
+   "min": 382.2,
+   "max": 410.9
+  },
+  "snapshotStore": {
+   "samples": 15,
+   "median": 3808.3,
+   "min": 3617.6,
+   "max": 4227.2
+  },
+  "snapshotFiles": {
+   "samples": 15,
+   "median": 3440.9,
+   "min": 3290.2,
+   "max": 3673.1
+  }
+ },
+ "runtime": {
+  "node": "v26.13.1",
+  "platform": "darwin",
+  "arch": "arm64",
+  "cpus": 10,
+  "cpuModel": "Apple M2 Pro",
+  "memoryGiB": 16
+ }
+}

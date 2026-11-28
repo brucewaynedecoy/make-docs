@@ -17,6 +17,7 @@ import { listNativeMcpResources, readNativeMcpResource } from "./resources";
 import { callMakeDocsMcpTool, listActiveMcpMigrationAliases, listMakeDocsMcpTools } from "./tools";
 import { defaultAppResources } from "./default-app-resources";
 import { encodeBacklogToolResult } from "./backlog-transport";
+import { mcpServerInstructions } from "./instructions";
 
 export interface MakeDocsMcpServerOptions extends McpProfileOptions {
   /** Static UI assets. Tool handlers still use the existing SDK tool registry. */
@@ -33,16 +34,18 @@ export function createMakeDocsMcpServer(options: MakeDocsMcpServerOptions = {}):
   }
   const appResources = createAppResourceCatalog([...defaultAppResources(profile), ...(options.appResources ?? [])]);
   const packageMeta = readPackageMeta();
-  const server = new McpServer({
-    name: packageMeta.name,
-    version: packageMeta.version,
-  });
+  const tools = listMakeDocsMcpTools(process.cwd(), { profile });
+  // PRD 25 R-MCP-INSTR: the work rule goes only to a profile that lists its tools.
+  const instructions = mcpServerInstructions(tools.map((tool) => tool.name));
+  const server = new McpServer(
+    { name: packageMeta.name, version: packageMeta.version },
+    instructions === undefined ? {} : { instructions },
+  );
 
   // PRD 39 R-MIG-1, R-MIG-3: old tool names answer calls but never appear in
   // `tools/list`. This must run before the first tool is registered.
   const aliases = listActiveMcpMigrationAliases({ profile });
   const aliasHiding = hideToolsFromList(server, new Set(aliases.map((alias) => alias.formerMcp)));
-  const tools = listMakeDocsMcpTools(process.cwd(), { profile });
   const registrations = [
     ...tools.map((tool) => ({ name: tool.name, tool })),
     ...aliases.map((alias) => ({ name: alias.formerMcp, tool: tools.find((tool) => tool.name === alias.newMcp)! })),

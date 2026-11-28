@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { preparePlannedFileChange, sealInstallationOperation, withInstallationOperation } from "./store/installation-state";
 import { createAuditReport } from "./audit";
-import { getProjectBackupRoot } from "./backup-paths";
+import { getProjectBackupRoot, resolveBackupDestinationPlan } from "./backup-paths";
 import { getLifecycleRenderer } from "./lifecycle-ui";
 import { loadManifest } from "./manifest";
 import type {
@@ -21,6 +21,9 @@ import type {
   BackupExecutionResult,
 } from "./types";
 import { ensureParentDir } from "./utils";
+
+// The plan of the backup folder lives with the backup paths, so that a module with no review UI can use it.
+export { resolveBackupDestinationPlan };
 
 type CopyableAuditRemovableFile = AuditRemovableFile & {
   backupRelativePath: string;
@@ -205,62 +208,6 @@ export function executePreparedBackup(
   });
 }
 
-export function resolveBackupDestinationPlan(
-  targetDir: string,
-  now: Date,
-): BackupDestinationPlan {
-  const backupRoot = getProjectBackupRoot(targetDir);
-  const dateStamp = formatDateStamp(now);
-  const plainDirectory = path.join(backupRoot, dateStamp);
-  const existingOrdinals = collectExistingOrdinals(backupRoot, dateStamp);
-  const hasPlainDirectory = existsSync(plainDirectory);
-
-  if (!hasPlainDirectory && existingOrdinals.length === 0) {
-    return {
-      backupRoot,
-      dateStamp,
-      directoryName: dateStamp,
-      destinationDir: plainDirectory,
-    };
-  }
-
-  const usedOrdinals = new Set(existingOrdinals);
-  let promotion: BackupDestinationPlan["promotion"];
-
-  // A completed backup path is a durable payload reference. Never rename it.
-  if (hasPlainDirectory) usedOrdinals.add(0);
-
-  const nextOrdinal = Math.max(...usedOrdinals, 0) + 1;
-  const directoryName = `${dateStamp}-${formatOrdinal(nextOrdinal)}`;
-
-  return {
-    backupRoot,
-    dateStamp,
-    directoryName,
-    destinationDir: path.join(backupRoot, directoryName),
-    promotion,
-  };
-}
-
-function collectExistingOrdinals(backupRoot: string, dateStamp: string): number[] {
-  if (!existsSync(backupRoot)) {
-    return [];
-  }
-
-  const pattern = new RegExp(`^${escapeRegExp(dateStamp)}-(\\d+)$`);
-  return readdirSync(backupRoot)
-    .map((entryName) => {
-      const match = pattern.exec(entryName);
-      if (!match) {
-        return null;
-      }
-
-      return Number.parseInt(match[1] ?? "", 10);
-    })
-    .filter((value): value is number => Number.isInteger(value))
-    .sort((left, right) => left - right);
-}
-
 function findLowestAvailableOrdinal(usedOrdinals: Set<number>): number {
   let ordinal = 1;
   while (usedOrdinals.has(ordinal)) {
@@ -295,17 +242,3 @@ function createNoopBackupResult(
   };
 }
 
-function formatDateStamp(now: Date): string {
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function formatOrdinal(ordinal: number): string {
-  return String(ordinal).padStart(2, "0");
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}

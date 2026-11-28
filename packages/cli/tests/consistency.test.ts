@@ -766,6 +766,7 @@ describe("risk register routing contract", () => {
       "Q-024 What is the finite P3 operation inventory and phase ownership?",
       "Q-025 Should the Store Become an Optional Durable Archive for Non-Active Documents?",
       "Q-026 Should the Plan Stage Become Optional in the Default Lifecycle Arc?",
+      "Q-027 Does the Exact Reminder Check Stay on Each Command as the Work Files Grow?",
     ]);
     expect(itemHeadings(risks)).toEqual([
       "R-001 Home-Scoped Skills Are Easy to Drop From a Clean-Room Rebuild",
@@ -806,6 +807,15 @@ describe("risk register routing contract", () => {
       "R-036 Compatibility Bridges Could Become Permanent Duplicate Authority",
       "R-037 Minimal Store Migration Could Lose Recovery or Opaque Evidence",
       "R-038 Platform Evidence Could Be Used to Excuse a Core Parity Gap",
+      "R-039 One Project Store Serves Every Branch and Worktree",
+      "R-040 A Trigger Run Can Be the First Sync of a Checkout",
+      "R-041 Two Syncs at the Same Time Can Import an Older File Text",
+      "R-042 `work add` Ignores `--dry-run` and Writes the Store",
+      "R-043 `git pull --rebase` With Local Commits Runs No Hook After a Merge",
+      "R-044 A Hook Can Find the `make-docs` Command and Still Not Start It",
+      "R-045 A Hook Does Nothing in a Work Tree That Is Not Bound to the Store",
+      "R-046 A Git Hook Does Nothing When Its Shell May Not Use the Store",
+      "R-047 The Time That a Git Hook Adds Grows With the Work Files, and No Rule Bounds It",
     ]);
   });
 

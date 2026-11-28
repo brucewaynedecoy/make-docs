@@ -1,0 +1,168 @@
+{
+ "measure": "sync-core-fix-same-session-comparison",
+ "note": "Paths, project names, and IDs are left out. Times are in milliseconds, for one CLI process from spawn to exit.",
+ "samplesPerBuildAndCommand": 25,
+ "order": "For each sample and each command, both builds run one after the other. The build that runs first changes with each sample.",
+ "commands": {
+  "work sync": {
+   "fixed": [
+    432.9,
+    447.5,
+    446,
+    428.8,
+    505.9,
+    434,
+    447.2,
+    437.5,
+    438.1,
+    454.7,
+    438.2,
+    434.6,
+    427.8,
+    416.4,
+    423.2,
+    429.3,
+    424.3,
+    418.7,
+    424.8,
+    426,
+    422.8,
+    421.9,
+    411.9,
+    471.8,
+    431.8
+   ],
+   "old": [
+    438.9,
+    433.1,
+    430.4,
+    427.7,
+    456.9,
+    445.3,
+    447,
+    442.1,
+    458.1,
+    497.2,
+    433.8,
+    432.6,
+    424.4,
+    429.8,
+    414.2,
+    444.9,
+    423.1,
+    424.3,
+    422.8,
+    423.8,
+    436.3,
+    418.2,
+    424.2,
+    422.9,
+    434.5
+   ]
+  },
+  "project checkpoint": {
+   "fixed": [
+    522.3,
+    503.6,
+    496.6,
+    592.6,
+    527.5,
+    531.3,
+    484.9,
+    502.4,
+    524.9,
+    510.5,
+    503.7,
+    501.7,
+    496.3,
+    495.7,
+    498.9,
+    498.6,
+    493.9,
+    483.5,
+    490.3,
+    487,
+    497.2,
+    494.8,
+    497,
+    510.5,
+    513.8
+   ],
+   "old": [
+    507.7,
+    510.8,
+    498.1,
+    531.3,
+    527.7,
+    539.3,
+    491.1,
+    514.5,
+    551.9,
+    508.7,
+    494.5,
+    538.1,
+    496.2,
+    487.3,
+    507.9,
+    495.6,
+    497.4,
+    481.8,
+    497.4,
+    488.8,
+    498.6,
+    502.2,
+    515.1,
+    527.3,
+    503
+   ]
+  }
+ },
+ "workFiles": 471,
+ "workFilesChangedByTheRuns": 0,
+ "summary": {
+  "work sync": {
+   "fixedMedian": 431.8,
+   "fixedRange": [
+    411.9,
+    505.9
+   ],
+   "oldMedian": 432.6,
+   "oldRange": [
+    414.2,
+    497.2
+   ],
+   "fixedMinusOldOfMedians": -0.8,
+   "medianOfPairDifferences": 1.1,
+   "pairsWhereFixedIsSlower": 14
+  },
+  "project checkpoint": {
+   "fixedMedian": 498.9,
+   "fixedRange": [
+    483.5,
+    592.6
+   ],
+   "oldMedian": 503,
+   "oldRange": [
+    481.8,
+    551.9
+   ],
+   "fixedMinusOldOfMedians": -4.1,
+   "medianOfPairDifferences": -1.8,
+   "pairsWhereFixedIsSlower": 9
+  }
+ },
+ "harnessSeconds": 54,
+ "builds": {
+  "fixed": {
+   "entrySha256": "5f76fc1ac1aa5fdb3d44ff9c0e606b676116f2ccbc07c5dccfa8e8caaa30a223"
+  },
+  "old": {
+   "entrySha256": "1d31759ea4b2ed4170f48e1b3412aed9b8790c2283cbc79bf757360b2567d4dd"
+  }
+ },
+ "runtime": {
+  "node": "v26.13.1",
+  "platform": "darwin",
+  "arch": "arm64"
+ }
+}

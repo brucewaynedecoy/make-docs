@@ -57,13 +57,20 @@ const FACTORY_READ_NOTE = "Without --target-root or --project, it reads the proj
 const FACTORY_CLAIM_NOTE = "The claim ID is checked and never saved or shown. Keep it private, like a key.";
 const REVIEW_DIGEST: LeafHelpItem = { name: "--review <digest>", text: "The review digest from the preview you approved." };
 
-function lifecycleVersioned(summary: string, extraUsage = "", extraOptions: LeafHelpItem[] = []): LeafHelpEntry {
+function lifecycleVersioned(summary: string, extraUsage = "", extraOptions: LeafHelpItem[] = [], notes?: string[]): LeafHelpEntry {
   return {
     summary,
     usage: `--run-id <id>|--last --expected-version <n>${extraUsage} [--repo-root <path>] [--store-root <path>] [--json]`,
     options: [RUN_SELECTOR, EXPECTED_VERSION, ...extraOptions, REPO_ROOT, STORE_ROOT, JSON_OPTION],
+    ...(notes ? { notes } : {}),
   };
 }
+
+/** One sentence in each checkpoint help: how the two checkpoint commands differ (PRD 39 R-CHECKPOINT-CMD-5). */
+export const PROJECT_CHECKPOINT_DIFFERENCE =
+  "This is not make-docs lifecycle checkpoint: that command records one step of one lifecycle run, and this command does all that is due for the work of the project.";
+export const LIFECYCLE_CHECKPOINT_DIFFERENCE =
+  "This is not make-docs project checkpoint: that command does all that is due for the work of the project, and this command records one step of one lifecycle run.";
 
 const UAT_OPTIONS: LeafHelpItem[] = [
   {
@@ -403,6 +410,7 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
       { name: "--stage <stage>", text: "Move the run to this stage." },
       { name: "--metadata-json <file-or-json>", text: "Extra data to keep with the checkpoint." },
     ],
+    [LIFECYCLE_CHECKPOINT_DIFFERENCE],
   ),
   "lifecycle.pause": lifecycleVersioned("Pause an active lifecycle run."),
   "lifecycle.resume": lifecycleVersioned("Resume a paused lifecycle run."),
@@ -473,6 +481,25 @@ export const OPERATION_LEAF_HELP: Readonly<Record<AdmittedOperationId, LeafHelpE
       "It shows each exact change: the lines it removes and the line it adds. --json also gives each file before and after.",
       "It never changes AGENTS.md or CLAUDE.md routers, files with a make-docs managed block, or the folders that project paths validate skips.",
       "Exit codes: 0 when no finding is left, 1 when a finding is left, 2 on an error, as project paths repair does. A preview leaves every finding, so it exits 1 when there is something to fix.",
+    ],
+  },
+  // W35 R0 P1: the project checkpoint (PRD 39 R-CHECKPOINT-CMD, PRD 52 R-WORK-CHECKPOINT).
+  "project.checkpoint.run": {
+    summary: "Do all that is due for this project's work: sync the docs/work/ files and the work store, name each conflict, list each claim that ended or ends soon, and list the next ready work.",
+    usage: "[--event <name>] [--target-root <path>] [--json]",
+    options: [
+      { name: "--event <name>", text: "Only a hook gives this. It names what happened: session-start, files-changed, turn-end, commit, branch-change, or phase-closed. Leave it out when you run the command yourself." },
+      TARGET_ROOT,
+      JSON_OPTION,
+    ],
+    notes: [
+      PROJECT_CHECKPOINT_DIFFERENCE,
+      "The first line is the summary. When nothing is due, it says so.",
+      "It never settles a conflict. It names each conflict with one settle command for each choice.",
+      "It never shows a claim ID, and it renews and releases no claim.",
+      "With --event, the run imports changed files only. It writes and removes no project file, and it prints nothing when nothing is due. With --event branch-change it imports nothing.",
+      "A caller with read access only gets the read steps and a line that says the sync did not run. The exit code is still 0.",
+      "Without a usable Store, the docs/work/ files are the authority. The command says so and exits with 0. It also exits with 0 in a folder that is not a Make Docs project.",
     ],
   },
   // W29 R0 P4: the work queue (PRD 52). Units are coordinates such as `W29 R0 P4 T3`, or quick item numbers such as `7`.

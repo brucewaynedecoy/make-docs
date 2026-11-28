@@ -40,6 +40,7 @@ import type {
   PlannedAction,
 } from "../types";
 import { readPackageMeta } from "../utils";
+import { WORK_REMINDER_MCP_LINE, isRefusedOperationValue } from "../operations/work/work-queue/reminder";
 
 /**
  * CLI paths of the six hand-defined tools (PRD 39 R-NAME-3, owner decision
@@ -212,7 +213,9 @@ function deriveToolDescription(definition: OperationDefinition): string {
       `Pending: reserved registry identifier whose semantics land with ${definition.pendingLineage}; invocation is refused until then.`,
     );
   }
-  if (definition.mutates === "write") {
+  if (definition.storeAdmission === "step") {
+    parts.push("Mutating operation: its write step needs allowWrite=true and write access. Without them the tool still answers: it does its read steps, changes nothing, and says that the write step did not run.");
+  } else if (definition.mutates === "write") {
     parts.push("Mutating operation: requires allowWrite=true, enforced by the operation core.");
   }
   if (definition.storeAdmission === "optional") {
@@ -448,11 +451,20 @@ export async function callMakeDocsMcpTool(
   const effective = listMakeDocsMcpTools(targetRoot, { profile }).find(
     (candidate) => candidate.name === name,
   );
-  return mcpPayload(name, await invokeDerivedOperationTool(derived.operation, args), {
+  const invocation = await invokeDerivedOperationTool(derived.operation, args);
+  // W35 R0 P2 (PRD 25 R-MCP-REMIND-1): the reminder is one field of the result
+  // object, so it reaches a host through `content` and `structuredContent`. A
+  // tool with a fixed result schema carries none.
+  // A refusal carries none, as a failed CLI command prints none. The field
+  // names the command and the tool, because an MCP-only caller has no command.
+  const reminder = invocation.reminder !== undefined && getOperation(derived.operation).mcpResultSchema === undefined && !isRefusedOperationValue(invocation.value)
+    ? { reminder: WORK_REMINDER_MCP_LINE }
+    : {};
+  return mcpPayload(name, invocation.value, {
     operation: derived.operation,
     access: { ...derived.access! },
     mcpReady: effective?.mcpReady === true,
-  });
+  }, reminder);
 }
 
 /**
@@ -463,7 +475,7 @@ export async function callMakeDocsMcpTool(
  * gating, named approvals, and pending-lineage refusal are all enforced
  * uniformly by the operation core; this adapter carries no per-tool checks.
  */
-async function invokeDerivedOperationTool(id: string, args: McpToolInput): Promise<unknown> {
+async function invokeDerivedOperationTool(id: string, args: McpToolInput): Promise<{ value: unknown; reminder?: string }> {
   const { allowWrite, dryRun, approvals, ...input } = args;
   const invocation = await invokeOperation(
     id,
@@ -479,7 +491,7 @@ async function invokeDerivedOperationTool(id: string, args: McpToolInput): Promi
       approvals: Array.isArray(approvals) ? approvals.map(String) : [],
     }),
   );
-  return invocation.value;
+  return { value: invocation.value, ...(invocation.reminder ? { reminder: invocation.reminder } : {}) };
 }
 
 async function readInstalledState(targetDir: string): Promise<Record<string, unknown>> {
@@ -611,12 +623,14 @@ function mcpPayload(
   tool: string,
   result: unknown,
   details: Record<string, unknown> = {},
+  after: Record<string, unknown> = {},
 ): Record<string, unknown> {
   return {
     tool,
     source: "mcp",
     ...details,
     result,
+    ...after,
   };
 }
 

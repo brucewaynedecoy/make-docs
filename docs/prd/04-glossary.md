@@ -103,6 +103,11 @@ This glossary defines the typed and operational vocabulary used across the activ
 | Grant | One person's Store-only permission on one machine for a factory action outside the default authority, such as a merge, deploy, publish, or spend. Its scope is `once`, `run`, or `standing`, and it can have an expiry time. It is never committed. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
 | Resolved plan | The record that the CLI generates for one factory workflow by joining its config entry, its Store binding, and its workflow type. The Store keeps it as immutable revisions with a digest. Each assignment names the revision it runs under. It is data, not a program, and it is not a plan under `docs/plans/`. | [PRD 53](53-factory-setup-and-orchestration.md), [PRD 38](38-global-store-and-project-state.md) |
 | Correction round | One return of a factory job to its builder after review found defects. The CLI counts rounds on each assignment and refuses a round past the workflow's limit. | [PRD 53](53-factory-setup-and-orchestration.md) |
+| Checkpoint (project) | `make-docs project checkpoint`, one command that does all that is due for the work of a project: it finds who is in charge, syncs the work files, names each conflict, lists each claim that ended or ends soon, and lists the next ready work. It is not the lifecycle checkpoint. | [PRD 52](52-work-store-and-work-queue.md), [PRD 39](39-cli-command-model-and-operation-registry.md) |
+| Checkpoint (lifecycle) | `make-docs lifecycle checkpoint`, which records one step of one lifecycle run. It is not the project checkpoint. | [PRD 38](38-global-store-and-project-state.md), [PRD 39](39-cli-command-model-and-operation-registry.md) |
+| Direct run | A run of the project checkpoint with no event. A person or an agent starts it. It runs the same two-way sync as `make-docs work sync` and always gives its result. | [PRD 52](52-work-store-and-work-queue.md) |
+| Trigger run | A run of the project checkpoint with an event. Only a hook starts it. It imports changed work files, writes and removes no project file, and is quiet when nothing is due. | [PRD 52](52-work-store-and-work-queue.md) |
+| Event (checkpoint) | The name of what happened before a trigger run: `session-start`, `files-changed`, `turn-end`, `commit`, `branch-change`, or `phase-closed`. Every event runs the project checkpoint. | [PRD 39](39-cli-command-model-and-operation-registry.md), [PRD 52](52-work-store-and-work-queue.md) |
 
 ## Requirement History
 
@@ -153,6 +158,14 @@ This glossary defines the typed and operational vocabulary used across the activ
 - Replacement contract: Grant has a scope and an optional expiry. Resolved plan and Correction round are defined. This is new behavior.
 - Rationale: the owner approved scoped grants, correction rounds, and the resolved workflow plan on 2026-11-23.
 - Source: [Factory design](../designs/2026-11-21-factory.md) and [PRD 53](53-factory-setup-and-orchestration.md).
+
+### 2026-11-27 — W35 R0 P1
+
+- Affected requirement or section: `Terms` — Checkpoint (project), Checkpoint (lifecycle), Direct run, Trigger run, Event (checkpoint).
+- Previous contract: "checkpoint" meant only a step of a lifecycle run. No term named the project checkpoint, its two kinds of run, or its events.
+- Replacement contract: the glossary defines the two checkpoints and says that each is not the other. It defines the direct run, the trigger run, and the six events. This is new behavior.
+- Rationale: two commands end with the word `checkpoint`, so plans, work, and guides need one name for each.
+- Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md), [W35 R0 P1](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/01-checkpoint-command.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p1-checkpoint-command).
 
 ## Source Anchors
 

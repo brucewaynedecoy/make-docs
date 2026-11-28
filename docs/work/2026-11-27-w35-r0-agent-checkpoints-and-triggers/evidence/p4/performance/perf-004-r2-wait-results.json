@@ -1,0 +1,37 @@
+{
+ "measure": "second-sync-wait",
+ "note": "Paths, project names, and IDs are left out.",
+ "single": [
+  448.1,
+  471.9,
+  436.3,
+  458.7,
+  460
+ ],
+ "pairFirst": [
+  467.7,
+  463,
+  467.3,
+  508.7,
+  489.1
+ ],
+ "pairSecond": [
+  760.3,
+  751.6,
+  846.6,
+  861.6,
+  763.8
+ ],
+ "workFiles": 471,
+ "summary": {
+  "singleMedian": 458.7,
+  "pairFirstMedian": 467.7,
+  "pairSecondMedian": 763.8,
+  "secondWaitsMedian": 305.1
+ },
+ "runtime": {
+  "node": "v26.13.1",
+  "platform": "darwin",
+  "arch": "arm64"
+ }
+}

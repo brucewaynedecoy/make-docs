@@ -32,7 +32,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 
 ### Top-Level Structure (R-TOP)
 
-- R-TOP-1 (MUST): the CLI has eleven top-level groups, one per capability: `setup`, `project`, `resource`, `work`, `backlog`, `lifecycle`, `factory`, `check`, `mcp`, `update`, and `uninstall`. `setup` owns `setup`, `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, `setup store`, and `setup remove`. `project` owns project state, checkouts, Personas, layout, surfaces, path hygiene, Markdown style, document relations, the project list, and the doctor. `resource` owns canonical system-resource list, read, and ensure. `work` owns work items, work evidence, and the work queue. `backlog` owns the backlog snapshot, the review cache, and the live review app. `lifecycle` owns lifecycle runs. `factory` owns the factory. `check` owns read-only validators that no other group owns: PRD authority, decomposition output, performance evidence, and Unassisted Goal Testing records. `mcp` owns the MCP server. `update` and `uninstall` own tool and machine-level self-management. `run` is not a root; its former paths are aliases under R-MIG-1.
+- R-TOP-1 (MUST): the CLI has eleven top-level groups, one per capability: `setup`, `project`, `resource`, `work`, `backlog`, `lifecycle`, `factory`, `check`, `mcp`, `update`, and `uninstall`. `setup` owns `setup`, `setup system`, `setup reconfigure`, `setup skills`, `setup backup`, `setup store`, and `setup remove`. `project` owns project state, checkouts, Personas, layout, surfaces, path hygiene, Markdown style, document relations, the project list, the doctor, and the project checkpoint. `resource` owns canonical system-resource list, read, and ensure. `work` owns work items, work evidence, and the work queue. `backlog` owns the backlog snapshot, the review cache, and the live review app. `lifecycle` owns lifecycle runs. `factory` owns the factory. `check` owns read-only validators that no other group owns: PRD authority, decomposition output, performance evidence, and Unassisted Goal Testing records. `mcp` owns the MCP server. `update` and `uninstall` own tool and machine-level self-management. `run` is not a root; its former paths are aliases under R-MIG-1.
 - R-TOP-2 (MUST): `setup remove` is the project-removal command; top-level `uninstall` is reserved for machine-level removal.
 - R-TOP-3 (MUST): every operation lives in the group of its capability, under R-NAME. Multi-operation families use a subtree under a domain object mapping one-to-one to registry identifiers. Registry metadata explicitly maps an operation to its canonical CLI projection; the only aliases are the migration aliases of R-MIG-1.
 - R-TOP-4 (MUST): `--help` or `-h` after a registry command prints that command's help and exits 0. The help has one plain-words summary, the usage line, the arguments and options that the command accepts, and whether the command can write. Help runs no operation, reads no Store, and writes nothing. A read-only command's summary ends with "Changes nothing." Each group's help lists each of its commands on one path line and one summary line, and only a command's own help names its flags. The registry's usage line for a command is its help usage line. A `--help` or `-h` that is the value of a flag that takes a value is that value, not a request for help. A former path in its R-MIG-1 window prints the new command's help, then the alias notice. Tests run `--help` and `-h` on every registry command and check each command's help options against the options its parser reads.
@@ -44,7 +44,7 @@ The requirements below are the normative authority. Their stable identifiers pre
 - R-NAME-3 (MUST): an MCP tool name is the CLI path after `make-docs`, with spaces and hyphens replaced by underscores, such as `work_evidence_record`. No other mapping exists. A hand-defined MCP tool follows the same rule from a CLI path in its group, or from the path it would have.
 - R-NAME-4 (MUST): a name has at most 26 characters. When a path would make a longer name, the CLI path gets shorter, so the path and the name still match.
 - R-NAME-5 (MUST): one name catalog in code lists every operation and hand-defined tool with its current and new CLI path and MCP name. A test fails when an entry breaks R-NAME-1 to R-NAME-4, when two entries share a name, or when a PRD command list and the registry differ.
-- R-NAME-6 (MUST): shipped text names only current catalog names. Shipped text is the template, this repository's installed copy of it, the first-party Skills and their installed copies, the root and package README files, `CONTRIBUTING.md`, `RELEASING.md`, `SECURITY.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `packages/cli/src/store/README.md`, the routers, the guides under `docs/assets/user/` and `docs/assets/maintainer/`, and current PRD text. A test fails when a `make-docs` command in that text is not a catalog, setup, or group path, when a code span starts with a former `run` path, or when an MCP tool name is a former catalog name. It reads commands that start with `make-docs`, `npx` with the package name, or `node <path>/dist/index.js`, with or without environment assignments first. Shipped text keeps a former name only in the table rows right after a `<!-- make-docs:former-names -->` line, or in a Requirement History or Change History section. The test does not read `docs/assets/project/`, the decision register `03-open-questions-and-risk-register.md`, plans, designs, work backlogs, history records, or archives, which keep the names they recorded.
+- R-NAME-6 (MUST): shipped text names only current catalog names. Shipped text is the template, this repository's installed copy of it, the first-party Skills and their installed copies, the root and package README files, `CONTRIBUTING.md`, `RELEASING.md`, `SECURITY.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `packages/cli/src/store/README.md`, the routers, the guides under `docs/assets/user/` and `docs/assets/maintainer/`, and current PRD text. A test fails when a `make-docs` command in that text is not a catalog, setup, or group path, when a code span starts with a former `run` path, or when an MCP tool name is a former catalog name. It reads commands that start with `make-docs`, `npx` with the package name, or `node <path>/dist/index.js`, with or without environment assignments first. Shipped text keeps a former name only in the table rows right after a `<!-- make-docs:former-names -->` line, or in a Requirement History or Change History section. The test does not read `docs/assets/project/`, the decision register `03-open-questions-and-risk-register.md`, plans, designs, work backlogs, history records, or archives, which keep the names they recorded. The MCP server instructions of [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) R-MCP-INSTR-1 are shipped text too. They live in source and not in a file of the scanned set, so their own test checks them: it fails when the instructions lack the current checkpoint tool, or name a tool that is not a current catalog name or that the connection does not list. The same test fails when the work store line of a router, or the trigger text of the work store reference, lacks the current checkpoint command or names a command that is not a current catalog path. The block that setup writes into a git hook file ([PRD 07](07-cli-command-surface-and-lifecycle.md) R-SETUP-CLI-21) is shipped text too. It lives in source, and it lands in the hook files of a person's clone. Its own test fails when the block of a hook lacks the current checkpoint command with the event of that hook.
 
 ### Bare Command (R-BARE)
 
@@ -286,6 +286,18 @@ Persona, asset, config, and runtime semantics remain owned by PRDs [47](47-perso
 | `project.markdown-style.validate` | `make-docs project markdown validate [--path <path>] [--target-root <path>] [--json]` | `project_markdown_validate` |
 | `project.markdown-style.repair` | `make-docs project markdown repair [--apply\|--dry-run] [--path <path>] [--target-root <path>] [--json]` | `project_markdown_repair` |
 
+### Project Checkpoint Command (R-CHECKPOINT-CMD)
+
+- R-CHECKPOINT-CMD-1 (MUST): the registry admits `project.checkpoint.run` in the `project` group. No new top-level command is introduced. Its CLI path and MCP name follow R-NAME-1 to R-NAME-4 and are one entry in the name catalog under R-NAME-5: `make-docs project checkpoint` (`project_checkpoint`, which has 18 characters). The path ends with the verb `checkpoint`, so the ID word `run` is not in the path. The catalog entry is current.
+- R-CHECKPOINT-CMD-2 (MUST): the command has three inputs. `--event <name>` (MCP `event`) accepts exactly six names: `session-start`, `files-changed`, `turn-end`, `commit`, `branch-change`, and `phase-closed`. Any other name is refused with the list of the six names. `--target-root <path>` (MCP `targetRoot`) names the project folder, and the default is the current folder. `--json` returns the full structured result. Plain output is the default: the `summary` field of the result, with the summary line first. A trigger run with nothing due prints nothing in plain output, and `--json` still prints its full result. The exit code is 0 for every result. Only a refused input, such as an unknown event name, is an error.
+- R-CHECKPOINT-CMD-3 (MUST): a run with no `--event` is a direct run. A run with `--event` is a trigger run, and only a hook starts one. [PRD 52](52-work-store-and-work-queue.md) owns what each kind of run does.
+- R-CHECKPOINT-CMD-4 (MUST): the sync step needs the Store write permission and the project write permission, as `make-docs work sync` does. The other steps need the Store read permission and the project read permission, as `make-docs work next` does. The operation declares the access of its sync step and the `step` Store admission of [PRD 25](25-typescript-runtime-cli-mcp-operation-boundaries.md) R-ACCESS-17, so it checks the write access at the sync step. The CLI command gives the write permission, and the MCP tool takes it from `allowWrite`.
+- R-CHECKPOINT-CMD-5 (MUST): `make-docs project checkpoint` and `make-docs lifecycle checkpoint` are two commands with two meanings. `make-docs project checkpoint` does all that is due for the work of the project. `make-docs lifecycle checkpoint` records one step of one lifecycle run. The help of each command names the other command and says in one sentence how the two differ.
+
+| Registry identifier | Canonical CLI | MCP tool |
+| --- | --- | --- |
+| `project.checkpoint.run` | `make-docs project checkpoint [--event <name>] [--target-root <path>] [--json]` | `project_checkpoint` |
+
 ### Registry Cohesion and Operation Admission (R-SEQ)
 
 - R-SEQ-1 (MUST): the operation core, registry, and command tree form one coherent release surface; every retained operation is behind the registry, and no parallel or half-routed dispatcher exists.
@@ -333,6 +345,61 @@ Code anchors:
 - R-RENDER-1 (MUST): each CLI operation adapter applies a CLI-only render layer to the canonical operation result, keyed by `OperationRenderMode`. On a TTY, the default rendering is human text appropriate to the operation; lifecycle operations report what happened, the compact current state, and any exact next command. `--json` emits the full canonical operation result. When stdout is not a TTY, the default is the same full JSON, so scripts and agents receive the machine contract without a presentation-dependent transformation.
 - R-RENDER-2 (MUST): lifecycle evidence references and run metadata are summarized rather than repeated in text mode; the full bounded run record stays available via `--json` and `show --json`.
 - R-RENDER-3 (MUST): MCP tool output derives directly from the canonical operation result, while native resource responses derive directly from the canonical resource resolver; the human render layer is CLI-only.
+- R-RENDER-4 (MUST): a CLI command of the reminder set prints the reminder line of [PRD 52](52-work-store-and-work-queue.md) R-WORK-REMIND-1 on standard error, after its normal output, when work files wait for import after its operation ended. Standard output does not change, so `--json` output is byte-identical with and without the reminder. The line never changes an exit code. One command run prints at most one reminder line. The line shows only when the command ends with exit code 0. A command that ends with another exit code prints no reminder, also when its operation returned a refusal and the CLI set the exit code after that. `--help` of any command, `setup`, `mcp`, `update`, and `uninstall` print no reminder.
+- R-RENDER-5 (MUST): the reminder set comes from the registry and never from a hand list: each active operation that runs in a Make Docs project and whose declared access includes a Store read. Four operations with such access are not in the set: `work.queue.status` and `work.queue.next`, which say the same in their own result, and `work.queue.sync` and `project.checkpoint.run`, which do the sync. An operation with Store access and no project access names no project, so it is not in the set: `setup.store.check`, `setup.store.clean`, `factory.tools.save`, and `factory.tools.list`. A test builds the set from the registry and fails when the set and the table below differ. The column "Syncs first" says whether the command runs sync before its own change, so that it shows no reminder after a good sync. The column "Shows the reminder" says when the command can show it. The set has 47 operations. 46 of them run the reminder check on each run. One, `work.backlog.snapshot`, is counted in the set and runs no reminder check of its own: it shows the reminder only when it ran with `--work-store` (`workStore: true` on MCP) and ran the sync check itself, because [PRD 51](51-backlog-review-and-reporting.md) R-BACKLOG-SNAPSHOT-24 says that the default snapshot reads no Store state. The default `make-docs backlog snapshot` shows no reminder and runs no check.
+
+#### The Reminder Set
+
+| Registry identifier | Canonical CLI | Syncs first | Shows the reminder |
+| --- | --- | --- | --- |
+| `project.checkout-register.preview` | `make-docs project checkout preview` | No | On each run |
+| `project.checkout-register.apply` | `make-docs project checkout apply` | No | On each run |
+| `project.checkout-move.preview` | `make-docs project move preview` | No | On each run |
+| `project.checkout-move.apply` | `make-docs project move apply` | No | On each run |
+| `project.state.status` | `make-docs project state status` | No | On each run |
+| `project.register.list` | `make-docs project list` | No | On each run |
+| `project.state.recover` | `make-docs project state recover` | No | On each run |
+| `project.surface.ensure` | `make-docs project surface ensure` | No | On each run |
+| `project.layout.prepare` | `make-docs project layout prepare` | No | On each run |
+| `project.layout.apply` | `make-docs project layout apply` | No | On each run |
+| `project.layout.verify` | `make-docs project layout verify` | No | On each run |
+| `project.doctor.fix` | `make-docs project doctor fix` | No | On each run |
+| `work.evidence.record` | `make-docs work evidence record` | No | On each run |
+| `work.evidence.read` | `make-docs work evidence read` | No | On each run |
+| `work.backlog.snapshot` | `make-docs backlog snapshot` | No | Only with `--work-store` |
+| `work.backlog-cache.lookup` | `make-docs backlog cache lookup` | No | On each run |
+| `work.backlog-cache.write` | `make-docs backlog cache write` | No | On each run |
+| `backlog.review.refresh` | `make-docs backlog review refresh` | No | On each run |
+| `resource.ensure` | `make-docs resource ensure` | No | On each run |
+| `lifecycle.start` | `make-docs lifecycle start` | No | On each run |
+| `lifecycle.show` | `make-docs lifecycle show` | No | On each run |
+| `lifecycle.list` | `make-docs lifecycle list` | No | On each run |
+| `lifecycle.checkpoint` | `make-docs lifecycle checkpoint` | No | On each run |
+| `lifecycle.pause` | `make-docs lifecycle pause` | No | On each run |
+| `lifecycle.resume` | `make-docs lifecycle resume` | No | On each run |
+| `lifecycle.attach-evidence` | `make-docs lifecycle attach-evidence` | No | On each run |
+| `lifecycle.complete` | `make-docs lifecycle complete` | No | On each run |
+| `lifecycle.fail` | `make-docs lifecycle fail` | No | On each run |
+| `lifecycle.abandon` | `make-docs lifecycle abandon` | No | On each run |
+| `work.queue.claim` | `make-docs work claim` | Yes | On each run |
+| `work.queue.release` | `make-docs work release` | Yes | On each run |
+| `work.queue.report` | `make-docs work report` | Yes | On each run |
+| `work.queue.close` | `make-docs work close` | Yes | On each run |
+| `work.queue.export` | `make-docs work export` | Yes | On each run |
+| `work.queue.add` | `make-docs work add` | Yes | On each run |
+| `factory.status` | `make-docs factory status` | No | On each run |
+| `factory.workflow.save` | `make-docs factory workflow save` | No | On each run |
+| `factory.workflow.show` | `make-docs factory workflow show` | No | On each run |
+| `factory.workflow.list` | `make-docs factory workflow list` | No | On each run |
+| `factory.proof.save` | `make-docs factory proof save` | No | On each run |
+| `factory.assignment.start` | `make-docs factory assignment start` | No | On each run |
+| `factory.assignment.save` | `make-docs factory assignment save` | No | On each run |
+| `factory.assignment.list` | `make-docs factory assignment list` | No | On each run |
+| `factory.restore` | `make-docs factory restore` | No | On each run |
+| `factory.file-backup.save` | `make-docs factory file-backup save` | No | On each run |
+| `factory.grant-use.record` | `make-docs factory grant-use record` | No | On each run |
+| `factory.workflow.clean` | `make-docs factory workflow clean` | No | On each run |
+
 
 <a id="package-grammar-and-ship-r-gram"></a>
 ### Retired Package Grammar Boundary (R-GRAM)
@@ -842,6 +909,48 @@ A rebuild must preserve the requirement identifiers, stable semantic anchors, ow
 - Replacement contract: R-RUN-1 also lists `workflow clean`. Its MCP name under R-RUN-4 is `factory_workflow_clean` (22 characters), in the `factory` MCP profile. It has no migration alias under R-MIG-1. This is new behavior.
 - Rationale: the owner required a reviewed workflow removal. A native command rule refuses the word `remove`, and `clean` is the approved end word of a reviewed removal under R-NAME-2, as in `setup store clean`.
 - Source: the owner's audit of the factory tables and the owner's decisions of 2026-11-24 (option A for each finding), recorded in the [W30 R0 evidence](../work/2026-11-21-w30-r0-factory/evidence.md#store-lifecycle-fixes).
+
+### 2026-11-27 — W35 R0 P1
+
+- Affected requirement or section: R-TOP-1 and new `Project Checkpoint Command (R-CHECKPOINT-CMD)`.
+- Previous contract: `project` had no checkpoint command. No command did all that is due for the work of a project.
+- Replacement contract: `project` also owns the project checkpoint. R-CHECKPOINT-CMD admits `project.checkpoint.run` with the CLI path `make-docs project checkpoint`, the MCP tool `project_checkpoint`, the inputs `--event` with its six names, `--target-root`, and `--json`, the direct run and the trigger run, and its access. A table lists the canonical CLI and the MCP tool. The name catalog test checks the new table against the catalog. The catalog entry is planned.
+- Rationale: agents need one command that every trigger leads to. The owner chose the name and the group on 2026-11-27 (design OD-7 option A). The name catalog must hold a name before a PRD line names it, so these lines land with the W35 R0 P1 catalog entry.
+- Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md), [W35 R0 P1](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/01-checkpoint-command.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p1-checkpoint-command).
+
+### 2026-11-27 — W35 R0 P1 Operation
+
+- Affected requirement or section: R-CHECKPOINT-CMD-1, R-CHECKPOINT-CMD-2, R-CHECKPOINT-CMD-4, and R-CHECKPOINT-CMD-5.
+- Previous contract: the catalog entry of `project.checkpoint.run` was planned, and no handler, CLI command, or MCP tool existed. The section named no output rule, no exit code, no admission kind, and no help rule.
+- Replacement contract: the catalog entry is current. R-CHECKPOINT-CMD-2 states the plain output, the quiet trigger run, the `--json` result of a quiet run, and exit code 0 for every result. R-CHECKPOINT-CMD-4 names the `step` Store admission of PRD 25 R-ACCESS-17 and where each surface gets the write permission. R-CHECKPOINT-CMD-5 requires that the help of each checkpoint command names the other and says how the two differ. This is new behavior. That `--json` prints the result of a quiet run is a point that no design or plan stated, and it waits for the owner's review at the W35 R0 P1 phase report.
+- Rationale: the operation, its command, its tool, and its parity tests exist. The owner chose option A of owner gate OG-1 on 2026-11-27.
+- Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md), [W35 R0 P1](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/01-checkpoint-command.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p1-checkpoint-command).
+
+### 2026-11-27 — W35 R0 P2
+
+- Affected requirement or section: new R-RENDER-4 and R-RENDER-5, and the new table `The Reminder Set`.
+- Previous contract: no command printed a line about the state of another capability. Standard error held only errors.
+- Replacement contract: R-RENDER-4 states the reminder output rule: one line on standard error after the normal output, at most one for each command run, with standard output and the exit code unchanged. R-RENDER-5 states how the reminder set comes from the registry, names the eight operations with Store access that are not in it, and lists the 47 operations of the set with the six that sync first. 46 of the 47 run the check on each run. `work.backlog.snapshot` shows the reminder only with `--work-store`, so that PRD 51 R-BACKLOG-SNAPSHOT-24 holds. The line shows only when the command ends with exit code 0. The rule that `setup` prints no reminder, also when it runs an operation of the set inside, is new in this phase.
+- Rationale: the reminder must reach an agent on every command that may read the Store, and it must never break JSON on standard output.
+- Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) (OD-2 and OD-6), [W35 R0 P2](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/02-reminder-and-read-commands.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p2-reminder-and-read-commands).
+
+### 2026-11-27 — W35 R0 P3
+
+- Affected requirement or section: R-NAME-6.
+- Previous contract: shipped text was a set of Markdown files. The test failed on a `make-docs` command that was not a catalog, setup, or group path, and on an MCP tool name that was a former catalog name. An unknown tool name passed, and no text had to name a given command.
+- Replacement contract: the MCP server instructions are shipped text, and their own test checks them, because they live in source. That test is stricter for the texts of W35 R0 P3: the router lines, the trigger text of the work store reference, and the instructions must name the current checkpoint command or tool, a command must be a current catalog path, and a tool name in the instructions must be a current catalog name that the connection lists. The scan of the Markdown file set does not change.
+- Rationale: the checkpoint name is written into router blocks and MCP instructions in every project, so a former or unknown name there must fail a test.
+- Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md), [W35 R0 P3](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/03-routers-and-mcp-instructions.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p3-routers-and-mcp-instructions).
+
+### 2026-11-28 — W35 R0 P5
+
+- Date: 2026-11-28
+- Coordinate: W35 R0 P5
+- Affected requirement or section: R-NAME-6.
+- Previous contract: The shipped-text rule named the MCP server instructions as the one shipped text that lives in source.
+- Replacement contract: The git hook block is shipped text too, and a test fails when the block of a hook lacks the current checkpoint command with its event. Setup also has three new inputs, which are options and not commands: `--git-hooks`, `--no-git-hooks`, and `--git-hooks-for-new-projects <yes|no>`. The name catalog did not change.
+- Rationale: A hook block names a `make-docs` command, and it stays in a person's clone after an update. So a renamed command must fail a test before it ships.
+- Source: [W35 R0 P5](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/05-git-hooks-in-setup.md) and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-git-hooks-in-setup).
 
 ## Source Anchors
 

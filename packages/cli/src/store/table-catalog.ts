@@ -534,15 +534,16 @@ export const STORE_TABLE_CATALOG: readonly StoreTableCatalogEntry[] = Object.fre
     sinceSchema: 3,
     schemaStatus: "physical",
     columns: ["operation_id", "operation", "status", "pid", "hostname", "metadata_json", "started_at", "finished_at"],
-    purpose: "Machine-wide tool operations (`tool.update`, `tool.uninstall`, `setup.system.harness`), machine harness receipts, and the schema v5 bridge marker.",
-    writers: ["Tool operation journal (tool-operations.ts runRecordedToolOperation)", "Machine harness setup (harness-system-operations.ts, harness-integration-receipts.ts)", "Schema v5 bridge"],
-    readers: ["Tool mutation", "Harness history", "Status", "Store maintenance", "Store removal guard", "Installation lock acquisition"],
+    purpose: "Machine-wide tool operations (`tool.update`, `tool.uninstall`, `setup.system.harness`), machine harness receipts, the git hook record of each clone (`setup.git-hooks.receipt-current`), and the schema v5 bridge marker.",
+    writers: ["Tool operation journal (tool-operations.ts runRecordedToolOperation)", "Machine harness setup (harness-system-operations.ts, harness-integration-receipts.ts)", "Git hook setup and removal (git-hooks.ts applyGitHooks and applyGitHookRemoval)", "Schema v5 bridge"],
+    readers: ["Tool mutation", "Harness history", "Git hook setup, status, and removal", "Status", "Store maintenance", "Store removal guard", "Installation lock acquisition"],
     recordClass: "Store-canonical and non-rebuildable",
     rMinRows: [{ row: "`tool_operations`:", classCell: "Store-canonical while active; bounded history after terminal result" }],
     rowClasses: [
       keepRows("A pending row whose owner is alive or cannot be checked, and every pending `setup.system.harness` row."),
       { rows: "A pending `tool.update` or `tool.uninstall` whose owner is proven dead and whose package manager is idle. It becomes `failed` with reason `abandoned` and stays as history.", maintenanceClass: "bounded", rule: "STORE-RULE-002", limit: null },
       keepRows("The current harness receipt pointer (`setup.system.receipt-current`) and the compatibility bridge marker."),
+      keepRows("The git hook record of a clone (`setup.git-hooks.receipt-current`). `setup remove` in the last bound checkout of the clone deletes it with its blocks, and Store check names each one."),
       { rows: "Machine harness receipts and observations beyond the kept count for each harness and method.", maintenanceClass: "bounded", rule: "STORE-RULE-009", limit: null },
       keepRows("Completed and failed `tool.update` and `tool.uninstall` rows."),
       keepRows("Completed and failed `setup.system.harness` rows."),
@@ -912,6 +913,9 @@ export const STORE_NON_TABLE_RMIN_ROWS: readonly (StoreRMinRowClaim & { location
   { row: "Global config machine preferences", classCell: "Store-canonical and non-rebuildable", location: "Store file `config.json`, not a table." },
   { row: "Global manifest minimum", classCell: "Store-canonical and non-rebuildable", location: "Store file for the global manifest, not a table." },
   { row: "Project config `work` and `factory` blocks", classCell: "Repository-canonical and portable", location: "Repository file `.make-docs/config.yaml`." },
+  // W35 R0 P5 (PRD 38 R-HOOK-STATE-8): the run files of the git hooks, in `git-hook-runs/<digest>/` of the Store folder.
+  { row: "Git hook run marks", classCell: "Short-lived mutation guard", location: "Store files `git-hook-runs/<digest>/started.json`, `pending.json`, and `working.json`, not a table." },
+  { row: "Git hook run reports", classCell: "Historical evidence", location: "Store files `git-hook-runs/<digest>/last.json` and `foreground.json`, not a table." },
 ]);
 
 /* ------------------------------------------------------------------------ */
