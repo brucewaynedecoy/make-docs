@@ -34,7 +34,8 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 - The rule for an update. An update of Make Docs never turns the preference on, and it never installs a hook by itself in a project that has none. Turning the preference on installs no hook by itself, and turning it off removes none. These rules, and the other details that the owner's words do not cover, are the recommendations R1, R2, and R4 to R7 of the overview under OG-5. R3 and R3a are owner decisions of 2026-11-27. The backlog builds the offer, the preference with its question, and the non-interactive path as three tasks. The name of the hook input flag and the key of the machine preference are not set. The builder proposes both names under the PRD 39 name rules, and the phase review shows them to the owner in the phase report. This needs no new gate.
 - The marked block. Make Docs adds one marked block to a hook file that is a shell script and keeps every other byte. It creates the file when none exists.
 - The refusals. Setup refuses, with a clear reason and no change, when the hook file is not a shell script, when another tool owns the hooks, or when `core.hooksPath` points to another folder.
-- The block content. It finds the `make-docs` command by the method that P4 chose, runs the checkpoint with its event, in the run mode that the owner chose at OG-4, and always exits 0. It does nothing when the command is not found, when no usable Store exists, or when the folder is not a Make Docs project. The hooks after a commit and after a branch change do nothing while git is in the middle of a rebase, a merge, a cherry-pick, or a bisect. The hooks after a merge and after a rewrite do not use that rule. The hook after a branch change does nothing for a file checkout (third argument 0).
+- The block content. It finds the `make-docs` command by the method that P4 chose, runs the checkpoint with its event, in the foreground, and always exits 0. The owner chose the foreground run at OG-4 on 2026-11-28. It does nothing when the command is not found, when no usable Store exists, or when the folder is not a Make Docs project. The hooks after a commit and after a branch change do nothing while git is in the middle of a rebase, a merge, a cherry-pick, or a bisect. The hooks after a merge and after a rewrite do not use that rule. The hook after a branch change does nothing for a file checkout (third argument 0).
+- The wait limit. The owner decided on 2026-11-28, with the answer to OG-4, that the wait for the Store has a short time limit, after which the hook gives up quietly. The work file is then imported by the next checkpoint. The owner did not decide the length of the limit, how it is built, what "quietly" means in detail, or what the limit covers. The overview holds the recommendations R8 to R11 for these under OG-4. The phase builds them as written or names another form with the reason, and the phase review shows them to the owner. A second improvement was offered and not chosen, so it is not built: that the hook after a rewrite skips the amend case. The backlog holds the foreground run and the wait limit as P5 T35 to T38 and A62q to A62v.
 - Output. A hook prints nothing when nothing is due. When something waits, it prints at most the summary line and the command. With Store read access only, it prints the one line that says how many files wait. With no Store access it prints nothing.
 - A hook never writes a project file (OD-5 option A). The checkpoint's trigger run already holds that rule.
 - The clone-owned record. The Store records the exact block for the clone's shared git folder, in the record that P4 found or that the owner approved at OG-3. Setup reports drift when the block changed.
@@ -59,7 +60,7 @@ Build the first trigger that needs no agent memory: git hooks that run the check
   - The detection rule knows no hook manager by name, so the block can land in a file that another tool owns.
   - A hook file that is a symbolic link is refused.
   - "A shell script" means a file with no null byte whose first line starts with `#!` and names `sh`, `bash`, `dash`, `ksh`, or `zsh`.
-  - The block swallows a non-zero exit code of the checkpoint. The checkpoint exits 1 when another process holds the Store.
+  - The block swallows a non-zero exit code of the checkpoint. The checkpoint exits 1 when another process holds the Store. For that case the owner decided the wait limit on 2026-11-28, so the proposal now covers what the hook prints for each other non-zero exit code.
   - A checkout ID stays in the record of the clone after its folder is deleted, and the block then never goes.
   - A record is left behind when the clone moves, because its key is a digest of the path.
   - The state marks of the rule for git in the middle of an action. With `CHERRY_PICK_HEAD` in the rule, a cherry-pick with no conflict never syncs through the hook after a commit. `REVERT_HEAD` stops no hook run of a revert. The rule does not read the `sequencer` folder. The P4 correction added this point. It is not on the list of the review.
@@ -79,6 +80,10 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 - After `git pull --rebase` with local commits, the recorded hook ran and the store holds the pulled work files. An amended commit runs two hooks, and the second run finds nothing due.
 - A file checkout makes the hook do nothing. The hooks after a commit and after a branch change do nothing in the middle of a rebase, a merge, a cherry-pick, or a bisect, and the hooks after a merge and after a rewrite still run.
 - Each hook exits 0 in every tested case, and prints nothing when nothing is due.
+- A hook runs the checkpoint in the foreground: the output of the checkpoint appears before the git action returns.
+- While another process holds the Store for longer than the wait limit, a commit with the installed hook exits 0, prints nothing, and ends within the limit plus the normal time of a commit with the hook. The next checkpoint imports the work file.
+- A direct run of the checkpoint still waits the busy time of the Store.
+- The phase report lists the recommendations R8 to R11, and the owner saw each one.
 - A git action leaves the work tree as git left it.
 - Setup beside a hook of another tool keeps that tool's bytes, and `setup remove` restores the file byte for byte.
 - A changed block is kept and reported.
@@ -104,6 +109,6 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 ## Dependencies
 
 - P4.
-- Owner gate OG-4 for the first stage, and OG-6 (only if it opened) for the setup stage. OG-3 did not open: P4 found on 2026-11-27 that an existing Store record fits, and the independent review of P4 agreed. OG-5 and OG-10 are answered and block nothing.
+- Owner gate OG-6 (only if it opened) for the setup stage. Owner gate OG-4 is answered: the owner chose the foreground run on 2026-11-28, with a short time limit on the wait for the Store, so it blocks nothing. OG-3 did not open: P4 found on 2026-11-27 that an existing Store record fits, and the independent review of P4 agreed. OG-5 and OG-10 are answered and block nothing.
 - The P4 three-platform result.
 - Merge risk with W22 in the setup flow and PRD 07. See the overview.

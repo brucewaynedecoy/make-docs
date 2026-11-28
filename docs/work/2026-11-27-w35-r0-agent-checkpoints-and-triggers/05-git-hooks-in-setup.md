@@ -18,6 +18,8 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 
 `make-docs setup` handles four git hooks for each project, and a person selects them explicitly: by a hook input, by an answer in interactive setup, or, in a new project, by the machine preference that the person set. The owner decided the form of that preference on 2026-11-27 (owner gate OG-5, answered, design OD-11), and its scope later on the same day: it installs the git hooks automatically only in a new project. Make Docs writes into the git hooks folder for the first time, so the phase also builds the ownership record, the drift report, and exact removal. Git hooks, the marked block, the refusal when another tool owns the hooks, the clone-owned record, and the machine preference are new.
 
+The owner answered owner gate OG-4 on 2026-11-28 with option A: a git hook runs the checkpoint in the foreground. The owner also chose one improvement: a short time limit on the wait for the Store, after which the hook gives up quietly. [Stage 6](#stage-6---the-foreground-run-and-the-wait-limit) holds both. A second improvement was offered and not chosen, so it is not built: that the hook after a rewrite skips the amend case.
+
 | Hook | When git runs it | Checkpoint call | Imports |
 | --- | --- | --- | --- |
 | `post-commit` | After a commit | `make-docs project checkpoint --event commit` | Yes |
@@ -68,7 +70,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 ### Tasks
 
 - [ ] T1: Build the block writer. Make Docs adds one marked block to a hook file that is a shell script and keeps every other byte. It creates the file when none exists. It refuses, with a clear reason and no change, when the hook file is not a shell script, when another tool owns the hooks, or when `core.hooksPath` points to another folder, with the detection rule that P4 recorded. Make Docs sets no machine-wide git hooks path.
-- [ ] T2: Write the block content for the four hooks. It finds the `make-docs` command by the method that P4 chose. It runs the checkpoint with its event, in the run mode that the owner chose at OG-4. It always exits 0. It does nothing when the command is not found, when no usable Store exists, or when the folder is not a Make Docs project. The hooks after a commit and after a branch change do nothing while git is in the middle of a rebase, a merge, a cherry-pick, or a bisect. The hooks after a merge and after a rewrite do not use that rule. The hook after a branch change acts only when its third argument is 1.
+- [ ] T2: Write the block content for the four hooks. It finds the `make-docs` command by the method that P4 chose. It runs the checkpoint with its event, in the foreground: the owner chose that run mode at OG-4 on 2026-11-28, and T35 holds it. It always exits 0. It does nothing when the command is not found, when no usable Store exists, or when the folder is not a Make Docs project. The hooks after a commit and after a branch change do nothing while git is in the middle of a rebase, a merge, a cherry-pick, or a bisect. The hooks after a merge and after a rewrite do not use that rule. The hook after a branch change acts only when its third argument is 1.
 - [ ] T3: Make the output rule hold. A hook prints nothing when nothing is due. When something waits for a person, it prints only the summary line and the command. With Store read access only, it prints the one line that says how many files wait and which command to run. With no Store access it prints nothing.
 - [ ] T4: Record the exact block in the Store for the clone's shared git folder, in the record that P4 found, or in the record that the owner approved at OG-3. Report drift when the block changed. Repeat setup reports current, missing, and drifted hook state and changes only the Make Docs block.
 
@@ -81,10 +83,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 Owner gate OG-3 did not open. P4 T11 found on 2026-11-27 that an existing Store record can hold the hook block: one row of the table `tool_operations`, with no new table, column, version, or migration. The independent review of P4 agreed on 2026-11-27. So no gate bullet for OG-3 stands in the dependency list, and T4 uses "the record that P4 found". This is a finding and not an owner decision. If the owner reads a new kind of row in that table as a Store schema change, the gate opens with the two options of the [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#owner-decisions).
 
+Owner gate OG-4 is answered. The owner chose on 2026-11-28 that a hook runs the checkpoint in the foreground, with a short time limit on the wait for the Store. An answered gate blocks nothing, so no gate bullet for OG-4 stands in the dependency list.
+
 ### Dependencies
 
 - P4.
-- Owner gate OG-4: the owner chooses a foreground run or a run that starts and returns.
 
 ## Stage 2 - The setup offer and removal
 
@@ -174,6 +177,7 @@ Names: the name of the hook input flag, the name of the input that sets the mach
 
 - Stage 3.
 - Stage 5.
+- Stage 6.
 
 ## Stage 5 - Proposals from Phase 4
 
@@ -196,7 +200,7 @@ The stage has the next free numbers, so no earlier task or case number changed, 
 - [ ] T28: Proposal from Phase 4, which the Phase 5 review shows to the owner. No hook manager is known by name. The detection rule knows no hook manager by name. A hook manager that writes a plain shell script into the hooks folder of the clone is not seen as an owner. So the block can land in a file that another tool owns, and that tool can remove it. Keep the rule or name another one. The hook review names the limit.
 - [ ] T29: Proposal from Phase 4, which the Phase 5 review shows to the owner. A hook file that is a symbolic link is refused. No document before P4 names this check. A link points to a file that another tool owns, and a block written through the link would change that file. Keep the refusal or name another form.
 - [ ] T30: Proposal from Phase 4, which the Phase 5 review shows to the owner. What "a shell script" means. A hook file is a shell script when it holds no null byte and its first line starts with `#!` and names `sh`, `bash`, `dash`, `ksh`, or `zsh`, directly or through `env`. Every other file is refused, also a file with shell text and no such first line. Keep this meaning or name another one.
-- [ ] T31: Proposal from Phase 4, which the Phase 5 review shows to the owner. The hook swallows a non-zero exit code of the checkpoint. The checkpoint exits 1 when another process holds the Store: it waits the busy time of the Store, and then it prints one long line on standard error. The [P4 evidence](evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the measured case, beside the times of [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs). Standing rule 5 says that a git hook never fails or blocks a git action. So the block ends with exit code 0 after any exit code of the checkpoint. Decide what the hook prints then. The proposal is: nothing.
+- [ ] T31: Proposal from Phase 4, which the Phase 5 review shows to the owner. The hook swallows a non-zero exit code of the checkpoint. The checkpoint exits 1 when another process holds the Store: at the time of P4 it waited the busy time of the Store, and then it printed one long line on standard error. The [P4 evidence](evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the measured case, beside the times of [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs). Standing rule 5 says that a git hook never fails or blocks a git action. So the block ends with exit code 0 after any exit code of the checkpoint. For the case of a held Store, the owner decided on 2026-11-28 that the hook waits only a short time and then gives up quietly, and T36 builds that wait limit. So this task no longer decides that case. It makes the block agree with T36: after the limit the hook prints nothing and exits 0. For each other non-zero exit code of the checkpoint, decide what the hook prints. The proposal is: nothing.
 - [ ] T32: Proposal from Phase 4, which the Phase 5 review shows to the owner. A checkout ID that stays in the record of the clone. The record holds the checkout IDs that selected the hooks, and `setup remove` keeps the block while another ID remains. When a person deletes the folder of a checkout and does not run `setup remove` there, its ID stays in the record. The block then never goes. The P4 review named this gap. Decide how setup and `setup remove` treat an ID whose folder is gone, and add a test.
 - [ ] T33: Proposal from Phase 4, which the Phase 5 review shows to the owner. A record that is left behind when the clone moves. The key of the record is a digest of the path of the clone's shared git folder. When the clone moves to another path, the key changes. The old record stays in the Store, and the block in the moved clone has no record. The P4 review named this gap. Decide the key or the repair, and add a test with a moved clone.
 - [ ] T34: Proposal from Phase 4, which the Phase 5 review shows to the owner. The state marks of the rule for git in the middle of an action. The independent review of P4 did not list this point. The P4 correction adds it, because the facts changed what T2 means. T2 says that the hooks after a commit and after a branch change do nothing in the middle of a rebase, a merge, a cherry-pick, or a bisect. The P4 tests show three facts. With `CHERRY_PICK_HEAD` in the rule, a cherry-pick with no conflict never syncs through the hook after a commit, also a cherry-pick of one commit. `REVERT_HEAD` stops no hook run of a revert, because git removes that file before it runs the hook. The rule does not read the `sequencer` folder, so a revert of several commits runs the checkpoint after each commit. Propose the list of marks: keep `REVERT_HEAD` or take it out, and read the `sequencer` folder or not. The hook review names a cherry-pick and `git am` among the actions that do not reach the checkpoint.
@@ -214,11 +218,48 @@ The stage has the next free numbers, so no earlier task or case number changed, 
 - A62i: Beside a plain shell script that another tool wrote, setup adds the block and keeps every other byte. When that tool writes its file again, repeat setup reports the block as missing. The hook review names the limit.
 - A62j: For a hook file that is a symbolic link, setup refuses the git hooks with one clear reason and changes nothing, and the file that the link points to is byte-identical.
 - A62k: Setup adds the block to a hook file with such a first line. It refuses, with one clear reason and no change, a file with another program on its first line, a file with no first line of that kind, a binary file, and an empty file.
-- A62l: While another process holds the Store, a commit with the installed hook exits 0, and the hook prints what this task decided. The work file is imported by the next checkpoint.
+- A62l: While another process holds the Store, a commit with the installed hook exits 0 and prints nothing, as the owner decided on 2026-11-28 (A62r holds the time). The work file is imported by the next checkpoint. For each other non-zero exit code of the checkpoint, the commit exits 0, and the hook prints what T31 decided.
 - A62m: After the folder of one bound checkout of a clone is deleted with no `setup remove`, `setup remove` in the last checkout that remains removes the block and the record, or it says exactly which record holds the block and what the person can do.
 - A62n: After a clone with the hooks moves to another path, repeat setup reports the hook state there with no false drift, `setup remove` removes the block, and the Store holds no record for the old path, or Store care names it.
 - A62o: A test for a cherry-pick of one commit, for a revert of one commit, and for a revert of two commits shows what the hook after a commit does in each case, and the result matches the proposed list of marks. The hook review names each git action that does not reach the checkpoint.
 - A62p: The phase report lists each proposal of T20 to T34 with what was built and the reason. The owner saw each one. No proposal is recorded as an owner decision before the owner made it.
+
+### Dependencies
+
+- Stage 1.
+
+## Stage 6 - The foreground run and the wait limit
+
+This stage was added on 2026-11-28, with the owner's answer to owner gate OG-4. It has the next free numbers, so no earlier task or case number changed, and its number says nothing about its place in the order. It waits for Stage 1, where the block first exists, and Stage 4 waits for it.
+
+The owner's decisions of 2026-11-28, and nothing more:
+
+- A git hook runs the checkpoint in the foreground (option A of OG-4).
+- Improvement 1: a short time limit on the wait for the Store, after which the hook gives up quietly.
+- Improvement 2 was offered and not chosen: the hook after a rewrite skips the amend case. It is not built. So an amended commit still runs two hooks, and each one runs the checkpoint.
+
+The owner's words do not cover four details. The [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#owner-decisions) lists one recommendation for each, R8 to R11, under OG-4, with the facts. The tasks below build them as written and mark them with their number. They are not owner decisions. The Phase 5 review shows each one to the owner in the phase report, and the owner can change any of them.
+
+- R8, the length of the limit: the value that the plan recommends.
+- R9, how the limit is built: the checkpoint takes the wait limit for a trigger run, and the hook script holds no timer.
+- R10, what "quietly" means: the hook prints nothing, the git action exits 0, and the next checkpoint or the reminder line covers the file.
+- R11, what the limit covers: only the wait for the Store, and not the whole checkpoint run.
+
+### Tasks
+
+- [ ] T35: Make the block of each of the four hooks run the checkpoint in the foreground, as the owner decided at OG-4 on 2026-11-28. The hook waits until the checkpoint ends, so the output of the checkpoint appears after the output of git and before the prompt returns. The block starts no background process. The hook after a rewrite does not skip the amend case, because the owner did not choose improvement 2.
+- [ ] T36: Build the time limit on the wait for the Store, as the owner decided on 2026-11-28 (improvement 1). When another process holds the Store, a trigger run that a git hook starts waits at most the limit, and then it gives up: it imports nothing and changes no Store record. [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs) measured the hook run with no limit, and the P4 evidence holds the case of a held Store. Build the four recommendations of the plan as written, or name another form with the reason. R8: the length of the limit. R9: the checkpoint takes the wait limit for a trigger run with the event `commit`, with no new CLI option and no new MCP input, and the hook script holds no timer. R10: after the limit the hook prints nothing on standard output and on standard error, and the git action exits 0. R11: the limit covers each wait for the Store and not the whole run, so a first sync that has the Store is not cut. A direct run keeps the busy time of the Store. The hook after a branch change only reads and does not wait. The checkpoint is deterministic logic with an agent form, so review the agent form under the [twins guide](../../assets/project/developing-deterministic-agentic-twins.md) and record the result.
+- [ ] T37: Add the test with a held Store, with a temporary Store at a fixed, checked path. A helper process holds the Store for longer than the limit. A commit with the installed hook then exits 0, prints nothing, and ends within the limit plus the normal time of a commit with the hook, which [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs) measured. The test states that bound as a number, and that number is less than the busy time of the Store. The work file is not imported by that commit. After the helper frees the Store, the next checkpoint imports the file: prove it with the next commit and with a direct run. Add the same test for a true merge. Add one test that a direct run still waits the busy time of the Store. Add the test file to both fixed test lists with T14.
+- [ ] T38: Record the run mode and the wait limit in the PRDs of this phase, with the `W35 R0 P5` Requirement History entries of T16 to T18: [PRD 52](../../prd/52-work-store-and-work-queue.md) R-WORK-CHECKPOINT for the wait limit of a trigger run, [PRD 07](../../prd/07-cli-command-surface-and-lifecycle.md) for the foreground run of the block, and [PRD 38](../../prd/38-global-store-and-project-state.md) R-DB-3 only if the Store code gains a wait input. The hook review that setup shows names the limit in place of the earlier worst case. The work store reference says that a hook can give up while the Store is held, and that the next checkpoint imports the file. List R8 to R11 in the phase report for the owner, with what was built and the reason.
+
+### Acceptance criteria
+
+- A62q: With the installed hooks and one changed work file, the output of the checkpoint appears before the git action returns, for a commit, a true merge, and a rewrite. No process of the hook still runs after git returned.
+- A62r: While another process holds the Store for longer than the limit, a commit and a true merge with the installed hooks exit 0 and print nothing. Each one ends within the limit plus the normal time of that git action with the hook, which [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs) measured, and the test names that bound as a number below the busy time of the Store.
+- A62s: The work file of that commit is not imported while the Store is held. The next checkpoint imports it, in a test with the next commit and in a test with a direct run. Until then, `make-docs work status` and the reminder line count the file as waiting.
+- A62t: A direct run of the checkpoint still waits the busy time of the Store, and a first sync that has the Store is not cut by the limit.
+- A62u: An amended commit runs two hooks, and each one runs the checkpoint, because improvement 2 is not built. The evidence records that the owner did not choose it.
+- A62v: The PRDs hold the foreground run and the wait limit, and `make-docs check prd` passes. The phase report lists R8 to R11 with what was built and the reason. The owner saw each one. None is recorded as an owner decision before the owner made it.
 
 ### Dependencies
 

@@ -82,7 +82,7 @@ Authority: [Performance Evidence Governance Contract](../../../.make-docs/system
 | The change check that a Make Docs command runs before it prints the reminder line. | `create` | `characterize-now` | `characterization-baseline` | `PERF-006`, owned by [P2](02-reminder-and-read-commands.md) | The P2 work phase owns the budget and the stop rule. | P2, after the reminder check exists. |
 | The checkpoint that a git hook runs after a commit, a merge, a rewrite, and a branch change. | `create` | `characterize-now` | `characterization-baseline` | `PERF-007`, owned by [P4](04-git-hook-proofs.md) | The P4 work phase owns the budget and the stop rule. | P4, after the P1 checkpoint exists and before P5 builds the hooks. |
 
-`PERF-006` informs whether the exact check of design OD-6 option A stays acceptable on each command. `PERF-007` informs owner gate OG-4: a foreground run or a run that starts and returns. P4 measures it and brings the gate, and the gate blocks P5. Neither result becomes a product target.
+`PERF-006` informs whether the exact check of design OD-6 option A stays acceptable on each command. `PERF-007` informs owner gate OG-4: a foreground run or a run that starts and returns. P4 measured it and brought the gate, and the owner answered it on 2026-11-28 with the foreground run. Neither result becomes a product target.
 
 ## Coordinate Decision
 
@@ -157,7 +157,8 @@ These parts are not in the design or in current docs. The owner should know they
 - The profile IDs `PERF-006` and `PERF-007`, and their budgets in the backlog.
 - The rule that the four operations with no project access show no reminder.
 - No hook setting in project config.
-- The owner gates OG-1 to OG-10 below. The owner answered OG-1, OG-5, OG-7, OG-8, and OG-10 on 2026-11-27.
+- The owner gates OG-1 to OG-10 below. The owner answered OG-1, OG-5, OG-7, OG-8, and OG-10 on 2026-11-27, and OG-4 on 2026-11-28.
+- The recommendations R8 to R11 under OG-4 below, for details of the wait limit that the owner's words do not cover.
 - Standing rules 10, 11, and 12, with the evidence commit that follows the pull request run.
 - The rule that a gate bullet stands in the stage that the gate blocks, and never in the stage whose tasks find or bring the gate. The work store reads a gate bullet as open, and an open gate blocks every task of its stage.
 - The rule that a task that is not needed closes as `superseded` and never as `cancelled`, because a cancelled unit keeps each unit that depends on it waiting.
@@ -270,8 +271,8 @@ The owner set two phases at design level. This plan splits them into seven build
 - P1 depends on nothing outside W29 R0, which is released in 2.1.0. Owner gate OG-8 is answered: the version is 2.1.1. So no gate holds the first commit of the Wave.
 - P2 depends on P1, because the reminder names the checkpoint command. Its last stage waits for owner gate OG-2 (only if it opens).
 - P3 Stage 1 depends on P1 and can run beside P2. P3 Stage 2 also depends on P2 Stage 2, because the MCP instructions use the result text of the read commands.
-- P4 depends on P1. It can run beside P2 and P3. No owner gate blocks P4. P4 finds whether OG-3 opens and brings OG-4 to the owner, and both gates block P5.
-- P5 depends on P4, on the P4 three-platform result, and on owner gates OG-3 (only if it opens), OG-4, and OG-6 (only if it opens). OG-5 and OG-10 are answered.
+- P4 depends on P1. It can run beside P2 and P3. No owner gate blocks P4. P4 found that OG-3 did not open, and it brought OG-4 to the owner, who answered it on 2026-11-28.
+- P5 depends on P4, on the P4 three-platform result, and on owner gate OG-6 (only if it opens). OG-3 did not open. OG-4, OG-5, and OG-10 are answered.
 - P6 depends on P1 for the command and on P5 for the PRD 28 sentence. Its Stage 1 evidence can start beside P4. Owner gate OG-7 is answered, so its Stage 2 waits only for Stage 1 and for P5.
 - P7 depends on P1 to P6. If P6 stops to ask the owner about one tool, P7 runs after the owner answers and P6 closes. Owner gate OG-9 blocks no stage of P7. The last P7 task brings it, and it blocks the Wave closeout. The package proof of P7 waits for the fix for register entry R-042, which is the first work of P7.
 
@@ -311,7 +312,7 @@ Use disjoint write scopes when implementation is authorized.
 | Reminder owner | The reminder check, the read command lines and marks, the URI sentence, and `PERF-006` | The operation runner and render layer, `packages/cli/src/operations/work/work-queue/`, `packages/cli/src/mcp/tools.ts`, their tests, PRDs 25, 39, and 52 | P1 | P2 |
 | Shipped text owner | Router lines, the `docs/work/` note, the reference, MCP server instructions, and the dogfood copies | `packages/docs/template/`, this repository's `AGENTS.md`, `CLAUDE.md`, `docs/work/AGENTS.md`, `docs/work/CLAUDE.md`, `.make-docs/system/references/work-store.md`, `packages/cli/src/mcp/server.ts`, PRDs 15 and 25 | P1 | P3 |
 | Hook proof owner | Git fact tests on each platform, the command lookup, the access runs, the record check, and `PERF-007` | New tests under `packages/cli/tests/`, the two test lists in `.github/workflows/platform-safety.yml`, the evidence report, the register | P1 | P4 |
-| Hook build owner | The setup offer, preference, block, refusals, record, drift, and removal | Setup code under `packages/cli/src/`, the Store code for the record, their tests, the two test lists in `.github/workflows/platform-safety.yml`, PRDs 07, 28, 30, 38, and 39 | P4, OG-3, OG-4, and OG-6 | P5 |
+| Hook build owner | The setup offer, preference, block, refusals, record, drift, and removal | Setup code under `packages/cli/src/`, the Store code for the record, their tests, the two test lists in `.github/workflows/platform-safety.yml`, PRDs 07, 28, 30, 38, 39, and 52 | P4, and OG-6 only if it opens | P5 |
 | Adapter owner | The hook contract record and the hook method of each of the three agent tools | `packages/cli/src/harness-access/`, its tests, PRD 28 | P1, P5 | P6 |
 | Validation owner | Package parity, guides, Human Experience Review, register, and the acceptance evidence | The evidence report, `docs/assets/user/`, `docs/assets/maintainer/`, PRD 03, bounded fixes returned to owners | P1 to P6 | P7 |
 
@@ -363,14 +364,14 @@ Unassisted Goal Testing is `not-needed-now`. The triggers reach agents, not a pe
 
 Every design decision is settled. The gates below are new in this plan. Each one is an owner gate in the backlog. Each open gate has at most two options, the facts that the owner needs, and one recommendation. A recommendation is not a decision. A gate that says "only if" does not open when its condition does not happen. Each heading names the phase that finds or brings the gate, and the text names the stage that the gate blocks. A gate never blocks the stage whose tasks find or bring it. The gate IDs keep their first numbers.
 
-The owner answered four gates on 2026-11-27, in the third round of decisions of that day. The owner answered OG-1 later on 2026-11-27, after P1 Stage 1 found that it was open. An answered gate blocks nothing, and it has no gate bullet in any stage of the backlog.
+The owner answered four gates on 2026-11-27, in the third round of decisions of that day. The owner answered OG-1 later on 2026-11-27, after P1 Stage 1 found that it was open. The owner answered OG-4 on 2026-11-28, after P4 brought it with the `PERF-007` result. An answered gate blocks nothing, and it has no gate bullet in any stage of the backlog.
 
 | Gate | State | Date | The owner's answer | Blocks |
 | --- | --- | --- | --- | --- |
 | OG-1 | Answered | 2026-11-27 | Option A: a new access rule in PRD 25 R-ACCESS-17. A write operation may check its write access inside its handler, at the step that needs it. The checkpoint stays one operation with one MCP tool. A caller with read access only, and an MCP call without the write permission (`allowWrite`), get the read steps, a line that says the sync did not run, and exit code 0. | Nothing. |
 | OG-2 | Did not open | 2026-11-27 | None needed. `PERF-006` ran on 2026-11-27, the check adds at most 196 ms, and the gate opens only above 1 second. This is a measured result and not an owner decision. | Nothing. |
 | OG-3 | Did not open | 2026-11-27 | None needed. P4 found that an existing Store record fits the hook block: one row of the table `tool_operations`, with no new table, column, version, or migration. PRD 38 R-HARNESS-STATE-6 names this path. The independent review of P4 agreed on 2026-11-27. This is a finding and not an owner decision. P5 still changes the text of PRD 38 and of the table catalog for the new kind of row. | Nothing. |
-| OG-4 | Open, waits for the owner | None | None yet. `PERF-007-R1` ran on 2026-11-27, and the [P4 evidence](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the two options with their measured times, what a person sees, and the worst case of each. | P5 Stage 1. |
+| OG-4 | Answered | 2026-11-28 | Option A: a git hook runs the checkpoint in the foreground. The owner also chose one improvement: a short time limit on the wait for the Store, after which the hook gives up quietly. A second improvement was offered and not chosen, and it is not built: that the hook after a rewrite skips the amend case. The [P4 evidence](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the two options with their measured times. The recommendations R8 to R11 below cover what the owner's words leave open. | Nothing. |
 | OG-5 | Answered | 2026-11-27 | A machine preference with the default "No" says whether Make Docs installs the git hooks automatically for each project. With it on, project setup installs them with no hook input, also in `setup --yes`. Later on 2026-11-27 the owner set its scope: it installs them automatically only in a new project (R3). With it off, `setup --yes` installs none, interactive setup offers them with "no" first, and an explicit hook input installs them. A hook of one agent tool always needs an explicit input. Design OD-11. | Nothing. |
 | OG-6 | Open, only if | None | None. Finding from the platform run of 2026-11-28 on Linux, macOS, and Windows: no platform gap found in the run of commit `965ad51e`; the gate did not open. One fact has no Windows proof (git runs a hook file that is a symbolic link), and the record recommends to keep the gate closed. This is a finding and not an owner decision. See the [P4 evidence](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#platform-run). | P5 Stage 2, only if P4 found a platform gap. |
 | OG-7 | Answered early | 2026-11-27 | Each of the three agent tools that setup supports gets a hook method: Codex, Claude Code, and GitHub Copilot CLI. Design OD-13. | Nothing. |
@@ -417,14 +418,29 @@ Why A: B is the form that the design refused, and it breaks the promise that `se
 
 The P4 result of 2026-11-27: the gate did not open. P4 T11 found that an existing Store record fits, and the independent review of P4 agreed. This is a finding and not an owner decision.
 
-**OG-4 (brought in P4, blocks P5, always): Does a git hook run the checkpoint in the foreground, or start it and return?**
+**OG-4 (brought in P4): Does a git hook run the checkpoint in the foreground, or start it and return?** Answered on 2026-11-28: option A, with a short time limit on the wait for the Store.
 
-- A (recommended): foreground. The hook waits for the checkpoint and prints its line right after the git action. Each commit takes longer by the measured time. `PERF-004-R1` measured about 300 ms for a sync with no change.
+- A (chosen): foreground. The hook waits for the checkpoint and prints its line right after the git action. Each commit takes longer by the measured time. `PERF-004-R1` measured about 300 ms for a sync with no change.
 - B: start and return. Git returns at once. The line about what waits cannot print at the commit, so the person sees it at the next Make Docs command.
 
-Why A: the design promises that the person sees one line after the commit when something waits, and only A keeps that promise. This recommendation stands before the measurement. P4 T15 gives the owner the `PERF-007` times and confirms the recommendation or changes it, and says which. The gate blocks P5 Stage 1, and so P5. It does not block P4.
+Why A: the design promises that the person sees one line after the commit when something waits, and only A keeps that promise. This recommendation stands before the measurement. P4 T15 gives the owner the `PERF-007` times and confirms the recommendation or changes it, and says which. Until the owner's answer of 2026-11-28 the gate blocked P5 Stage 1. It never blocked P4.
 
-The P4 result of 2026-11-27: P4 T15 confirmed recommendation A. A foreground hook adds about 0.55 seconds to a commit and about 1.1 seconds to an amended commit, and it can add about 5.5 seconds while another process holds the Store. The [P4 evidence](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the full text for the owner, with two possible refinements that are new ideas and are not built. The owner has not answered.
+The P4 result of 2026-11-27: P4 T15 confirmed recommendation A. A foreground hook adds about 0.55 seconds to a commit and about 1.1 seconds to an amended commit, and it can add about 5.5 seconds while another process holds the Store. The [P4 evidence](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the full text for the owner, with two possible refinements that are new ideas and are not built.
+
+The owner's answer of 2026-11-28:
+
+- Option A: a git hook runs the checkpoint in the foreground.
+- Improvement 1, chosen: a short time limit on the wait for the Store, after which the hook gives up quietly.
+- Improvement 2, offered and not chosen: the hook after a rewrite skips the amend case. It is not built, so an amended commit still runs two hooks, and each one runs the checkpoint.
+
+The gate blocks nothing any more. P5 builds the answer as T35 to T38, with the cases A62q to A62v.
+
+Recommendations, which are not owner decisions. The owner's words do not cover four details of the wait limit. The orchestrator shows them to the owner at the P5 review, and the owner can change any of them. The facts behind them: the busy time of the Store is 5,000 ms (`STORE_BUSY_TIMEOUT_MS` in `packages/cli/src/store/database.ts`). [`PERF-007-R1`](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs) measured that a foreground hook adds about 0.54 seconds to a commit with nothing due, and that a commit whose hook run is the first sync of a checkout takes about 2.2 seconds in all. A side measure of P4 found that a second sync waits about 305 ms for a first one in normal use. Two P4 tests found that a commit takes about 5.5 seconds longer while another process holds the Store.
+
+- R8, the length of the limit: 1,000 ms. It is more than three times the wait of normal use, so a hook does not give up when two syncs only meet. It cuts the worst case of a commit from about 5.5 seconds longer to about 1.5 seconds longer: the limit, and then the normal time of the checkpoint. An amended commit runs two hooks, so it can wait two times, about 2 seconds, where it could wait about 11 seconds before. Both numbers for the amended commit are calculations, and no run measured them. What the limit does to a first sync: nothing, when the Store is free. The limit counts only the wait, so a first sync of about 2.2 seconds runs to its end. When the Store is held at that moment, the hook gives up after the limit, and the first sync runs at the next checkpoint. One cost stays: a first sync in one project holds the Store for longer than the limit, so a commit in another project at that moment gives up, and its file waits for the next checkpoint.
+- R9, how the limit is built: the checkpoint takes the wait limit, and the hook script holds no timer. A trigger run with the event `commit` uses the limit as a fixed rule of the checkpoint. The hook after a branch change only reads and does not wait. This needs no new CLI option and no new MCP input, so the name catalog does not change and the block text stays as P4 measured it. It needs one input inside the Store code, because the Store sets its busy time when it opens. [PRD 52](../../prd/52-work-store-and-work-queue.md) R-WORK-CHECKPOINT owns the rule, and [PRD 38](../../prd/38-global-store-and-project-state.md) R-DB-3 owns the bounded wait of the Store. The other form is a timer in the hook script. It is not recommended: the shell of a hook has no timer command on each platform, a timer stops the whole run and not only the wait, and it can stop a run in the middle of an import. A trigger run with another event, which a hook of an agent tool starts in P6, keeps the busy time of the Store, because the owner's decision names the git hooks.
+- R10, what "quietly" means: the hook prints nothing on standard output and on standard error, and the git action exits 0. The checkpoint keeps its typed Store result and its exit code 1 for that case, and the block hides both, so the debug switch of P5 T27 can show them. The file is not lost: the next checkpoint imports it, and until then `make-docs work status` and the reminder line of the next Make Docs command count it as waiting.
+- R11, what the limit covers: only the wait for the Store, as the owner's words say, and not the whole checkpoint run. A limit on the whole run would cut each first sync that takes longer than the limit, so that first sync could never end through a hook. If one run waits for the Store more than one time, the limit holds for each wait. The builder of P5 finds how many waits a trigger run has, and the test of P5 T37 measures the whole commit.
 
 **OG-5 (P5): With the machine preference on, does a non-interactive `setup --yes` install the git hooks?** Answered on 2026-11-27.
 
@@ -578,4 +594,15 @@ This handoff is advisory-default-but-overridable.
 - Rationale: the owner decided both points on 2026-11-27, after P1 Stage 1.
 - PRD decision: `update-existing` — PRD 25 R-ACCESS-17 in P1. The PRD changes of P5 keep their owners, PRD 07 and PRD 38, and take the new meaning of R3.
 - Owner approval: the owner's two decisions of 2026-11-27 on OG-1 and on the scope of the git hook preference.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)
+
+### 2026-11-28 — W35 R0
+
+- Kind: `edit`
+- Affected scope: the owner gate table and the gate text of OG-4, with the new recommendations R8 to R11; the dependencies and the write scope table; [P3](03-routers-and-mcp-instructions.md) (the text of the `docs/work/` note); [P5](05-git-hooks-in-setup.md) (its scope, its acceptance, and its dependencies).
+- Previous scope: OG-4 was open and blocked P5 Stage 1. P5 ran the checkpoint "in the run mode that the owner chose at OG-4", and the worst case of a foreground hook was a wait of the busy time of the Store. The `docs/work/` note said "When the work store is present, it is the authority".
+- Replacement scope: OG-4 is answered. A git hook runs the checkpoint in the foreground, with a short time limit on the wait for the Store, after which the hook gives up quietly. The hook after a rewrite does not skip the amend case, because the owner did not choose that improvement. P5 holds the foreground run and the wait limit, and the backlog holds them as P5 T35 to T38 and A62q to A62v. The recommendations R8 to R11 cover the length of the limit, how it is built, what "quietly" means, and what the limit covers. The `docs/work/` note says "When the work store is in charge", with the exact text that the owner chose.
+- Rationale: the owner decided both points on 2026-11-28: question P3-1 with option a, after the review finding on the note, and owner gate OG-4 with option A and improvement 1, after the `PERF-007` result. R8 to R11 are recommendations and record no owner decision.
+- PRD decision: `update-existing` — PRD 15 R-WORK-ROUTER-2 and R-WORK-ROUTER-3, with a Requirement History entry of 2026-11-28. P5 owns the PRD changes for the run mode and the wait limit: PRD 52, PRD 07, and PRD 38 only if the Store code gains a wait input.
+- Owner approval: the owner's two decisions of 2026-11-28.
 - Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)

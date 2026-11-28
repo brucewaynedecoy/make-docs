@@ -113,7 +113,7 @@ Experience promises:
 - A person does not need to tell an agent to sync. After a commit or a merge in a project with hooks on, the work store has the file changes, or the person sees one line that says what waits and which command settles it. After a branch change, the person sees that line when files wait. This promise holds when the hook may read the Store. When an agent tool denies the hook all Store access, the hook prints nothing, and the next Make Docs command that may read the Store shows the reminder.
 - One command, the checkpoint, tells the person or agent all that is due: what it synced, each conflict with its settle command, each claim that ended, and the next ready work.
 - When work files changed and the store does not have them yet, the next Make Docs command says so in one line with the exact command to run.
-- A git action never fails because of Make Docs. How much time a hook may add is a performance candidate below: the plan measures it and decides between a foreground run and a run that starts and returns. When no sync change and no conflict waits, the hooks print nothing. Ready work and an ended claim do not make a hook print.
+- A git action never fails because of Make Docs. How much time a hook may add is a performance candidate below: the plan measures it and decides between a foreground run and a run that starts and returns. The owner chose the foreground run on 2026-11-28, with a short time limit on the wait for the Store (owner decision 11). When no sync change and no conflict waits, the hooks print nothing. Ready work and an ended claim do not make a hook print.
 - Setup shows each hook that it would install, where it goes, and what it runs, before it writes. `setup remove` takes out only what Make Docs put in.
 - Make Docs installs the git hooks with no question only after the person turned on the machine preference for that, and then only in a new project. The preference is off until the person turns it on. A hook that belongs to one agent tool always needs an explicit input (OD-11).
 - Without a Store, nothing new happens and nothing fails. The routers still say the true thing: the files are the authority.
@@ -147,10 +147,10 @@ Evidence required:
 
 ### Owner decisions
 
-The owner decided these four points on 2026-11-27. In a third round on the same day the owner decided points 5 to 9. The section "Owner decisions with their options" gives each one in full, with the choices OD-2 to OD-10. Nothing else in this design is decided.
+The owner decided these four points on 2026-11-27. In a third round on the same day the owner decided points 5 to 9. On 2026-11-28 the owner decided points 10 and 11. The section "Owner decisions with their options" gives each one in full, with the choices OD-2 to OD-10. Nothing else in this design is decided.
 
 1. The next Wave implements the immediate ideas. Phase 1 is the checkpoint command, the CLI reminder, "sync on read", the router rule, and the MCP server instructions. Phase 2 is git hooks and the hooks of each agent tool. The event list with adapters is the design idea that holds it together.
-2. The note at the point of use must hold when no work store is installed or available. The owner's example wording: "When the work store is present, it's the authority. Read it with this command."
+2. The note at the point of use must hold when no work store is installed or available. The owner's example wording: "When the work store is present, it's the authority. Read it with this command." On 2026-11-28 the owner replaced the word "present" in the note with "in charge" (point 10). The conditional intent of this point is kept.
 3. The long-term ideas are captured in a roadmap document.
 4. Git hooks are wanted. `make-docs setup` offers the git hooks for each project, and the person opts in. A machine preference can make "yes" the default answer for each new project. Make Docs sets no machine-wide git hooks path. The owner chose this on 2026-11-27 as option A of OD-1. Point 5 refined the sentence about the machine preference on the same day.
 5. A machine preference says whether Make Docs installs the git hooks automatically for each project. Its default is "No". The person sets it at the machine step of setup. With the preference on, project setup installs the git hooks with no hook input, also in `make-docs setup --yes`. With the preference off, `make-docs setup --yes` installs no hook. A hook that belongs to one agent tool always needs an explicit input, and the preference never installs one. Later on 2026-11-27 the owner set the scope of the preference: with the preference on, setup installs the git hooks automatically only in a new project. An older project still gets the git hooks when the person wants them, through an explicit hook input or an explicit "yes" in an interactive setup of that project. OD-11 gives the full decision.
@@ -158,6 +158,11 @@ The owner decided these four points on 2026-11-27. In a third round on the same 
 7. The agent tools that get a hook method in this Wave are the three that setup supports today: Codex, Claude Code, and GitHub Copilot CLI. The owner states that each of them supports hooks (OD-13).
 8. A further agent tool that the owner named, which setup does not support today, goes on the roadmap. This Wave does not add it (OD-14).
 9. The version that carries this Wave is 2.1.1, a patch release (OD-15).
+
+The owner decided two more points on 2026-11-28, after the reviews of the build phases.
+
+10. The note of the `docs/work/` routers says "in charge", and not "present". The independent review of the router phase found that the note was false for a Store that is present and not in charge, as in a fresh clone or a linked worktree. The owner chose the exact text that the reviewer proposed. "The note at the point of use" holds it. The conditional intent of point 2 is kept: the note holds when no work store is installed or available.
+11. A git hook runs the checkpoint in the foreground. The plan asked this as its owner gate OG-4, and the owner chose option A. The owner also chose one improvement: a short time limit on the wait for the Store, after which the hook gives up quietly. A second improvement was offered and not chosen: that the hook after a rewrite skips the amend case. It is not built. The owner did not decide the length of the limit, how the limit is built, what "quietly" means in detail, or what the limit covers. The plan holds a recommendation for each, and the review of the phase that builds the git hooks shows them to the owner.
 
 Two things follow from decisions 1 and 3, and they are not open. This Wave fixes the event names and the single command, and builds only the Phase 1 and Phase 2 adapters. The person-editable event registry in config belongs to the roadmap, not to this Wave.
 
@@ -251,7 +256,11 @@ The `docs/work/` router gets the owner's conditional wording in its managed bloc
 
 "When the work store is present, it is the authority (`make-docs work status` says which). Read it with `make-docs work next`, and run `make-docs <checkpoint command>` after you edit a file here. Without the CLI or a usable Store, these files are the authority: read and edit them directly. For the rules, read `.make-docs/system/references/work-store.md` or `make-docs://system/reference/work-store.md`."
 
-The note holds in both cases, as owner decision 2 requires. It keeps the owner's word "present". A Store can be present and still not be in charge: the checkout is not bound, the schema is old, the Store is not safe, or the caller is denied. So the note points to `make-docs work status`, which says who is in charge and why. The note changes no work file, so no digest changes and no sync starts.
+That proposed text kept the owner's word "present". A Store can be present and still not be in charge: the checkout is not bound, the schema is old, the Store is not safe, or the caller is denied. So the proposed text pointed to `make-docs work status`, which says who is in charge and why. The independent review of the router phase found that this pointer does not make the first sentence true. The owner replaced the word on 2026-11-28 (owner decision 10) and chose this exact text for the note:
+
+"When the work store is in charge (`make-docs work status` says which side is), find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Otherwise, or without the CLI, these files are the authority: read and edit them directly. To claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`."
+
+The note holds in both cases, as owner decision 2 requires, and also for a Store that is present and not in charge. The note changes no work file, so no digest changes and no sync starts.
 
 #### MCP server instructions
 
@@ -283,6 +292,7 @@ The hook after a rewrite exists for one gap: `git pull --rebase` with local comm
 Hook rules:
 
 - A hook never blocks and never fails a git action. It always exits 0.
+- A hook runs the checkpoint in the foreground, and it waits only a short time for the Store. When another process holds the Store for longer than that limit, the hook gives up quietly, and the next checkpoint imports the file (OD-17).
 - A hook is fast and quiet. It prints nothing when nothing is due, in the meaning that "One checkpoint command" gives. When something waits for a person, it prints at most the summary line and the command.
 - A hook does nothing when the `make-docs` command is not found, when no usable Store exists, when the folder is not a Make Docs project, or, for the hooks after a commit and after a branch change, while git is in the middle of a rebase, a merge, a cherry-pick, or a bisect. The hooks after a merge and after a rewrite do not use that rule, because they run at the end of the action.
 - When the hook may read the Store but may not write it, the checkpoint does its read steps, and the hook prints the one line that says how many files wait and which command to run. When the hook may not use the Store at all, it prints nothing.
@@ -387,7 +397,7 @@ These parts did not come from existing docs or from the owner's first decisions.
 
 ### Owner decisions with their options
 
-Each decision has at most two options and one recommendation. The owner decided OD-1, and on 2026-11-27 also chose option A of OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9. The owner also chose option B of OD-10 on 2026-11-27. In a third round on 2026-11-27 the owner decided OD-11 to OD-15. They have no options list, because the owner gave the answer directly. No decision is open. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
+Each decision has at most two options and one recommendation. The owner decided OD-1, and on 2026-11-27 also chose option A of OD-2, OD-3, OD-5, OD-6, OD-7, and OD-9. The owner also chose option B of OD-10 on 2026-11-27. In a third round on 2026-11-27 the owner decided OD-11 to OD-15. They have no options list, because the owner gave the answer directly. On 2026-11-28 the owner decided OD-16 and OD-17. No decision is open. The numbers OD-4 and OD-8 are not used any more: OD-4 follows from owner decisions 1 and 3, and OD-8 is now a design rule in "Who owns a shared hook block". A recommendation in this section is not a decision.
 
 **OD-1: What is the scope of the git hooks?** Decided on 2026-11-27: the owner chose option A. OD-11 refined it on the same day. Where the two differ, OD-11 holds. Option A said that the preference makes "yes" the default answer. OD-11 says that the preference, when it is on, is the selection itself.
 
@@ -505,6 +515,21 @@ The last three sentences follow from OD-11. The orchestrator shows them to the o
 **OD-14: Does this Wave add a further agent tool?** Decided on 2026-11-27: no. The owner named another agent tool that setup does not support today. It goes on the [roadmap](../assets/project/2026-11-27-checkpoint-events-and-store-first-roadmap.md) as its own item: a setup adapter under PRD 28 first, and then a hook method.
 
 **OD-15: Which version carries this Wave?** Decided on 2026-11-27: 2.1.1, a patch release. The plan asked this as its owner gate OG-8 and recommended 2.2.0. The owner's reason: this Wave is a patch for something that was deferred in order to ship 2.1.0 quickly.
+
+**OD-16: Which word does the note of the `docs/work/` routers use for the work store?** Decided on 2026-11-28: "in charge", and not "present".
+
+- The earlier decision (owner decision 2) said that the note must hold when no work store is installed or available, with the owner's example wording "When the work store is present, it's the authority. Read it with this command."
+- The independent review of the router phase found on 2026-11-27 that the note was false in one case: a Store can be present and not in charge, as in a fresh clone or a linked worktree that is not bound.
+- The owner replaced the word on 2026-11-28 and chose the exact text that the reviewer proposed. "The note at the point of use" holds that text.
+- The conditional intent is kept. The note still holds with no Store and with no CLI, and it now also holds for a Store that is present and not in charge.
+
+**OD-17: Does a git hook run the checkpoint in the foreground, or start it and return?** Decided on 2026-11-28: in the foreground. The plan asked this as its owner gate OG-4, with two options, after it measured both.
+
+- A (chosen): the hook runs the checkpoint in the foreground. Git waits until the checkpoint ends, so the person sees the line about what waits at the git action.
+- B: the hook starts the checkpoint and returns.
+- The owner also chose one improvement to option A: a short time limit on the wait for the Store, after which the hook gives up quietly.
+- A second improvement was offered and not chosen: the hook after a rewrite skips the amend case. It is not built.
+- Not decided by the owner: the length of the limit, how the limit is built, what "quietly" means in detail, and whether the limit covers the whole checkpoint run or only the wait for the Store. The plan holds one recommendation for each. They are not decisions, and the review of the phase that builds the git hooks shows them to the owner.
 
 
 ## Alternatives Considered

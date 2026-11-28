@@ -663,7 +663,7 @@ The fix pass of 2026-11-27 ran each check again on the final code, and these are
 
 Covers A30 to A37 in [P3](03-routers-and-mcp-instructions.md), and the prepared part of A38. Evidence date: 2026-11-27. Branch: `docs/w35-store-authority-and-agent-reminders`, at `23c105ab`, with the phase changes uncommitted. Node `v26.13.1`. CLI package version `2.1.1`.
 
-P3 is built and not marked complete. T1 to T9 are done. The owner has not read the lines (A38) or the points of new behavior below. One independent review ran on 2026-11-27, and its fix pass is in this report: see [The Review Of P3 And Its Fix Pass](#the-review-of-p3-and-its-fix-pass). The check of that fix pass has not run yet. One finding of the review waits for the owner: the `docs/work/` note. The orchestrator records the package digest after the review, under standing rule 10.
+P3 is built and not marked complete. T1 to T9 are done. The owner has not read the lines (A38) or the points of new behavior below. One independent review ran on 2026-11-27, and its fix pass is in this report: see [The Review Of P3 And Its Fix Pass](#the-review-of-p3-and-its-fix-pass). The check of that fix pass has not run yet. One finding of the review waited for the owner: the `docs/work/` note. The owner answered it on 2026-11-28, and the note has new words: see [the finding](#the-review-finding-on-the-note-answered-by-the-owner). The orchestrator records the package digest after the review, under standing rule 10.
 
 ### P3 What Was Built
 
@@ -680,7 +680,7 @@ This phase did not change the sync core, any work file of the template, any file
 
 ### The Lines For The Owner (A38)
 
-The exact wording of these texts is a proposal. The owner did not decide it. Each text waits for the owner's review. The counts are bytes and words of the text as shown, with no line end.
+The exact wording of these texts is a proposal, with one exception: the owner chose the words of the `docs/work/` note on 2026-11-28. The owner did not decide the other wordings, and each of them waits for the owner's review. The counts are bytes and words of the text as shown, with no line end.
 
 The root router line, in the managed block of `AGENTS.md` and `CLAUDE.md` at the project root (349 bytes, 58 words). Every agent in every project reads it in every session:
 
@@ -688,10 +688,10 @@ The root router line, in the managed block of `AGENTS.md` and `CLAUDE.md` at the
 - When the work store is in charge of this project's work (`make-docs work status` says which side is), find work with `make-docs work next`, not with file searches, and run `make-docs project checkpoint` after you change a file under `docs/work/` and after you close a phase. Otherwise, or without the CLI, the `docs/work/` files are the authority.
 ```
 
-The `docs/work/` note, in the managed block of `docs/work/AGENTS.md` and `docs/work/CLAUDE.md` (526 bytes, 80 words). The line that it replaces had 293 bytes and 40 words. This text waits for the owner's answer on its first sentence, and the fix pass did not change it:
+The `docs/work/` note, in the managed block of `docs/work/AGENTS.md` and `docs/work/CLAUDE.md` (474 bytes, 68 words). The line that it replaces had 293 bytes and 40 words. The owner chose this exact text on 2026-11-28. It is the text that the reviewer proposed. The text before it had 526 bytes and 80 words, and [the finding](#the-review-finding-on-the-note-answered-by-the-owner) holds it:
 
 ```text
-- When the work store is present, it is the authority (`make-docs work status` says which side is in charge). Find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Without the CLI or a usable Store, these files are the authority: read and edit them directly. For the rules, and to claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`.
+- When the work store is in charge (`make-docs work status` says which side is), find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Otherwise, or without the CLI, these files are the authority: read and edit them directly. To claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`.
 ```
 
 The trigger text of the work store reference, at the end of its `Checkpoint` section (1,053 bytes, 184 words, with the heading left out):
@@ -727,17 +727,23 @@ How each text meets the owner's rule that the note holds with no Store:
 | Case | The root line | The `docs/work/` note | The MCP instructions |
 | --- | --- | --- | --- |
 | A usable Store, and the work store is in charge | The "When" sentence applies. | The "When" sentence applies. | The agent runs the checkpoint. It syncs only with `allowWrite: true`. |
-| A Store is present, and the files are in charge, such as a fresh clone or a linked worktree that is not bound | The "When" sentence does not apply, and the word "Otherwise" of the last sentence applies. | Not proven. The first sentence says that a present work store is the authority, which is false in this case. The words in brackets send the agent to `make-docs work status`. This case waits for the owner. | `project_checkpoint` says in one line that the files are the authority. |
-| No usable Store | The word "Otherwise" of the last sentence applies. | The "Without" sentence applies. | The last sentence applies. |
-| No CLI | The last sentence applies. | The "Without" sentence applies. | No MCP server runs, so no instructions exist. |
+| A Store is present, and the files are in charge, such as a fresh clone or a linked worktree that is not bound | The "When" sentence does not apply, and the word "Otherwise" of the last sentence applies. | The "When" sentence does not apply, and the word "Otherwise" of the second sentence applies. Before the owner's decision of 2026-11-28 the note was false in this case. | `project_checkpoint` says in one line that the files are the authority. |
+| No usable Store | The word "Otherwise" of the last sentence applies. | The word "Otherwise" of the second sentence applies. | The last sentence applies. |
+| No CLI | The last sentence applies. | The words "or without the CLI" of the second sentence apply. | No MCP server runs, so no instructions exist. |
 
-#### The Review Finding On The Note, Which Waits For The Owner
+#### The Review Finding On The Note, Answered By The Owner
 
-The independent review of 2026-11-27 found that the `docs/work/` note is false in one case. Its first sentence says: "When the work store is present, it is the authority". A Store can be present and not in charge: in a fresh clone, and in a linked worktree that is not bound to the Store. In that case the files are the authority, and the note says the opposite. The words in brackets send the agent to `make-docs work status`, and they do not make the first sentence true.
+The owner answered this finding on 2026-11-28 with option a of question P3-1: replace the word "present" in the note. The owner chose the exact text that the reviewer proposed. The end of this section records the change. The text from here to the proposed text is the record of the finding as it stood on 2026-11-27.
 
-"Present" is the owner's own word. So the fix pass did not change the note, its tests, or PRD 15 R-WORK-ROUTER-2. The orchestrator asks the owner. No decision is recorded here.
+The independent review of 2026-11-27 found that the `docs/work/` note was false in one case. Its first sentence said: "When the work store is present, it is the authority". A Store can be present and not in charge: in a fresh clone, and in a linked worktree that is not bound to the Store. In that case the files are the authority, and the note said the opposite. The words in brackets sent the agent to `make-docs work status`, and they did not make the first sentence true. The note of 2026-11-27, exactly:
 
-PRD 15 R-WORK-ROUTER-3 says that both texts are true "in a project where the files are in charge". That statement holds for the root line. It is not proven for the note, and this report does not claim it. The statement and the note wait for the owner's answer.
+```text
+- When the work store is present, it is the authority (`make-docs work status` says which side is in charge). Find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Without the CLI or a usable Store, these files are the authority: read and edit them directly. For the rules, and to claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`.
+```
+
+"Present" was the owner's own word. So the fix pass of 2026-11-27 did not change the note, its tests, or PRD 15 R-WORK-ROUTER-2, and the orchestrator asked the owner.
+
+PRD 15 R-WORK-ROUTER-3 says that both texts are true "in a project where the files are in charge". On 2026-11-27 that statement held for the root line and was not proven for the note.
 
 The reviewer's proposed replacement text for the note, exactly:
 
@@ -746,6 +752,18 @@ The reviewer's proposed replacement text for the note, exactly:
 ```
 
 The root line and the MCP instructions use "in charge".
+
+The owner's decision of 2026-11-28, and what changed with it:
+
+- The decision: replace the word "present" in the note of the `docs/work/` routers, because a Store can be present and not in charge, as in a fresh clone or a linked worktree. The note is now the proposed text above, byte for byte. The conditional intent of the owner's first decision is kept: the note holds when no work store is installed or available.
+- The files: `packages/docs/template/docs/work/AGENTS.md` and `packages/docs/template/docs/work/CLAUDE.md` first, then the installed copies `docs/work/AGENTS.md` and `docs/work/CLAUDE.md`, which match their template files byte for byte (`cmp`). The block keeps its line count. No file of a backlog changed for the note.
+- The tests: `packages/cli/tests/w35-r0-p3-routers-and-mcp-instructions.test.ts` holds the new note. The test of the two lines now needs "When the work store is in charge" at the start of each, fails on the word "present", and allows only three sentence starts: "When the work store is in charge", "Otherwise, or without the CLI", and "To claim, report, or close work". The file still has 36 tests.
+- PRD 15: R-WORK-ROUTER-2 has the new meaning and no longer fixes the word "present". The statement of R-WORK-ROUTER-3 about a project where the files are in charge now holds for the note, by the same word "Otherwise" as in the root line. That is a reading of the text and a text match of the test, as for the root line, and no test runs an agent. PRD 15 has a Requirement History entry of 2026-11-28.
+- The design records the decision under its owner decisions.
+- What the new note no longer says: the words "For the rules" before the pointer to the work store reference. The pointer now names the claim, the report, and the close of work.
+- Other shipped text: a search of `packages/docs/template/`, `packages/cli/src/`, and `packages/skills/` found no other text that says that a work store that is "present" is the authority. The root line, the MCP instructions, and the work store reference use "in charge".
+- A router file under `docs/work/` changed, and the note asks for a checkpoint after such an edit when the work store is in charge. The builder of this change ran no checkpoint in this repository, because that run would use the real Store. The orchestrator owns that run.
+- The checks: see [Checks Of The Owner Decisions Of 2026-11-28](#checks-of-the-owner-decisions-of-2026-11-28).
 
 ### The Copies (T4, A30)
 
@@ -815,7 +833,7 @@ The design, the plan, and the phase file do not state these 15 points. Each one 
 
 1. The root line does not name `make-docs resource read`. The proposed text of the design named it as a second read command. The line is shorter without it, and `make-docs work next` is the command that an agent needs first. The line says "find work" and not "read work".
 2. The root line says "(`make-docs work status` says which side is)" and not "says so", as the review of the design asked. Its last sentence is "Otherwise, or without the CLI, the `docs/work/` files are the authority." The proposed text of the design said "Without the CLI or a usable Store". The review of this phase found that those words do not cover a usable Store with a checkout that is not bound, so the fix pass changed them.
-3. The `docs/work/` note keeps the words "to claim, report, or close work" from the line that it replaces. It also keeps the form of the other router lines: a valid local body first, then `make-docs resource read` with the URI.
+3. The `docs/work/` note keeps the words "to claim, report, or close work" from the line that it replaces. It also keeps the form of the other router lines: a valid local body first, then `make-docs resource read` with the URI. Since the owner's decision of 2026-11-28 the note says "in charge" and "Otherwise, or without the CLI", as the root line does, and it no longer holds the words "For the rules".
 4. The MCP instructions name `allowWrite: true` two times, each with a condition: the agent adds it to the first call only when its task may change this project's files, and it passes it after it changed a file under `docs/work/` and after it closed a phase. Without it, the tool does the read steps only and says that the sync did not run (PRD 25 R-MCP-PROFILE-12). The first text of this phase told every agent to pass it at the start of every session. The review found that this made the write intent automatic, also for an agent that only reviews or answers a question, and the fix pass removed it.
 5. The MCP instructions tell an agent to call the checkpoint "when you start work on this project's backlog", and not at the start of every session. So an agent with a task that is not backlog work is not told to call it. The design's event table names the start of a session. The words "start work on this project's backlog" are narrower, and they are new. The checkpoint itself finds who is in charge, and with no usable Store it changes nothing.
 6. The server decides from the listed tools, and not from the profile name, whether it sends the rule. The rule needs all three tools: `project_checkpoint`, `work_status`, and `work_next`.
@@ -825,7 +843,7 @@ The design, the plan, and the phase file do not state these 15 points. Each one 
 10. The trigger text replaces the earlier sentence of five moments. "At the end of a turn" and "after a commit or a pull" are not in the list of three moments. The text says that an agent also runs the checkpoint when it does not know whether work files changed, such as after a commit or a pull. `turn-end` stays in the list of the six events.
 11. The trigger text says that an agent needs no hook for the three moments.
 12. The name test of this phase is its own, stricter test, beside the shipped-text scan of W33 R0 P4. PRD 39 R-NAME-6 says so.
-13. The PRDs fix the meaning of each text and not its exact words, because the owner has not approved the words. PRD 15 R-WORK-ROUTER-1 and PRD 25 R-MCP-INSTR-1 say so and point to this report for the proposed words. One exception waits: PRD 15 R-WORK-ROUTER-2 holds the words "When the work store is present, it is the authority", which are the owner's own words and wait for the owner's answer.
+13. The PRDs fix the meaning of each text and not its exact words, because the owner has not approved the words. PRD 15 R-WORK-ROUTER-1 and PRD 25 R-MCP-INSTR-1 say so and point to this report for the proposed words. One exception existed on 2026-11-27: PRD 15 R-WORK-ROUTER-2 held the words "When the work store is present, it is the authority", which were the owner's own words. The owner replaced them on 2026-11-28, and R-WORK-ROUTER-2 now fixes the meaning "in charge". The words of the note are the owner's choice of 2026-11-28.
 14. The trigger text names the two forms of the event input: `--event` for the command and `event` for the tool. It says that the tool syncs only with `allowWrite: true`, and without it gives the read steps and says that the sync did not run.
 15. The trigger text keeps the moment "at the start of a session, before you find or pick work" for a direct run by an agent. The MCP instructions say "when you start work on this project's backlog". The two texts differ in these words.
 
@@ -836,14 +854,14 @@ One independent review of P3 ran on 2026-11-27, before any commit of the phase. 
 | Finding | What the review found | Result |
 | --- | --- | --- |
 | M1 | The MCP instructions told every agent to call `project_checkpoint` with `allowWrite: true` at the start of every session, with no condition. PRD 25 R-MCP-INSTR-1 said the same as a MUST. With the Store in charge, that call is a full two-way sync. | Fixed. The first call has no write permission unless the agent's task may change project files. The later calls name the write permission, after a change under `docs/work/` and after a closed phase. R-MCP-INSTR-1 has the new meaning, and its words "in the same conditional words" are gone. |
-| M2 | The `docs/work/` note is false when a Store is present and not in charge. | Not changed. It waits for the owner. See [the finding](#the-review-finding-on-the-note-which-waits-for-the-owner). |
+| M2 | The `docs/work/` note is false when a Store is present and not in charge. | Not changed in the fix pass, because "present" was the owner's word. The owner answered on 2026-11-28, and the note now says "in charge". See [the finding](#the-review-finding-on-the-note-answered-by-the-owner). |
 | S1 | The last sentence of the root line did not cover a usable Store with a checkout that is not bound. | Fixed: "Otherwise, or without the CLI, the `docs/work/` files are the authority." |
 | S2 | A catalog without a current name for one of the three tools stopped the MCP server in every profile. | Fixed. The server sends no instructions in that case, and a test proves it. |
 | S3 | The reference named the tool argument as `--event`. | Fixed. The text names `--event` for the command and `event` for the tool, and it says that the tool syncs only with `allowWrite: true`. |
 
 The reference keeps the moment "at the start of a session, before you find or pick work". It gives no order to pass the write permission, and its new clause says what the tool does without it. The root line held no session-start order, so only its last sentence changed.
 
-The fix pass also softened the PRD text. PRD 15 R-WORK-ROUTER-1 and PRD 25 R-MCP-INSTR-1 now say that they fix the meaning and not the words, and they point to this report. PRD 15 R-WORK-ROUTER-2 and R-WORK-ROUTER-3 did not change, because they wait for the owner's answer on the note.
+The fix pass also softened the PRD text. PRD 15 R-WORK-ROUTER-1 and PRD 25 R-MCP-INSTR-1 now say that they fix the meaning and not the words, and they point to this report. PRD 15 R-WORK-ROUTER-2 and R-WORK-ROUTER-3 did not change in the fix pass, because they waited for the owner's answer on the note. They changed on 2026-11-28 with that answer.
 
 The owner's decision of 2026-11-27 on register entry R-042 is recorded in the register, the plan, and the backlog: fix it in this Wave. The owner did not choose the phase. The orchestrator placed it in [P7 Stage 4](07-acceptance.md#stage-4---the-fix-for-an-unknown-option-on-a-write-command), as tasks T14 to T19 and cases A79a to A79f. The backlog now has 112 tasks.
 
@@ -889,7 +907,7 @@ Every test and every CLI run used a temporary Store at a fixed path under `/priv
 ### P3 Not Done
 
 - A38: the owner has not read the lines.
-- The owner has not answered the review finding on the `docs/work/` note. PRD 15 R-WORK-ROUTER-3 is not proven for the note until then.
+- Done on 2026-11-28: the owner answered the review finding on the `docs/work/` note, and the note, its tests, and PRD 15 changed. The owner has not read the other lines yet (A38).
 - The owner has not reviewed the 15 points under "P3 New Behavior That The Documents Did Not State".
 - The fix pass of the first independent review has no check by a reviewer yet.
 - The package digest is not recorded again. The orchestrator does that after the review, under standing rule 10. This phase changed package bytes, so the recorded digest is stale.
@@ -904,7 +922,7 @@ Covers A39 to A47 and A47a to A47f in [P4](04-git-hook-proofs.md). Evidence date
 P4 is built on the maintainer machine and not marked complete. Each task that a builder on this computer can do is done. The platform run is done, and this section records its results. Three things wait:
 
 - T10. The access runs inside each agent tool belong to the orchestrator under standing rule 11. The steps, a script, and the table are ready below. No run exists, so each tool has "no proof gathered" today.
-- The owner. Owner gate OG-4 is open, and A46 waits for the owner's answer. The owner has not reviewed the points under "P4 New Behavior That The Documents Did Not State".
+- The owner. The owner answered owner gate OG-4 on 2026-11-28, so A46 has its answer: see [the gate](#owner-gate-og-4-the-run-mode-of-a-git-hook). The owner has not reviewed the points under "P4 New Behavior That The Documents Did Not State".
 - The independent review of this phase, and the package digest, which the orchestrator records after the review.
 
 Every test, measurement, and CLI run used a temporary Store at a fixed path under `/private/tmp/claude`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. Each git test worked only inside a temporary folder that the test made, with a temporary home folder, with empty files in place of the global and the system git config, and with local bare repositories in place of a network remote. No test ran a git command in this repository's checkout.
@@ -1232,7 +1250,15 @@ One finding for P5, outside the timed workload: a trigger run that imported a fi
 
 #### Owner Gate OG-4: The Run Mode Of A Git Hook
 
-For the owner. This text gives the two options of the plan and one recommendation. It records no decision. A46 waits for the owner's answer.
+The owner answered this gate on 2026-11-28. The answer, for A46:
+
+- Option A: a git hook runs the checkpoint in the foreground.
+- Improvement 1, chosen: a short time limit on the wait for the Store, after which the hook gives up quietly. It is the first of the two possible refinements below.
+- Improvement 2, offered and not chosen: the hook after a rewrite skips the amend case. It is not built. So an amended commit still runs two hooks, and each one runs the checkpoint.
+
+The owner did not decide four details: the length of the limit, how the limit is built, what "quietly" means in detail, and whether the limit covers the whole checkpoint run or only the wait for the Store. The [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#owner-decisions) holds one recommendation for each, R8 to R11, with the facts. They are not owner decisions. [P5 Stage 6](05-git-hooks-in-setup.md#stage-6---the-foreground-run-and-the-wait-limit) builds the answer as T35 to T38, with the cases A62q to A62v, and the P5 review shows R8 to R11 to the owner. This phase built no hook code and no limit.
+
+The text from here to the end of this section is the text that the owner had for the choice, as it stood on 2026-11-27. It gives the two options of the plan and one recommendation.
 
 The question: does a git hook run the checkpoint in the foreground, or does it start the checkpoint and return?
 
@@ -1273,7 +1299,7 @@ Where the numbers come from. The added times are medians from `PERF-007-R1`: one
 1. A foreground run with a short time limit on the wait for the Store. After the limit the hook gives up quietly, and the reminder line covers the file. This would cut the worst case of option A from about 5.5 seconds to the limit. It needs a new input or a new setting of the checkpoint, which is a product change.
 2. The hook after a rewrite skips the amend case, because the hook after a commit already ran for that commit. Git gives the hook after a rewrite the argument `amend` in that case. An amended commit would then add about 0.55 seconds and not about 1.1 seconds. That number is a calculation from the table.
 
-A note for P5, in each mode: standing rule 5 says that a git hook never fails or blocks a git action. The checkpoint exits 1 when the Store is held. So the hook block must swallow that exit code, and P5 must decide what the hook prints then. P5 T31 holds it.
+A note for P5, in each mode: standing rule 5 says that a git hook never fails or blocks a git action. The checkpoint exits 1 when the Store is held. So the hook block must swallow that exit code, and P5 must decide what the hook prints then. P5 T31 holds it. Since the owner's answer of 2026-11-28 the case of a held Store has its rule: the hook waits only the limit and then gives up quietly. P5 T36 builds it, and T31 decides only the other non-zero exit codes.
 
 ### What P5 Builds From This Phase (A47)
 
@@ -1288,15 +1314,15 @@ One list for P5, from the findings above. Each point that no document stated is 
 7. Use the rule for git in the middle of an action in the hooks after a commit and after a branch change: the six state marks of T7, in the git folder of the work tree. Do not use it in the hooks after a merge and after a rewrite. Know what the rule does: it stops every hook run of a cherry-pick with no conflict, and it stops no hook run of a revert. P5 T34 brings the choice of the marks to the owner.
 8. Cut the output of a trigger run to the summary line and the command (P5 T3).
 9. Record the block in the Store as the answer of T11 says, when the review accepts that answer. Add the row kind to the table catalog and to PRD 38, and remove the row in `setup remove`.
-10. Run the checkpoint in the mode that the owner chooses at OG-4.
-11. Make the block swallow a non-zero exit code of the checkpoint, and decide what the hook prints then. The checkpoint exits 1 when another process holds the Store (P5 T31).
+10. Run the checkpoint in the foreground. The owner chose that mode at OG-4 on 2026-11-28 (P5 T35). Build the short time limit on the wait for the Store, after which the hook gives up quietly (P5 T36 to T38). Do not make the hook after a rewrite skip the amend case: the owner did not choose that improvement.
+11. Make the block swallow a non-zero exit code of the checkpoint, and decide what the hook prints then. The checkpoint exits 1 when another process holds the Store. For that case the hook gives up quietly after the limit (P5 T36), and P5 T31 decides the other cases.
 12. Each choice of this phase that no document stated is a proposal, and P5 holds each one as a task with a case: [P5 Stage 5](05-git-hooks-in-setup.md#stage-5---proposals-from-phase-4), T20 to T34.
 
 What the hook review that setup shows must name:
 
 - The hooks act only in a checkout that is bound to the Store. A new work tree of a clone is not bound until `make-docs project checkout apply` runs there (R-045).
 - These git actions do not reach the checkpoint through a hook, so the reminder line and the next commit cover them: `git reset --hard` and `git am`, which run none of the four hooks; a cherry-pick with no conflict, of one commit or more, where the rule for git in the middle of an action stops each hook run; and the open cases of R-043.
-- With a foreground hook, a git action can take about 5.5 seconds longer while another Make Docs write holds the Store.
+- With a foreground hook, a git action can take longer while another Make Docs write holds the Store. Without a limit that is about 5.5 seconds. With the wait limit that the owner chose on 2026-11-28, it is the limit and then the normal time of the checkpoint, and the hook then imports nothing. The review names the limit that P5 builds.
 - With a hook manager that writes a plain shell script into the hooks folder of the clone, the block lives in that tool's file, and that tool can remove it.
 - A commit from an app that passes a short PATH works only through the recorded path (R-044).
 - Each platform gap that the platform run finds. The run of commit `965ad51e` found no gap. It found one platform difference and one fact with no Windows proof, and [Platform Run](#platform-run) holds both with the finding for owner gate OG-6. The review must say that on Windows git also runs a hook file that is not executable.
@@ -1483,13 +1509,35 @@ Checks of the review correction, on 2026-11-27, on the same machine, with a temp
 - The comparison in one session: one trial with 2 samples to prove the harness, then the one run with 25 samples that this report holds. No other process of this builder ran during that run.
 - Not run in the correction: `npm ci`, `npm pack`, and any run on Linux or Windows. The package bytes did not change in the correction, because only tests and documents changed.
 
+### Checks Of The Owner Decisions Of 2026-11-28
+
+One change set recorded both owner decisions of 2026-11-28: the word of the `docs/work/` note, and the answer to owner gate OG-4. It changed the two template routers and their installed copies, one test file, PRD 15, one line of register entry R-040, the design, the plan, and this backlog. It built no hook code and no wait limit. It changed no file in `.github/release-candidates/` and no W22 R2 file. The note is package text, so the package bytes changed, and the orchestrator records the digest again under standing rule 10.
+
+Every test and every CLI run used a temporary Store at a fixed path under `/private/tmp/claude/d28`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. The CLI runs used the built CLI of this branch. All checks ran on the maintainer machine, on macOS, with Node `v26.13.1`.
+
+- `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- The P3 test file, `router-paths.test.ts`, `consistency.test.ts`, the W29 agent twin test, `system-assets.test.ts`, `install.test.ts`, `audit.test.ts`, and `human-experience-propagation.test.ts`, in one run: 273 tests pass in 8 files. The P3 test file has 36 tests.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`: 3,950 tests pass, 2 fail, and 6 are skipped, in 165 test files. The 2 are the known failures of `tests/mcp-app-contract.test.ts` on Node 26. `backup.test.ts` and `uninstall.test.ts` pass. Documents changed while this run was going: the order of the Change History entries, and three links to the performance profile. The run of the next line covers them.
+- A second run on the final files: the P3 test file, the consistency test, the managed block test, the two router test files, the shipped-text test, the name catalog test, and the W29 agent twin test. 220 tests pass in 8 files.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `bash scripts/check-instruction-routers.sh`: "Instruction router check passed." This one run was outside the sandbox, because the script needs the system temp folder. The script runs no Make Docs command.
+- `make-docs check prd --target-root .`: exit code 0, no diagnostics.
+- `make-docs check performance-evidence --target-root .`: exit code 1, as before this change, with 127 diagnostics before and 127 after. A first run gave 129: one closeout note of P3 held a byte count, and one new task of P5 held a time bound with no profile link. Both lines were changed, and no diagnostic is new.
+- `make-docs project paths validate`: valid, 0 failing findings.
+- `make-docs project markdown validate --path <file>` on each changed document: no findings on this report, the index, the P3, P4, and P5 phase files, the three plan files, and the design. On PRD 03 and PRD 15 it reports findings only on lines that this change did not touch. The router files are skipped as instruction router files.
+- `make-docs backlog snapshot --target-root . --json`: exit code 0, standard error is empty, and no diagnostic names W35. The snapshot shows 7 phases and 131 tasks for W35 R0. A first run gave one warning for this backlog: the new Change History entry stood first, and the rule wants the newest entry last. The entry was moved to the end, in the index and in the plan.
+- The two template routers and their installed copies: `cmp` shows that `docs/work/AGENTS.md` and `docs/work/CLAUDE.md` match their template files byte for byte. The note has 474 bytes with no line end.
+- Not run: `npm ci`, `npm pack`, `npm run smoke:pack:local`, the update by hand from the released 2.1.0 package, and any run on Linux or Windows.
+
 ### P4 Not Done
 
 - A39 and A41: the platform run is done and recorded in [Platform Run](#platform-run). What is still missing for each case is in the closeout notes of the [phase file](04-git-hook-proofs.md#closeout-notes). The orchestrator and the reviewer judge whether each case passes.
 - Owner gate OG-6: the finding is "no platform gap found in the run of commit `965ad51e`; the gate did not open". It is a finding and not an owner decision.
 - T10 and A42: no access run inside an agent tool exists. The orchestrator starts those sessions under standing rule 11.
-- A46: the owner has not answered owner gate OG-4.
-- The owner has not reviewed the 13 points under "P4 New Behavior That The Documents Did Not State", and the two possible refinements under owner gate OG-4.
+- Done on 2026-11-28: the owner answered owner gate OG-4 (A46), and chose the first of the two possible refinements. The owner did not choose the second one. The four recommendations R8 to R11 of the plan wait for the owner at the P5 review.
+- The owner has not reviewed the 13 points under "P4 New Behavior That The Documents Did Not State".
 - The race test file is in the two workflow lists since 2026-11-27, and the platform run ran it on the three platforms.
 - The finding of T11, that an existing record fits and OG-3 does not open: the independent review agreed with it on 2026-11-27. It stays a finding and not an owner decision.
 - R-041 is closed in the register by the builder. The independent review has not checked the fix yet.

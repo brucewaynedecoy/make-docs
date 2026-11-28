@@ -2970,7 +2970,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | W35 R0 P1 recorded this risk on 2026-11-27, as the [agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks. | W35 R0 P4 measured the trigger run with `PERF-007` on 2026-11-27. Owner gate OG-4 is open: the owner decides how a hook runs the checkpoint. |
+| Open | W35 R0 P1 recorded this risk on 2026-11-27, as the [agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) asks. | W35 R0 P4 measured the trigger run with `PERF-007` on 2026-11-27. The owner answered owner gate OG-4 on 2026-11-28: a git hook runs the checkpoint in the foreground, with a short time limit on the wait for the Store. |
 
 **Issue**: The first sync of a checkout imports every work file of its branch. A trigger run is a checkpoint that a hook starts. When a checkout has no sync yet, the first trigger run is that first sync, at a moment that no person chose.
 
@@ -2978,7 +2978,7 @@ The following pre-W19 R1 discussion is retained as historical context and does n
 
 **Recommendation**: Say in the result when a run was the first sync of its checkout, and never write a project file in a trigger run.
 
-**To close**: `PERF-007` shows the time of a first sync in a hook, the owner answers OG-4, and the owner accepts the remaining risk or a later Wave removes it.
+**To close**: `PERF-007` shows the time of a first sync in a hook, the owner answers OG-4, and the owner accepts the remaining risk or a later Wave removes it. The first two are done: `PERF-007-R1` ran on 2026-11-27, and the owner answered OG-4 on 2026-11-28. The owner has not accepted the remaining risk.
 
 **What W35 R0 does**: The checkpoint result names the checkout and says when the run was the first sync of that checkout. A trigger run imports only, so it writes and removes no project file. A trigger run with the event `branch-change` imports nothing, so it is never a first sync. [`PERF-007-R1`](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs) measured the first sync in a hook on this repository, with 471 work files: a commit with a foreground hook takes about 2.2 seconds one time. With a hook that starts the checkpoint and returns, the commit takes about 0.14 seconds, and the first sync ends about 1.9 seconds later.
 

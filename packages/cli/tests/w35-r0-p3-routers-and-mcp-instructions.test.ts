@@ -44,9 +44,9 @@ const PHASE_FILES = [...ROOT_ROUTERS, ...WORK_ROUTERS, REFERENCE] as const;
 /** The root router line, as shipped. The owner reviews this wording. */
 const ROOT_LINE =
   "- When the work store is in charge of this project's work (`make-docs work status` says which side is), find work with `make-docs work next`, not with file searches, and run `make-docs project checkpoint` after you change a file under `docs/work/` and after you close a phase. Otherwise, or without the CLI, the `docs/work/` files are the authority.";
-/** The `docs/work/` note, as shipped. The owner reviews this wording. */
+/** The `docs/work/` note, as shipped. The owner chose this wording on 2026-11-28. */
 const WORK_NOTE =
-  "- When the work store is present, it is the authority (`make-docs work status` says which side is in charge). Find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Without the CLI or a usable Store, these files are the authority: read and edit them directly. For the rules, and to claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`.";
+  "- When the work store is in charge (`make-docs work status` says which side is), find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Otherwise, or without the CLI, these files are the authority: read and edit them directly. To claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`.";
 /** The work store line of the `docs/work/` router in release 2.1.0, which the note replaces. */
 const WORK_LINE_2_1_0 =
   "- To find ready work, or to claim, report, close, or sync it, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`. Without the CLI or a usable Store, `docs/work/` is the authority.";
@@ -160,18 +160,20 @@ describe("W35 R0 P3 the router lines (T1, T2, A31)", () => {
 
   it.each([["the root router line", ROOT_LINE], ["the docs/work/ note", WORK_NOTE]])("%s names who is in charge, the read command, and the checkpoint, and holds without a Store", (_name, line) => {
     // Who is in charge, and the command that says so.
-    expect(line).toMatch(/^- When the work store is (in charge|present)/);
+    expect(line).toMatch(/^- When the work store is in charge/);
+    // The owner replaced the word "present" on 2026-11-28: a Store can be present and not in charge.
+    expect(line).not.toMatch(/\bpresent\b/);
     expect(line).toContain("`make-docs work status` says which side is");
     // The read command and the checkpoint command.
     expect(line).toContain("with `make-docs work next`");
     expect(line).toContain("run `make-docs project checkpoint` after you");
     // What holds in every other case: without the CLI, without a usable Store, and in a checkout that is not bound.
-    expect(line).toMatch(/(Otherwise, or without the CLI, the `docs\/work\/`|Without the CLI or a usable Store, these) files are the authority/);
+    expect(line).toMatch(/Otherwise, or without the CLI, (the `docs\/work\/`|these) files are the authority/);
     // A direct run: the line gives no event.
     expect(line).not.toContain("--event");
     // No sentence is an unconditional claim that the store is in charge.
     for (const sentence of line.replace(/^- /, "").split(/(?<=\.) /)) {
-      expect(sentence, sentence).toMatch(/^(When the work store is|Find work with|Otherwise, or without the CLI|Without the CLI or a usable Store|For the rules)/);
+      expect(sentence, sentence).toMatch(/^(When the work store is in charge|Otherwise, or without the CLI|To claim, report, or close work)/);
     }
   });
 });
