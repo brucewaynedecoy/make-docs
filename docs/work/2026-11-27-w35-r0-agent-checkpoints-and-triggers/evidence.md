@@ -288,7 +288,7 @@ The failing case of review finding M1 is a test now. See "How it stays narrow" a
 - A read-only check names a file that Make Docs cannot read without its line, because the check does not keep the line. Its line says that a direct run of `make-docs project checkpoint` names the line. For a caller with read access only, it says that a caller with write access must do that run.
 - A read-only check and a trigger run do not try the write. So they name a file that sync cannot write as a file that waits for a write. The next direct run names it as not written.
 - No test starts the built CLI as an agent with a read-only access limit. See the limit under "The Operation On Its Surfaces".
-- Two runs at the same time can undo a close in the store, and the store does not fully recover. The first fix pass found this with a test that starts two built CLI processes at once. The cause: `syncWorkFiles` calls `scanWorkFiles` before `writeWorkStore`, so sync reads the work files before it takes the Store. In the test, the first run wrote a closed task to its file, and the second run imported the older file text and set the task back to open in the store. Both runs ended with exit code 0 and no conflict. A review on 2026-11-27 then proved the true effect with the built CLI. It closed a task with `make-docs work close "<unit>" --expected-version <n> --outcome cancelled` and started two `make-docs project checkpoint --json` runs at the same time. One run wrote the file, and the other imported that same file with its older text. The store showed the task as open. One more run gave a closed task with the outcome `done`. What is lost for good: the outcome `cancelled`, and the same happens with `superseded`, because a task line shows only that a task is closed. What is wrong until the next run: the unit shows as open and ready, so another agent can claim it. What recovers: the closed status, with the next run that imports the file. In the review, evidence rows and an in-progress status stayed, an older file scan with a missing file or a missing task stopped as a conflict, and notes and met gates were not checked. `make-docs work sync` in the released version 2.1.0 has the same fault, and it is older than the checkpoint. A trigger run imports, so each hook run that overlaps a run that writes a file can do this. This phase did not change the sync core. The fix is to move the file scan inside the Store write session and then to measure the sync time again. It is not built yet. The owner decided on 2026-11-27 to fix it in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed the fix in P4, before any hook installs: [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time), tasks T18 to T23. The [risk register](../../prd/03-open-questions-and-risk-register.md) holds the fault as R-041. No test fails on it: the test of this phase closes with the outcome `done` and also passes when the runs do not overlap.
+- Two runs at the same time can undo a close in the store, and the store does not fully recover. The first fix pass found this with a test that starts two built CLI processes at once. The cause: `syncWorkFiles` calls `scanWorkFiles` before `writeWorkStore`, so sync reads the work files before it takes the Store. In the test, the first run wrote a closed task to its file, and the second run imported the older file text and set the task back to open in the store. Both runs ended with exit code 0 and no conflict. A review on 2026-11-27 then proved the true effect with the built CLI. It closed a task with `make-docs work close "<unit>" --expected-version <n> --outcome cancelled` and started two `make-docs project checkpoint --json` runs at the same time. One run wrote the file, and the other imported that same file with its older text. The store showed the task as open. One more run gave a closed task with the outcome `done`. What is lost for good: the outcome `cancelled`, and the same happens with `superseded`, because a task line shows only that a task is closed. What is wrong until the next run: the unit shows as open and ready, so another agent can claim it. What recovers: the closed status, with the next run that imports the file. In the review, evidence rows and an in-progress status stayed, an older file scan with a missing file or a missing task stopped as a conflict, and notes and met gates were not checked. `make-docs work sync` in the released version 2.1.0 has the same fault, and it is older than the checkpoint. A trigger run imports, so each hook run that overlaps a run that writes a file can do this. This phase did not change the sync core. The fix is to move the file scan inside the Store write session and then to measure the sync time again. It is not built yet. The owner decided on 2026-11-27 to fix it in this Wave, before the hooks ship. The owner did not choose the phase. The orchestrator placed the fix in P4, before any hook installs: [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time), tasks T18 to T23. The [risk register](../../prd/03-open-questions-and-risk-register.md) holds the fault as R-041. No test fails on it: the test of this phase closes with the outcome `done` and also passes when the runs do not overlap. Update of 2026-11-27, from P4: the fix is built. Sync now scans the work files inside its Store write session, tests that hold two runs at the Store at the same time fail on the older code and pass on the new code, and R-041 is closed. See [The Fix For Two Syncs At The Same Time](#the-fix-for-two-syncs-at-the-same-time-t18-to-t23-a47a-to-a47f).
 
 ### New Behavior That The Documents Did Not State
 
@@ -896,3 +896,511 @@ Every test and every CLI run used a temporary Store at a fixed path under `/priv
 - No session of a real agent tool read the router lines or the MCP instructions. [P7](07-acceptance.md) holds the recorded agent sessions.
 - The guides do not name the router lines or the MCP instructions yet. P7 updates the guides.
 - The merge with W22 R1 and W22 R2 is not done. The branch that merges second rebases and reruns the router tests and the byte-match tests.
+
+## P4 Git Hook Proofs
+
+Covers A39 to A47 and A47a to A47f in [P4](04-git-hook-proofs.md). Evidence date: 2026-11-27. Branch: `docs/w35-store-authority-and-agent-reminders`, at `d12d1047`, with the phase changes uncommitted. Node `v26.13.1`. git 2.47.1. CLI package version `2.1.1`.
+
+P4 is built on the maintainer machine and not marked complete. Each task that a builder on this computer can do is done. Four things wait:
+
+- The platform run. Every result in this section is from macOS only. No Linux result and no Windows result exists yet. Under standing rule 12 they come from the pull request run that the orchestrator starts, and the evidence commit records them. So A39 and A41 do not pass yet.
+- T10. The access runs inside each agent tool belong to the orchestrator under standing rule 11. The steps, a script, and the table are ready below. No run exists, so each tool has "no proof gathered" today.
+- The owner. Owner gate OG-4 is open, and A46 waits for the owner's answer. The owner has not reviewed the points under "P4 New Behavior That The Documents Did Not State".
+- The independent review of this phase, and the package digest, which the orchestrator records after the review.
+
+Every test, measurement, and CLI run used a temporary Store at a fixed path under `/private/tmp/claude`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. Each git test worked only inside a temporary folder that the test made, with a temporary home folder, with empty files in place of the global and the system git config, and with local bare repositories in place of a network remote. No test ran a git command in this repository's checkout.
+
+### P4 What Was Built
+
+- One product change: `syncWorkFiles` in `packages/cli/src/operations/work/work-store/sync.ts` now scans the work files inside its Store write session (T18). Nothing else in the product changed. This phase installs no hook and adds no setup code.
+- `packages/cli/tests/git-hook-proof.ts`: the helper of the git proofs. It builds temporary repositories, writes a hook that records each run with its arguments and the state marks of git, refuses a git command outside its temporary folder, and writes one log line for each fact with the platform and the git version.
+- `packages/cli/tests/w35-r0-p4-git-hook-facts.test.ts`: 34 tests for T1 to T7. The review correction of 2026-11-27 added 9: a cherry-pick of one commit, two cherry-picks that stop for a conflict, four forms of a revert, `git am`, and a temporary folder with a single quote in its name.
+- `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts`: 17 tests for T7 (the checkpoint in the hooks after a merge and after a rewrite), T9, T11, and T12. The review correction added 2: a trigger run, and a commit with a foreground proof hook, while another process holds the Store.
+- `packages/cli/tests/w35-r0-p4-sync-race.test.ts`: 5 tests for T19 to T21 and the read-only check of A47a. The review correction split the test of T21 into one test for a progress note and one for a met gate.
+- `.github/workflows/platform-safety.yml`: the two git proof test files are in both fixed lists (T8, T9). The orchestrator added the race test file to both lists on 2026-11-27 after the review, so that the race tests also run on macOS and Windows in the platform job.
+- `packages/cli/tests/consistency.test.ts`: the fixed list of register entries holds R-043 to R-045.
+- [PRD 52](../../prd/52-work-store-and-work-queue.md): R-WORK-SYNC-1 and a `W35 R0 P4` Requirement History entry (T23).
+- The [risk register](../../prd/03-open-questions-and-risk-register.md): R-041 is closed, R-043 to R-045 are new, and R-039 and R-040 name the P4 results (T16, T23).
+- The P4 phase file: the `PERF-007` profile and its result, and the requalification record of `PERF-004`. The W29 R0 P6 phase file: the result `PERF-004-R2` beside `PERF-004-R1`.
+- `evidence/p4/`: the three measurement harnesses, their results, and the script that prepares the access proof of T10. The third harness is the comparison in one session that the review asked for.
+
+### The Git Facts By Platform (T1 To T4, A39)
+
+Each row is one test or more in `packages/cli/tests/w35-r0-p4-git-hook-facts.test.ts`. Each test writes one log line that starts with `W35-R0-P4-GIT-FACT` and holds the platform, the git version, and what it saw. The evidence commit takes the Linux and Windows cells from those lines in the workflow run.
+
+| Fact | macOS, git 2.47.1 | Linux | Windows |
+| --- | --- | --- | --- |
+| `git pull` with a true merge runs `post-merge`, with the one argument `0` | proven | waits for the platform run | waits for the platform run |
+| `git pull` that only moves the branch forward runs `post-merge` | proven | waits for the platform run | waits for the platform run |
+| `git pull --rebase` with no local commits runs `post-merge`, and no `post-rewrite` | proven | waits for the platform run | waits for the platform run |
+| `git pull --rebase` with local commits runs `post-checkout`, `post-commit`, and `post-rewrite`, and not `post-merge` | proven | waits for the platform run | waits for the platform run |
+| In that pull, `post-rewrite` runs one time, with the argument `rebase`, as the last hook | proven | waits for the platform run | waits for the platform run |
+| A plain commit runs `post-commit` only | proven | waits for the platform run | waits for the platform run |
+| An amended commit runs `post-commit` and `post-rewrite` (argument `amend`) | proven | waits for the platform run | waits for the platform run |
+| The rebase folder of git is still there when `post-rewrite` runs | proven (`rebase-merge`) | waits for the platform run | waits for the platform run |
+| `MERGE_HEAD` is still there when `post-merge` runs after a true merge | proven | waits for the platform run | waits for the platform run |
+| A branch change runs `post-checkout` with the third argument `1` | proven | waits for the platform run | waits for the platform run |
+| A file checkout runs `post-checkout` with the third argument `0` | proven | waits for the platform run | waits for the platform run |
+| `git worktree add` runs `post-checkout` in the new work tree, with the third argument `1` | proven | waits for the platform run | waits for the platform run |
+| A clone runs `post-checkout` when the clone has the hook. The first argument is the null commit | proven, with a hook from a template folder | waits for the platform run | waits for the platform run |
+| Git does not copy hooks on clone: a plain clone has no hook and runs none | proven | waits for the platform run | waits for the platform run |
+| `git rev-parse --git-path hooks` in a linked work tree returns the hooks folder of the main checkout | proven | waits for the platform run | waits for the platform run |
+| One hook file runs for a commit in each work tree of the clone, in the top folder of that work tree | proven | waits for the platform run | waits for the platform run |
+| `git reset --hard` to another commit runs none of the four hooks | proven | waits for the platform run | waits for the platform run |
+| `git am` runs none of the four hooks | proven, with two patches | waits for the platform run | waits for the platform run |
+| Git does not run a hook file that is not executable | proven | waits for the platform run | the test expects that git runs the file there, because Windows has no executable mode. Not seen yet |
+
+The design checked these facts with git 2.47.1, and the maintainer machine has the same version. So the macOS column proves no fact on a newer git. The platform run does that.
+
+### How Setup Detects Another Owner Of The Hooks (T5, A40)
+
+This phase builds no setup code. The tests prove the git output that the rule reads, and they hold the rule as test functions. P5 builds it in the product. The rule has four checks, in this order. Setup refuses the git hooks, with one reason and no change, at the first check that holds.
+
+1. A hooks path is set. `git config --show-scope --get-all core.hooksPath` gives one line for each scope that sets the value, with the scope name first: `local` for the repository, `global` for the whole machine, and `system` or `worktree` for those scopes. Exit code 1 means that no scope sets it. As a second check, `git rev-parse --git-path hooks` then differs from the `hooks` folder under `git rev-parse --git-common-dir`. The reason names the scope, so a person knows where the setting lives. Proven: no setting gives no line and the default folder; a repository setting shows as `local`, and git then does not run a hook file in the hooks folder of the clone; a machine setting shows as `global`; a relative value resolves from the top folder of the work tree.
+2. The hook file is a symbolic link. A link points to a file that another tool owns, and a block that Make Docs wrote through the link would change that file. Proven on macOS: git runs the linked file. The test does not run on Windows.
+3. The hook file is not a shell script. A hook file is a shell script when it holds no null byte and its first line starts with `#!` and names `sh`, `bash`, `dash`, `ksh`, or `zsh`, directly or through `env`. Every other file is not one: a file with another program on its first line, a file with no first line of that kind, a binary file, and an empty file. Proven with nine sample files.
+4. Nothing else. A hook file that is a shell script, with lines of another tool, is not refused. Make Docs adds its marked block and keeps every other byte, as the design says.
+
+Limits of the rule, for the hook review that setup shows:
+
+- The rule does not know a hook manager by name. A hook manager that sets a hooks path stops at check 1. One that links its hook files stops at check 2. One that writes a plain shell script into the hooks folder of the clone is not seen as an owner, and Make Docs then adds its block to that file. When that tool writes its file again, the block can go, and setup then reports the block as missing.
+- A shell script of another tool can end with `exec` or `exit`. A block after that line never runs. So P5 must choose where the block goes. This phase did not prove a place.
+- On a platform with file modes, git does not run a hook file that is not executable. So P5 must set the executable mode when it creates a hook file, and it must name an existing hook file that is not executable.
+
+### The Shell That Runs A Hook (T6, A40)
+
+The test writes a hook file with a line of another tool and a small marked block. The block records the shell, the kernel name, where `sh` and `git` are, the folder, and the PATH. Then a commit runs the hook.
+
+| Question | macOS, git 2.47.1 | Linux | Windows |
+| --- | --- | --- | --- |
+| Which shell runs a hook file with the first line `#!/bin/sh` | `/bin/sh`, which is bash in its `sh` form there | waits for the platform run | waits for the platform run |
+| The block runs in it and the hook exits 0 | proven | waits for the platform run | waits for the platform run |
+| The kernel name that the hook sees | `Darwin` | waits for the platform run | waits for the platform run |
+| The folder in which the hook runs | the top folder of the work tree | waits for the platform run | waits for the platform run |
+| The PATH that the hook sees | the PATH of the git process, with the program folder of git (`git-core`) added in front. So a hook always finds `git` | waits for the platform run | waits for the platform run |
+
+On Windows the phase expects that git runs a hook through the shell that it ships, and not through the Windows command shell. That is not proven yet. The test proves it there in one way only: the block is POSIX shell text, and the test passes only when a shell ran it and `uname`, `command -v sh`, and `command -v git` gave answers. The log line of the Windows run then names the shell and the kernel name. If the test fails on Windows, the failure returns to this phase as a correction.
+
+### Git In The Middle Of An Action (T7, A40)
+
+The rule that a hook after a commit or after a branch change uses: git is in the middle of an action when one of these exists in the git folder of the work tree (`git rev-parse --absolute-git-dir`): the folder `rebase-merge` or `rebase-apply`, or the file `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, or `BISECT_LOG`. A linked work tree has its own git folder, so the rule reads the state of that work tree only.
+
+| Fact | macOS, git 2.47.1 | Linux | Windows |
+| --- | --- | --- | --- |
+| During `git pull --rebase` with local commits, each `post-checkout` and `post-commit` run sees `rebase-merge` | proven. The `post-commit` run also sees `CHERRY_PICK_HEAD` | waits for the platform run | waits for the platform run |
+| A merge that stops for a conflict shows `MERGE_HEAD`. A file checkout in it runs `post-checkout` with the third argument `0`, and the hook sees the merge | proven | waits for the platform run | waits for the platform run |
+| The commit that ends such a merge runs `post-commit` and not `post-merge`. The hook then sees no state mark | proven. The test asserts the empty state | waits for the platform run | waits for the platform run |
+| A cherry-pick of one commit runs `post-commit` one time, and that run sees `CHERRY_PICK_HEAD` | proven | waits for the platform run | waits for the platform run |
+| A cherry-pick of two commits runs `post-commit` for each one, and each run, also the last one, sees `CHERRY_PICK_HEAD` and the `sequencer` folder | proven | waits for the platform run | waits for the platform run |
+| A cherry-pick that stops for a conflict runs no hook. `git cherry-pick --continue` then runs `post-commit`, and that run sees no state mark | proven | waits for the platform run | waits for the platform run |
+| In a cherry-pick of two commits that stops at the first one, the commit that ends the stop sees only the `sequencer` folder, and the next commit sees `CHERRY_PICK_HEAD` | proven | waits for the platform run | waits for the platform run |
+| A revert of one commit runs `post-commit` with no state mark | proven | waits for the platform run | waits for the platform run |
+| A revert of two commits runs `post-commit` for each one, and each run sees only the `sequencer` folder | proven | waits for the platform run | waits for the platform run |
+| A revert that stops for a conflict shows `REVERT_HEAD` and runs no `post-commit`. A file checkout in it runs `post-checkout` with the third argument `0`, and that run sees `REVERT_HEAD`. `git revert --continue` then runs `post-commit` with no state mark | proven | waits for the platform run | waits for the platform run |
+| `git revert --no-commit` leaves `REVERT_HEAD`. A branch change then removes it before `post-checkout` runs, so that run sees no state mark | proven | waits for the platform run | waits for the platform run |
+| `git am` of two patches runs none of the four hooks | proven | waits for the platform run | waits for the platform run |
+| Each `post-checkout` run of a bisect sees `BISECT_LOG` | proven | waits for the platform run | waits for the platform run |
+| The hook after a merge runs the checkpoint while `MERGE_HEAD` is still there, and the store has the pulled work file | proven, with the built CLI in the hook | waits for the platform run | waits for the platform run |
+| The hook after a rewrite runs the checkpoint while the rebase folder is still there, and the store has the pulled work file | proven, with the built CLI in the hook | waits for the platform run | waits for the platform run |
+
+Four things follow for P5. The independent review of 2026-11-27 corrected the second and the third one, and added the fourth. Each fact below has a test.
+
+- The commit that ends a merge with a conflict runs only `post-commit`, and no state mark is left then. So the hook after a commit runs the checkpoint there, and the pulled work files reach the store. Git runs no `post-merge` for such a merge, so this is the only hook for it.
+- A cherry-pick. Each `post-commit` run of a cherry-pick with no conflict sees `CHERRY_PICK_HEAD`. That holds for a cherry-pick of one commit, for each commit of a cherry-pick of more than one, and also for the last run. So the rule stops every one of those runs. Git runs no `post-merge` and no `post-rewrite` for a cherry-pick, so no other hook runs at its end. The consequence for the owner: with this rule, a cherry-pick with no conflict never syncs through the hook after a commit. The reminder line of the next Make Docs command and the next commit cover it. The hook review names it. One exception exists. When a cherry-pick stops for a conflict, git removes `CHERRY_PICK_HEAD` before it runs `post-commit` for the commit that ends the stop. So the rule does not stop that one run, and the hook runs the checkpoint there. In a cherry-pick of two commits that stops at the first one, that run sees only the `sequencer` folder, which the rule does not read, and the run for the second commit sees `CHERRY_PICK_HEAD` again and stops.
+- A revert. `REVERT_HEAD` in the rule does nothing for a revert. Git writes `REVERT_HEAD` only while a revert is stopped before its commit: after a conflict, or with `--no-commit`. No `post-commit` runs at that time. Git removes the file before it runs `post-commit`, and before it runs `post-checkout` for a branch change. In these tests only one hook run saw `REVERT_HEAD`: a file checkout during a stopped revert, and the hook after a checkout does nothing for a file checkout in any case. What a hook does for each form of a revert, with the rule as it is:
+  - A revert of one commit: `post-commit` runs with no state mark, and the hook runs the checkpoint.
+  - A revert of two commits: `post-commit` runs after each commit and sees only the `sequencer` folder. The rule does not read that folder. So the hook runs the checkpoint after each commit, also after the first one, in the middle of the sequence.
+  - A revert that stops for a conflict: no hook runs at the stop. `git revert --continue` then runs `post-commit` with no state mark, and the hook runs the checkpoint.
+  - A revert with `--no-commit`: no hook runs until the person commits. That commit runs `post-commit` with no state mark, and the hook runs the checkpoint.
+- So a revert syncs through the hook after a commit, and a cherry-pick with no conflict does not. The rule does not treat the two in the same way. The design names a rebase, a merge, a cherry-pick, and a bisect, and it names no revert. P5 T34 holds the question for the owner: keep `REVERT_HEAD` in the rule or take it out, and read the `sequencer` folder or not.
+- `git am` runs none of the four hooks. A test applies two patches, two commits appear, and no hook of the four runs. So no trigger reaches the checkpoint, and the reminder line and the next commit cover it. Git has its own hook after each applied patch (`post-applypatch`). It is not one of the four hooks. One run by hand saw it run, and no test of this phase covers it.
+
+Two more runs were made by hand, with no test: a plain `git commit` in place of `git cherry-pick --continue`, and in place of `git revert --continue`, gave the same result as the `--continue` form.
+
+### How A Hook Finds The Command (T9, A41)
+
+The tests write a hook with a proof form of the block and run a commit with the PATH that each case names. The "short PATH" is the system folders only (`/usr/bin:/bin`, and on Windows the two system folders), as an app can pass it to git.
+
+| Case | macOS, git 2.47.1 | Linux | Windows |
+| --- | --- | --- | --- |
+| A PATH lookup alone, with the command folder on PATH: the hook finds the command, and the store has the edit after the commit | proven | waits for the platform run | waits for the platform run |
+| A PATH lookup alone, with a short PATH: the hook finds no command, does nothing, prints nothing, and exits 0 | proven | waits for the platform run | waits for the platform run |
+| A PATH lookup and then a recorded path, with a short PATH: the hook finds the command file at the recorded path, and the store has the edit | proven, with a command file that names `node` by its full path | waits for the platform run | waits for the platform run |
+| No command on PATH and none at the recorded path: the hook does nothing, prints nothing, and exits 0 | proven | waits for the platform run | waits for the platform run |
+| A recorded command file that starts `node` by name, with a short PATH: found, not started, no output, exit 0. With the folder of `node` added to the end of PATH for the call: the store has the edit | proven | waits for the platform run. The test is skipped, and the run shows it as skipped, when the system folders hold a `node` program | waits for the platform run. The block changes the folder to the form of the hook shell with `cygpath` when that tool is there. Not seen yet |
+| The command file that a real global install writes (`npm install -g` of this package from its folder, into a temporary prefix, with no network) is found on PATH and runs in the hook shell | proven. The install writes a link to the package folder | waits for the platform run | waits for the platform run. When the install does not work there, the test writes a log line with `made: false`, and the run shows the test as skipped. The evidence commit then records "no proof gathered" |
+| A hook runs in the top folder of the work tree, also for a commit from a subfolder | proven | waits for the platform run | waits for the platform run. The hook shell there prints its folder in its own form, such as `/d/a/...`. So the proof hook prints the folder with `pwd -W` when the shell knows that input, and with `pwd` when not. Windows has not run this yet |
+| From a subfolder with no project root, a direct run says that the folder is not a Make Docs project and exits 0, and a trigger run prints nothing | proven | waits for the platform run | waits for the platform run |
+
+The choice: a PATH lookup, and then a path that setup recorded in the block. A PATH lookup alone fails for a commit from an app that passes a short PATH, with no line to the person. The recorded path is not new in kind: setup already records the full path of the verified command for the agent tools.
+
+The folder: a hook passes `--target-root` with the top folder of the work tree (`git rev-parse --show-toplevel`). Git already runs a hook in that folder, and the explicit root keeps the call correct when a tool starts the hook from another folder.
+
+Three findings for P5:
+
+- The supported install method that the README names is `npx`. A run through `npx` leaves no `make-docs` command on PATH. So for such a person the PATH lookup finds nothing, and only the recorded path can work. Setup then needs a stable command file to record. This phase did not prove what `npx` leaves on each platform.
+- A recorded command file can need `node` from PATH ([register entry R-044](../../prd/03-open-questions-and-risk-register.md)). The proof adds the folder of `node` to the end of PATH for the call.
+- The proof block sends the error output of the checkpoint call to nowhere, so that a command file that cannot start prints nothing. The line that the checkpoint prints for a person goes to standard output and still shows.
+
+### The Access Runs In Each Agent Tool (T10, A42)
+
+Waits for the orchestrator. Standing rule 11 gives these runs to the orchestrator, who starts a session in each agent tool. This builder ran no agent tool session and records no answer.
+
+The script [t10-prepare.sh](evidence/p4/access/t10-prepare.sh) prepares one run. It was tried one time from a plain shell on the maintainer machine, and it ended with the project, the Store, the first sync, and the hook in place. That trial is not an access run.
+
+Steps for each agent tool:
+
+1. In a plain shell, run `sh docs/work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence/p4/access/t10-prepare.sh <new work folder> <full path of the make-docs command> [setup method inputs]`. Use a new work folder for each tool. The script makes a temporary project with two work files, a temporary Store inside the work folder, the first sync, and a `post-commit` test hook that runs `make-docs project checkpoint --event commit --json`. With no method inputs, setup connects no agent tool. To prove the access rule that setup gives a tool, pass the setup method input of that tool. That input can change the configuration of that tool on the machine, so the orchestrator decides it.
+2. Open the project folder in the agent tool. Ask the agent to change "Build the parser." to "Build the new parser." in `docs/work/2042-06-01-w1-r0-aurora/01-first.md`, and then to run `git add -A && git commit -m "Change a work file"`. The agent must make the commit itself.
+3. In a plain shell, read `hook-exit.txt`, `hook-answer.json`, and `hook-errors.txt` in the work folder.
+4. Read the answer: "write" when `syncRan` is true and `imported` names the work file; "read only" when `syncRan` is false and `syncSkipped` is `read-access-only`; "nothing" when `authority` is not `store`, when the answer file is empty, or when no `hook-exit.txt` exists, which means that the tool did not start the hook.
+5. Remove the work folder.
+
+The table to fill:
+
+| Agent tool | Who started the session | Setup method of the tool | The hook ran | What the checkpoint could do | Exit code |
+| --- | --- | --- | --- | --- | --- |
+| Codex | no proof gathered | | | | |
+| Claude Code | no proof gathered | | | | |
+| GitHub Copilot CLI | no proof gathered | | | | |
+
+### The Store Record For The Hook Block (T11, A43)
+
+Answer: an existing record fits, with no Store schema change. Owner gate OG-3 does not open on this result. This is the builder's finding and not an owner decision. The independent review agreed with the reading below on 2026-11-27.
+
+The record: one row of the table `tool_operations`, which holds machine records with no checkout. Setup already keeps the receipt of each agent tool connection of the machine there, as rows with the operation names `setup.system.receipt` and `setup.system.receipt-current` (`packages/cli/src/store/harness-integration-receipts.ts`). Those receipts record entries in files outside any project, with their drift state. PRD 38 R-HARNESS-STATE-6 states the same rule for them: use the current schema when the records fit existing installation and operation data.
+
+The proof, in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts`, with a temporary Store:
+
+- The key. Each work tree of a clone gives the same shared git folder (`git rev-parse --git-common-dir`), and another clone gives another one. So a key from that folder names the clone.
+- One record for the clone. A row written through the main checkout is read through the linked work tree, with the same statement form as the receipts use. A second write from the linked work tree changes that row, and one row stays.
+- Drift. The record holds the digest of the block of each hook file. The digest of the block in the file equals it, and differs after an edit of the block.
+- Exact removal. The block is cut from the file only when its digest equals the record, and each other byte of the file stays.
+- The rule for other bound checkouts. The record holds the checkout IDs that selected the hooks. Removal in one work tree takes its ID out and keeps the block and the row while another ID remains. Removal in the last one takes out the block and the row.
+- No schema change. The schema version of the Store is the same before and after.
+- Store care. With the row in place, the Store check reports no leftover, and no cleanup rule selects the row.
+
+Limits of this answer:
+
+- The table catalog of the Store and the PRD 38 register row for `tool_operations` name the writers of that table today: the tool operation journal and machine setup. A hook record is a new kind of row there. So P5 must add the row kind to the catalog and to PRD 38, as its planned requirement R-HOOK-STATE. That is a change of PRD text and of the catalog in code. It is not a change of a table, a column, or a check of the database.
+- The row is a machine record. It does not go when a project is removed from the Store, so P5 must remove it in `setup remove` and name it in Store care.
+- The record form in the test (the operation name `setup.git-hooks.receipt-current`, the key, and the fields) is a proof form. P5 sets the real names.
+- Two gaps of the record form, which the independent review named. First: when a person deletes the folder of a checkout and does not run `setup remove` there, its checkout ID stays in the list of the record, and the block then never goes, because another ID remains. Second: the key is a digest of the path of the shared git folder. When the clone moves, the key changes, the old row stays in the Store, and the block in the moved clone has no record. No test of this phase covers either one. P5 T32 and T33 hold them.
+- The other existing record, `installation_ledgers.manifest_json`, does not fit. It belongs to one checkout and holds paths inside that checkout, and the hooks folder is outside a linked work tree. It is the form in which each checkout owns the block, which the design refused.
+
+If the reviewer or the owner reads a new row kind in `tool_operations` as a Store schema change, OG-3 opens with the two options that the plan states: A, approve a Store schema change; B, record the block for each checkout, a form that the design refused. The plan recommends A.
+
+### Two Work Trees And A Direct Checkpoint (T12, A44)
+
+Four tests in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts`, with the built CLI, a main checkout on `main`, and a linked work tree on `topic`. No hook is installed.
+
+| Step | What the run reports | What the store holds |
+| --- | --- | --- |
+| The plain binding step for the linked work tree | It refuses: the project ID has a Store checkout at another path | No change |
+| A checkpoint in the linked work tree before it is bound | It syncs nothing and exits 0. A trigger run prints nothing | No change |
+| The linked work tree binds as a separate checkout (the step of `make-docs project checkout apply`) | Bound, with its own checkout ID | A second checkout of the project |
+| Case 1: the branch already differs. A direct checkpoint in `main`, then in `topic` | `main`: first sync, 2 files imported. `topic`: first sync, 1 conflict for the file that differs, and that file is not imported | The text of `main`. The file of `topic` keeps its text. A later run in `main` says that nothing is due |
+| Case 2: both first syncs with the same files, then an edit and a commit in `topic`, then a direct checkpoint there | `topic`: 1 file imported | The text of `topic`. The one project store follows the work tree that ran the checkpoint last |
+| Then a read-only check in `main` (`--event branch-change`) | 1 file waits for a write. No file changes | No change |
+| Then a trigger run in `main` (`--event commit`) | 1 file waits for a write. No file changes | No change |
+| Then a direct run in `main` | It wrote the file, and the result names it. `git status` shows that file as changed | No change |
+| Case 3: as case 2, but `main` also changed its file | 1 conflict. No file changes | The text of `topic`, and one recorded conflict for the checkout of `main` |
+
+Each result names its checkout. Each difference shows as a file that waits for a write or as a conflict. Nothing is overwritten with no report. One point is for the owner to know: in case 2 a direct run in `main` changes the work file of `main` to the text of the `topic` branch. The result names the file, and `git status` shows it. That is the existing sync table, and [register entry R-039](../../prd/03-open-questions-and-risk-register.md) holds the risk.
+
+### The Fix For Two Syncs At The Same Time (T18 To T23, A47a To A47f)
+
+The change (T18). In `syncWorkFiles` in `packages/cli/src/operations/work/work-store/sync.ts`, the call `scanWorkFiles(root)` moved from the line before `writeWorkStore(...)` into the function that `writeWorkStore` runs after it holds the Store. The diff is 3 added lines and 2 removed lines: the scan call moved, and one comment names the reason. `writeWorkStore` starts its session with `BEGIN IMMEDIATE`, so a second sync waits there, and it now scans only after the first sync ended its session. No other rule of sync changed. `previewWorkSync`, the read-only sync check, did not change: it still scans and then opens a read session.
+
+The tests (T19 to T21), in `packages/cli/tests/w35-r0-p4-sync-race.test.ts`, with the built CLI and a temporary Store:
+
+- How a test makes the two runs overlap. The product code has no test seam. A helper process opens the Store database and takes its write lock. The test then starts two `make-docs project checkpoint --json` runs. Each run does all that it does before its Store write session, and then waits for the lock. After 2.5 seconds the helper lets go. The test proves the overlap in each run: each of the two runs started while the helper held the Store, and each one ended after the helper let go. A run waits at most 5 seconds for the Store, so the 2.5 seconds are inside that limit.
+- `cancelled` (T19, A47b). The test closes the task with `make-docs work close "W1 R0 P1 T1" --expected-version <n> --outcome cancelled`, and then holds two runs at the Store. After them the store shows the task as closed with the outcome `cancelled`. No run lists the task as ready work. One run wrote the file, no run imported it, and one run says that nothing is due. A later run says that nothing is due, and the outcome is still `cancelled`.
+- `superseded` (T20, A47c). The same test with the outcome `superseded`, with the same result.
+- A progress note and a met gate (T21, A47d), one test each. The first test records a note on the task with `make-docs work report "W1 R0 P1 T1" --note <text>`. The second test records a met gate on the stage with `make-docs work report "W1 R0 P1 S1" --met-gate <text>`. Each test then closes the task with the outcome `cancelled`, so that the next sync writes the file, and holds two runs at the Store. The note, and the met gate, are the same after the two runs and after a later run. At first this was one test for both. The review of 2026-11-27 asked for one test each, as T21 says.
+- The read-only check (A47a). While a helper holds the Store write lock, `previewWorkSync` returns its result in less than 4 seconds and names the file that waits for import, and no store unit changes. A check that took a write session would wait for the lock.
+
+Before the fix and after the fix:
+
+| Test | On the code before T18 | On the code after T18 |
+| --- | --- | --- |
+| Two runs after a close with the outcome `cancelled` | Fails. The store shows the task as `open` with no outcome | Passes |
+| Two runs after a close with the outcome `superseded` | Fails. The store shows the task as `open` with no outcome | Passes |
+| A progress note in the same race, and a met gate in the same race | The one test that held both failed at the close outcome: `open` with no outcome. The checks of the note and of the met gate before that line passed, so both stayed. The two split tests were also run on the code before T18, in the temporary copy of the old build: see "P4 Checks" | Both pass |
+| The read-only check takes no write session | Passes | Passes |
+
+The run on the code before T18: `npx vitest run tests/w35-r0-p4-sync-race.test.ts`, with the test file as it was then, gave "3 failed | 2 passed (5)". The fifth test of that run was a weak test of the public result that this builder then removed, because it passed on both codes and proved nothing about the order. The run on the code after T18: "4 passed (4)". Then 20 runs in a row of the test file: 20 of 20 passed, 4 tests each. After the split of the T21 test the file holds 5 tests, and "P4 Checks" holds the new runs.
+
+What the store holds, for notes and met gates (T21): before T18 and after T18, the note and the met gate stay. The older import changes the status and the outcome of the task, and it does not touch a note or a gate. So the fix leaves no loss for them, and A47d needs no new register entry for a loss.
+
+What happens now to the second of two runs: it waits for the Store, then it scans the work files. It finds the file that the first run wrote, with the same digest that the first run recorded. So it imports nothing, writes nothing, and says that nothing is due.
+
+Limits of the proof:
+
+- The tests force the overlap with the Store write lock. They do not make a race by chance, so they pass and fail for the same reason in each run.
+- The tests prove two runs of one checkout. Two checkouts of one project that sync at the same time each scan their own files, and the sync table handles what differs.
+- A run that waits more than 5 seconds for the Store ends with the typed Store contention result, as before. The fix can make the wait of a second run longer, because the first run now scans inside its session. `PERF-004-R2` gives the wait for this repository: about 305 ms.
+- The race tests run on Linux in the full suite of the workflow, and on macOS here. The builder left them out of the two fixed lists, by its reading of T8 and T9. The orchestrator added the race test file to both lists on 2026-11-27, so the platform job also runs them on macOS and Windows. Windows has not run them yet.
+- The projection and the hold list are still read before the Store session (`sync.ts`, in `syncWorkFiles`, the lines before `writeWorkStore`). So a run that waits for the Store uses the config as it was before the wait. No data is lost: the next run reads the config again.
+- The order of two errors changed with the fix. A scan error of the work files now comes after a Store busy error and after "project not identified", because the scan runs inside the session.
+- While a sync scans, it now holds the Store. So each other writer on the machine, in any project, waits a little longer than before. The side measure gives about 305 ms for this repository.
+
+The twin review (T18, A47f). The agent form of the work rules is `make-docs://system/reference/work-store.md`. It was reviewed for this change, and it needs no change. The change is about the order of a file read and a Store session inside one CLI process. An agent that follows the agent form by hand has no CLI and no Store, so it has no Store session and no second sync. No rule ID of the catalog `make-docs.work-store-rules.v1` describes that order, and none changed. The template copy and the installed copy of the reference did not change.
+
+PRD 52 (T23, A47f). R-WORK-SYNC-1 now says that sync reads the work files inside its Store write session, and that the read-only sync check takes no write session. The PRD has a `W35 R0 P4` Requirement History entry. `make-docs check prd` passes.
+
+The register (T23, A47f). R-041 is `Closed`, with a link to this section. The builder closed it because the fix landed in the work tree and the tests of T19 to T21 pass. The independent review of P4 checks that before the phase commit.
+
+The sync time (T22, A47e). `PERF-004-R2` is recorded beside `PERF-004-R1` in the [result record](../2026-11-21-w29-r0-work-store/06-package-parity-and-acceptance.md#result-record-of-the-requalification) of the profile, and its budget record is in the [P4 phase file](04-git-hook-proofs.md#requalification-of-perf-004-after-the-sync-core-fix). In milliseconds, the median of 15 samples, and 3 for the first import:
+
+| Command | `PERF-004-R2` | `PERF-004-R1` |
+| --- | --- | --- |
+| `make-docs --version` (the floor) | 100 | 84 |
+| First import | 1,883 | 1,380 |
+| `work sync` with no change | 444 | 386 |
+| `work next` | 383 | 330 |
+| `work status` | 399 | 351 |
+
+Each command is slower than in `PERF-004-R1`, also the floor and the two commands that do not run the changed code. `work sync` with no change is slower by 15 percent, and `work next` and `work status` by 14 to 16 percent. `PERF-004-R2` alone cannot say whether the fix adds time. It holds no run of the build before the fix in the same session, and it cannot give the cost of the fix as one number. The first import is slower by 36 percent, and this result does not say why: the build, the count of work files (471 and not 463), and the day differ. A second sync that starts at the same time as a first one waits about 305 ms for the Store (764 ms and not 459 ms). All numbers are for [`PERF-004`](../2026-11-21-w29-r0-work-store/06-package-parity-and-acceptance.md#perf-004-automatic-sync-on-a-project-with-many-backlogs) on this repository and this machine.
+
+The comparison in one session. The independent review of 2026-11-27 asked for it, because the first text here said that `PERF-004-R2` shows no added time, and that record cannot support those words. It is a side measure. It is outside the `PERF-004` profile, it is not a result of that profile, and it used no counted run. The [harness](evidence/p4/performance/perf-004-r2-compare-harness.mjs) and the [results](evidence/p4/performance/perf-004-r2-compare-results.json) are kept.
+
+- The two builds: the build with the fix, and the build with `sync.ts` as it is in commit `d12d1047`. Each was built in its own temporary copy of the source outside this checkout, with the same build step, and the two copies differ in that one file. `sync.ts` in this checkout did not change.
+- The fixture: one fresh clone of this repository at `d12d1047`, with every work file that the commit holds: 471 work files. Both builds used that one clone and one temporary Store.
+- The runs: `work sync --json` with no change and `make-docs project checkpoint --json` with no change. 25 samples of each command for each build. For each sample both builds ran one after the other, and the build that ran first changed with each sample. One run of each command with each build came first and was not counted. Each run was checked: it imported, wrote, and removed nothing. No work file changed during the runs.
+- The measure: one CLI process from spawn to exit, in milliseconds. The median, then the minimum to the maximum.
+
+| Command, with no change | With the fix | Before the fix | Median with the fix minus median before |
+| --- | --- | --- | --- |
+| `work sync` | 431.8 (411.9 to 505.9) | 432.6 (414.2 to 497.2) | -0.8 |
+| `make-docs project checkpoint` | 498.9 (483.5 to 592.6) | 503.0 (481.8 to 551.9) | -4.1 |
+
+The median of the 25 pair differences is +1.1 ms for `work sync` and -1.8 ms for the checkpoint. The build with the fix was the slower one in 14 of 25 pairs for `work sync` and in 9 of 25 pairs for the checkpoint.
+
+What the numbers support: on this repository, with 471 work files, the comparison found no difference between the two builds that is larger than the spread of the samples. The medians differ by less than 5 ms, and the samples of one build spread over 70 ms to 110 ms. The numbers do not prove that the fix costs nothing. They show that a cost, if there is one, is too small for this measure to see.
+
+Limits of the comparison:
+
+- One session, one machine, macOS only, a warm file cache, and 471 work files. A larger project or another machine can differ.
+- The builds are bundles from temporary source copies. They are not the packed candidate that `PERF-004-R2` and `PERF-007` measured.
+- One process ran at a time. So the comparison does not show the time that one sync waits for another one. The other side measure shows that time: about 305 ms.
+- The 25 samples of a build are not independent runs on fresh clones. They are repeats on one clone.
+- The reviewer ran a comparison too, on 130 work files and not the full set: `work sync` 197.5 ms with the fix and 199.1 ms before it, and the checkpoint 225.8 ms and 227.0 ms. That run is a cross-check only. It agrees with this one.
+
+### Run Of PERF-007 And The Run Mode (T13 To T15, A45)
+
+The [`PERF-007` profile](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs) was written in the phase file before the counted runs, and it ran after the fix of Stage 5. Result `PERF-007-R1`, outcome `pass`. The phase file holds the full result record. All numbers below are from [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs): one git action, in milliseconds, the median of 15 samples, on clones of this repository with 471 work files, on the maintainer machine, on macOS only.
+
+| Action | No hook | Foreground hook adds | Start and return hook adds | Then the checkpoint ends after |
+| --- | --- | --- | --- | --- |
+| `git commit`, no change | 32 | 538 | 27 | 524 |
+| `git commit`, one changed work file | 34 | 631 | 27 | 612 |
+| `git merge` (a true merge), no change | 59 | 533 | 17 | 523 |
+| `git merge` (a true merge), one changed work file | 60 | 628 | 16 | 606 |
+| `git commit --amend` (two hooks), no change | 33 | 1,086 | 45 | 815 |
+| `git commit --amend` (two hooks), one changed work file | 35 | 1,159 | 44 | 910 |
+| `git checkout <branch>`, no change | 22 | 411 | 27 | 393 |
+| `git checkout <branch>`, one changed work file | 22 | 417 | 27 | 400 |
+| A commit whose hook run is the first sync of the checkout (3 samples) | not measured | the commit takes 2,210 in all | the commit takes 139 in all | 1,944 |
+
+In each sample of each mode, git exited 0, the work tree was clean after the action, and no project file changed.
+
+What a person sees in each mode (T15):
+
+- Foreground, nothing due: nothing prints. The git action takes about half a second longer, and an amended commit about one second longer.
+- Foreground, a work file changed: the output of the checkpoint appears after the output of git and before the prompt returns. After a commit, a merge, or a rewrite, its first line is `Checkpoint: 1 file imported.`. After a branch change, its first line is `Checkpoint: 1 file waits.`, with the command to run. So the line about waiting files appears at the moment of the git action, in the same terminal.
+- Start and return, in each state: nothing prints. The hook must send the output of the checkpoint to nowhere, because the checkpoint ends 0.4 seconds to 0.9 seconds after the prompt is back, and output at that time would land in the middle of what the person types next. So the person never sees the line about waiting files from the hook. The reminder line of the next Make Docs command is then the only sign. An error in the checkpoint is also not seen.
+- Start and return, an amended commit: two checkpoints run at the same time. With the fix of Stage 5 the store and the work tree were right in each of the 30 samples.
+
+One finding for P5, outside the timed workload: a trigger run that imported a file or found a file that waits prints its full result, 9 or 10 lines, with the list of ready work and a claim command. The hook rule of the design allows the summary line and the command. So the block of P5 must cut the output, or the checkpoint must get a shorter trigger output. P5 T3 owns that rule.
+
+#### Owner Gate OG-4: The Run Mode Of A Git Hook
+
+For the owner. This text gives the two options of the plan and one recommendation. It records no decision. A46 waits for the owner's answer.
+
+The question: does a git hook run the checkpoint in the foreground, or does it start the checkpoint and return?
+
+Where the numbers come from. The added times are medians from `PERF-007-R1`: one machine, macOS only, clones of this repository with 471 work files. The worst case of option A is from two tests in `packages/cli/tests/w35-r0-p4-hook-checkpoint.test.ts`, on the same machine. A larger project, another machine, or another platform can differ.
+
+**Option A: a hook runs the checkpoint in the foreground.** Git waits until the checkpoint ends.
+
+| Git action | Added time, nothing due | Added time, one changed work file |
+| --- | --- | --- |
+| A commit | 538 ms | 631 ms |
+| A true merge | 533 ms | 628 ms |
+| An amended commit (two hooks run) | 1,086 ms | 1,159 ms |
+| A branch change | 411 ms | 417 ms |
+| The first commit in a checkout, one time | the commit takes 2,210 ms in all | not measured |
+
+- What the person sees: nothing when nothing is due. When a work file was imported or waits, the output of the checkpoint appears after the output of git and before the prompt returns. Its first line is `Checkpoint: 1 file imported.` after a commit, a merge, or a rewrite, and `Checkpoint: 1 file waits.` with the command to run after a branch change. Today that output is 9 or 10 lines. The hook rule of the design allows the summary line and the command, and P5 makes that rule hold.
+- The worst case: another process holds the Store. The Store is one for the whole machine. So any Make Docs write on the machine, in this project or in another one, can hold it at the moment of the git action. The checkpoint then waits 5 seconds for the Store, which is the busy time of the Store (`STORE_BUSY_TIMEOUT_MS`, 5,000 ms), and then it stops. Measured with a helper process that held the Store: `make-docs project checkpoint --event commit` ended after 5.4 seconds with exit code 1. It printed nothing on standard output and one line on standard error. That line is the typed Store result as JSON, more than 1,000 characters long. A commit with the foreground proof hook took 5.5 seconds, exited 0, and printed nothing, because the proof block hides the error output and the exit code. So in this case a commit, a merge, or a rewrite takes about 5.5 seconds longer. The commit itself is done. The work file is not imported, and the next checkpoint imports it.
+- More about the worst case. A branch change does not wait: its check only reads, and it ended in about 0.1 seconds while the Store was held. An amended commit runs two hooks, so it can wait two times, about 11 seconds. That number is a calculation, and no run measured it. No run measured how often another write holds the Store for 5 seconds. In normal use a second sync waits about 305 ms for a first one.
+
+**Option B: a hook starts the checkpoint and returns.** Git does not wait.
+
+| Git action | Added time, nothing due | Added time, one changed work file | The checkpoint ends this long after git returned |
+| --- | --- | --- | --- |
+| A commit | 27 ms | 27 ms | 524 ms to 612 ms |
+| A true merge | 17 ms | 16 ms | 523 ms to 606 ms |
+| An amended commit (two hooks run) | 45 ms | 44 ms | 815 ms to 910 ms |
+| A branch change | 27 ms | 27 ms | 393 ms to 400 ms |
+| The first commit in a checkout, one time | the commit takes 139 ms in all | not measured | 1,944 ms |
+
+- What the person sees: nothing from the hook, in any state. The hook must send the output of the checkpoint to nowhere, because the checkpoint ends after the prompt is back, and output at that time would land in what the person types next. So the person never sees the line about waiting files at the git action. The reminder line of the next Make Docs command is then the only sign. An error of the checkpoint is not seen either.
+- The worst case: another process holds the Store. The git action is not longer. The started checkpoint waits 5 seconds in the background, stops, and imports nothing, and the person sees nothing. No run measured this case in this mode. It follows from the same checkpoint process as in option A.
+- More about the worst case. An amended commit starts two checkpoints at the same time. With the fix of Stage 5 the store and the work tree were right in each of the 30 samples. A started checkpoint can still run when the person starts the next git action or closes the terminal. No run tested a closed terminal.
+
+**Recommended: A.** This confirms the recommendation that the plan made before the measurement. The reason: the promise of this Wave is that the person sees one line that says what waits and which command settles it, at the git action. Only option A can show that line. The price is about half a second for each commit on a project with 471 work files, about 1.1 seconds for an amended commit, and about 5.5 seconds in the worst case, when another Make Docs write holds the Store at that moment. With option A the git action never fails in any measured case.
+
+**Possible refinements.** These are new ideas. The owner did not ask for them. They are not built, and no run measured them. Each one is a change to option A, and the owner can take one, both, or none.
+
+1. A foreground run with a short time limit on the wait for the Store. After the limit the hook gives up quietly, and the reminder line covers the file. This would cut the worst case of option A from about 5.5 seconds to the limit. It needs a new input or a new setting of the checkpoint, which is a product change.
+2. The hook after a rewrite skips the amend case, because the hook after a commit already ran for that commit. Git gives the hook after a rewrite the argument `amend` in that case. An amended commit would then add about 0.55 seconds and not about 1.1 seconds. That number is a calculation from the table.
+
+A note for P5, in each mode: standing rule 5 says that a git hook never fails or blocks a git action. The checkpoint exits 1 when the Store is held. So the hook block must swallow that exit code, and P5 must decide what the hook prints then. P5 T31 holds it.
+
+### What P5 Builds From This Phase (A47)
+
+One list for P5, from the findings above. Each point that no document stated is also in the next section.
+
+1. Install four hooks: after a commit, after a merge, after a rewrite, and after a branch change. The hook after a rewrite covers `git pull --rebase` with local commits and an amended commit.
+2. Refuse with the detection rule of T5: a hooks path in any scope, a hook file that is a symbolic link, and a hook file that is not a shell script.
+3. Set the executable mode on a hook file that setup creates, and name an existing hook file that is not executable.
+4. Choose where the block goes in an existing shell script, so that an `exec` or an `exit` of another tool before it does not skip it.
+5. Find the command by a PATH lookup, and then by the recorded path. Decide whether the block also records the folder of `node` (R-044). Hide the error output of a command that cannot start.
+6. Pass `--target-root` with the top folder of the work tree. When the Make Docs project is in a subfolder of the git repository, the top folder is not the project root, and the block needs the path from the top folder to the project. This phase did not prove that case.
+7. Use the rule for git in the middle of an action in the hooks after a commit and after a branch change: the six state marks of T7, in the git folder of the work tree. Do not use it in the hooks after a merge and after a rewrite. Know what the rule does: it stops every hook run of a cherry-pick with no conflict, and it stops no hook run of a revert. P5 T34 brings the choice of the marks to the owner.
+8. Cut the output of a trigger run to the summary line and the command (P5 T3).
+9. Record the block in the Store as the answer of T11 says, when the review accepts that answer. Add the row kind to the table catalog and to PRD 38, and remove the row in `setup remove`.
+10. Run the checkpoint in the mode that the owner chooses at OG-4.
+11. Make the block swallow a non-zero exit code of the checkpoint, and decide what the hook prints then. The checkpoint exits 1 when another process holds the Store (P5 T31).
+12. Each choice of this phase that no document stated is a proposal, and P5 holds each one as a task with a case: [P5 Stage 5](05-git-hooks-in-setup.md#stage-5---proposals-from-phase-4), T20 to T34.
+
+What the hook review that setup shows must name:
+
+- The hooks act only in a checkout that is bound to the Store. A new work tree of a clone is not bound until `make-docs project checkout apply` runs there (R-045).
+- These git actions do not reach the checkpoint through a hook, so the reminder line and the next commit cover them: `git reset --hard` and `git am`, which run none of the four hooks; a cherry-pick with no conflict, of one commit or more, where the rule for git in the middle of an action stops each hook run; and the open cases of R-043.
+- With a foreground hook, a git action can take about 5.5 seconds longer while another Make Docs write holds the Store.
+- With a hook manager that writes a plain shell script into the hooks folder of the clone, the block lives in that tool's file, and that tool can remove it.
+- A commit from an app that passes a short PATH works only through the recorded path (R-044).
+- Each platform gap that the platform run finds. None is known today, because only macOS ran. Owner gate OG-6 opens only if the run finds a gap that the hook review cannot cover.
+
+### P4 Known Limits
+
+- Every proof in this section ran on macOS only, with git 2.47.1. The Windows facts are the least sure: the hook shell, the PATH of a hook, the `cygpath` step, the executable mode, and the global install were written from what the phase expects, and no run has seen them.
+- The design checked the git facts with git 2.47.1, and the maintainer machine has that version too. No newer git ran.
+- T10 has no run. No tool has a proof of what a hook's checkpoint may do inside it.
+- The proof block of the tests is not the block of P5. P5 builds the real block, with its own tests.
+- The global install proof uses a link to the package folder, which is how `npm install -g <folder>` installs. An install from the registry writes a copy and the same kind of command file. That form was not run.
+- `PERF-004-R2` cannot give the cost of the fix as one number. See its result record. The comparison in one session found no difference larger than its spread, on one machine and 471 work files.
+- The projection and the hold list are read before the Store session, so a run that waits uses the older config, with no data loss. A scan error now comes after a Store busy error and after "project not identified". Other writers on the machine wait a little longer while a sync scans. The section about the fix holds each point.
+- A checkpoint that a hook runs for a commit waits 5 seconds and exits 1 while another process holds the Store. The tests pin that behavior as it is today. They do not say that it is wanted.
+- The proof hook prints its folder with `pwd -W` on Windows, and the helper puts each path into the hook text in safe single quotes. Windows has not run either one.
+- The temporary folder of the global install proof holds a link into this repository's package folder. The test removes that link by itself, with `unlink` and then `rmdir` for a link to a folder on Windows, before the recursive removal of the temporary folder. It then checks that the package folder still holds `package.json` and the built CLI. On macOS this ran and passed. Linux and Windows have not run it.
+- The race tests hold the Store for 2.5 seconds for each test, so the test file takes about 10 seconds.
+
+### P4 New Behavior That The Documents Did Not State
+
+The builder chose each point. No point is an owner decision. The owner has not reviewed this list.
+
+1. The detection rule of T5 has a check that no document names: a hook file that is a symbolic link is refused.
+2. The same rule says what "a shell script" is: no null byte, and a first line that starts with `#!` and names `sh`, `bash`, `dash`, `ksh`, or `zsh`, directly or through `env`. A file with no such first line is refused, also when it holds shell text.
+3. The rule does not try to know a hook manager by name. The design says that setup refuses "when another tool owns the hooks". The rule reads that as: a hooks path is set, or the hook file is a link.
+4. The rule for git in the middle of an action reads six state marks. The design names a rebase, a merge, a cherry-pick, and a bisect. `REVERT_HEAD` is added, and the tests show that it stops no hook run of a revert: git removes the file before it runs the hook after a commit. So this point adds a mark that does nothing today. The rule also stops every hook run of a cherry-pick with no conflict, which the design does not say. P5 T34 holds both for the owner.
+5. The recommended command lookup has a third part that no document names: the block adds the recorded folder of `node` to the end of PATH for the call (R-044).
+6. The proof block sends the error output of the checkpoint call to nowhere.
+7. The proof block passes `--target-root` with the top folder of the work tree. The phase file gives two ways, and this is the choice between them.
+8. The Store record of T11 is a proof form: a row of `tool_operations` with the operation name `setup.git-hooks.receipt-current`, a key from the shared git folder of the clone, the digest of each block, and the list of checkout IDs that selected the hooks. The reading that this needs no Store schema change is the builder's.
+9. The race tests force the overlap with a helper process that holds the Store write lock. The phase file allows a test seam in the product. The builder chose a way with no change to the product.
+10. `PERF-007` measures the rewrite as an amended commit, and the merge as a true merge with `--no-ff`. The phase file names "a rewrite" and "a merge" and no form.
+11. The measure of the second sync that waits is a side measure with its own small harness, outside the `PERF-004` profile, because that profile runs one process at a time.
+12. Three register entries are new: R-043, which T16 asks for, and R-044 and R-045, which are not platform gaps. The builder added them because each one is a gap that the hook review must name.
+13. The two git proof test files are in both workflow lists. The race test file is not, because T8 and T9 name the files of T1 to T7 and T9. The section about the fix holds the recommendation to add it.
+
+Each point that P5 can build is a task with a case in [P5 Stage 5](05-git-hooks-in-setup.md#stage-5---proposals-from-phase-4), as a proposal that the Phase 5 review shows to the owner.
+
+### P4 Review Corrections Of 2026-11-27
+
+The independent review of this phase found statements that the proofs did not support, and gaps in the tests. The builder of the correction checked each finding with a run before the change. Each finding was right. This list says what changed.
+
+| Finding | What changed |
+| --- | --- |
+| The text said that the rule stops a cherry-pick "of more than one commit" | Wrong. A cherry-pick of one commit also runs `post-commit` with `CHERRY_PICK_HEAD`. Three new tests, and the test of two commits now asserts each run, also the last one. The text is corrected in this report and in register entry R-043. One fact is new and was not in the review: the commit that ends a stop for a conflict sees no `CHERRY_PICK_HEAD` |
+| `REVERT_HEAD` had no test | It stops no hook run of a revert. Four new tests show each form of a revert. The text says exactly when git writes the file |
+| "`PERF-004-R2` shows no added time from the fix" | No support in that record. The words are corrected in three documents, and a comparison of the two builds in one session is added as a side measure |
+| The OG-4 text left out the worst case of the foreground mode | Two new tests pin the behavior with a held Store. The OG-4 text is new, with the times, what a person sees, and the worst case for each option |
+| A path comparison that would fail on Windows | The proof hook prints its folder with `pwd -W` when the shell knows it. Windows has not run it |
+| Tests that returned early and passed | They are skipped tests now, with the reason in the name. See the next section |
+| No assertion of the empty state after the commit that ends a conflict merge | Added |
+| One test for notes and met gates | Split into two tests |
+| P5 took builder choices by reference | [P5 Stage 5](05-git-hooks-in-setup.md#stage-5---proposals-from-phase-4) holds each one as a proposal: T20 to T34, A62a to A62p |
+| The index did not show the P4 results | The gate rows of OG-3, OG-4, and OG-6, and the note about register entries, are updated in the index and in the plan |
+| `git am` | A new test: it runs none of the four hooks. Added to R-043 |
+| A single quote in a temporary path broke the hook text | The helper writes each path in safe single quotes, and a test uses a temporary folder with a quote and a space in its name |
+| The cleanup after the global install proof | The test removes the link into the package folder by itself, before the recursive removal, and checks that the package folder is whole |
+
+The correction changed no product code. `packages/cli/src/operations/work/work-store/sync.ts` is as the review passed it.
+
+### P4 Conditional Skips
+
+Each test below can be skipped. A skipped test shows as skipped in the run, with the reason in its name, and it proves nothing in that run. On macOS, in the runs of this report, no test of the three P4 files was skipped.
+
+| Test file | Test | Skipped when | What is then not proven |
+| --- | --- | --- | --- |
+| `w35-r0-p4-git-hook-facts.test.ts` | "a hook file that is a link to a file of another tool shows as a symbolic link" | The platform is Windows. A test cannot make a symbolic link there without a special right | That git runs a hook file that is a link, on Windows |
+| `w35-r0-p4-hook-checkpoint.test.ts` | "a recorded command file that needs node from PATH fails with a short PATH, and works when the block adds the node folder" | The system folders of the machine hold a `node` program | The case of R-044 on that machine |
+| `w35-r0-p4-hook-checkpoint.test.ts` | "the command file that a real global install writes is found on PATH and runs in the hook shell" | The global install into the temporary prefix does not work. The test finds that out during its run, writes a log line with `made: false`, and marks itself as skipped | The command file of a real install on that platform. The evidence commit records "no proof gathered" |
+| `w35-r0-p4-hook-checkpoint.test.ts` | The four groups that use the built CLI: the command lookup, a held Store, the hooks after a merge and after a rewrite, and the two work trees | The built CLI (`packages/cli/dist/index.js`) does not exist | Each test of those groups: 15 of the 17 tests |
+| `w35-r0-p4-sync-race.test.ts` | The group of the four race tests | The built CLI does not exist | The race of R-041 |
+
+One test is not skipped and expects another result on Windows: "git does not run a hook file that is not executable" expects that git runs the file there.
+
+### P4 Checks
+
+Every test and every CLI run used a temporary Store at a fixed path under `/private/tmp/claude`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. All checks ran on macOS 27.2.1 with Node `v26.13.1` and git 2.47.1.
+
+- `npm ci`, then `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- `npx vitest run tests/w35-r0-p4-sync-race.test.ts` on the code before T18: 3 tests fail, each with "expected [ 'open', null ] to deeply equal [ 'closed', '<outcome>' ]". On the code after T18: 4 tests pass. 20 runs in a row after T18: 20 of 20 pass.
+- `npx vitest run tests/w35-r0-p4-git-hook-facts.test.ts`: 25 tests pass. `npx vitest run tests/w35-r0-p4-hook-checkpoint.test.ts`: 15 tests pass.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`, after the last change of product code and of documents: 3,938 tests pass, 2 fail, and 6 are skipped, in 165 test files. The 2 are `tests/mcp-app-contract.test.ts` "gives a typed chat fallback for an unproved transport" and "opens the same factory and resource over real stdio". They fail on Node 26 because of a deprecation warning on standard error. Known, and not from this phase. `tests/backup.test.ts` and `tests/uninstall.test.ts` pass with the short temporary path.
+- One change came after that full run: the two git proof test files and their helper now use the native real path, so that a short folder name of Windows matches the long name that git prints. After it: `npx tsc --noEmit -p packages/cli` gives no errors, and the three P4 test files, `tests/w35-r0-p1-checkpoint-surfaces.test.ts`, and `tests/consistency.test.ts` pass, 125 tests in 5 files. The full suite did not run again after that change.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `make-docs check prd --target-root .`: exit code 0, no diagnostics.
+- `make-docs check performance-evidence`: exit code 1, as before this phase, with 127 diagnostics before and 127 after. No diagnostic is new, and none names `PERF-007`. The check lists 8 profiles and not 7: `PERF-007` is the new one.
+- `make-docs project paths validate`: valid, 0 findings.
+- `make-docs project markdown validate --path <file>` on each changed document: no findings on this report, the P4 phase file, the W29 R0 P6 phase file, and PRD 52. On the risk register it reports findings only on lines that this phase did not change.
+- `make-docs backlog snapshot --target-root .`: exit code 0, and no diagnostic names W35.
+- The package: `npm pack --ignore-scripts` in `packages/cli` after the last change gives the tarball SHA-256 `739ad356412dfa09c3ffb853e3f0a62391cef44d042da3fbb11c676eb8ab7ab9`, the same build that `PERF-007` and `PERF-004-R2` measured. The builder did not write the digest file. The orchestrator records it after the review, under standing rule 10.
+- `PERF-007`, `PERF-004-R2`, and the side measure: see the sections above. No other process of this builder ran on the machine during the counted runs.
+
+Checks of the review correction, on 2026-11-27, on the same machine, with a temporary Store at a fixed path under `/private/tmp/claude`:
+
+- Each finding of the review was checked with a run before the change: a cherry-pick, a revert, and `git am` in temporary repositories by hand, and the held Store with a new test.
+- `npm run prepack -w packages/cli`: the build passes. `npx tsc --noEmit -p packages/cli`: no errors.
+- The three P4 test files and the four test files of P1 to P3, in one run: 213 tests pass in 7 files, and none is skipped. `tests/w35-r0-p4-git-hook-facts.test.ts` has 34 tests, `tests/w35-r0-p4-hook-checkpoint.test.ts` has 17, and `tests/w35-r0-p4-sync-race.test.ts` has 5.
+- `npx vitest run tests/w35-r0-p4-sync-race.test.ts`, 20 runs in a row: 20 of 20 pass, 5 tests each.
+- The same race test file against the build with the sync file of `d12d1047`, in the temporary copy of the source: 4 tests fail and 1 passes. Each failure is "expected [ 'open', null ] to deeply equal [ 'closed', '<outcome>' ]". In the two split tests the check of the note, and of the met gate, before that line passes.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`: 3,950 tests pass, 2 fail, and 6 are skipped, in 165 test files. The 2 are the known `tests/mcp-app-contract.test.ts` failures on Node 26. `tests/backup.test.ts` and `tests/uninstall.test.ts` pass. A first try of this run was stopped by a time limit of the builder's tool after 10 minutes, with no result. The second try ran to its end in 604 seconds. After it, only documents changed: one sentence and one blank line in the P5 phase file, and this list.
+- `npm run validate:defaults`: 53 tests pass. `npm run test:smoke-harness`: 19 tests pass.
+- `make-docs check prd --target-root .`: exit code 0, no diagnostics.
+- `make-docs check performance-evidence`: exit code 1, with 127 diagnostics, the same count as before the correction, and 8 profiles. None names `PERF-007`. A first run gave 128: one new sentence in the P5 phase file held a time with no profile link. The sentence was changed, and the count is 127 again.
+- `make-docs project paths validate`: valid, 0 failing findings.
+- `make-docs project markdown validate --path <file>` on each changed document: no findings on this report, the index, the P4 and P5 phase files, the two plan files, the W29 R0 P6 phase file, and PRD 52. On the risk register it reports 9 findings, each on a line that this phase did not change.
+- `make-docs backlog snapshot --target-root . --json`: exit code 0, standard error is empty, and no diagnostic names W35. The snapshot shows 7 phases and 127 tasks for W35 R0.
+- The comparison in one session: one trial with 2 samples to prove the harness, then the one run with 25 samples that this report holds. No other process of this builder ran during that run.
+- Not run in the correction: `npm ci`, `npm pack`, and any run on Linux or Windows. The package bytes did not change in the correction, because only tests and documents changed.
+
+### P4 Not Done
+
+- A39 and A41: no Linux result and no Windows result exists. The orchestrator pushes the phase commit and starts the pull request run, and the evidence commit records each platform result with the link to the run.
+- T10 and A42: no access run inside an agent tool exists. The orchestrator starts those sessions under standing rule 11.
+- A46: the owner has not answered owner gate OG-4.
+- The owner has not reviewed the 13 points under "P4 New Behavior That The Documents Did Not State", and the two possible refinements under owner gate OG-4.
+- The orchestrator has not decided whether the race test file goes into the two workflow lists. The recommendation is to add it.
+- The finding of T11, that an existing record fits and OG-3 does not open: the independent review agreed with it on 2026-11-27. It stays a finding and not an owner decision.
+- R-041 is closed in the register by the builder. The independent review has not checked the fix yet.
+- The package digest is not recorded again. This phase changed package bytes, so the recorded digest is stale.
+- The first import is slower in `PERF-004-R2` than in `PERF-004-R1` by 36 percent, and this phase did not find the cause.
+- P5 owns each point of the list under "What P5 Builds From This Phase". This phase built none of them.

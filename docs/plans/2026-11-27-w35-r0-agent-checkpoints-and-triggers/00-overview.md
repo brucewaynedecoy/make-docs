@@ -369,10 +369,10 @@ The owner answered four gates on 2026-11-27, in the third round of decisions of 
 | --- | --- | --- | --- | --- |
 | OG-1 | Answered | 2026-11-27 | Option A: a new access rule in PRD 25 R-ACCESS-17. A write operation may check its write access inside its handler, at the step that needs it. The checkpoint stays one operation with one MCP tool. A caller with read access only, and an MCP call without the write permission (`allowWrite`), get the read steps, a line that says the sync did not run, and exit code 0. | Nothing. |
 | OG-2 | Did not open | 2026-11-27 | None needed. `PERF-006` ran on 2026-11-27, the check adds at most 196 ms, and the gate opens only above 1 second. This is a measured result and not an owner decision. | Nothing. |
-| OG-3 | Open, only if | None | None yet | P5 Stage 1, only if no existing Store record fits the hook block. |
-| OG-4 | Open, always | None | None yet | P5 Stage 1. |
+| OG-3 | Did not open | 2026-11-27 | None needed. P4 found that an existing Store record fits the hook block: one row of the table `tool_operations`, with no new table, column, version, or migration. PRD 38 R-HARNESS-STATE-6 names this path. The independent review of P4 agreed on 2026-11-27. This is a finding and not an owner decision. P5 still changes the text of PRD 38 and of the table catalog for the new kind of row. | Nothing. |
+| OG-4 | Open, waits for the owner | None | None yet. `PERF-007-R1` ran on 2026-11-27, and the [P4 evidence](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the two options with their measured times, what a person sees, and the worst case of each. | P5 Stage 1. |
 | OG-5 | Answered | 2026-11-27 | A machine preference with the default "No" says whether Make Docs installs the git hooks automatically for each project. With it on, project setup installs them with no hook input, also in `setup --yes`. Later on 2026-11-27 the owner set its scope: it installs them automatically only in a new project (R3). With it off, `setup --yes` installs none, interactive setup offers them with "no" first, and an explicit hook input installs them. A hook of one agent tool always needs an explicit input. Design OD-11. | Nothing. |
-| OG-6 | Open, only if | None | None yet | P5 Stage 2, only if P4 found a platform gap. |
+| OG-6 | Open, only if | None | None yet. Only macOS ran in P4. The gate waits for the platform run of P4 on Linux and Windows. | P5 Stage 2, only if P4 found a platform gap. |
 | OG-7 | Answered early | 2026-11-27 | Each of the three agent tools that setup supports gets a hook method: Codex, Claude Code, and GitHub Copilot CLI. Design OD-13. | Nothing. |
 | OG-8 | Answered | 2026-11-27 | Version 2.1.1, a patch release. Design OD-15. | Nothing. |
 | OG-9 | Open, always | None | None yet | The Wave closeout and any release. |
@@ -415,12 +415,16 @@ This gate opens only if P4 finds that no existing Store record can hold a hook b
 
 Why A: B is the form that the design refused, and it breaks the promise that `setup remove` takes out only what is safe to take out. P4 T11 finds whether the gate opens. The gate blocks P5 Stage 1, and so P5. It does not block P4.
 
+The P4 result of 2026-11-27: the gate did not open. P4 T11 found that an existing Store record fits, and the independent review of P4 agreed. This is a finding and not an owner decision.
+
 **OG-4 (brought in P4, blocks P5, always): Does a git hook run the checkpoint in the foreground, or start it and return?**
 
 - A (recommended): foreground. The hook waits for the checkpoint and prints its line right after the git action. Each commit takes longer by the measured time. `PERF-004-R1` measured about 300 ms for a sync with no change.
 - B: start and return. Git returns at once. The line about what waits cannot print at the commit, so the person sees it at the next Make Docs command.
 
 Why A: the design promises that the person sees one line after the commit when something waits, and only A keeps that promise. This recommendation stands before the measurement. P4 T15 gives the owner the `PERF-007` times and confirms the recommendation or changes it, and says which. The gate blocks P5 Stage 1, and so P5. It does not block P4.
+
+The P4 result of 2026-11-27: P4 T15 confirmed recommendation A. A foreground hook adds about 0.55 seconds to a commit and about 1.1 seconds to an amended commit, and it can add about 5.5 seconds while another process holds the Store. The [P4 evidence](../../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the full text for the owner, with two possible refinements that are new ideas and are not built. The owner has not answered.
 
 **OG-5 (P5): With the machine preference on, does a non-interactive `setup --yes` install the git hooks?** Answered on 2026-11-27.
 
@@ -520,6 +524,17 @@ This handoff is advisory-default-but-overridable.
 - Coordinate Handoff: Carry W35 R0 into the requirement-history entries, the phase history records, and docs/work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/.
 
 ## Change History
+
+### 2026-11-27 — W35 R0 P4
+
+- Kind: `edit`
+- Affected scope: the owner gate table and the gate texts of OG-3 and OG-4; [P5](05-git-hooks-in-setup.md) (its scope, its acceptance, and its dependencies).
+- Previous scope: the gate table gave no P4 result for OG-3, OG-4, and OG-6. P5 took "the method that P4 chose" by reference, so each choice of the P4 builder would become P5 scope with no owner review.
+- Replacement scope: OG-3 did not open, OG-4 waits for the owner with the `PERF-007` result and the worst case, and OG-6 waits for the platform run. P5 holds each choice of P4 as a named proposal that the Phase 5 review shows to the owner. The backlog holds them as P5 T20 to T34 and A62a to A62p.
+- Rationale: the independent review of P4 on 2026-11-27. It records no owner decision.
+- PRD decision: `none` — the P4 corrections changed the risk register entry R-043 and no PRD requirement. P5 owns the PRD changes that its scope names.
+- Owner approval: none. The changes record findings and proposals, and no owner decision.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)
 
 ### 2026-11-27 — W35 R0 P3
 

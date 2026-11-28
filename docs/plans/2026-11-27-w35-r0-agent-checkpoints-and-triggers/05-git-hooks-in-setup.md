@@ -47,6 +47,22 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 - PRD changes, each with a Requirement History entry: PRD 28 (the sentence about hooks and the Non-Requirements line, which the owner approved); PRD 30 R-ADMIT-1, R-SELECT-1, and the Acceptance Criteria line about default setup, with the exact words that the owner approved on 2026-11-27 (owner gate OG-10, answered); PRD 07 (new R-SETUP-CLI-15 and later, one new sentence in R-SETUP-CLI-10, and `setup remove`); PRD 38 (new R-HOOK-STATE, the field register, and global config); and PRD 39 R-NAME-6 for the hook block.
 - PRD 30 R-BOUND-1, R-BOUND-2, and R-ADMIT-4 do not change. The overview gives the reason for each. The overview gives the exact words for PRD 30 R-SELECT-1, the PRD 30 Acceptance Criteria line, and PRD 07 R-SETUP-CLI-10 under OG-10. They follow from the owner's answer to OG-5 and were shown to the owner on 2026-11-27.
 - Agent form: the work store reference says what the hooks do and what an agent does when a hook prints its line. An agent installs no hook by hand.
+- The proposals from P4. The independent review of P4 added this point on 2026-11-27. "The method that P4 chose" means one thing only: a PATH lookup, and then a path that setup recorded in the block. Each other choice of the P4 builder is a proposal. The phase builds each one as written or names another form with the reason, tests it, and the phase review shows it to the owner. No proposal is an owner decision. The proposals:
+  - The block adds the recorded folder of `node` to the end of PATH for the call (register entry R-044). The folder is a path of the machine, and it can go stale.
+  - Setup sets the executable mode on a hook file that it creates, and names an existing hook file that is not executable.
+  - The position of the block in an existing hook file. A block after an `exec` or an `exit` of another tool never runs.
+  - A project in a subfolder of the git repository: the block gives the checkpoint the project root (`--target-root`).
+  - `setup remove` removes the Store record with the last block, and Store care names the record.
+  - In a linked work tree that is not bound, the hook does nothing and says nothing (register entry R-045), and the hook review names it.
+  - A trigger run prints 9 or 10 lines when something is due, and the hook rule allows the summary line and the command. The phase decides where the cut is made.
+  - The block hides the error output of the checkpoint call, and a debug switch shows it. The switch is a new idea of the P4 review.
+  - The detection rule knows no hook manager by name, so the block can land in a file that another tool owns.
+  - A hook file that is a symbolic link is refused.
+  - "A shell script" means a file with no null byte whose first line starts with `#!` and names `sh`, `bash`, `dash`, `ksh`, or `zsh`.
+  - The block swallows a non-zero exit code of the checkpoint. The checkpoint exits 1 when another process holds the Store.
+  - A checkout ID stays in the record of the clone after its folder is deleted, and the block then never goes.
+  - A record is left behind when the clone moves, because its key is a digest of the path.
+  - The state marks of the rule for git in the middle of an action. With `CHERRY_PICK_HEAD` in the rule, a cherry-pick with no conflict never syncs through the hook after a commit. `REVERT_HEAD` stops no hook run of a revert. The rule does not read the `sequencer` folder. The P4 correction added this point. It is not on the list of the review.
 
 ## Exclusions
 
@@ -76,6 +92,7 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 - After the person turns the machine preference off, the first choice of the offer is "no" again, and the hooks of a project that already has them stay.
 - PRD 30 R-ADMIT-1, R-SELECT-1, and the Acceptance Criteria line, and PRD 07 R-SETUP-CLI-10, hold the words that the owner approved on 2026-11-27.
 - `setup remove` in one worktree keeps the block while another bound checkout of the clone remains.
+- Each proposal from P4 has a test, and the phase report lists each one with what was built and the reason. The owner saw each one, and none is recorded as an owner decision before the owner made it.
 
 ## Testing Decisions
 
@@ -87,6 +104,6 @@ Build the first trigger that needs no agent memory: git hooks that run the check
 ## Dependencies
 
 - P4.
-- Owner gates OG-3 (only if it opened) and OG-4 for the first stage, and OG-6 (only if it opened) for the setup stage. OG-5 and OG-10 are answered and block nothing.
+- Owner gate OG-4 for the first stage, and OG-6 (only if it opened) for the setup stage. OG-3 did not open: P4 found on 2026-11-27 that an existing Store record fits, and the independent review of P4 agreed. OG-5 and OG-10 are answered and block nothing.
 - The P4 three-platform result.
 - Merge risk with W22 in the setup flow and PRD 07. See the overview.

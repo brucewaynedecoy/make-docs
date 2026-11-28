@@ -60,7 +60,7 @@ Code anchors:
 
 ### Two-way sync
 
-- R-WORK-SYNC-1 (MUST): sync compares the current file bytes, the last applied digest, and the store record revision for each work file.
+- R-WORK-SYNC-1 (MUST): sync compares the current file bytes, the last applied digest, and the store record revision for each work file. Sync reads the work files inside its Store write session, after it holds the Store. So a sync that waits for the Store while another sync of the same checkout runs reads the files only after that sync wrote them, and it never imports an older file text. The read-only sync check of R-WORK-SYNC-8 takes no write session.
 - R-WORK-SYNC-2 (MUST): a changed file with an unchanged store record is imported into the store. This covers hand edits and edits that arrive through git.
 - R-WORK-SYNC-3 (MUST): a changed store record with an unchanged file is written to the file when the repo copy is on.
 - R-WORK-SYNC-4 (MUST): when both the file and the store record changed, sync stops for that file. It reports both sides, the affected units, and one settle command for each choice. Other files continue.
@@ -319,6 +319,14 @@ The work store records units, dependencies, links, claims, the sync ledger, and 
 - Replacement contract: each command of the reminder set gives one reminder line when work files wait for import after its operation ended and the command ends with exit code 0. The backlog snapshot gives it only with `--work-store`, from its own sync check, so that PRD 51 R-BACKLOG-SNAPSHOT-24 holds. The sync check line of `work status` and `work next` names the checkpoint, as their first line does. The reminder counts only files that the next checkpoint run would import, from the exact read-only sync check, after the authority rule. `work status` and `work next` name the checkpoint first and still change nothing. `work next` marks each unit whose file waits for import and says in one line when the list is not complete. Each `backlog` read by project URI carries one fixed sentence. The rule catalog holds `WORK-RULE-066` to `WORK-RULE-069` for these rules. The reminder, the marks, the "list is not complete" line, and the URI sentence are new behavior. `PERF-006` measured the check: it adds at most 196 ms over the same command with no check on this repository, so owner gate OG-2 did not open. The W35 R0 evidence report lists the points of new behavior that no design or plan stated. They wait for the owner's review, and none is recorded as an owner decision.
 - Rationale: an agent that never runs a work command never saw that the store was out of date. The owner chose option A of OD-2 (the read commands do not sync) and option A of OD-6 (the exact check) on 2026-11-27.
 - Source: [Agent checkpoints and triggers design](../designs/2026-11-27-agent-checkpoints-and-triggers.md) (OD-2 and OD-6), [W35 R0 P2](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/02-reminder-and-read-commands.md), and its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p2-reminder-and-read-commands).
+
+### 2026-11-27 — W35 R0 P4
+
+- Affected requirement or section: R-WORK-SYNC-1.
+- Previous contract: R-WORK-SYNC-1 named what sync compares and did not say when sync reads the work files. The code read them before it took the Store for its write. When two syncs of one checkout ran at the same time, the second one waited for the Store with the file text that it read before the first one wrote, and then imported that older text. A unit that the store had closed with the outcome `cancelled` or `superseded` showed as open, and after one more sync it was closed with the outcome `done`.
+- Replacement contract: sync reads the work files inside its Store write session, after it holds the Store. A second sync of the same checkout reads the files only after the first one wrote them, so it finds nothing to import, and the store keeps the close outcome, the progress note, and the met gate. The read-only sync check takes no write session and stays read-only. No other sync rule changed.
+- Rationale: the owner decided on 2026-11-27 to fix risk register entry R-041 in this Wave, before the git hooks ship. With hooks, two checkpoint runs at the same time become likely: an amended commit runs two hooks, and a git hook and an agent tool hook can start for the same commit.
+- Source: [W35 R0 P4](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time), its [evidence report](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p4-git-hook-proofs), and [risk register entry R-041](03-open-questions-and-risk-register.md).
 
 ## Source Anchors
 

@@ -747,9 +747,10 @@ describe.skipIf(!existsSync(CLI))("W35 R0 P1 CLI and MCP parity with a real setu
   });
 
   // Two limits of this test. First, it closes the task with the outcome `done`, which a task line can show. So it
-  // cannot show what the known fault of sync loses for good: an outcome that a task line cannot show, such as
+  // cannot show what the older fault of sync lost for good: an outcome that a task line cannot show, such as
   // `cancelled` or `superseded` (risk register R-041). Second, it passes also when the two runs do not overlap,
-  // so a pass does not prove that the race happened in that run. No test fails on the known fault.
+  // so a pass does not prove that the race happened in that run. W35 R0 P4 fixed the fault, and the tests that
+  // fail on the older code are in tests/w35-r0-p4-sync-race.test.ts.
   it("two runs of the built CLI started at the same time both end with exit code 0 and no conflict, and a later run ends with nothing due (a done close only; this does not prove that the runs overlapped)", async () => {
     expect(process.env.MAKE_DOCS_HOME).toBe(store);
     const root = bound();
@@ -770,11 +771,10 @@ describe.skipIf(!existsSync(CLI))("W35 R0 P1 CLI and MCP parity with a real setu
     expect(answers.flatMap((answer) => answer.written)).toEqual([P2]);
     expect(units(root).filter((unit) => unit.coordinate === "W1 R0 P1 T1").map((unit) => unit.title)).toEqual(["Build the new parser."]);
     expect(readFileSync(path.join(root, P2), "utf8")).toContain("- [x] T1: Ship it.");
-    // Known fault of sync, older than the checkpoint (risk register R-041): sync reads the work files before
-    // it takes the Store. So the second run can import the text of a file from before the first run wrote it,
-    // and the store then shows the task as open. This test does not assert the store status at this point.
-    // One more run closes the task again from the file, with the outcome `done`. For this `done` close the
-    // files and the store then agree. An outcome that the file cannot show would be lost at that step.
+    // Before W35 R0 P4, sync read the work files before it took the Store (risk register R-041, closed). The
+    // second run could then import the text of a file from before the first run wrote it. Sync now reads the
+    // files inside its Store write session, so the store shows the task as closed at this point.
+    expect(units(root).find((unit) => unit.coordinate === "W1 R0 P2 T1")!.status).toBe("closed");
     const next = JSON.parse(run(["project", "checkpoint", "--target-root", root, "--json"], temp).stdout) as WorkCheckpointResult;
     expect([next.conflicts.length, next.waiting.length, next.written.length]).toEqual([0, 0, 0]);
     expect(units(root).find((unit) => unit.coordinate === "W1 R0 P2 T1")!.status).toBe("closed");

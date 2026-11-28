@@ -652,11 +652,12 @@ export function syncWorkFiles(projectRoot: string, options: WorkSyncOptions = {}
       WORK_SYNC_CHECKOUT_NOT_BOUND_NEXT_ACTION,
     );
   }
-  const disk = scanWorkFiles(root);
   const holdWrites = workSyncHolds(root, options);
+  // W35 R0 P4 (risk register R-041): the scan of the work files runs inside the Store write session. A second
+  // sync of this checkout waits for the Store, so it reads the files only after the first sync wrote them.
   return writeWorkStore(
     root,
-    (db, project) => runSync({ db, root, projectId: project.projectId, checkoutId, projection, now, disk, holdWrites, settle: options.settle ?? null }),
+    (db, project) => runSync({ db, root, projectId: project.projectId, checkoutId, projection, now, disk: scanWorkFiles(root), holdWrites, settle: options.settle ?? null }),
     { storeRoot, now },
   );
 }

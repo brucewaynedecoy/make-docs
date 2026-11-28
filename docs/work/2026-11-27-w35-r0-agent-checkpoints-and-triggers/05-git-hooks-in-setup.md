@@ -61,7 +61,7 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 
 - `O-###`: none
 - `NUAT-###`: none
-- Findings: the P4 gaps in the [risk register](../../prd/03-open-questions-and-risk-register.md) and the P4 section of `evidence.md`.
+- Findings: the P4 gaps in the [risk register](../../prd/03-open-questions-and-risk-register.md) (R-043, R-044, and R-045) and the P4 section of `evidence.md`. Stage 5 holds each choice of P4 as a proposal.
 
 ## Stage 1 - The hook block and the record
 
@@ -79,10 +79,11 @@ Authority: [Human Experience Contract](../../../.make-docs/system/contracts/huma
 - A50: A hook with Store read access only prints the one line with the count of waiting files and the command. A hook with no Store access prints nothing. Both exit 0.
 - A51: A changed block is reported as drift, and repeat setup does not change it without a reviewed plan.
 
+Owner gate OG-3 did not open. P4 T11 found on 2026-11-27 that an existing Store record can hold the hook block: one row of the table `tool_operations`, with no new table, column, version, or migration. The independent review of P4 agreed on 2026-11-27. So no gate bullet for OG-3 stands in the dependency list, and T4 uses "the record that P4 found". This is a finding and not an owner decision. If the owner reads a new kind of row in that table as a Store schema change, the gate opens with the two options of the [plan](../../plans/2026-11-27-w35-r0-agent-checkpoints-and-triggers/00-overview.md#owner-decisions).
+
 ### Dependencies
 
 - P4.
-- Owner gate OG-3, when it opened: the owner approves a Store schema change or does not.
 - Owner gate OG-4: the owner chooses a foreground run or a run that starts and returns.
 
 ## Stage 2 - The setup offer and removal
@@ -172,6 +173,56 @@ Names: the name of the hook input flag, the name of the input that sets the mach
 ### Dependencies
 
 - Stage 3.
+- Stage 5.
+
+## Stage 5 - Proposals from Phase 4
+
+This stage was added on 2026-11-27, after the independent review of P4. P4 is a proof phase, and its builder made choices that no document stated. T2 says "the method that P4 chose". Those words mean one thing only: a PATH lookup, and then a path that setup recorded in the block. Each other choice of P4 is a proposal, and each one has its own task below, so that no choice of a builder becomes Phase 5 scope by reference.
+
+No proposal is an owner decision. For each task, the builder builds the proposal as written or names another form with the reason, and adds the test of its case. The Phase 5 review shows each proposal to the owner in the phase report, as it shows the recommendations R1, R2, and R4 to R7, and the owner can change any of them. The [P4 evidence](evidence.md#p4-git-hook-proofs) holds the proof or the gap behind each task.
+
+The stage has the next free numbers, so no earlier task or case number changed, and its number says nothing about its place in the order. Its tasks shape the block and the record of Stage 1 and the review of Stage 2. It waits for Stage 1, where the block and the record first exist, and Stage 4 waits for it, so that the phase report holds each proposal.
+
+### Tasks
+
+- [ ] T20: Proposal from Phase 4, which the Phase 5 review shows to the owner. The folder of `node` in the block. The block adds the recorded folder of the `node` program to the end of PATH for the checkpoint call ([register entry R-044](../../prd/03-open-questions-and-risk-register.md)). That folder is a path of this machine at the time of setup, and it can go stale when the person moves or updates `node`. Build this form or name another one. Add a test for a recorded folder that no longer exists.
+- [ ] T21: Proposal from Phase 4, which the Phase 5 review shows to the owner. The executable mode of the hook file. Setup sets the executable mode on a hook file that it creates. For an existing hook file that is not executable, setup names the file and does not change its mode. Git does not run a hook file that is not executable on a platform with file modes.
+- [ ] T22: Proposal from Phase 4, which the Phase 5 review shows to the owner. The position of the block in an existing hook file. P4 proved no place. A shell script of another tool can end with `exec` or `exit`, and a block after that line never runs. Choose the place, give the reason, and add a test with such a file.
+- [ ] T23: Proposal from Phase 4, which the Phase 5 review shows to the owner. A project in a subfolder of the git repository. The proof block passes `--target-root` with the top folder of the work tree. When the Make Docs project is in a subfolder of the git repository, the top folder is not the project root, and P4 did not prove that case. Make the block give the checkpoint the project root, and add a test with a project in a subfolder.
+- [ ] T24: Proposal from Phase 4, which the Phase 5 review shows to the owner. The removal of the Store record. The record of the hook block is a machine record. It does not go when a project is removed from the Store. `setup remove` removes the record together with the last block, and Store care names the record.
+- [ ] T25: Proposal from Phase 4, which the Phase 5 review shows to the owner. A linked work tree that is not bound. In a work tree that is not bound to the Store, the hook does nothing and says nothing ([register entry R-045](../../prd/03-open-questions-and-risk-register.md)). Keep that form or name another one. The hook review says that the hooks act only in a bound checkout, and it names the command that binds a work tree.
+- [ ] T26: Proposal from Phase 4, which the Phase 5 review shows to the owner. The length of the hook output. A trigger run that imported a file, or that found a file that waits, prints 9 or 10 lines today. The hook rule of T3 allows the summary line and the command. Decide where the cut is made: in the block, or in a shorter trigger output of the checkpoint. T3 builds the rule, and this task records the choice and its test.
+- [ ] T27: Proposal from Phase 4, which the Phase 5 review shows to the owner. Hidden error output, with a debug switch. The proof block sends the error output of the checkpoint call to nowhere, so that a command that cannot start prints nothing. Keep that form or name another one. Add a switch that shows the error output to a person who looks for a fault. The switch is a new idea of the P4 review. Propose its name under the name rules of [PRD 39](../../prd/39-cli-command-model-and-operation-registry.md).
+- [ ] T28: Proposal from Phase 4, which the Phase 5 review shows to the owner. No hook manager is known by name. The detection rule knows no hook manager by name. A hook manager that writes a plain shell script into the hooks folder of the clone is not seen as an owner. So the block can land in a file that another tool owns, and that tool can remove it. Keep the rule or name another one. The hook review names the limit.
+- [ ] T29: Proposal from Phase 4, which the Phase 5 review shows to the owner. A hook file that is a symbolic link is refused. No document before P4 names this check. A link points to a file that another tool owns, and a block written through the link would change that file. Keep the refusal or name another form.
+- [ ] T30: Proposal from Phase 4, which the Phase 5 review shows to the owner. What "a shell script" means. A hook file is a shell script when it holds no null byte and its first line starts with `#!` and names `sh`, `bash`, `dash`, `ksh`, or `zsh`, directly or through `env`. Every other file is refused, also a file with shell text and no such first line. Keep this meaning or name another one.
+- [ ] T31: Proposal from Phase 4, which the Phase 5 review shows to the owner. The hook swallows a non-zero exit code of the checkpoint. The checkpoint exits 1 when another process holds the Store: it waits the busy time of the Store, and then it prints one long line on standard error. The [P4 evidence](evidence.md#owner-gate-og-4-the-run-mode-of-a-git-hook) holds the measured case, beside the times of [`PERF-007`](04-git-hook-proofs.md#perf-007-the-checkpoint-that-a-git-hook-runs). Standing rule 5 says that a git hook never fails or blocks a git action. So the block ends with exit code 0 after any exit code of the checkpoint. Decide what the hook prints then. The proposal is: nothing.
+- [ ] T32: Proposal from Phase 4, which the Phase 5 review shows to the owner. A checkout ID that stays in the record of the clone. The record holds the checkout IDs that selected the hooks, and `setup remove` keeps the block while another ID remains. When a person deletes the folder of a checkout and does not run `setup remove` there, its ID stays in the record. The block then never goes. The P4 review named this gap. Decide how setup and `setup remove` treat an ID whose folder is gone, and add a test.
+- [ ] T33: Proposal from Phase 4, which the Phase 5 review shows to the owner. A record that is left behind when the clone moves. The key of the record is a digest of the path of the clone's shared git folder. When the clone moves to another path, the key changes. The old record stays in the Store, and the block in the moved clone has no record. The P4 review named this gap. Decide the key or the repair, and add a test with a moved clone.
+- [ ] T34: Proposal from Phase 4, which the Phase 5 review shows to the owner. The state marks of the rule for git in the middle of an action. The independent review of P4 did not list this point. The P4 correction adds it, because the facts changed what T2 means. T2 says that the hooks after a commit and after a branch change do nothing in the middle of a rebase, a merge, a cherry-pick, or a bisect. The P4 tests show three facts. With `CHERRY_PICK_HEAD` in the rule, a cherry-pick with no conflict never syncs through the hook after a commit, also a cherry-pick of one commit. `REVERT_HEAD` stops no hook run of a revert, because git removes that file before it runs the hook. The rule does not read the `sequencer` folder, so a revert of several commits runs the checkpoint after each commit. Propose the list of marks: keep `REVERT_HEAD` or take it out, and read the `sequencer` folder or not. The hook review names a cherry-pick and `git am` among the actions that do not reach the checkpoint.
+
+### Acceptance criteria
+
+- A62a: The block finds and starts a command file that needs `node` when git has a short PATH. With a recorded `node` folder that no longer exists, the hook does nothing, prints nothing, and exits 0, and the hook review says that the recorded path can go stale and that repeat setup records it again.
+- A62b: A hook file that setup creates is executable where the platform has file modes. An existing hook file that is not executable keeps its mode, and setup names it.
+- A62c: The block runs in an existing hook file of another tool that ends with `exec` or `exit`, or setup refuses that file with one clear reason and no change. Every byte outside the block stays.
+- A62d: With the Make Docs project in a subfolder of the git repository, a commit runs the checkpoint for that project, and the store has the edit.
+- A62e: After `setup remove` in the last bound checkout of a clone, the Store holds no hook record for that clone. The Store check reports no leftover, and it names a hook record that still exists.
+- A62f: In a linked work tree that is not bound, each of the four hooks exits 0 and prints nothing. The hook review names the limit and the command that binds a work tree.
+- A62g: When something is due, a hook prints the summary line and the command and no other line. The evidence names where the cut is made.
+- A62h: With no switch, a hook whose checkpoint call fails prints nothing. With the debug switch on, the same run shows the error output, and it still exits 0.
+- A62i: Beside a plain shell script that another tool wrote, setup adds the block and keeps every other byte. When that tool writes its file again, repeat setup reports the block as missing. The hook review names the limit.
+- A62j: For a hook file that is a symbolic link, setup refuses the git hooks with one clear reason and changes nothing, and the file that the link points to is byte-identical.
+- A62k: Setup adds the block to a hook file with such a first line. It refuses, with one clear reason and no change, a file with another program on its first line, a file with no first line of that kind, a binary file, and an empty file.
+- A62l: While another process holds the Store, a commit with the installed hook exits 0, and the hook prints what this task decided. The work file is imported by the next checkpoint.
+- A62m: After the folder of one bound checkout of a clone is deleted with no `setup remove`, `setup remove` in the last checkout that remains removes the block and the record, or it says exactly which record holds the block and what the person can do.
+- A62n: After a clone with the hooks moves to another path, repeat setup reports the hook state there with no false drift, `setup remove` removes the block, and the Store holds no record for the old path, or Store care names it.
+- A62o: A test for a cherry-pick of one commit, for a revert of one commit, and for a revert of two commits shows what the hook after a commit does in each case, and the result matches the proposed list of marks. The hook review names each git action that does not reach the checkpoint.
+- A62p: The phase report lists each proposal of T20 to T34 with what was built and the reason. The owner saw each one. No proposal is recorded as an owner decision before the owner made it.
+
+### Dependencies
+
+- Stage 1.
 
 ### Closeout Notes
 
