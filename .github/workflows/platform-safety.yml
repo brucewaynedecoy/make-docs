@@ -93,6 +93,7 @@ jobs:
           tests/w22-r0-p5-compatibility-bridge.test.ts
           tests/w22-r1-ownership.test.ts
           tests/store.test.ts
+          tests/w22-r0-p9-windows-session-admission.test.ts
           tests/w35-r0-p4-git-hook-facts.test.ts
           tests/w35-r0-p4-hook-checkpoint.test.ts
           tests/w35-r0-p4-sync-race.test.ts
@@ -232,6 +233,7 @@ jobs:
           tests/w22-r0-p5-compatibility-bridge.test.ts
           tests/w22-r1-ownership.test.ts
           tests/store.test.ts
+          tests/w22-r0-p9-windows-session-admission.test.ts
           tests/w35-r0-p4-git-hook-facts.test.ts
           tests/w35-r0-p4-hook-checkpoint.test.ts
           tests/w35-r0-p4-sync-race.test.ts

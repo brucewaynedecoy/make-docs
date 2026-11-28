@@ -1233,7 +1233,7 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Closed | Store session admission retries transient Windows `EPERM`, `EACCES`, and `EBUSY` at every step, until the admission deadline. | None. |
+| Open | The admission repair remains. A later Windows run exposed the same sharing errors during session release, outside that retry. | W35 R0 P5 prepares bounded release cleanup and admission publication retries. Confirm the repaired package in Windows CI. No owner decision is recorded. |
 
 **Issue**: The "windows-latest installed package" job of PR #65 failed twice, on 2026-11-19 and 2026-11-20, and then passed. The failing test was "keeps shared Store sessions safe under 20 processes and five checkouts" in `packages/cli/tests/installation-state.test.ts`. The error was `access-denied` with `EPERM` on `store-access.lock` at the "secure session directory" step in `packages/cli/src/store/database.ts`. Windows returns `EPERM` when a process opens a path that another process is deleting. Store session admission races with the cleanup of the empty session directory. Admission already retries Windows `EPERM`, `EACCES`, and `EBUSY` during dead-session recovery, and macOS `EINVAL` when it creates the session file. It does not retry them when it creates or opens the session directory, or when it creates the session file on Windows.
 
@@ -1246,6 +1246,8 @@ The root `AGENTS.md` and `CLAUDE.md` files have valid markers. Their Make Docs b
 **Resolution**: Closed on 2026-11-20 in W22 R0 P9 at the owner's direction. `database.ts` retries the transient Windows codes when it creates the session directory, opens and secures it, and creates the session file. After the PR #66 review, the admission loop also retries a wrapped transient code from any safety read between those steps, and a failed attempt removes its own pending session file. `w22-r0-p9-windows-session-admission.test.ts` fails without the change and passes with it. A lasting error still fails with `access-denied` after the deadline, and other platforms keep `EPERM` fatal.
 
 **Evidence**: [W22 R0 P9 evidence](../work/2026-09-18-w22-r0-store-architecture-recovery-and-platform-neutral-foundation/evidence.md#p9-windows-store-session-admission-retry).
+
+**W35 follow-up, 2026-11-28**: Reopened by [PR 69 run 46129718995](https://github.com/brucewaynedecoy/make-docs/actions/runs/46129718995/job/140935568454). The checkpoint race failed with `EPERM` from `rmdir store-access.lock`, operation `clean session directory`, `attempts: 1`, `waitedMs: 0`. Release tried to remove the directory before closing its own unlinked session handle, and did not retry Windows `EPERM` or `EACCES`. This path also exists on `main`; W35 did not introduce it. The repair closes the handle before directory cleanup, retries transient Windows release reads and deletes within the current Store wait limit, preserves permanent permission errors, and reports sustained `EBUSY` as timed contention. Fault injection also exposed a session rename error hidden by `atomic-replace-failed`; Windows admission now sees its underlying sharing code. The unchanged race test remains the package check. [P5 CI follow-up evidence](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/evidence.md#p5-ci-follow-up-windows-pipes-and-store-session-cleanup) records the proof and remaining Windows confirmation.
 
 ### D-060 Project Config Cannot Be Rebuilt From the Store
 

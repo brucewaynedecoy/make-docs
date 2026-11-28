@@ -21,7 +21,7 @@ import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { AsyncLocalStorage } from "node:async_hooks";
-import { platform } from "../platform";
+import { platform, PlatformOperationError } from "../platform";
 import { getStoreDatabasePath } from "./paths";
 import { WORK_STORE_SINCE_SCHEMA, WORK_STORE_TABLE_NAMES, WORK_STORE_V8_STATEMENTS } from "./work-store-schema";
 import { FACTORY_STORE_SINCE_SCHEMA, FACTORY_STORE_TABLE_NAMES, FACTORY_STORE_V9_STATEMENTS } from "./factory-store-schema";
@@ -1138,6 +1138,10 @@ export interface StoreSessionRecoveryResult {
 const accessLeases = new Map<string, { count: number; release: () => void }>();
 
 function systemCode(error: unknown): string | undefined {
+  if (platform.kind === "win32" && error instanceof PlatformOperationError && error.code === "atomic-replace-failed") {
+    const cause = systemCode(error.cause);
+    if (isTransientWindowsAccessError(cause)) return cause;
+  }
   const code = (error as NodeJS.ErrnoException | null)?.code;
   return typeof code === "string" ? code : undefined;
 }
@@ -1249,6 +1253,11 @@ function readOwnerLease(file: string, operation: string, expectedVersion?: numbe
       throw new StoreUnavailableError(makeStoreIssue("owner-unverified", file, operation, new Error("The Store session start time is missing or invalid.")));
     }
     return { file, stat, bytes, token: record.token, pid: record.pid, hostname: record.hostname };
+  } catch (error) {
+    if (isTransientWindowsAccessError(systemCode(error))) {
+      throw new StoreUnavailableError(makeStoreIssue("io-error", file, operation, error));
+    }
+    throw error;
   } finally {
     closeSync(fd);
   }
@@ -1364,20 +1373,47 @@ function exclusiveBlocker(storeRoot: string, preparing: boolean): StoreLeaseSnap
   return null;
 }
 
-function cleanupAccessDirectory(directory: string): void {
-  try {
-    rmdirSync(directory);
-  } catch (error) {
-    const code = systemCode(error);
-    if (!new Set(["ENOENT", "ENOTEMPTY", "EEXIST"]).has(code ?? "") &&
-        !(platform.kind === "win32" && code === "EBUSY")) {
-      throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "clean session directory", error));
+/** Release can race with readers and pending deletions too, outside the admission loop. */
+function retryStoreSessionCleanup<T>(file: string, operation: string, cleanup: () => T, timeoutMs = storeOwnerWaitMs()): T {
+  const started = Date.now();
+  const deadline = started + withinStoreWaitLimit(timeoutMs);
+  let attempt = 0;
+  for (;;) {
+    try {
+      return cleanup();
+    } catch (error) {
+      const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
+      if (!(error instanceof StoreUnavailableError ? isTransientWindowsStoreIssue(error) : isTransientWindowsAccessError(code))) throw error;
+      if (Date.now() < deadline) {
+        pause(attempt++, deadline);
+        continue;
+      }
+      const details = { attempts: attempt + 1, waitedMs: Date.now() - started };
+      if (code === "EBUSY") {
+        throw new StoreUnavailableError({ code: "contention-timeout", path: file, operation, systemCode: code, retryable: true, ...details, cause: "The Store session path is still in use." });
+      }
+      // A persistent permission error keeps its original meaning after the bounded retry.
+      const issue = error instanceof StoreUnavailableError ? error.issue : makeStoreIssue("io-error", file, operation, error);
+      throw new StoreUnavailableError({ ...issue, ...details });
     }
   }
 }
 
+function cleanupAccessDirectory(directory: string, timeoutMs = storeOwnerWaitMs()): void {
+  retryStoreSessionCleanup(directory, "clean session directory", () => {
+    try {
+      rmdirSync(directory);
+    } catch (error) {
+      const code = systemCode(error);
+      if (!new Set(["ENOENT", "ENOTEMPTY", "EEXIST"]).has(code ?? "")) {
+        throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "clean session directory", error));
+      }
+    }
+  }, timeoutMs);
+}
+
 /** Inspect shared sessions and remove only proven-dead local owners. */
-export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true): StoreSessionRecoveryResult {
+export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true, cleanupTimeoutMs = storeOwnerWaitMs()): StoreSessionRecoveryResult {
   const root = path.resolve(storeRoot);
   const directory = path.join(root, STORE_ACCESS_PATH);
   const stat = readStoreEntry(directory, "recover Store sessions");
@@ -1439,7 +1475,7 @@ export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true)
       removed.push(path.relative(root, file).split(path.sep).join(path.posix.sep));
     }
   }
-  if (remove && stat.isDirectory() && active.length === 0) cleanupAccessDirectory(directory);
+  if (remove && stat.isDirectory() && active.length === 0) cleanupAccessDirectory(directory, cleanupTimeoutMs);
   return { removed, active };
 }
 
@@ -1453,7 +1489,7 @@ export function waitForStoreAccessToDrain(storeRoot: string, timeoutMs = STORE_O
   while (true) {
     let result: StoreSessionRecoveryResult;
     try {
-      result = recoverDeadStoreAccessSessions(storeRoot);
+      result = recoverDeadStoreAccessSessions(storeRoot, true, Math.max(0, deadline - Date.now()));
     } catch (error) {
       const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
       if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
@@ -1549,7 +1585,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
       }
       if (existing?.isDirectory()) {
         try {
-          recoverDeadStoreAccessSessions(storeRoot);
+          recoverDeadStoreAccessSessions(storeRoot, true, Math.max(0, deadline - Date.now()));
         } catch (error) {
           const code = error instanceof StoreUnavailableError ? error.issue.systemCode : systemCode(error);
           if (isTransientWindowsAccessError(code) && Date.now() < deadline) {
@@ -1625,7 +1661,7 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
           closeSync(fd);
           fd = null;
           removeOwnedSession(file, token, leaseStat, "cancel Store session");
-          cleanupAccessDirectory(directory);
+          cleanupAccessDirectory(directory, Math.max(0, deadline - Date.now()));
           if (lateBlocker.pid === process.pid && lateBlocker.hostname === platform.hostname) {
             throw new StoreUnavailableError({ code: "contention-timeout", path: lateBlocker.file, operation: "open a Store session", retryable: false, attempts: attempt + 1, waitedMs: Date.now() - started, cause: "This process already owns the exclusive Store lock." });
           }
@@ -1646,20 +1682,21 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
           released = true;
           accessLeases.delete(storeRoot);
           try {
-            removeOwnedSession(file, token, leaseStat, "release Store session");
-            cleanupAccessDirectory(directory);
+            retryStoreSessionCleanup(file, "release Store session", () => removeOwnedSession(file, token, leaseStat, "release Store session"));
           } finally {
             if (fd !== null) closeSync(fd);
           }
+          // Close our handle before removing the directory. An unlinked file can still be pending deletion.
+          cleanupAccessDirectory(directory);
         };
         lease.release = release;
         accessLeases.set(storeRoot, lease);
         return release;
       } catch (error) {
         if (fd !== null) closeSync(fd);
-        removeOwnedSession(file, token, leaseStat, "clean failed Store session");
-        removePendingSession(pendingFile, leaseStat ?? createdStat);
-        cleanupAccessDirectory(directory);
+        retryStoreSessionCleanup(file, "clean failed Store session", () => removeOwnedSession(file, token, leaseStat, "clean failed Store session"), Math.max(0, deadline - Date.now()));
+        retryStoreSessionCleanup(pendingFile, "clean pending Store session", () => removePendingSession(pendingFile, leaseStat ?? createdStat), Math.max(0, deadline - Date.now()));
+        cleanupAccessDirectory(directory, Math.max(0, deadline - Date.now()));
         if (error instanceof StoreUnavailableError) throw error;
         const code = systemCode(error);
         const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
@@ -1674,9 +1711,16 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
     } catch (error) {
       // Windows also reports a transient access code from the safety reads between these steps,
       // because the same session path can be pending deletion. Retry those until the deadline.
-      if (isTransientWindowsStoreIssue(error) && Date.now() < deadline) {
-        pause(attempt++, deadline);
-        continue;
+      if (isTransientWindowsStoreIssue(error)) {
+        if (Date.now() < deadline) {
+          pause(attempt++, deadline);
+          continue;
+        }
+        const issue = (error as StoreUnavailableError).issue;
+        throw new StoreUnavailableError({ ...issue,
+          ...(issue.systemCode === "EBUSY" ? { code: "contention-timeout", retryable: true } as const : {}),
+          attempts: attempt + 1, waitedMs: Date.now() - started,
+        });
       }
       throw error;
     }
