@@ -1043,7 +1043,7 @@ Three findings for P5:
 
 ### The Access Runs In Each Agent Tool (T10, A42)
 
-Waits for the orchestrator. Standing rule 11 gives these runs to the orchestrator, who starts a session in each agent tool. This builder ran no agent tool session and records no answer.
+The orchestrator ran these proofs on 2026-11-27 under standing rule 11, on the maintainer machine (macOS), with the built CLI of commit `74b19c60`. The builder ran no agent tool session. The results are in the table below and in the findings under it.
 
 The script [t10-prepare.sh](evidence/p4/access/t10-prepare.sh) prepares one run. It was tried one time from a plain shell on the maintainer machine, and it ended with the project, the Store, the first sync, and the hook in place. That trial is not an access run.
 
@@ -1059,9 +1059,26 @@ The table to fill:
 
 | Agent tool | Who started the session | Setup method of the tool | The hook ran | What the checkpoint could do | Exit code |
 | --- | --- | --- | --- | --- | --- |
-| Codex | no proof gathered | | | | |
-| Claude Code | no proof gathered | | | | |
-| GitHub Copilot CLI | no proof gathered | | | | |
+| Codex | The orchestrator, as a delegated session with no sandbox and no approval step (the session reported this) | `none` | yes | write: `syncRan` is true, and `imported` names the work file | 0 |
+| Claude Code, run 1 | The orchestrator, as a subagent session. The commit ran inside the command sandbox of the tool | `none` | yes | write: `syncRan` is true, and `imported` names the work file. The temporary Store was inside the folders that the sandbox lets a command write | 0 |
+| Claude Code, run 2 | The orchestrator, as a subagent session. The commit ran inside the command sandbox of the tool | `none` | yes | nothing: the answer file is empty, and standard error holds one JSON line with the code `store-unavailable`. The temporary Store was outside the folders that the sandbox lets a command write | 1 |
+| GitHub Copilot CLI | no proof gathered: the orchestrator's environment cannot start this tool | | | | |
+
+Findings of these runs:
+
+- Each tool started the `post-commit` hook for a commit that the agent made, and the commit itself succeeded in each run. In run 2 the commit took about 0.24 seconds, so the refused Store did not make the commit wait.
+- With the setup method `none`, the caller check of Make Docs did not refuse the checkpoint in a hook. It synced in each run where the process could write the Store folder.
+- The command sandbox of an agent tool decides the result. In Claude Code run 2 the process could not write the Store folder, so the checkpoint stopped with `store-unavailable` and exit code 1, wrote nothing, and printed one long JSON line on standard error. The test hook hid that line and returned 0. A real Store is in the home folder of the person. Whether the command sandbox of a tool lets a command write there depends on the settings of that tool and of the person. This proof did not test the real Store, by the rule of this Wave.
+- So a git hook reaches an agent that commits only when the shell of that agent may write the Store. Where it may not, the hook does nothing, and the files stay unsynced until a run with Store access. This is a limit of the universal reach that the design gives to git hooks. P5 must decide what the hook prints in this case (P5 T31 covers the exit code).
+
+What is not proven:
+
+- No run used a setup method other than `none`. A run with `mcp`, `command-rules`, or `permission-rules` needs the machine step of setup, which writes entries in the person's own agent tool settings. The orchestrator did not change those settings without the owner's approval.
+- No run used GitHub Copilot CLI.
+- No run used a session that the person started by hand in the app of a tool. Both sessions were started by the orchestrator.
+- Linux and Windows have no access run.
+
+The work folders of the three runs were under the temporary folder of the session, and the Store of run 2 was removed after the run.
 
 ### The Store Record For The Hook Block (T11, A43)
 
