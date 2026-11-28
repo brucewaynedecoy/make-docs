@@ -1374,7 +1374,7 @@ function exclusiveBlocker(storeRoot: string, preparing: boolean): StoreLeaseSnap
 }
 
 /** Release can race with readers and pending deletions too, outside the admission loop. */
-function retryStoreSessionCleanup<T>(file: string, operation: string, cleanup: () => T, timeoutMs = storeOwnerWaitMs()): T {
+function retryStoreSessionCleanup<T>(file: string, operation: string, cleanup: () => T, timeoutMs = storeOwnerWaitMs(), onSharingTimeout?: () => T): T {
   const started = Date.now();
   const deadline = started + withinStoreWaitLimit(timeoutMs);
   let attempt = 0;
@@ -1388,6 +1388,7 @@ function retryStoreSessionCleanup<T>(file: string, operation: string, cleanup: (
         pause(attempt++, deadline);
         continue;
       }
+      if (onSharingTimeout) return onSharingTimeout();
       const details = { attempts: attempt + 1, waitedMs: Date.now() - started };
       if (code === "EBUSY") {
         throw new StoreUnavailableError({ code: "contention-timeout", path: file, operation, systemCode: code, retryable: true, ...details, cause: "The Store session path is still in use." });
@@ -1399,7 +1400,10 @@ function retryStoreSessionCleanup<T>(file: string, operation: string, cleanup: (
   }
 }
 
-function cleanupAccessDirectory(directory: string, timeoutMs = storeOwnerWaitMs()): void {
+/** An empty session folder can stay. Do not turn its cleanup into an admission or command failure. */
+const STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS = 250;
+
+function cleanupAccessDirectory(directory: string, timeoutMs = STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS): void {
   retryStoreSessionCleanup(directory, "clean session directory", () => {
     try {
       rmdirSync(directory);
@@ -1409,11 +1413,11 @@ function cleanupAccessDirectory(directory: string, timeoutMs = storeOwnerWaitMs(
         throw new StoreUnavailableError(makeStoreIssue("io-error", directory, "clean session directory", error));
       }
     }
-  }, timeoutMs);
+  }, Math.min(timeoutMs, STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS, storeBusyTimeoutMs()), () => undefined);
 }
 
 /** Inspect shared sessions and remove only proven-dead local owners. */
-export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true, cleanupTimeoutMs = storeOwnerWaitMs()): StoreSessionRecoveryResult {
+export function recoverDeadStoreAccessSessions(storeRoot: string, remove = true, cleanupTimeoutMs = STORE_SESSION_DIRECTORY_CLEANUP_WAIT_MS): StoreSessionRecoveryResult {
   const root = path.resolve(storeRoot);
   const directory = path.join(root, STORE_ACCESS_PATH);
   const stat = readStoreEntry(directory, "recover Store sessions");
@@ -1681,22 +1685,30 @@ export function acquireStoreAccess(storeRoot: string, preparing = false, timeout
           if (released || --lease.count > 0) return;
           released = true;
           accessLeases.delete(storeRoot);
+          // One deadline covers both cleanup steps: 5 seconds normally, or the shorter call limit.
+          // Windows sharing failures leave the lease for dead-owner recovery without replacing the result.
+          const releaseDeadline = Date.now() + storeBusyTimeoutMs();
           try {
-            retryStoreSessionCleanup(file, "release Store session", () => removeOwnedSession(file, token, leaseStat, "release Store session"));
+            retryStoreSessionCleanup(file, "release Store session", () => removeOwnedSession(file, token, leaseStat, "release Store session"), Math.max(0, releaseDeadline - Date.now()), () => false);
           } finally {
             if (fd !== null) closeSync(fd);
           }
           // Close our handle before removing the directory. An unlinked file can still be pending deletion.
-          cleanupAccessDirectory(directory);
+          cleanupAccessDirectory(directory, Math.max(0, releaseDeadline - Date.now()));
         };
         lease.release = release;
         accessLeases.set(storeRoot, lease);
         return release;
       } catch (error) {
-        if (fd !== null) closeSync(fd);
-        retryStoreSessionCleanup(file, "clean failed Store session", () => removeOwnedSession(file, token, leaseStat, "clean failed Store session"), Math.max(0, deadline - Date.now()));
-        retryStoreSessionCleanup(pendingFile, "clean pending Store session", () => removePendingSession(pendingFile, leaseStat ?? createdStat), Math.max(0, deadline - Date.now()));
-        cleanupAccessDirectory(directory, Math.max(0, deadline - Date.now()));
+        try { if (fd !== null) closeSync(fd); } catch { /* Preserve the admission error. */ }
+        const cleanupDeadline = Math.min(deadline, Date.now() + storeBusyTimeoutMs());
+        for (const cleanup of [
+          () => retryStoreSessionCleanup(file, "clean failed Store session", () => removeOwnedSession(file, token, leaseStat, "clean failed Store session"), Math.max(0, cleanupDeadline - Date.now()), () => false),
+          () => retryStoreSessionCleanup(pendingFile, "clean pending Store session", () => removePendingSession(pendingFile, leaseStat ?? createdStat), Math.max(0, cleanupDeadline - Date.now()), () => false),
+          () => cleanupAccessDirectory(directory, Math.max(0, cleanupDeadline - Date.now())),
+        ]) {
+          try { cleanup(); } catch { /* The admission error remains the reason this attempt failed. */ }
+        }
         if (error instanceof StoreUnavailableError) throw error;
         const code = systemCode(error);
         const retryableSessionOpenError = new Set(["ENOENT", "EEXIST", "ENOTEMPTY"]).has(code ?? "")
