@@ -3015,19 +3015,19 @@ With hooks, two runs at the same time become likely: a git hook and an agent too
 
 | Status | Decision | Follow-Up |
 | --- | --- | --- |
-| Open | A review of W35 R0 P2 found this on 2026-11-27. It is not from that phase, and that phase did not fix it. No owner decision exists. | Decide where the fix goes. No task holds it. |
+| Open | A review of W35 R0 P2 found this on 2026-11-27. It is not from that phase, and that phase did not fix it. The owner decided on 2026-11-27: fix it in this Wave. The owner did not choose the phase. The orchestrator placed it in P7. | The fix is not built yet. [W35 R0 P7](../work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/07-acceptance.md#stage-4---the-fix-for-an-unknown-option-on-a-write-command) Stage 4 holds it, as tasks T14 to T19 and cases A79a to A79f. T19 closes this entry when the fix lands. |
 
 **Issue**: `make-docs work add "x" --dry-run` adds the quick item to the work store and ends with exit code 0. The fix pass of W35 R0 P2 proved it on 2026-11-27 with the built CLI and a temporary Store: the result said "Added task 1: x.", and `make-docs work next --level quick-item` then listed the item. The help of `make-docs work add` does not list `--dry-run`. The CLI still takes the flag for every command and gives it to the operation as its dry-run state, and `work add` does not read that state. An unknown flag such as `--no-such-flag` ends with an error, so only this flag passes with no effect. The fix pass checked `work add` only. The other work write commands were not checked.
 
 **Why it matters**: A person or an agent who adds `--dry-run` to see what a command would do gets a real write. A quick item lives only in the work store, so no file shows the change.
 
-**Recommendation**: Make each work write command either refuse `--dry-run` with a clear error or honor it and write nothing. Check the other work write commands for the same fault.
+**Recommendation**: Make each work write command either refuse `--dry-run` with a clear error or honor it and write nothing. Check the other work write commands for the same fault. The owner chose on 2026-11-27 to fix it in this Wave. P7 Stage 4 finds the cause, checks every write command of the registry, and makes a write command refuse an option that it does not know. The fix is not built yet.
 
 **To close**: `make-docs work add` with `--dry-run` writes no Store record, or refuses the flag, and a test proves it for each work write command.
 
-**What W35 R0 does**: P2 records the fault here. It changes no code for it.
+**What W35 R0 does**: P2 records the fault here. It changes no code for it. P7 Stage 4 holds the fix.
 
-**What W35 R0 does not remove**: The fault itself.
+**What W35 R0 does not remove**: The fault stays until P7 Stage 4 lands.
 
 ## Source Anchors
 

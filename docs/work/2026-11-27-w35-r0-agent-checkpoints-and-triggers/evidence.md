@@ -592,7 +592,7 @@ Each of the first three limits can only miss a line. None can show a false line 
 - A work file with no read permission: a command of the set prints no reminder line and ends with exit code 0, and the error inside the check is dropped. The fix pass proved it with the built CLI. The next step for a person: `make-docs work status` or `make-docs project checkpoint`. Each one ends with an error that names the file.
 - `make-docs backlog review refresh` checks the folder where the command runs, and not the folder in its envelope. When the two differ, the line can be missing.
 - One CLI run that runs two outer operations keeps only the result of the last one. When the first one found a waiting file and the last one found none, the line is missing.
-- Not from this phase: `make-docs work add "x" --dry-run` takes the flag, ignores it, and writes the Store. The fix pass proved it with the built CLI and a temporary Store: the result said "Added task 1: x.", and `make-docs work next --level quick-item` then listed the item. The help of the command does not list `--dry-run`. Only `work add` was checked. This phase did not fix it. [Register entry R-042](../../prd/03-open-questions-and-risk-register.md) holds it.
+- Not from this phase: `make-docs work add "x" --dry-run` takes the flag, ignores it, and writes the Store. The fix pass proved it with the built CLI and a temporary Store: the result said "Added task 1: x.", and `make-docs work next --level quick-item` then listed the item. The help of the command does not list `--dry-run`. Only `work add` was checked. This phase did not fix it. [Register entry R-042](../../prd/03-open-questions-and-risk-register.md) holds it. The owner decided on 2026-11-27 to fix it in this Wave, and the orchestrator placed the fix in [P7 Stage 4](07-acceptance.md#stage-4---the-fix-for-an-unknown-option-on-a-write-command).
 - From a subfolder of a project, such as `docs/`, a command of the set shows no reminder. See "P2 Not Done".
 
 ### P2 New Behavior That The Documents Did Not State
@@ -656,5 +656,243 @@ The fix pass of 2026-11-27 ran each check again on the final code, and these are
 - From a subfolder of a project, such as `docs/`, a command of the set shows no reminder, because the check looks at the folder that the command names and does not search parent folders. The checkpoint has the same limit, which P1 recorded.
 - The guides do not name the reminder yet. [P7](07-acceptance.md) updates the guides.
 - The fault of register entry R-041 stays. This phase did not change the sync core. The owner decided on 2026-11-27 to fix it in this Wave, before the hooks ship, and the orchestrator placed the fix in [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time).
-- The fault of register entry R-042, `make-docs work add` with `--dry-run`, is not fixed. No task holds it.
+- The fault of register entry R-042, `make-docs work add` with `--dry-run`, is not fixed. The owner decided on 2026-11-27 to fix it in this Wave. The owner did not choose the phase. The orchestrator placed it in P7, and [P7 Stage 4](07-acceptance.md#stage-4---the-fix-for-an-unknown-option-on-a-write-command) holds it as tasks T14 to T19.
 - The limits under "P2 Known Limits" stay.
+
+## P3 Routers and MCP Instructions
+
+Covers A30 to A37 in [P3](03-routers-and-mcp-instructions.md), and the prepared part of A38. Evidence date: 2026-11-27. Branch: `docs/w35-store-authority-and-agent-reminders`, at `23c105ab`, with the phase changes uncommitted. Node `v26.13.1`. CLI package version `2.1.1`.
+
+P3 is built and not marked complete. T1 to T9 are done. The owner has not read the lines (A38) or the points of new behavior below. One independent review ran on 2026-11-27, and its fix pass is in this report: see [The Review Of P3 And Its Fix Pass](#the-review-of-p3-and-its-fix-pass). The check of that fix pass has not run yet. One finding of the review waits for the owner: the `docs/work/` note. The orchestrator records the package digest after the review, under standing rule 10.
+
+### P3 What Was Built
+
+- `packages/docs/template/AGENTS.md` and `packages/docs/template/CLAUDE.md`: one new line in the managed block, before the commit line. The block has 11 lines with its two marker lines. The budget of `scripts/check-instruction-routers.sh` is 12.
+- `packages/docs/template/docs/work/AGENTS.md` and `packages/docs/template/docs/work/CLAUDE.md`: the note replaces the work store line of release 2.1.0, in the managed block. The block keeps its line count.
+- `packages/docs/template/.make-docs/system/references/work-store.md`: the new part `### When to Run It` at the end of the `Checkpoint` section, and one changed sentence in the first paragraph of that section.
+- The installed copies of this repository: `AGENTS.md`, `CLAUDE.md`, `docs/work/AGENTS.md`, `docs/work/CLAUDE.md`, and `.make-docs/system/references/work-store.md`. The text of this repository after the block of `AGENTS.md` and `CLAUDE.md` did not change.
+- `packages/cli/src/mcp/instructions.ts` is new. It builds the work rule from the tool names of the name catalog, and it decides from the listed tools whether a connection gets the rule. When the catalog does not hold one of the three names as current, it gives no instructions and throws no error.
+- `packages/cli/src/mcp/server.ts`: `createMakeDocsMcpServer` gives the instructions to the server when the profile lists the three tools. No other code changed.
+- `packages/cli/tests/w35-r0-p3-routers-and-mcp-instructions.test.ts` is new, with 36 tests. No other test changed.
+- PRD 15 holds the new `### Work Store Router Discovery` section with R-WORK-ROUTER-1 to R-WORK-ROUTER-5. PRD 25 holds the new `### MCP Server Instructions` section with R-MCP-INSTR-1 to R-MCP-INSTR-4. PRD 39 R-NAME-6 gained three sentences. Each PRD has a `W35 R0 P3` Requirement History entry. PRD 06 did not change: its R-WORK-RESOURCE-1 already says that the `Checkpoint` section says when to run the checkpoint.
+
+This phase did not change the sync core, any work file of the template, any file in `.github/release-candidates/`, or any W22 R2 file. It changed no pinned digest, no size limit, and no snapshot.
+
+### The Lines For The Owner (A38)
+
+The exact wording of these texts is a proposal. The owner did not decide it. Each text waits for the owner's review. The counts are bytes and words of the text as shown, with no line end.
+
+The root router line, in the managed block of `AGENTS.md` and `CLAUDE.md` at the project root (349 bytes, 58 words). Every agent in every project reads it in every session:
+
+```text
+- When the work store is in charge of this project's work (`make-docs work status` says which side is), find work with `make-docs work next`, not with file searches, and run `make-docs project checkpoint` after you change a file under `docs/work/` and after you close a phase. Otherwise, or without the CLI, the `docs/work/` files are the authority.
+```
+
+The `docs/work/` note, in the managed block of `docs/work/AGENTS.md` and `docs/work/CLAUDE.md` (526 bytes, 80 words). The line that it replaces had 293 bytes and 40 words. This text waits for the owner's answer on its first sentence, and the fix pass did not change it:
+
+```text
+- When the work store is present, it is the authority (`make-docs work status` says which side is in charge). Find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Without the CLI or a usable Store, these files are the authority: read and edit them directly. For the rules, and to claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`.
+```
+
+The trigger text of the work store reference, at the end of its `Checkpoint` section (1,053 bytes, 184 words, with the heading left out):
+
+```text
+### When to Run It
+
+Run the checkpoint yourself at three moments:
+
+1. At the start of a session, before you find or pick work.
+2. After you edit a file under `docs/work/`.
+3. After you close a phase.
+
+Each of the three is a direct run: run `make-docs project checkpoint` with no `--event`, or call the `project_checkpoint` tool with no `event`. The tool syncs only with `allowWrite: true`, and without it gives the read steps and says that the sync did not run. A direct run is safe to repeat. So also run one when you do not know whether work files changed, such as after a commit or a pull.
+
+The checkpoint knows six events: `session-start`, `files-changed`, `turn-end`, `commit`, `branch-change`, and `phase-closed`. An event name belongs to a trigger run, and only a hook starts a trigger run. You never start one, and you need no hook for the three moments above.
+
+Without the CLI, there is no checkpoint to run. Without a usable Store, a run syncs nothing and says that the `docs/work/` files are the authority. In both cases the `docs/work/` files are the authority.
+```
+
+The first paragraph of the `Checkpoint` section changed in one sentence. Before: "Run it when you start a session, after you change a work file, at the end of a turn, after a commit or a pull, and when you close a phase." Now: "[When to Run It](#when-to-run-it) names the moments."
+
+The MCP server instructions (528 bytes, 80 words). The text before the fix pass had 437 bytes and 67 words. The `all`, `backlog`, and `workflow` profiles send this same text. The `core`, `setup`, `quality`, and `factory` profiles send no instructions:
+
+```text
+When you start work on this project's backlog, call `project_checkpoint` with no `event`. Add `allowWrite: true` only when your task may change this project's files. When the work store is in charge (`work_status` says which side is), find work with `work_next`, not with file searches, and call `project_checkpoint` with `allowWrite: true` after you change a file under `docs/work/` and after you close a phase. Without a usable Store, the `docs/work/` files are the authority: `project_checkpoint` says so and changes nothing.
+```
+
+The text is true to the tool of Phase 1. A call without `allowWrite` gets the read steps and a result that says the sync did not run (PRD 25 R-MCP-PROFILE-12). So an agent that only reads or reviews writes nothing when it obeys the first sentence. With the Store in charge, a call with `allowWrite: true` is a full two-way sync: it writes the Store, and it can write and remove files under `docs/work/`. So the text asks for it only from an agent whose task may change project files, and after that agent changed a work file or closed a phase.
+
+How each text meets the owner's rule that the note holds with no Store:
+
+| Case | The root line | The `docs/work/` note | The MCP instructions |
+| --- | --- | --- | --- |
+| A usable Store, and the work store is in charge | The "When" sentence applies. | The "When" sentence applies. | The agent runs the checkpoint. It syncs only with `allowWrite: true`. |
+| A Store is present, and the files are in charge, such as a fresh clone or a linked worktree that is not bound | The "When" sentence does not apply, and the word "Otherwise" of the last sentence applies. | Not proven. The first sentence says that a present work store is the authority, which is false in this case. The words in brackets send the agent to `make-docs work status`. This case waits for the owner. | `project_checkpoint` says in one line that the files are the authority. |
+| No usable Store | The word "Otherwise" of the last sentence applies. | The "Without" sentence applies. | The last sentence applies. |
+| No CLI | The last sentence applies. | The "Without" sentence applies. | No MCP server runs, so no instructions exist. |
+
+#### The Review Finding On The Note, Which Waits For The Owner
+
+The independent review of 2026-11-27 found that the `docs/work/` note is false in one case. Its first sentence says: "When the work store is present, it is the authority". A Store can be present and not in charge: in a fresh clone, and in a linked worktree that is not bound to the Store. In that case the files are the authority, and the note says the opposite. The words in brackets send the agent to `make-docs work status`, and they do not make the first sentence true.
+
+"Present" is the owner's own word. So the fix pass did not change the note, its tests, or PRD 15 R-WORK-ROUTER-2. The orchestrator asks the owner. No decision is recorded here.
+
+PRD 15 R-WORK-ROUTER-3 says that both texts are true "in a project where the files are in charge". That statement holds for the root line. It is not proven for the note, and this report does not claim it. The statement and the note wait for the owner's answer.
+
+The reviewer's proposed replacement text for the note, exactly:
+
+```text
+- When the work store is in charge (`make-docs work status` says which side is), find work with `make-docs work next`, and run `make-docs project checkpoint` after you edit a file here. Otherwise, or without the CLI, these files are the authority: read and edit them directly. To claim, report, or close work, use a valid local `.make-docs/system/references/work-store.md` body or, when it is absent, run `make-docs resource read make-docs://system/reference/work-store.md`.
+```
+
+The root line and the MCP instructions use "in charge".
+
+### The Copies (T4, A30)
+
+- `docs/work/AGENTS.md`, `docs/work/CLAUDE.md`, and `.make-docs/system/references/work-store.md` match their template files byte for byte.
+- The template files `AGENTS.md` and `CLAUDE.md` hold only the managed block. This repository's `AGENTS.md` and `CLAUDE.md` start with exactly those bytes and then hold this repository's own text. So for these two files "byte-identical" means: the installed block is the template file, byte for byte.
+- The test function `copyProblems` checks the five files. It fails on a fixture with a changed block, with one more line end in a `docs/work/` router, and with a changed heading in the reference. It does not fail for a project's own text after the root block.
+- `bash scripts/check-instruction-routers.sh`: "Instruction router check passed." The script needs the system temp folder, so this one run was outside the sandbox.
+
+### The Update Path (T5, A33)
+
+A real run by hand, with the released package `@brucewaynedecoy/make-docs@2.1.0` from the registry, the built CLI of this branch, and the temporary Store `/private/tmp/claude/p3/store-a`. Each run checked first that `MAKE_DOCS_HOME` was not empty.
+
+1. The 2.1.0 CLI set up two projects with `make-docs setup --yes --target . --codex-method none --claude-code-method none --github-copilot-method none --no-skills`. The SHA-256 of the installed `AGENTS.md` was `f853bac8…28793c`, and of `docs/work/AGENTS.md` it was `e65810f8…124c24`. These are the hashes of the two files at git tag `v2.1.0`.
+2. The project with unchanged blocks: `make-docs setup --yes` with the same method options, from the built CLI, ended with the status `complete`. Its actions were `update` for `AGENTS.md`, `CLAUDE.md`, `docs/work/AGENTS.md`, and `docs/work/CLAUDE.md`, and nothing else. After the run, each of the four files matched its template file byte for byte (`cmp`).
+3. The project with changed blocks: a person's line was added inside the block of `AGENTS.md` and of `docs/work/AGENTS.md`, and a person's own text after each block. The same command ended with the status `blocked` and exit code 0. The actions were `skip-conflict` for the two changed files. The message named both files: "Existing conflicting make-docs managed block was skipped because no reassert resolution was provided." The next action was: "Review and repair the listed files without deleting project content, then run `make-docs setup` again." `shasum -c` showed that both changed files kept their bytes. The two unchanged files of that project, `CLAUDE.md` and `docs/work/CLAUDE.md`, also kept their 2.1.0 text, because a blocked run writes nothing.
+4. The same project with `--conflicts keep`: the run again ended `blocked`, with "The reviewed plan does not permit migration (ambiguous-ownership)." The files kept their bytes. See the known limits.
+5. The same project with `--conflicts overwrite`: the run ended `complete`. Each block was replaced with the new block. The person's text after each block stayed, and the person's line inside the block was gone. The run made a backup under `.make-docs/backup/`.
+
+What a person with a hand-edited managed block sees after an update to 2.1.1:
+
+- The same `blocked` result as before this phase, with the conflict review. This phase changed no rule of that review.
+- The new lines arrive only after an interactive setup, or after `make-docs setup` with `--conflicts overwrite`. Each of the two replaces the person's text inside the block and keeps a backup under `.make-docs/backup/`. The person's text outside the block stays.
+- While a project is `blocked` on one changed router, its unchanged routers keep the old text. So the person gets none of the new lines until the review is done.
+
+Both limits exist before this phase: the `blocked` result with no way to keep a changed block in a `--yes` run, and the old text in the unchanged routers of a blocked project. W22 R1 and W22 R2 own those rules, and this phase did not change them.
+
+The test file repeats steps 2, 3, and 5 through the planner: a project whose four routers hold the 2.1.0 blocks, with the 2.1.0 hashes in its install record. The test proves that its 2.1.0 blocks have the hashes of step 1.
+
+### The MCP Instructions (T6, A35)
+
+A real run of the built CLI over stdio, `make-docs mcp --profile <profile>`, with a client of the MCP SDK and the same temporary Store:
+
+| Profile | Tools listed | `project_checkpoint` listed | Instructions |
+| --- | --- | --- | --- |
+| `all` | 82 | yes | The text above. |
+| `backlog` | 15 | yes | The text above. |
+| `workflow` | 25 | yes | The text above. |
+| `core` | 9 | no | None. |
+| `setup` | 25 | no | None. |
+| `quality` | 13 | no | None. |
+| `factory` | 14 | no | None. |
+
+The tests connect a client to each of the seven profiles in the test process and check the same. They also check that each tool that the instructions name is in the tool list of that connection, and that the rule is not sent when one of its three tools is not listed. One more test gives the functions a catalog where one of the three operations is `planned`, and a catalog where it is absent: no error is thrown, and no instructions are sent. One more test checks that no sentence orders a call at the start of every session, and that each sentence with `allowWrite` ties it to a change of project files.
+
+The table above is the run of the first pass. The fix pass ran the `all` profile and the `core` profile again over stdio with the built CLI: see [The Review Of P3 And Its Fix Pass](#the-review-of-p3-and-its-fix-pass).
+
+### The Name Test (T7, A36)
+
+The test function `nameProblems` reads the code spans of a text. It fails when a `make-docs` path is not a current command of the name catalog, when a tool name is a former catalog name, when a tool name is not in the given tool list, and when the text lacks the current checkpoint command or tool. It runs on the root line and the note in the template and in the installed copy, on the trigger text and the whole reference in both copies, and on the MCP instructions with the tool list of each connection. It fails on these fixtures: `make-docs project sync-all`, `make-docs work list`, `make-docs work evidence write`, `make-docs run work backlog snapshot`, `make-docs project path-hygiene validate`, `backlog_cache_read`, `project_checkpoint_run`, a catalog where the checkpoint entry is `planned`, and a catalog where the checkpoint has another name. The shipped-text scan of W33 R0 P4 did not change, and it still passes on all files.
+
+### P3 Known Limits
+
+- A router line is text. An agent that reads no router, or does not obey it, is not reached. The design says so for all of Phase 1.
+- A host can drop the MCP server instructions. Nothing in the server can tell whether a host showed them to its agent.
+- Not from this phase: in the changed project, `make-docs setup --yes --conflicts keep` did not finish. It ended `blocked` with "ambiguous-ownership". So a person who wants to keep a changed block cannot get the other files of that run updated with `--yes`. W22 R1 and W22 R2 own these rules, so this phase did not look for the cause and did not change it.
+- Not from this phase: while a project is `blocked` on a changed `AGENTS.md`, its unchanged `CLAUDE.md` keeps the old text. The two files of the pair then differ until a person finishes the review.
+- The name test checks code spans only. A command in plain prose with no code span is not read.
+- The tests of A31 are text matches. They compare each line with a fixed text and check that fixed parts are in it. They do not prove that a reader can act on a line with no other document, and they do not prove that a line is true in each Store state. The table under [The Lines For The Owner](#the-lines-for-the-owner-a38) is a reading by the implementing agent, not a test.
+- The tests of A32 are text matches on the template copy of the reference, plus the byte match of the installed copy. No test runs the checkpoint at the three moments.
+- The test of A34 reads only the template folder: it checks that `packages/docs/template/docs/work` holds the two router files and no other file. It does not read this repository's `docs/work/`, it computes no digest, and it starts no sync. That no work file of this repository changed for the routers is a fact of the staged change set, which changes `docs/work/AGENTS.md`, `docs/work/CLAUDE.md`, and files of this backlog only.
+- A host that asks the person before each call with the write permission asks when an agent obeys the instructions after an edit under `docs/work/` or after a phase closes. It does not ask at the first call, which has no write permission unless the task may change project files.
+- An agent decides for itself whether its task "may change this project's files". No code checks that choice.
+
+### P3 New Behavior That The Documents Did Not State
+
+The design, the plan, and the phase file do not state these 15 points. Each one waits for the owner's review. None is an owner decision.
+
+1. The root line does not name `make-docs resource read`. The proposed text of the design named it as a second read command. The line is shorter without it, and `make-docs work next` is the command that an agent needs first. The line says "find work" and not "read work".
+2. The root line says "(`make-docs work status` says which side is)" and not "says so", as the review of the design asked. Its last sentence is "Otherwise, or without the CLI, the `docs/work/` files are the authority." The proposed text of the design said "Without the CLI or a usable Store". The review of this phase found that those words do not cover a usable Store with a checkout that is not bound, so the fix pass changed them.
+3. The `docs/work/` note keeps the words "to claim, report, or close work" from the line that it replaces. It also keeps the form of the other router lines: a valid local body first, then `make-docs resource read` with the URI.
+4. The MCP instructions name `allowWrite: true` two times, each with a condition: the agent adds it to the first call only when its task may change this project's files, and it passes it after it changed a file under `docs/work/` and after it closed a phase. Without it, the tool does the read steps only and says that the sync did not run (PRD 25 R-MCP-PROFILE-12). The first text of this phase told every agent to pass it at the start of every session. The review found that this made the write intent automatic, also for an agent that only reviews or answers a question, and the fix pass removed it.
+5. The MCP instructions tell an agent to call the checkpoint "when you start work on this project's backlog", and not at the start of every session. So an agent with a task that is not backlog work is not told to call it. The design's event table names the start of a session. The words "start work on this project's backlog" are narrower, and they are new. The checkpoint itself finds who is in charge, and with no usable Store it changes nothing.
+6. The server decides from the listed tools, and not from the profile name, whether it sends the rule. The rule needs all three tools: `project_checkpoint`, `work_status`, and `work_next`.
+7. A profile with no work tool sends no `instructions` field at all. No profile sends any other instruction text.
+8. The tool names in the instructions come from the name catalog when the server starts. If one of the three operations is not a current catalog entry, the server sends no instructions and starts as before. Advice text cannot stop the server. A test holds the three names, so the name test is the guard, and a second test proves that a catalog without a current name gives no instructions and no error. The first text of this phase stopped the server in that case, also for a profile that sends no text, and the fix pass removed that.
+9. The trigger text is its own part, `### When to Run It`, at the end of the `Checkpoint` section. It has no rule ID, because no CLI rule decides when an agent runs a command.
+10. The trigger text replaces the earlier sentence of five moments. "At the end of a turn" and "after a commit or a pull" are not in the list of three moments. The text says that an agent also runs the checkpoint when it does not know whether work files changed, such as after a commit or a pull. `turn-end` stays in the list of the six events.
+11. The trigger text says that an agent needs no hook for the three moments.
+12. The name test of this phase is its own, stricter test, beside the shipped-text scan of W33 R0 P4. PRD 39 R-NAME-6 says so.
+13. The PRDs fix the meaning of each text and not its exact words, because the owner has not approved the words. PRD 15 R-WORK-ROUTER-1 and PRD 25 R-MCP-INSTR-1 say so and point to this report for the proposed words. One exception waits: PRD 15 R-WORK-ROUTER-2 holds the words "When the work store is present, it is the authority", which are the owner's own words and wait for the owner's answer.
+14. The trigger text names the two forms of the event input: `--event` for the command and `event` for the tool. It says that the tool syncs only with `allowWrite: true`, and without it gives the read steps and says that the sync did not run.
+15. The trigger text keeps the moment "at the start of a session, before you find or pick work" for a direct run by an agent. The MCP instructions say "when you start work on this project's backlog". The two texts differ in these words.
+
+### The Review Of P3 And Its Fix Pass
+
+One independent review of P3 ran on 2026-11-27, before any commit of the phase. The fix pass checked each finding against the code first. Each finding was right. The fix pass recorded no owner decision for this phase.
+
+| Finding | What the review found | Result |
+| --- | --- | --- |
+| M1 | The MCP instructions told every agent to call `project_checkpoint` with `allowWrite: true` at the start of every session, with no condition. PRD 25 R-MCP-INSTR-1 said the same as a MUST. With the Store in charge, that call is a full two-way sync. | Fixed. The first call has no write permission unless the agent's task may change project files. The later calls name the write permission, after a change under `docs/work/` and after a closed phase. R-MCP-INSTR-1 has the new meaning, and its words "in the same conditional words" are gone. |
+| M2 | The `docs/work/` note is false when a Store is present and not in charge. | Not changed. It waits for the owner. See [the finding](#the-review-finding-on-the-note-which-waits-for-the-owner). |
+| S1 | The last sentence of the root line did not cover a usable Store with a checkout that is not bound. | Fixed: "Otherwise, or without the CLI, the `docs/work/` files are the authority." |
+| S2 | A catalog without a current name for one of the three tools stopped the MCP server in every profile. | Fixed. The server sends no instructions in that case, and a test proves it. |
+| S3 | The reference named the tool argument as `--event`. | Fixed. The text names `--event` for the command and `event` for the tool, and it says that the tool syncs only with `allowWrite: true`. |
+
+The reference keeps the moment "at the start of a session, before you find or pick work". It gives no order to pass the write permission, and its new clause says what the tool does without it. The root line held no session-start order, so only its last sentence changed.
+
+The fix pass also softened the PRD text. PRD 15 R-WORK-ROUTER-1 and PRD 25 R-MCP-INSTR-1 now say that they fix the meaning and not the words, and they point to this report. PRD 15 R-WORK-ROUTER-2 and R-WORK-ROUTER-3 did not change, because they wait for the owner's answer on the note.
+
+The owner's decision of 2026-11-27 on register entry R-042 is recorded in the register, the plan, and the backlog: fix it in this Wave. The owner did not choose the phase. The orchestrator placed it in [P7 Stage 4](07-acceptance.md#stage-4---the-fix-for-an-unknown-option-on-a-write-command), as tasks T14 to T19 and cases A79a to A79f. The backlog now has 112 tasks.
+
+Checks of the fix pass, on the final files, with the temporary Store `/private/tmp/claude/p3fix/store`. Each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store.
+
+- `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- `npx vitest run tests/w35-r0-p3-routers-and-mcp-instructions.test.ts`: 36 tests pass.
+- `npm test -w packages/cli -- --testTimeout=120000`, with `TMPDIR=/private/tmp/claude/x`: 3,894 tests pass, 2 fail, and 6 are skipped, in 162 test files. The 2 are the known failures of `tests/mcp-app-contract.test.ts` on Node 26. `backup.test.ts` and `uninstall.test.ts` pass with this temp path. Two documents changed after this run started: this report and the index. The run of the next line covers them.
+- A second run on the final files: the P3 test file, the consistency test, the managed block test, the nine MCP test files without `mcp-app-contract.test.ts`, the name catalog test, the two router test files, the shipped-text test, the P1 surfaces test, `backup.test.ts`, and `uninstall.test.ts`. 402 tests pass in 17 files.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `bash scripts/check-instruction-routers.sh`: "Instruction router check passed." This one run was outside the sandbox, because the script needs the system temp folder.
+- `make-docs check prd --target-root .`: the status `passed`, exit code 0, no diagnostics.
+- `make-docs project paths validate`: 1,139 files checked, 0 findings.
+- `make-docs project markdown validate --path <file>` on each changed document: no findings on this report, the index, the P3 and P7 phase files, the two plan files, and both copies of the work store reference. On PRD 03, PRD 15, PRD 25, and PRD 39 it reports findings only on lines that this phase did not change.
+- `make-docs backlog snapshot --target-root . --json`: exit code 0, standard error is empty, and no diagnostic names W35. The snapshot counts 7 phases and 112 tasks for this backlog.
+- The five template files and their installed copies: `cmp` shows that `docs/work/AGENTS.md`, `docs/work/CLAUDE.md`, and the reference match whole, and that the block of the root `AGENTS.md` and `CLAUDE.md` equals the template file. The text after the block of both root files equals the text at `23c105ab`.
+- A real run of the built CLI over stdio, with one `initialize` request: `make-docs mcp --profile all` answers with the instructions as shown above, and `make-docs mcp --profile core` answers with no `instructions` field.
+- Not run again in the fix pass: `npm run smoke:pack:local`, the update by hand from the released 2.1.0 package, and the stdio run of the other five profiles. The results above for them are from the first pass, before the text changed.
+
+### P3 Checks
+
+The checks below are from the first pass, before the review. The section above holds the checks of the fix pass.
+
+Every test and every CLI run used a temporary Store at a fixed path under `/private/tmp`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store.
+
+- `npm ci`, then `npm run prepack -w packages/cli`: the build passes.
+- `npx tsc --noEmit -p packages/cli`: no errors.
+- `npx vitest run tests/w35-r0-p3-routers-and-mcp-instructions.test.ts`: 34 tests pass.
+- `npm test -w packages/cli -- --testTimeout=120000`, on the final code, with `TMPDIR=/private/tmp/claude/p3/s`: 3,890 tests pass, 4 fail, and 6 are skipped, in 162 test files. Two of the 4 are `tests/mcp-app-contract.test.ts` "gives a typed chat fallback for an unproved transport" and "opens the same factory and resource over real stdio". They fail on Node 26 because of a deprecation warning on standard error. Known, and not from this phase. The other two are one test in `tests/backup.test.ts` and one in `tests/uninstall.test.ts`. They failed because that temp path was still too long, so the output box wrapped a path. With `TMPDIR=/private/tmp/claude/x` both files pass.
+- A second run after the last document change, with `TMPDIR=/private/tmp/claude/x`: the P3 test file, `backup.test.ts`, `uninstall.test.ts`, the shipped-text test, the name catalog test, the consistency test, the P1 surfaces test, and the W29 agent twin test. 245 tests pass in 8 files.
+- `npm run validate:defaults`: 53 tests pass.
+- `npm run test:smoke-harness`: 19 tests pass.
+- `npm run smoke:pack:local` (`node scripts/smoke-pack.mjs --mode local`), with a temporary Store: "[smoke:pack] PASS mode=local". The script packs the CLI, installs the tarball in a temp folder, and compares the router bytes after an update. Its last step, `scripts/w22-r1-package-proof.mjs`, could not reach the registry from the sandbox in the first run. The second run gave it the released 2.0.5 tarball through `MAKE_DOCS_RELEASED_205_TARBALL`, and it passed.
+- `bash scripts/check-instruction-routers.sh`: passed.
+- `make-docs check prd --target-root .`: exit code 0, no diagnostics.
+- `make-docs project paths validate`: 1,139 files checked, 0 findings.
+- `make-docs project markdown validate --path <file>` on each changed document: no findings on this report, the P3 phase file, and both copies of the work store reference. The six router files are skipped as instruction router files. On PRD 15, PRD 25, and PRD 39 it reports findings only on lines that this phase did not change.
+- `make-docs backlog snapshot --target-root .`: exit code 0, and no diagnostic names W35.
+- The update by hand and the MCP run over stdio: see the sections above.
+
+### P3 Not Done
+
+- A38: the owner has not read the lines.
+- The owner has not answered the review finding on the `docs/work/` note. PRD 15 R-WORK-ROUTER-3 is not proven for the note until then.
+- The owner has not reviewed the 15 points under "P3 New Behavior That The Documents Did Not State".
+- The fix pass of the first independent review has no check by a reviewer yet.
+- The package digest is not recorded again. The orchestrator does that after the review, under standing rule 10. This phase changed package bytes, so the recorded digest is stale.
+- No session of a real agent tool read the router lines or the MCP instructions. [P7](07-acceptance.md) holds the recorded agent sessions.
+- The guides do not name the router lines or the MCP instructions yet. P7 updates the guides.
+- The merge with W22 R1 and W22 R2 is not done. The branch that merges second rebases and reruns the router tests and the byte-match tests.

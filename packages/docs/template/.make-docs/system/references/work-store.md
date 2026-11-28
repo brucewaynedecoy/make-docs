@@ -259,7 +259,7 @@ Without a usable Store, a project URI read returns the typed Store result, and i
 
 ## Checkpoint
 
-Run `make-docs project checkpoint` to do all that is due for the project's work in one step. Run it when you start a session, after you change a work file, at the end of a turn, after a commit or a pull, and when you close a phase. It is not `make-docs lifecycle checkpoint`, which records one step of one lifecycle run.
+Run `make-docs project checkpoint` to do all that is due for the project's work in one step. [When to Run It](#when-to-run-it) names the moments. It is not `make-docs lifecycle checkpoint`, which records one step of one lifecycle run.
 
 - The checkpoint works in one order. Step 1: it finds who is in charge, with the rule of `work status`. Step 2: when the work store is in charge, it syncs the work files. Step 3: it lists each claim of the project that ended or ends soon. Step 4: it lists the next ready work. Step 5: it gives one summary line. The summary line is the first line of the result, so read that line first. (WORK-RULE-055)
 - A run with no `--event` is a direct run. You start it. It runs the same two-way sync as `work sync`, and it always gives its result. (WORK-RULE-056)
@@ -274,6 +274,20 @@ Run `make-docs project checkpoint` to do all that is due for the project's work 
 - The result names the checkout that it synced. When the run was the first sync of that checkout, the result says so: a first sync only imports, so the result gives the count of files that the run imported and says that it wrote and removed no file. A file that stopped as a conflict is not imported. The next direct run writes what waits. (WORK-RULE-065)
 
 Without the CLI, or without a usable Store, there is nothing to sync: the `docs/work/` files are the whole record, and there are no claims. No reminder line, no mark, and no "This list is not complete" line appears, because no store can be behind the files. Do the read steps by hand. Read the files under `docs/work/` and apply [Readiness](#readiness) to find the next ready work. Tell the person which work is ready, and that the files are the authority. Do not create a Store, and do not write a sync record of your own.
+
+### When to Run It
+
+Run the checkpoint yourself at three moments:
+
+1. At the start of a session, before you find or pick work.
+2. After you edit a file under `docs/work/`.
+3. After you close a phase.
+
+Each of the three is a direct run: run `make-docs project checkpoint` with no `--event`, or call the `project_checkpoint` tool with no `event`. The tool syncs only with `allowWrite: true`, and without it gives the read steps and says that the sync did not run. A direct run is safe to repeat. So also run one when you do not know whether work files changed, such as after a commit or a pull.
+
+The checkpoint knows six events: `session-start`, `files-changed`, `turn-end`, `commit`, `branch-change`, and `phase-closed`. An event name belongs to a trigger run, and only a hook starts a trigger run. You never start one, and you need no hook for the three moments above.
+
+Without the CLI, there is no checkpoint to run. Without a usable Store, a run syncs nothing and says that the `docs/work/` files are the authority. In both cases the `docs/work/` files are the authority.
 
 ## Related
 

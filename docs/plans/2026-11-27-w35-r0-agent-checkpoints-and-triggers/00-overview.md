@@ -257,13 +257,13 @@ Each entry lands in the phase that builds the behavior. Each one uses the `2026-
 | [04-git-hook-proofs.md](04-git-hook-proofs.md) | Prove the git hook facts on each platform, find how a hook reaches `make-docs`, check the clone-owned record, and run `PERF-007`. The phase builds no product behavior, with one exception: it fixes the sync core fault of register entry R-041, before any hook installs. |
 | [05-git-hooks-in-setup.md](05-git-hooks-in-setup.md) | Build the git hook offer, the machine preference and its question at the machine step, the marked block, the refusals, the Store record, drift, and exact removal. |
 | [06-agent-tool-hooks.md](06-agent-tool-hooks.md) | Record the real hook contract of each of the three agent tools, then build a hook method for each one. |
-| [07-acceptance.md](07-acceptance.md) | Prove the package, check the final digest, update the guides, review the human experience, and pass the owner acceptance gate. |
+| [07-acceptance.md](07-acceptance.md) | Prove the package, check the final digest, update the guides, review the human experience, and pass the owner acceptance gate. The phase builds no product behavior, with one exception: it makes a write command refuse an option that it does not know (register entry R-042), before the package proof. |
 
 The owner set two phases at design level. This plan splits them into seven build phases, and the reasons are these:
 
 - Design Phase 1 becomes P1, P2, and P3. Each one is a change set that one reviewer can check: one operation, one output change that touches 47 commands and needs a measurement, and one set of shipped text that changes every installed project on its next update. P2 and P3 both need the command name from P1 in the name catalog first.
 - Design Phase 2 becomes P4, P5, and P6. P4 holds every item that the design marks "the plan proves", "the plan finds out", or "the plan measures" for git hooks. Its results can change the build: a Store schema change stops for the owner (OG-3), the run mode needs the owner (OG-4), and a platform gap changes the hook review. So P4 ends and is reviewed before P5 builds. P6 is its own phase after the git hooks, as the owner's choice of OD-10 option B allows. It records the hook contract of each tool before it builds, so that a stop for one tool does not hold the git hooks.
-- P7 is the acceptance phase, as in the model Wave.
+- P7 is the acceptance phase, as in the model Wave. It also holds the fix for register entry R-042, which the orchestrator placed there after the owner's decision of 2026-11-27.
 
 ## Dependencies
 
@@ -273,7 +273,7 @@ The owner set two phases at design level. This plan splits them into seven build
 - P4 depends on P1. It can run beside P2 and P3. No owner gate blocks P4. P4 finds whether OG-3 opens and brings OG-4 to the owner, and both gates block P5.
 - P5 depends on P4, on the P4 three-platform result, and on owner gates OG-3 (only if it opens), OG-4, and OG-6 (only if it opens). OG-5 and OG-10 are answered.
 - P6 depends on P1 for the command and on P5 for the PRD 28 sentence. Its Stage 1 evidence can start beside P4. Owner gate OG-7 is answered, so its Stage 2 waits only for Stage 1 and for P5.
-- P7 depends on P1 to P6. If P6 stops to ask the owner about one tool, P7 runs after the owner answers and P6 closes. Owner gate OG-9 blocks no stage of P7. The last P7 task brings it, and it blocks the Wave closeout.
+- P7 depends on P1 to P6. If P6 stops to ask the owner about one tool, P7 runs after the owner answers and P6 closes. Owner gate OG-9 blocks no stage of P7. The last P7 task brings it, and it blocks the Wave closeout. The package proof of P7 waits for the fix for register entry R-042, which is the first work of P7.
 
 ## Wave Order
 
@@ -520,6 +520,17 @@ This handoff is advisory-default-but-overridable.
 - Coordinate Handoff: Carry W35 R0 into the requirement-history entries, the phase history records, and docs/work/2026-11-27-w35-r0-agent-checkpoints-and-triggers/.
 
 ## Change History
+
+### 2026-11-27 — W35 R0 P3
+
+- Kind: `edit`
+- Affected scope: the phase map row of P7; the dependencies of P7; [P7](07-acceptance.md).
+- Previous scope: P7 built no product behavior. Register entry R-042 had no owner decision, and no phase held its fix.
+- Replacement scope: P7 also fixes the fault of register entry R-042: it finds why the CLI accepts an option that a work write command does not know, checks every other write command of the registry, makes a write command refuse such an option with a clear message and no write, adds tests, adds the rule and a Requirement History entry to the PRD that owns it, and closes R-042. This is the one part of P7 that builds product code, so P7 needs its own independent review and a digest record under standing rule 10. The fix runs before the package proof. No gate ID, earlier task ID, or earlier acceptance case number changed.
+- Rationale: the owner decided on 2026-11-27 to fix R-042 in this Wave. The owner did not choose the phase. The orchestrator placed it in P7.
+- PRD decision: `update-existing` — PRD 39 or PRD 07 in P7, for the rule about an option that a command does not know. The P7 task finds which PRD owns the rule.
+- Owner approval: the owner's decision of 2026-11-27 on register entry R-042.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)
 
 ### 2026-11-27 — W35 R0 P2
 

@@ -71,7 +71,7 @@ These rules hold in every phase.
 | [04-git-hook-proofs.md](04-git-hook-proofs.md) | Prove the git hook facts on each platform, find how a hook reaches `make-docs`, check the clone-owned record, and run `PERF-007`. The phase builds no product behavior, with one exception: its Stage 5 fixes the sync core fault of register entry R-041 (T18), before any hook installs. |
 | [05-git-hooks-in-setup.md](05-git-hooks-in-setup.md) | Build the git hook offer, the machine preference and its question at the machine step, the marked block, the refusals, the Store record, drift, and exact removal. |
 | [06-agent-tool-hooks.md](06-agent-tool-hooks.md) | Record the real hook contract of each of the three agent tools, then build a hook method for each one. |
-| [07-acceptance.md](07-acceptance.md) | Prove the package, check the final digest, update the guides, review the human experience, and pass the owner acceptance gate. |
+| [07-acceptance.md](07-acceptance.md) | Prove the package, check the final digest, update the guides, review the human experience, and pass the owner acceptance gate. The phase builds no product behavior, with one exception: it makes a write command refuse an option that it does not know (register entry R-042), in its Stage 4 (T16), before the package proof. |
 
 ## Owner Gates
 
@@ -121,8 +121,8 @@ The phase files repeat a merge risk as one plain paragraph under the stage headi
 - Read phases in order. P2 and P4 each depend only on P1. P3 Stage 1 depends only on P1, and P3 Stage 2 also needs P2 Stage 2, because the MCP instructions use the result text of the read commands. So P2, P3 Stage 1, and P4 can run side by side. P5 waits for P4, for the P4 platform result, and for its open gates OG-3, OG-4, and OG-6. P6 Stage 1 can start beside P4.
 - P1 T1 to T3 are the name gate. The catalog entry lands in T1, the PRD lines that name the command and the tool land in T2, and the test check lands in T3. No later phase names `make-docs project checkpoint` in shipped text before P1 turns the entry `current`.
 - Every phase file includes `## Source PRD Docs`. It lists the requirements that exist today. Each phase names the requirements that it adds in its tasks.
-- Acceptance case IDs run from A1 to A79 across this backlog. Seven cases with a letter, A53a to A53g, stand in P5 Stage 2. They hold the owner's answer to OG-5 and were added on 2026-11-27, so that no earlier case number changed. A53g holds the owner's decision on the scope of the preference. Six more cases with a letter, A47a to A47f, stand in [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time). They hold the fix for register entry R-041 and were added on 2026-11-27, so that no earlier case number changed. P4 Stage 5 also added the tasks T18 to T23 at the end of P4. The backlog has 106 tasks.
-- Each item that the design marks "the plan proves", "the plan finds out", or "the plan measures" has its own named task, or three tasks for the git facts. P1 T4 and T5, P2 T2 and T9 to T11, and P4 T1 to T7 and T9 to T15 hold them. P4 T18 to T23 are not such items: they hold the fix for register entry R-041.
+- Acceptance case IDs run from A1 to A79 across this backlog. Seven cases with a letter, A53a to A53g, stand in P5 Stage 2. They hold the owner's answer to OG-5 and were added on 2026-11-27, so that no earlier case number changed. A53g holds the owner's decision on the scope of the preference. Six more cases with a letter, A47a to A47f, stand in [P4 Stage 5](04-git-hook-proofs.md#stage-5---the-fix-for-two-syncs-at-the-same-time). They hold the fix for register entry R-041 and were added on 2026-11-27, so that no earlier case number changed. P4 Stage 5 also added the tasks T18 to T23 at the end of P4. Six more cases with a letter, A79a to A79f, stand in [P7 Stage 4](07-acceptance.md#stage-4---the-fix-for-an-unknown-option-on-a-write-command). They hold the fix for register entry R-042 and were added on 2026-11-27, so that no earlier case number changed. P7 Stage 4 also added the tasks T14 to T19 at the end of P7. The backlog has 112 tasks.
+- Each item that the design marks "the plan proves", "the plan finds out", or "the plan measures" has its own named task, or three tasks for the git facts. P1 T4 and T5, P2 T2 and T9 to T11, and P4 T1 to T7 and T9 to T15 hold them. P4 T18 to T23 are not such items: they hold the fix for register entry R-041. P7 T14 to T19 are not such items: they hold the fix for register entry R-042.
 - Performance: `PERF-006` is owned by [P2](02-reminder-and-read-commands.md) and `PERF-007` by [P4](04-git-hook-proofs.md). Each phase writes its profile before any measurement and reuses the method of [`PERF-004`](../2026-11-21-w29-r0-work-store/06-package-parity-and-acceptance.md#perf-004-automatic-sync-on-a-project-with-many-backlogs).
 - Evidence: the [evidence report](evidence.md) holds the retained evidence. P1 created it on 2026-11-27 with its first section. Each later phase adds its section.
 - Source register entries: none exist yet. P1, P2, P4, and P6 add them. No `O-###` obligation or `NUAT-###` scenario is in scope. Unassisted Goal Testing is `not-needed-now`.
@@ -138,6 +138,17 @@ This handoff is advisory-default-but-overridable.
 - Coordinate Handoff: Carry W35 R0 into phase history records and commits, adding the active P number.
 
 ## Change History
+
+### 2026-11-27 — W35 R0 P3
+
+- Kind: `edit`
+- Affected scope: the phase map row of P7; the usage notes; P3 (T6, A35, and the closeout notes); P7 (its purpose, its overview, the new Stage 4 with T14 to T19 and A79a to A79f, and the dependency list of Stage 1).
+- Previous scope: P7 built no product behavior, and its last task was T13. Register entry R-042 had no owner decision, and no task held its fix. In P3, the MCP instructions told every agent to call the checkpoint with the write permission at the start of every session, and a name that the catalog did not hold as current stopped the MCP server.
+- Replacement scope: P7 gains Stage 4, which fixes the fault of register entry R-042: T14 finds the cause, T15 checks every other write command of the registry, T16 makes a write command refuse an option that it does not know, T17 adds the tests, T18 updates the PRD that owns the rule, and T19 closes R-042. T16 is the one task of P7 that builds product code, so P7 needs its own independent review and a digest record under standing rule 10. P7 Stage 1 now waits for Stage 4, so the package proof runs on the fixed code. In P3, the MCP instructions tell an agent that starts work on the backlog to call the checkpoint, and to add the write permission only when its task may change project files. A catalog without a current name for a tool of the rule sends no instructions and does not stop the server. No earlier task ID or acceptance case number changed. The backlog has 112 tasks.
+- Rationale: the owner decided on 2026-11-27 to fix R-042 in this Wave. The owner did not choose the phase. The orchestrator placed it in P7. The P3 changes come from the independent review of P3 on 2026-11-27, and they record no owner decision.
+- PRD decision: `update-existing` — PRD 39 or PRD 07 in P7 T18, for the rule about an option that a command does not know. The P3 changes of PRD 15 and PRD 25 are part of the `W35 R0 P3` Requirement History entries.
+- Owner approval: the owner's decision of 2026-11-27 on register entry R-042.
+- Source: [Agent Checkpoints and Triggers](../../designs/2026-11-27-agent-checkpoints-and-triggers.md)
 
 ### 2026-11-27 — W35 R0 P2
 
