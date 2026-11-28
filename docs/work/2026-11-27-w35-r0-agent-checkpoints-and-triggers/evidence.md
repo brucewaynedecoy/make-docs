@@ -899,11 +899,10 @@ Every test and every CLI run used a temporary Store at a fixed path under `/priv
 
 ## P4 Git Hook Proofs
 
-Covers A39 to A47 and A47a to A47f in [P4](04-git-hook-proofs.md). Evidence date: 2026-11-27. Branch: `docs/w35-store-authority-and-agent-reminders`, at `d12d1047`, with the phase changes uncommitted. Node `v26.13.1`. git 2.47.1. CLI package version `2.1.1`.
+Covers A39 to A47 and A47a to A47f in [P4](04-git-hook-proofs.md). Evidence date: 2026-11-27. Branch: `docs/w35-store-authority-and-agent-reminders`, at `d12d1047`, with the phase changes uncommitted. Node `v26.13.1`. git 2.47.1. CLI package version `2.1.1`. The platform run of 2026-11-28 ran commit `965ad51e` with git 2.56.1 on Linux, macOS, and Windows. See [Platform Run](#platform-run).
 
-P4 is built on the maintainer machine and not marked complete. Each task that a builder on this computer can do is done. Four things wait:
+P4 is built on the maintainer machine and not marked complete. Each task that a builder on this computer can do is done. The platform run is done, and this section records its results. Three things wait:
 
-- The platform run. Every result in this section is from macOS only. No Linux result and no Windows result exists yet. Under standing rule 12 they come from the pull request run that the orchestrator starts, and the evidence commit records them. So A39 and A41 do not pass yet.
 - T10. The access runs inside each agent tool belong to the orchestrator under standing rule 11. The steps, a script, and the table are ready below. No run exists, so each tool has "no proof gathered" today.
 - The owner. Owner gate OG-4 is open, and A46 waits for the owner's answer. The owner has not reviewed the points under "P4 New Behavior That The Documents Did Not State".
 - The independent review of this phase, and the package digest, which the orchestrator records after the review.
@@ -926,38 +925,38 @@ Every test, measurement, and CLI run used a temporary Store at a fixed path unde
 
 ### The Git Facts By Platform (T1 To T4, A39)
 
-Each row is one test or more in `packages/cli/tests/w35-r0-p4-git-hook-facts.test.ts`. Each test writes one log line that starts with `W35-R0-P4-GIT-FACT` and holds the platform, the git version, and what it saw. The evidence commit takes the Linux and Windows cells from those lines in the workflow run.
+Each row is one test or more in `packages/cli/tests/w35-r0-p4-git-hook-facts.test.ts`. Each test writes one log line that starts with `W35-R0-P4-GIT-FACT` and holds the platform, the git version, and what it saw. The Linux and Windows cells come from those lines in the logs of the [platform run](#platform-run). A cell that says "proven" means that the test passed on that platform and that its log line holds the same value as the macOS column. Where a test checks a part that its log line does not hold, the cell says so. The macOS column is from the maintainer machine with git 2.47.1. The macOS job of the platform run also passed with git 2.56.1, and its log lines hold the same values.
 
-| Fact | macOS, git 2.47.1 | Linux | Windows |
+| Fact | macOS, git 2.47.1 and git 2.56.1 | Linux, git 2.56.1 | Windows, git 2.56.1.windows.1 |
 | --- | --- | --- | --- |
-| `git pull` with a true merge runs `post-merge`, with the one argument `0` | proven | waits for the platform run | waits for the platform run |
-| `git pull` that only moves the branch forward runs `post-merge` | proven | waits for the platform run | waits for the platform run |
-| `git pull --rebase` with no local commits runs `post-merge`, and no `post-rewrite` | proven | waits for the platform run | waits for the platform run |
-| `git pull --rebase` with local commits runs `post-checkout`, `post-commit`, and `post-rewrite`, and not `post-merge` | proven | waits for the platform run | waits for the platform run |
-| In that pull, `post-rewrite` runs one time, with the argument `rebase`, as the last hook | proven | waits for the platform run | waits for the platform run |
-| A plain commit runs `post-commit` only | proven | waits for the platform run | waits for the platform run |
-| An amended commit runs `post-commit` and `post-rewrite` (argument `amend`) | proven | waits for the platform run | waits for the platform run |
-| The rebase folder of git is still there when `post-rewrite` runs | proven (`rebase-merge`) | waits for the platform run | waits for the platform run |
-| `MERGE_HEAD` is still there when `post-merge` runs after a true merge | proven | waits for the platform run | waits for the platform run |
-| A branch change runs `post-checkout` with the third argument `1` | proven | waits for the platform run | waits for the platform run |
-| A file checkout runs `post-checkout` with the third argument `0` | proven | waits for the platform run | waits for the platform run |
-| `git worktree add` runs `post-checkout` in the new work tree, with the third argument `1` | proven | waits for the platform run | waits for the platform run |
-| A clone runs `post-checkout` when the clone has the hook. The first argument is the null commit | proven, with a hook from a template folder | waits for the platform run | waits for the platform run |
-| Git does not copy hooks on clone: a plain clone has no hook and runs none | proven | waits for the platform run | waits for the platform run |
-| `git rev-parse --git-path hooks` in a linked work tree returns the hooks folder of the main checkout | proven | waits for the platform run | waits for the platform run |
-| One hook file runs for a commit in each work tree of the clone, in the top folder of that work tree | proven | waits for the platform run | waits for the platform run |
-| `git reset --hard` to another commit runs none of the four hooks | proven | waits for the platform run | waits for the platform run |
-| `git am` runs none of the four hooks | proven, with two patches | waits for the platform run | waits for the platform run |
-| Git does not run a hook file that is not executable | proven | waits for the platform run | the test expects that git runs the file there, because Windows has no executable mode. Not seen yet |
+| `git pull` with a true merge runs `post-merge`, with the one argument `0` | proven | proven | proven |
+| `git pull` that only moves the branch forward runs `post-merge` | proven | proven | proven |
+| `git pull --rebase` with no local commits runs `post-merge`, and no `post-rewrite` | proven | proven | proven |
+| `git pull --rebase` with local commits runs `post-checkout`, `post-commit`, and `post-rewrite`, and not `post-merge` | proven | proven | proven |
+| In that pull, `post-rewrite` runs one time, with the argument `rebase`, as the last hook | proven | proven | proven |
+| A plain commit runs `post-commit` only | proven | proven | proven |
+| An amended commit runs `post-commit` and `post-rewrite` (argument `amend`) | proven | proven | proven |
+| The rebase folder of git is still there when `post-rewrite` runs | proven (`rebase-merge`) | proven (`rebase-merge`) | proven (`rebase-merge`) |
+| `MERGE_HEAD` is still there when `post-merge` runs after a true merge | proven | proven | proven |
+| A branch change runs `post-checkout` with the third argument `1` | proven | proven | proven |
+| A file checkout runs `post-checkout` with the third argument `0` | proven | proven | proven |
+| `git worktree add` runs `post-checkout` in the new work tree, with the third argument `1` | proven | proven | proven |
+| A clone runs `post-checkout` when the clone has the hook. The first argument is the null commit | proven, with a hook from a template folder | proven, with a hook from a template folder. The log line holds the third argument `1`, and not the first argument | proven, with a hook from a template folder. The log line holds the third argument `1`, and not the first argument |
+| Git does not copy hooks on clone: a plain clone has no hook and runs none | proven | the test passed; the log holds no value | the test passed; the log holds no value |
+| `git rev-parse --git-path hooks` in a linked work tree returns the hooks folder of the main checkout | proven | proven | proven |
+| One hook file runs for a commit in each work tree of the clone, in the top folder of that work tree | proven | proven: two `post-commit` runs. For the folder, the test passed; the log holds no value | proven: two `post-commit` runs. For the folder, the test passed; the log holds no value |
+| `git reset --hard` to another commit runs none of the four hooks | proven | proven | proven |
+| `git am` runs none of the four hooks | proven, with two patches | proven, with two patches | proven, with two patches |
+| Git does not run a hook file that is not executable | proven | proven: no hook ran | git runs the file there: the log line holds one `post-commit` run. The test expects that, because Windows has no executable mode. So this fact does not hold on Windows |
 
-The design checked these facts with git 2.47.1, and the maintainer machine has the same version. So the macOS column proves no fact on a newer git. The platform run does that.
+The design checked these facts with git 2.47.1, and the maintainer machine has the same version. Two git versions ran in all: 2.47.1 on the maintainer machine, and 2.56.1 on the three platforms of the platform run (2.56.1.windows.1 on Windows). So each fact of this table also holds on a newer git, with one platform difference: on Windows, git runs a hook file that is not executable.
 
 ### How Setup Detects Another Owner Of The Hooks (T5, A40)
 
 This phase builds no setup code. The tests prove the git output that the rule reads, and they hold the rule as test functions. P5 builds it in the product. The rule has four checks, in this order. Setup refuses the git hooks, with one reason and no change, at the first check that holds.
 
 1. A hooks path is set. `git config --show-scope --get-all core.hooksPath` gives one line for each scope that sets the value, with the scope name first: `local` for the repository, `global` for the whole machine, and `system` or `worktree` for those scopes. Exit code 1 means that no scope sets it. As a second check, `git rev-parse --git-path hooks` then differs from the `hooks` folder under `git rev-parse --git-common-dir`. The reason names the scope, so a person knows where the setting lives. Proven: no setting gives no line and the default folder; a repository setting shows as `local`, and git then does not run a hook file in the hooks folder of the clone; a machine setting shows as `global`; a relative value resolves from the top folder of the work tree.
-2. The hook file is a symbolic link. A link points to a file that another tool owns, and a block that Make Docs wrote through the link would change that file. Proven on macOS: git runs the linked file. The test does not run on Windows.
+2. The hook file is a symbolic link. A link points to a file that another tool owns, and a block that Make Docs wrote through the link would change that file. Proven on macOS and on Linux: the test passed there, and it writes no log line. The test is skipped on Windows, so no Windows proof exists that git runs a hook file that is a link.
 3. The hook file is not a shell script. A hook file is a shell script when it holds no null byte and its first line starts with `#!` and names `sh`, `bash`, `dash`, `ksh`, or `zsh`, directly or through `env`. Every other file is not one: a file with another program on its first line, a file with no first line of that kind, a binary file, and an empty file. Proven with nine sample files.
 4. Nothing else. A hook file that is a shell script, with lines of another tool, is not refused. Make Docs adds its marked block and keeps every other byte, as the design says.
 
@@ -971,37 +970,37 @@ Limits of the rule, for the hook review that setup shows:
 
 The test writes a hook file with a line of another tool and a small marked block. The block records the shell, the kernel name, where `sh` and `git` are, the folder, and the PATH. Then a commit runs the hook.
 
-| Question | macOS, git 2.47.1 | Linux | Windows |
+| Question | macOS, git 2.47.1 and git 2.56.1 | Linux, git 2.56.1 | Windows, git 2.56.1.windows.1 |
 | --- | --- | --- | --- |
-| Which shell runs a hook file with the first line `#!/bin/sh` | `/bin/sh`, which is bash in its `sh` form there | waits for the platform run | waits for the platform run |
-| The block runs in it and the hook exits 0 | proven | waits for the platform run | waits for the platform run |
-| The kernel name that the hook sees | `Darwin` | waits for the platform run | waits for the platform run |
-| The folder in which the hook runs | the top folder of the work tree | waits for the platform run | waits for the platform run |
-| The PATH that the hook sees | the PATH of the git process, with the program folder of git (`git-core`) added in front. So a hook always finds `git` | waits for the platform run | waits for the platform run |
+| Which shell runs a hook file with the first line `#!/bin/sh` | `/bin/sh`, which is bash in its `sh` form there | `/usr/bin/sh`. It is not bash and not zsh: the hook saw no version variable of either. The log does not name the shell program | `/usr/bin/sh` of a POSIX shell layer, which is bash in its `sh` form there. It is not the Windows command shell. The log does not say which folder of the machine holds that shell |
+| The block runs in it and the hook exits 0 | proven | proven | proven |
+| The kernel name that the hook sees | `Darwin` | `Linux` | `MINGW64_NT-10.0-26100` |
+| The folder in which the hook runs | the top folder of the work tree | the test passed; the log holds no value | the test passed; the log holds no value |
+| The PATH that the hook sees | the PATH of the git process, with the program folder of git (`git-core`) added in front. So a hook always finds `git`. The run of git 2.56.1 logged 32 entries | 27 entries. The first one is `git-core`, and the hook finds `git`. The log holds the count and the first entry, and not the full PATH | 85 entries. The first one is `git-core`, and the hook finds `git`. The log holds the count and the first entry, and not the full PATH |
 
-On Windows the phase expects that git runs a hook through the shell that it ships, and not through the Windows command shell. That is not proven yet. The test proves it there in one way only: the block is POSIX shell text, and the test passes only when a shell ran it and `uname`, `command -v sh`, and `command -v git` gave answers. The log line of the Windows run then names the shell and the kernel name. If the test fails on Windows, the failure returns to this phase as a correction.
+On Windows the phase expected that git runs a hook through the shell that it ships, and not through the Windows command shell. The test proves it there in one way only: the block is POSIX shell text, and the test passes only when a shell ran it and `uname`, `command -v sh`, and `command -v git` gave answers. The test passed on Windows. Its log line holds the shell value `bash .git/hooks/post-commit`, the kernel name `MINGW64_NT-10.0-26100`, and `sh` at `/usr/bin/sh`. So a bash shell of a POSIX layer ran the hook file, and the Windows command shell did not. The log does not say which folder of the machine holds that shell, so it does not prove by itself that the shell is the one that git ships. On Linux the shell value is `.git/hooks/post-commit` with no shell name in front, so the `sh` there is not bash. A hook block must therefore hold POSIX shell text only, as the proof block does.
 
 ### Git In The Middle Of An Action (T7, A40)
 
 The rule that a hook after a commit or after a branch change uses: git is in the middle of an action when one of these exists in the git folder of the work tree (`git rev-parse --absolute-git-dir`): the folder `rebase-merge` or `rebase-apply`, or the file `MERGE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, or `BISECT_LOG`. A linked work tree has its own git folder, so the rule reads the state of that work tree only.
 
-| Fact | macOS, git 2.47.1 | Linux | Windows |
+| Fact | macOS, git 2.47.1 and git 2.56.1 | Linux, git 2.56.1 | Windows, git 2.56.1.windows.1 |
 | --- | --- | --- | --- |
-| During `git pull --rebase` with local commits, each `post-checkout` and `post-commit` run sees `rebase-merge` | proven. The `post-commit` run also sees `CHERRY_PICK_HEAD` | waits for the platform run | waits for the platform run |
-| A merge that stops for a conflict shows `MERGE_HEAD`. A file checkout in it runs `post-checkout` with the third argument `0`, and the hook sees the merge | proven | waits for the platform run | waits for the platform run |
-| The commit that ends such a merge runs `post-commit` and not `post-merge`. The hook then sees no state mark | proven. The test asserts the empty state | waits for the platform run | waits for the platform run |
-| A cherry-pick of one commit runs `post-commit` one time, and that run sees `CHERRY_PICK_HEAD` | proven | waits for the platform run | waits for the platform run |
-| A cherry-pick of two commits runs `post-commit` for each one, and each run, also the last one, sees `CHERRY_PICK_HEAD` and the `sequencer` folder | proven | waits for the platform run | waits for the platform run |
-| A cherry-pick that stops for a conflict runs no hook. `git cherry-pick --continue` then runs `post-commit`, and that run sees no state mark | proven | waits for the platform run | waits for the platform run |
-| In a cherry-pick of two commits that stops at the first one, the commit that ends the stop sees only the `sequencer` folder, and the next commit sees `CHERRY_PICK_HEAD` | proven | waits for the platform run | waits for the platform run |
-| A revert of one commit runs `post-commit` with no state mark | proven | waits for the platform run | waits for the platform run |
-| A revert of two commits runs `post-commit` for each one, and each run sees only the `sequencer` folder | proven | waits for the platform run | waits for the platform run |
-| A revert that stops for a conflict shows `REVERT_HEAD` and runs no `post-commit`. A file checkout in it runs `post-checkout` with the third argument `0`, and that run sees `REVERT_HEAD`. `git revert --continue` then runs `post-commit` with no state mark | proven | waits for the platform run | waits for the platform run |
-| `git revert --no-commit` leaves `REVERT_HEAD`. A branch change then removes it before `post-checkout` runs, so that run sees no state mark | proven | waits for the platform run | waits for the platform run |
-| `git am` of two patches runs none of the four hooks | proven | waits for the platform run | waits for the platform run |
-| Each `post-checkout` run of a bisect sees `BISECT_LOG` | proven | waits for the platform run | waits for the platform run |
-| The hook after a merge runs the checkpoint while `MERGE_HEAD` is still there, and the store has the pulled work file | proven, with the built CLI in the hook | waits for the platform run | waits for the platform run |
-| The hook after a rewrite runs the checkpoint while the rebase folder is still there, and the store has the pulled work file | proven, with the built CLI in the hook | waits for the platform run | waits for the platform run |
+| During `git pull --rebase` with local commits, each `post-checkout` and `post-commit` run sees `rebase-merge` | proven. The `post-commit` run also sees `CHERRY_PICK_HEAD` | proven, with the same marks | proven, with the same marks |
+| A merge that stops for a conflict shows `MERGE_HEAD`. A file checkout in it runs `post-checkout` with the third argument `0`, and the hook sees the merge | proven | the test passed; the log holds no value | the test passed; the log holds no value |
+| The commit that ends such a merge runs `post-commit` and not `post-merge`. The hook then sees no state mark | proven. The test asserts the empty state | proven | proven |
+| A cherry-pick of one commit runs `post-commit` one time, and that run sees `CHERRY_PICK_HEAD` | proven | proven | proven |
+| A cherry-pick of two commits runs `post-commit` for each one, and each run, also the last one, sees `CHERRY_PICK_HEAD` and the `sequencer` folder | proven | proven | proven |
+| A cherry-pick that stops for a conflict runs no hook. `git cherry-pick --continue` then runs `post-commit`, and that run sees no state mark | proven | proven for the run after `--continue`. For the stop with no hook, the test passed; the log holds no value | proven for the run after `--continue`. For the stop with no hook, the test passed; the log holds no value |
+| In a cherry-pick of two commits that stops at the first one, the commit that ends the stop sees only the `sequencer` folder, and the next commit sees `CHERRY_PICK_HEAD` | proven | proven | proven |
+| A revert of one commit runs `post-commit` with no state mark | proven | proven | proven |
+| A revert of two commits runs `post-commit` for each one, and each run sees only the `sequencer` folder | proven | proven | proven |
+| A revert that stops for a conflict shows `REVERT_HEAD` and runs no `post-commit`. A file checkout in it runs `post-checkout` with the third argument `0`, and that run sees `REVERT_HEAD`. `git revert --continue` then runs `post-commit` with no state mark | proven | proven for the run after `--continue`. For the stop and the file checkout, the test passed; the log holds no value | proven for the run after `--continue`. For the stop and the file checkout, the test passed; the log holds no value |
+| `git revert --no-commit` leaves `REVERT_HEAD`. A branch change then removes it before `post-checkout` runs, so that run sees no state mark | proven | proven | proven |
+| `git am` of two patches runs none of the four hooks | proven | proven | proven |
+| Each `post-checkout` run of a bisect sees `BISECT_LOG` | proven | proven | proven |
+| The hook after a merge runs the checkpoint while `MERGE_HEAD` is still there, and the store has the pulled work file | proven, with the built CLI in the hook | proven, with the built CLI in the hook | proven, with the built CLI in the hook |
+| The hook after a rewrite runs the checkpoint while the rebase folder is still there, and the store has the pulled work file | proven, with the built CLI in the hook | proven, with the built CLI in the hook | proven, with the built CLI in the hook |
 
 Four things follow for P5. The independent review of 2026-11-27 corrected the second and the third one, and added the fourth. Each fact below has a test.
 
@@ -1021,16 +1020,16 @@ Two more runs were made by hand, with no test: a plain `git commit` in place of 
 
 The tests write a hook with a proof form of the block and run a commit with the PATH that each case names. The "short PATH" is the system folders only (`/usr/bin:/bin`, and on Windows the two system folders), as an app can pass it to git.
 
-| Case | macOS, git 2.47.1 | Linux | Windows |
+| Case | macOS, git 2.47.1 and git 2.56.1 | Linux, git 2.56.1 | Windows, git 2.56.1.windows.1 |
 | --- | --- | --- | --- |
-| A PATH lookup alone, with the command folder on PATH: the hook finds the command, and the store has the edit after the commit | proven | waits for the platform run | waits for the platform run |
-| A PATH lookup alone, with a short PATH: the hook finds no command, does nothing, prints nothing, and exits 0 | proven | waits for the platform run | waits for the platform run |
-| A PATH lookup and then a recorded path, with a short PATH: the hook finds the command file at the recorded path, and the store has the edit | proven, with a command file that names `node` by its full path | waits for the platform run | waits for the platform run |
-| No command on PATH and none at the recorded path: the hook does nothing, prints nothing, and exits 0 | proven | waits for the platform run | waits for the platform run |
-| A recorded command file that starts `node` by name, with a short PATH: found, not started, no output, exit 0. With the folder of `node` added to the end of PATH for the call: the store has the edit | proven | waits for the platform run. The test is skipped, and the run shows it as skipped, when the system folders hold a `node` program | waits for the platform run. The block changes the folder to the form of the hook shell with `cygpath` when that tool is there. Not seen yet |
-| The command file that a real global install writes (`npm install -g` of this package from its folder, into a temporary prefix, with no network) is found on PATH and runs in the hook shell | proven. The install writes a link to the package folder | waits for the platform run | waits for the platform run. When the install does not work there, the test writes a log line with `made: false`, and the run shows the test as skipped. The evidence commit then records "no proof gathered" |
-| A hook runs in the top folder of the work tree, also for a commit from a subfolder | proven | waits for the platform run | waits for the platform run. The hook shell there prints its folder in its own form, such as `/d/a/...`. So the proof hook prints the folder with `pwd -W` when the shell knows that input, and with `pwd` when not. Windows has not run this yet |
-| From a subfolder with no project root, a direct run says that the folder is not a Make Docs project and exits 0, and a trigger run prints nothing | proven | waits for the platform run | waits for the platform run |
+| A PATH lookup alone, with the command folder on PATH: the hook finds the command, and the store has the edit after the commit | proven | proven | proven |
+| A PATH lookup alone, with a short PATH: the hook finds no command, does nothing, prints nothing, and exits 0 | proven | proven | proven |
+| A PATH lookup and then a recorded path, with a short PATH: the hook finds the command file at the recorded path, and the store has the edit | proven, with a command file that names `node` by its full path | proven | proven |
+| No command on PATH and none at the recorded path: the hook does nothing, prints nothing, and exits 0 | proven | proven | proven |
+| A recorded command file that starts `node` by name, with a short PATH: found, not started, no output, exit 0. With the folder of `node` added to the end of PATH for the call: the store has the edit | proven | proven. The test ran its proof and was not skipped | proven. The test ran its proof and was not skipped. The block changes the folder to the form of the hook shell with `cygpath` when that tool is there. The log does not say whether the block used `cygpath` |
+| The command file that a real global install writes (`npm install -g` of this package from its folder, into a temporary prefix, with no network) is found on PATH and runs in the hook shell | proven. The install writes a link to the package folder | proven. The log line holds `made: true`, so the install worked and the test ran its proof | proven. The log line holds `made: true`, so the install worked and the test ran its proof |
+| A hook runs in the top folder of the work tree, also for a commit from a subfolder | proven | proven. The log line holds no folder value | proven. The hook shell there prints its folder in its own form, such as `/d/a/...`. So the proof hook prints the folder with `pwd -W` when the shell knows that input, and with `pwd` when not. The test passed with that step. The log line holds no folder value, so it does not show which form the shell printed |
+| From a subfolder with no project root, a direct run says that the folder is not a Make Docs project and exits 0, and a trigger run prints nothing | proven | proven | proven |
 
 The choice: a PATH lookup, and then a path that setup recorded in the block. A PATH lookup alone fails for a commit from an app that passes a short PATH, with no line to the person. The recorded path is not new in kind: setup already records the full path of the verified command for the agent tools.
 
@@ -1140,7 +1139,7 @@ Limits of the proof:
 - The tests force the overlap with the Store write lock. They do not make a race by chance, so they pass and fail for the same reason in each run.
 - The tests prove two runs of one checkout. Two checkouts of one project that sync at the same time each scan their own files, and the sync table handles what differs.
 - A run that waits more than 5 seconds for the Store ends with the typed Store contention result, as before. The fix can make the wait of a second run longer, because the first run now scans inside its session. `PERF-004-R2` gives the wait for this repository: about 305 ms.
-- The race tests run on Linux in the full suite of the workflow, and on macOS here. The builder left them out of the two fixed lists, by its reading of T8 and T9. The orchestrator added the race test file to both lists on 2026-11-27, so the platform job also runs them on macOS and Windows. Windows has not run them yet.
+- The race tests run on Linux in the full suite of the workflow, and on macOS here. The builder left them out of the two fixed lists, by its reading of T8 and T9. The orchestrator added the race test file to both lists on 2026-11-27, so the platform job also runs them on macOS and Windows. The platform run ran them on all three platforms: 5 tests pass on Linux, on macOS, and on Windows, in the platform contract job and again in the installed package job. That is the first run of the race tests on Windows, and their first run on macOS in the platform job.
 - The projection and the hold list are still read before the Store session (`sync.ts`, in `syncWorkFiles`, the lines before `writeWorkStore`). So a run that waits for the Store uses the config as it was before the wait. No data is lost: the next run reads the config again.
 - The order of two errors changed with the fix. A scan error of the work files now comes after a Store busy error and after "project not identified", because the scan runs inside the session.
 - While a sync scans, it now holds the Store. So each other writer on the machine, in any project, waits a little longer than before. The side measure gives about 305 ms for this repository.
@@ -1283,20 +1282,84 @@ What the hook review that setup shows must name:
 - With a foreground hook, a git action can take about 5.5 seconds longer while another Make Docs write holds the Store.
 - With a hook manager that writes a plain shell script into the hooks folder of the clone, the block lives in that tool's file, and that tool can remove it.
 - A commit from an app that passes a short PATH works only through the recorded path (R-044).
-- Each platform gap that the platform run finds. None is known today, because only macOS ran. Owner gate OG-6 opens only if the run finds a gap that the hook review cannot cover.
+- Each platform gap that the platform run finds. The run of commit `965ad51e` found no gap. It found one platform difference and one fact with no Windows proof, and [Platform Run](#platform-run) holds both with the finding for owner gate OG-6. The review must say that on Windows git also runs a hook file that is not executable.
+
+### Platform Run
+
+The orchestrator pushed the phase commit and started this run through the pull request, under standing rule 12. The results below are from the job logs of the run. This section records no owner decision.
+
+- Pull request: 69 of the repository `brucewaynedecoy/make-docs`.
+- Workflow run: `46097028050` of `.github/workflows/platform-safety.yml`, first attempt, started by the pull request. Link: <https://github.com/brucewaynedecoy/make-docs/actions/runs/46097028050>.
+- Commit: `965ad51e` (`965ad51e54a2d7695d77adb975e84fdba7e78f25`).
+- Date: the run started on 2026-11-28 at 02:13:50 UTC and ended at 02:34:27 UTC.
+- Result: success. Each job of the run passed.
+
+| Job | Job ID | git | The three P4 test files | All test files of the fixed list |
+| --- | --- | --- | --- | --- |
+| `ubuntu-latest platform contract` | `140830666604` | 2.56.1 | git facts 34 pass. Hook checkpoint 17 pass. Race 5 pass. None skipped | 17 files pass. 317 tests pass, 1 skipped |
+| `macos-latest platform contract` | `140830666545` | 2.56.1 | git facts 34 pass. Hook checkpoint 17 pass. Race 5 pass. None skipped | 17 files pass. 317 tests pass, 1 skipped |
+| `windows-latest platform contract` | `140830666564` | 2.56.1.windows.1 | git facts 33 pass and 1 skipped, of 34. Hook checkpoint 17 pass. Race 5 pass | 17 files pass. 316 tests pass, 2 skipped |
+| `ubuntu-latest installed package` | `140833199060` | 2.56.1 | the same counts as the Linux contract job | 17 files pass. 317 tests pass, 1 skipped |
+| `macos-latest installed package` | `140833199064` | 2.56.1 | the same counts as the macOS contract job | 17 files pass. 317 tests pass, 1 skipped |
+| `windows-latest installed package` | `140833199034` | 2.56.1.windows.1 | the same counts as the Windows contract job | 17 files pass. 316 tests pass, 2 skipped |
+| `Build one installed-package candidate` | `140830666538` | 2.56.1 | git facts 34 pass. Hook checkpoint 17 pass. Race 5 pass | The full suite on Linux: 164 test files pass and 1 is skipped. 3,951 tests pass, 7 skipped, none fail |
+
+The one test that is skipped on each platform in the fixed list is in `tests/w22-r1-ownership.test.ts`, which is not a P4 file. The second skipped test on Windows is the symbolic link test of `tests/w35-r0-p4-git-hook-facts.test.ts`. The job `Build one installed-package candidate` also holds the digest check of the package candidate, and that job passed. The other three jobs of the run, `Detect package changes`, `Compare installed-package evidence`, and `PR merge gate`, passed too.
+
+Each of the seven jobs above wrote 44 log lines that start with `W35-R0-P4-GIT-FACT`, one for each fact that a test records. The lines of the two jobs of one platform hold the same values, apart from the times of the held Store.
+
+What each platform proved:
+
+- Linux, git 2.56.1: each git fact of T1 to T4, the detection rule of T5 with the symbolic link test, the shell of T6, each fact of T7, each case of the command lookup of T9, the Store record of T11, the two work trees of T12, and the race tests of T19 to T21 with the read-only check.
+- macOS, git 2.56.1: the same list. Each log line holds the same value as the maintainer machine gave with git 2.47.1.
+- Windows, git 2.56.1.windows.1: the same list, without the symbolic link test. One fact differs there, as the test expects: git runs a hook file that is not executable.
+
+The values that differ between the platforms, from the log lines:
+
+| Value | Linux | macOS | Windows |
+| --- | --- | --- | --- |
+| The shell value of a hook file with the first line `#!/bin/sh` | `.git/hooks/post-commit`, so not bash and not zsh | `bash .git/hooks/post-commit` | `bash .git/hooks/post-commit` |
+| Where `sh` is | `/usr/bin/sh` | `/bin/sh` | `/usr/bin/sh` |
+| The kernel name | `Linux` | `Darwin` | `MINGW64_NT-10.0-26100` |
+| The PATH of a hook | 27 entries, `git-core` first | 32 entries, `git-core` first | 85 entries, `git-core` first |
+| A hook file that is not executable | does not run | does not run | runs |
+| A trigger run for a commit while another process holds the Store: exit code and time, in the contract job | 1, about 5,300 ms | 1, about 7,600 ms | 1, about 5,500 ms |
+| A commit with the foreground proof hook while another process holds the Store: exit code and time, in the contract job | 0, about 5,300 ms | 0, about 8,500 ms | 0, about 5,700 ms |
+| A read-only check for a branch change while another process holds the Store: exit code and time, in the contract job | 0, about 300 ms | 0, about 400 ms | 0, about 200 ms |
+
+The times in this table are from test log lines, rounded to 100 ms, on shared runners. They are not a `PERF-007` result. In the installed package job the macOS trigger run took about 9,000 ms. So the worst case of a foreground hook was longer on the macOS runner than the 5.5 seconds of the maintainer machine. The owner gate OG-4 text keeps the numbers of the maintainer machine.
+
+What is not proven:
+
+- Windows: that git runs a hook file that is a symbolic link. The test "a hook file that is a link to a file of another tool shows as a symbolic link" is skipped there, because a test cannot make a symbolic link there without a special right. The log gives the count "1 skipped" and does not name the test. The name comes from the test file, where this test is the only one with a skip rule.
+- Windows: whether the proof block used `cygpath` for the folder of `node`. The test passed, and the log holds no value.
+- Windows: the folder form that the hook shell printed with `pwd -W`. The tests passed, and the log holds no value.
+- Windows: which folder of the machine holds the shell that ran the hook. The log holds the kernel name and `/usr/bin/sh` only.
+- Linux: which shell program is behind `/usr/bin/sh`. The log shows only that it is not bash and not zsh.
+- Each platform: the folder in which the hook of the shell test ran. The test asserts it, and its log line holds no folder value.
+- Each platform: a git version other than 2.47.1 and 2.56.1.
+- T10 and A42: a run inside each agent tool. It waits for the orchestrator.
+
+The finding for owner gate OG-6: no platform gap found in the run of commit `965ad51e`; the gate did not open. Each hook fact that ran holds on each platform, and on each platform the hook reaches `make-docs` in each lookup case. Two points go with the finding:
+
+- A platform difference that the hook review can cover: on Windows git runs a hook file that is not executable. The test expects it. The rule of P5 to set the executable mode, and to name a hook file that is not executable, applies to platforms with file modes only.
+- A fact with no Windows proof: that git runs a hook file that is a symbolic link. The builder of this record judges that this is not a gap that matters for the hooks of P5. Check 2 of the detection rule refuses a hook file that is a link on each platform, and that check reads the file and does not need git to run it. So with no proof, the only loss is the reason behind the refusal on Windows. Recommendation: keep the gate closed, and let P5 test on Windows that setup refuses a hook file that is a link, when a test can make one there. The owner decides whether to open the gate for this point.
 
 ### P4 Known Limits
 
-- Every proof in this section ran on macOS only, with git 2.47.1. The Windows facts are the least sure: the hook shell, the PATH of a hook, the `cygpath` step, the executable mode, and the global install were written from what the phase expects, and no run has seen them.
-- The design checked the git facts with git 2.47.1, and the maintainer machine has that version too. No newer git ran.
+- The proofs ran on the maintainer machine (macOS, git 2.47.1) and in the platform run of commit `965ad51e` (Linux, macOS, and Windows, each with git 2.56.1). The measurements of `PERF-007` and `PERF-004-R2` are from the maintainer machine only.
+- The Windows facts that the phase expected now have a run: the hook shell, the PATH of a hook, the executable mode, and the global install. Three Windows points have no logged value. The log does not say whether the block used `cygpath`. It does not show the folder form that `pwd -W` printed. It does not say which folder holds the shell that ran the hook. For each one the test passed, and no more is known.
+- One fact has no Windows proof: that git runs a hook file that is a symbolic link. The test is skipped there.
+- Two git versions ran: 2.47.1 and 2.56.1. No other version ran, and no git older than 2.47.1 ran.
+- The log of a run lists by name only the tests that took longer than a set time. For a faster test the log holds the count of the test file and the log line of the fact, when the test writes one. The log does not name a skipped test.
 - T10 has no run. No tool has a proof of what a hook's checkpoint may do inside it.
 - The proof block of the tests is not the block of P5. P5 builds the real block, with its own tests.
 - The global install proof uses a link to the package folder, which is how `npm install -g <folder>` installs. An install from the registry writes a copy and the same kind of command file. That form was not run.
 - `PERF-004-R2` cannot give the cost of the fix as one number. See its result record. The comparison in one session found no difference larger than its spread, on one machine and 471 work files.
 - The projection and the hold list are read before the Store session, so a run that waits uses the older config, with no data loss. A scan error now comes after a Store busy error and after "project not identified". Other writers on the machine wait a little longer while a sync scans. The section about the fix holds each point.
 - A checkpoint that a hook runs for a commit waits 5 seconds and exits 1 while another process holds the Store. The tests pin that behavior as it is today. They do not say that it is wanted.
-- The proof hook prints its folder with `pwd -W` on Windows, and the helper puts each path into the hook text in safe single quotes. Windows has not run either one.
-- The temporary folder of the global install proof holds a link into this repository's package folder. The test removes that link by itself, with `unlink` and then `rmdir` for a link to a folder on Windows, before the recursive removal of the temporary folder. It then checks that the package folder still holds `package.json` and the built CLI. On macOS this ran and passed. Linux and Windows have not run it.
+- The proof hook prints its folder with `pwd -W` on Windows, and the helper puts each path into the hook text in safe single quotes. Windows ran both, and the tests passed. The log holds no folder value.
+- The temporary folder of the global install proof holds a link into this repository's package folder. The test removes that link by itself, with `unlink` and then `rmdir` for a link to a folder on Windows, before the recursive removal of the temporary folder. It then checks that the package folder still holds `package.json` and the built CLI. On macOS this ran and passed. The test also passed on Linux and on Windows in the platform run, with `made: true` in its log line.
 - The race tests hold the Store for 2.5 seconds for each test, so the test file takes about 10 seconds.
 
 ### P4 New Behavior That The Documents Did Not State
@@ -1329,7 +1392,7 @@ The independent review of this phase found statements that the proofs did not su
 | `REVERT_HEAD` had no test | It stops no hook run of a revert. Four new tests show each form of a revert. The text says exactly when git writes the file |
 | "`PERF-004-R2` shows no added time from the fix" | No support in that record. The words are corrected in three documents, and a comparison of the two builds in one session is added as a side measure |
 | The OG-4 text left out the worst case of the foreground mode | Two new tests pin the behavior with a held Store. The OG-4 text is new, with the times, what a person sees, and the worst case for each option |
-| A path comparison that would fail on Windows | The proof hook prints its folder with `pwd -W` when the shell knows it. Windows has not run it |
+| A path comparison that would fail on Windows | The proof hook prints its folder with `pwd -W` when the shell knows it. The test passed on Windows in the platform run of 2026-11-28 |
 | Tests that returned early and passed | They are skipped tests now, with the reason in the name. See the next section |
 | No assertion of the empty state after the commit that ends a conflict merge | Added |
 | One test for notes and met gates | Split into two tests |
@@ -1343,7 +1406,7 @@ The correction changed no product code. `packages/cli/src/operations/work/work-s
 
 ### P4 Conditional Skips
 
-Each test below can be skipped. A skipped test shows as skipped in the run, with the reason in its name, and it proves nothing in that run. On macOS, in the runs of this report, no test of the three P4 files was skipped.
+Each test below can be skipped. A skipped test shows as skipped in the run, with the reason in its name, and it proves nothing in that run. On macOS, in the runs of this report, no test of the three P4 files was skipped. In the platform run, no test of the three files was skipped on Linux and on macOS, and one was skipped on Windows. The table after this one holds what each test did on each platform.
 
 | Test file | Test | Skipped when | What is then not proven |
 | --- | --- | --- | --- |
@@ -1353,11 +1416,22 @@ Each test below can be skipped. A skipped test shows as skipped in the run, with
 | `w35-r0-p4-hook-checkpoint.test.ts` | The four groups that use the built CLI: the command lookup, a held Store, the hooks after a merge and after a rewrite, and the two work trees | The built CLI (`packages/cli/dist/index.js`) does not exist | Each test of those groups: 15 of the 17 tests |
 | `w35-r0-p4-sync-race.test.ts` | The group of the four race tests | The built CLI does not exist | The race of R-041 |
 
-One test is not skipped and expects another result on Windows: "git does not run a hook file that is not executable" expects that git runs the file there.
+What each test did in the platform run of commit `965ad51e`:
+
+| Test | Linux | macOS | Windows |
+| --- | --- | --- | --- |
+| "a hook file that is a link to a file of another tool shows as a symbolic link" | ran and passed | ran and passed | skipped. The log shows "34 tests, 1 skipped" for the test file and does not name the test. This test is the only one of that file with a skip rule, and the rule is the platform Windows |
+| "a recorded command file that needs node from PATH ..." | ran its proof. The log line `lookup-launcher-needs-node` holds both results | ran its proof, with the same log line | ran its proof, with the same log line |
+| "the command file that a real global install writes ..." | ran its proof. The log line `lookup-global-install` holds `made: true` | ran its proof, `made: true` | ran its proof, `made: true` |
+| The groups that need the built CLI | ran | ran | ran |
+
+So neither of the two tests whose names say "(skipped when ...)" took its skip path on any platform. The short PATH of each runner held no `node` program, and the global install into the temporary prefix worked on each one.
+
+One test is not skipped and expects another result on Windows: "git does not run a hook file that is not executable" expects that git runs the file there. The Windows run saw that: the log line `hook-not-executable` holds one `post-commit` run there, and no run on Linux and on macOS.
 
 ### P4 Checks
 
-Every test and every CLI run used a temporary Store at a fixed path under `/private/tmp/claude`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. All checks ran on macOS 27.2.1 with Node `v26.13.1` and git 2.47.1.
+Every test and every CLI run used a temporary Store at a fixed path under `/private/tmp/claude`, and each run checked first that `MAKE_DOCS_HOME` was not empty. No run read or wrote the real Store. All checks of this list ran on macOS 27.2.1 with Node `v26.13.1` and git 2.47.1. The checks of the platform run are in [Platform Run](#platform-run).
 
 - `npm ci`, then `npm run prepack -w packages/cli`: the build passes.
 - `npx tsc --noEmit -p packages/cli`: no errors.
@@ -1394,11 +1468,12 @@ Checks of the review correction, on 2026-11-27, on the same machine, with a temp
 
 ### P4 Not Done
 
-- A39 and A41: no Linux result and no Windows result exists. The orchestrator pushes the phase commit and starts the pull request run, and the evidence commit records each platform result with the link to the run.
+- A39 and A41: the platform run is done and recorded in [Platform Run](#platform-run). What is still missing for each case is in the closeout notes of the [phase file](04-git-hook-proofs.md#closeout-notes). The orchestrator and the reviewer judge whether each case passes.
+- Owner gate OG-6: the finding is "no platform gap found in the run of commit `965ad51e`; the gate did not open". It is a finding and not an owner decision.
 - T10 and A42: no access run inside an agent tool exists. The orchestrator starts those sessions under standing rule 11.
 - A46: the owner has not answered owner gate OG-4.
 - The owner has not reviewed the 13 points under "P4 New Behavior That The Documents Did Not State", and the two possible refinements under owner gate OG-4.
-- The orchestrator has not decided whether the race test file goes into the two workflow lists. The recommendation is to add it.
+- The race test file is in the two workflow lists since 2026-11-27, and the platform run ran it on the three platforms.
 - The finding of T11, that an existing record fits and OG-3 does not open: the independent review agreed with it on 2026-11-27. It stays a finding and not an owner decision.
 - R-041 is closed in the register by the builder. The independent review has not checked the fix yet.
 - The package digest is not recorded again. This phase changed package bytes, so the recorded digest is stale.
