@@ -70,8 +70,10 @@ const BACKGROUND_COMMIT_BOUND_MS = 900;
 /**
  * The upper time bound of a background run that meets one held wait for the Store: the bound of 5,000 ms, the
  * cost of the run, and a margin for a slow shared test machine. It is far below the owner wait time of 30,000 ms.
+ * The margin was 4,000 ms at first. The macOS job of the platform run of commit 4a211d4c took 9,738 ms for this
+ * run, so the margin is 12,000 ms now. A run that waits the old 30,000 ms still fails this bound.
  */
-const BACKGROUND_HELD_RUN_BOUND_MS = CHECKPOINT_GIT_HOOK_BACKGROUND_STORE_WAIT_MS + 4_000;
+const BACKGROUND_HELD_RUN_BOUND_MS = CHECKPOINT_GIT_HOOK_BACKGROUND_STORE_WAIT_MS + 12_000;
 
 /** The environment of a run in the foreground fallback: the value that the start code sets for it. */
 function foregroundEnv(): NodeJS.ProcessEnv {
